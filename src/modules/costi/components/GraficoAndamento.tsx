@@ -2,8 +2,8 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { euro } from '@/shared/lib/formato'
 
 // Colori validati per il daltonismo (teal / arancio) con il validatore della palette
-export const COLORE_RICAVI = '#00897B'
-export const COLORE_COSTI = '#C96A1B'
+export const COLORE_RICAVI = '#1E46C8'
+export const COLORE_COSTI = '#D97A1E'
 
 export type PuntoAndamento = { mese: string; ricavi: number; costi: number; margine: number }
 
@@ -27,7 +27,7 @@ export function GraficoAndamento({ dati }: { dati: PuntoAndamento[] }) {
         </ResponsiveContainer>
       </div>
       <details className="text-sm">
-        <summary className="cursor-pointer font-bold text-tenue">Vedi i numeri in tabella</summary>
+        <summary className="cursor-pointer font-semibold text-tenue">Vedi i numeri in tabella</summary>
         <table className="w-full mt-2">
           <thead><tr className="text-left text-xs text-tenue"><th className="py-1.5">Mese</th><th className="text-right">Ricavi</th><th className="text-right">Costi</th><th className="text-right">Margine</th></tr></thead>
           <tbody>
@@ -36,7 +36,7 @@ export function GraficoAndamento({ dati }: { dati: PuntoAndamento[] }) {
                 <td className="py-1.5 font-semibold capitalize">{d.mese}</td>
                 <td className="text-right">{euro(d.ricavi)}</td>
                 <td className="text-right">{euro(d.costi)}</td>
-                <td className={d.margine < 0 ? 'text-right font-bold text-urgente-testo' : 'text-right font-bold'}>{euro(d.margine)}</td>
+                <td className={d.margine < 0 ? 'text-right font-semibold text-urgente-testo' : 'text-right font-semibold'}>{euro(d.margine)}</td>
               </tr>
             ))}
           </tbody>

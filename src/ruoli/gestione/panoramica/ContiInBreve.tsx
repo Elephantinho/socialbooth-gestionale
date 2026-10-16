@@ -19,13 +19,13 @@ export function ContiInBreve({ miei }: { miei?: boolean }) {
     <Card className="p-5 flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
         <TitoloSezione>{miei ? 'I tuoi conti del mese' : 'Conti del mese'}</TitoloSezione>
-        <Link to="/gestione/andamento" className="text-sm font-bold text-accento inline-flex items-center gap-1">Andamento <ArrowRight className="size-4" aria-hidden /></Link>
+        <Link to="/gestione/andamento" className="text-sm font-semibold text-accento inline-flex items-center gap-1">Andamento <ArrowRight className="size-4" aria-hidden /></Link>
       </div>
       <dl className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {numeri.map((n) => (
           <div key={n.etichetta}>
-            <dt className="text-xs font-bold text-tenue uppercase tracking-wider">{n.etichetta}</dt>
-            <dd className={`font-display text-2xl font-bold mt-1 ${n.forte ? (c.margine < 0 ? 'text-urgente-testo' : 'text-accento') : ''}`}>{n.valore}</dd>
+            <dt className="text-xs font-semibold text-tenue">{n.etichetta}</dt>
+            <dd className={`font-display text-2xl font-semibold mt-1 ${n.forte ? (c.margine < 0 ? 'text-urgente-testo' : 'text-accento') : ''}`}>{n.valore}</dd>
           </div>
         ))}
       </dl>

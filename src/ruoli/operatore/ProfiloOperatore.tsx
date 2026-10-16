@@ -45,7 +45,7 @@ export function ProfiloOperatore() {
       <div className="flex items-center gap-4 pt-2">
         <FotoProfilo utenteId={profilo.id} nome={nomeCompleto(profilo)} foto={profilo.foto} onCaricata={ricaricaProfilo} />
         <div className="min-w-0">
-          <h1 className="font-display text-2xl font-bold truncate">{nomeCompleto(profilo)}</h1>
+          <h1 className="font-display text-2xl font-semibold truncate">{nomeCompleto(profilo)}</h1>
           <p className="text-sm text-tenue truncate">{sessione?.user.email}</p>
         </div>
       </div>
@@ -62,11 +62,11 @@ export function ProfiloOperatore() {
           <Campo etichetta="Telefono" type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
           <Selezione etichetta="Magazzino di riferimento" value={magazzinoId} onChange={(e) => setMagazzinoId(e.target.value)}>
             <option value="">— Nessuno —</option>
-            {magazzini.data?.map((m) => <option key={m.id} value={m.id}>{m.nome} · {m.citta}</option>)}
+            {magazzini.data?.map((m) => <option key={m.id} value={m.id}>{m.nome}, {m.citta}</option>)}
           </Selezione>
           <SceltaRegioni valore={regioni} onChange={setRegioni} />
           {aggiorna.error && <Errore errore={aggiorna.error} />}
-          {salvato && <p className="text-sm font-bold text-accento" role="status">Salvato</p>}
+          {salvato && <p className="text-sm font-semibold text-accento" role="status">Salvato</p>}
           <Pulsante type="submit" taglia="lg" pieno caricamento={aggiorna.isPending}>Salva</Pulsante>
         </form>
       </Card>

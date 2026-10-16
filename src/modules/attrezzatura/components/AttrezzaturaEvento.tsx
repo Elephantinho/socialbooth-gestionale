@@ -24,10 +24,10 @@ export function AttrezzaturaEvento({ eventoId, magazzinoId, modificabile }: { ev
       <div className="flex justify-between items-center gap-2">
         <TitoloSezione className="text-[15px] flex items-center gap-2">
           <Package className="size-4" aria-hidden /> Attrezzatura
-          {stato !== 'vuota' && <span className={cn('text-[11px] font-bold px-2 py-0.5 rounded-full', ETICHETTE_STATO[stato].stile)}>{ETICHETTE_STATO[stato].testo}</span>}
+          {stato !== 'vuota' && <span className={cn('text-[11px] font-semibold px-2 py-0.5 rounded-full', ETICHETTE_STATO[stato].stile)}>{ETICHETTE_STATO[stato].testo}</span>}
         </TitoloSezione>
         {modificabile && magazzinoId && !modifica && (
-          <button onClick={() => setModifica(true)} className="text-sm font-bold text-accento inline-flex items-center gap-1 cursor-pointer">
+          <button onClick={() => setModifica(true)} className="text-sm font-semibold text-accento inline-flex items-center gap-1 cursor-pointer">
             <Pencil className="size-3.5" aria-hidden /> Scegli
           </button>
         )}
@@ -44,14 +44,14 @@ export function AttrezzaturaEvento({ eventoId, magazzinoId, modificabile }: { ev
             {assegnata.data.map((a) => (
               <li key={a.articolo_id} className="flex justify-between gap-2 text-sm">
                 <span className="font-semibold min-w-0">
-                  {a.articolo?.nome}{a.articolo?.codice && <span className="text-tenue font-medium"> · {a.articolo.codice}</span>}
+                  {a.articolo?.nome}{a.articolo?.codice && <span className="text-tenue font-medium">, {a.articolo.codice}</span>}
                   <span className="block text-xs text-tenue font-medium">
                     {a.rientrato_il ? `Rientrata ${dataBreve(a.rientrato_il)} ${ora(a.rientrato_il)}`
-                      : a.prelevato_il ? `Uscita ${dataBreve(a.prelevato_il)} ${ora(a.prelevato_il)}${a.articolo?.categoria === 'Consumabili' ? ' · consumabile' : ''}`
+                      : a.prelevato_il ? `Uscita ${dataBreve(a.prelevato_il)} ${ora(a.prelevato_il)}${a.articolo?.categoria === 'Consumabili' ? ', consumabile' : ''}`
                       : 'In magazzino'}
                   </span>
                 </span>
-                <span className="font-bold">×{a.quantita}</span>
+                <span className="font-semibold">×{a.quantita}</span>
               </li>
             ))}
           </ul>
@@ -102,7 +102,7 @@ function Scelta({ eventoId, magazzinoId, attuale, onFatto }: {
                 onChange={(ev) => setScelte((s) => ({ ...s, [a.id]: Math.max(1, Math.min(a.quantita, Number(ev.target.value) || 1)) }))}
                 className="w-16 h-9 rounded-lg border border-bordo-forte px-2" />
             )}
-            <span className={cn('text-xs w-20 text-right', q > liberi(a) ? 'text-urgente-testo font-bold' : 'text-tenue')}
+            <span className={cn('text-xs w-20 text-right', q > liberi(a) ? 'text-urgente-testo font-semibold' : 'text-tenue')}
               title={a.in_uso ? `${a.in_uso} fuori per altri eventi` : undefined}>
               {liberi(a)} liberi di {a.quantita}
             </span>

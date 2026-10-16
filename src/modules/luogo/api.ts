@@ -99,7 +99,7 @@ export async function cercaDintorni(p: Punto): Promise<Dintorni> {
         id: `${e.type}${e.id}`,
         nome: t.name ?? (t.parking === 'multi-storey' ? 'Parcheggio multipiano' : t.parking === 'underground' ? 'Parcheggio sotterraneo' : 'Parcheggio'),
         tipo: gratuito ? 'gratuito' : pagamento ? 'pagamento' : 'da_verificare',
-        dettaglio: [t.capacity && `${t.capacity} posti`, t.maxstay && `max ${t.maxstay}`, t.opening_hours].filter(Boolean).join(' · '),
+        dettaglio: [t.capacity && `${t.capacity} posti`, t.maxstay && `max ${t.maxstay}`, t.opening_hours].filter(Boolean).join(', '),
         punto: pos,
         distanza: distanza(p, pos),
       })

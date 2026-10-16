@@ -21,21 +21,21 @@ export function AttivaNotifiche({ modo = 'invito', className }: { modo?: 'invito
 
   if (stato === 'attive') {
     return (
-      <div className={cn('rounded-2xl bg-accento-tenue text-accento-scuro p-4 flex items-center gap-3', className)}>
+      <div className={cn('rounded-[10px] bg-accento-tenue text-accento-scuro p-4 flex items-center gap-3', className)}>
         <Check className="size-5 shrink-0" aria-hidden />
-        <p className="flex-1 text-sm font-bold">Notifiche attive su questo dispositivo</p>
-        <button onClick={disattiva} className="text-sm font-bold underline cursor-pointer">Disattiva</button>
+        <p className="flex-1 text-sm font-semibold">Notifiche attive su questo dispositivo</p>
+        <button onClick={disattiva} className="text-sm font-semibold underline cursor-pointer">Disattiva</button>
       </div>
     )
   }
 
   const t = testi[stato]
   return (
-    <div className={cn('rounded-2xl p-4 flex flex-col gap-3', stato === 'bloccate' ? 'bg-avviso text-avviso-testo' : 'bg-inchiostro text-white', className)}>
+    <div className={cn('rounded-[10px] p-4 flex flex-col gap-3', stato === 'bloccate' ? 'bg-avviso text-avviso-testo' : 'bg-inchiostro text-white', className)}>
       <div className="flex gap-3">
         <BellRing className="size-5 shrink-0 mt-0.5" aria-hidden />
         <div>
-          <p className="font-bold">{t.titolo}</p>
+          <p className="font-semibold">{t.titolo}</p>
           <p className="text-sm opacity-85">{t.testo}</p>
         </div>
       </div>

@@ -33,7 +33,7 @@ export function NuovoEvento() {
         <Link to="/gestione" className="text-sm font-semibold text-tenue inline-flex items-center gap-1 hover:text-inchiostro">
           <ArrowLeft className="size-4" aria-hidden /> Eventi
         </Link>
-        <h1 className="font-display text-4xl font-bold tracking-tight mt-1">{daCopiare ? 'Duplica evento' : 'Nuovo evento'}</h1>
+        <h1 className="font-display text-4xl font-semibold tracking-tight mt-1">{daCopiare ? 'Duplica evento' : 'Nuovo evento'}</h1>
         {daCopiare && <p className="text-tenue mt-1">Stessi dati dell'evento originale: scegli la nuova data.</p>}
       </div>
       {daCopiare && modello.isPending ? <Caricamento /> : <ModuloEvento
@@ -52,11 +52,11 @@ export function NuovoEvento() {
 function EventoCreato({ id, automatico, onAltro, onApri }: { id: string; automatico: boolean; onAltro: () => void; onApri: () => void }) {
   return (
     <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-xl mx-auto flex flex-col gap-5 py-6">
-      <div className="size-14 rounded-2xl bg-accento text-white flex items-center justify-center">
+      <div className="size-14 rounded-[10px] bg-accento text-white flex items-center justify-center">
         {automatico ? <Sparkles className="size-7" aria-hidden /> : <Check className="size-7" aria-hidden />}
       </div>
       <div>
-        <h1 className="font-display text-3xl font-bold tracking-tight">Evento creato</h1>
+        <h1 className="font-display text-3xl font-semibold tracking-tight">Evento creato</h1>
         <p className="text-tenue mt-2">
           {automatico
             ? "C'era un solo operatore libero in zona: l'evento gli è stato proposto in automatico. Lo vedrà subito da accettare."

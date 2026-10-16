@@ -53,16 +53,16 @@ export function ReportOre() {
       <div className="flex flex-wrap gap-4 justify-between items-end">
         <div>
           <p className="text-sm font-semibold text-tenue">Conti</p>
-          <h1 className="font-display text-4xl font-bold tracking-tight mt-1">Ore, costi e compensi</h1>
+          <h1 className="font-display text-4xl font-semibold tracking-tight mt-1">Ore, costi e compensi</h1>
           <p className="text-tenue mt-2">
             {tutti ? 'Le chiusure da approvare e le ore di ogni operatore' : 'Le chiusure dei tuoi eventi'} (location + viaggio × tariffa). I conti per regione sono in Andamento.
           </p>
         </div>
         <div className="flex gap-2 flex-wrap items-end">
-          <label className="flex flex-col gap-1.5 text-[13px] font-bold text-[#3F4047]">
+          <label className="flex flex-col gap-1.5 text-[13px] font-semibold text-[#3F4047]">
             Mese
             <input type="month" value={mese} onChange={(e) => setMese(e.target.value)}
-              className="h-12 rounded-xl border border-bordo-forte bg-superficie px-3 text-[15px]" />
+              className="h-12 rounded-md border border-bordo-forte bg-superficie px-3 text-[15px]" />
           </label>
           <Pulsante taglia="lg" variante="secondario" icona={<Download className="size-4" aria-hidden />} onClick={esportaCsv} disabled={!righe.length}>
             Esporta Excel (CSV)
@@ -73,7 +73,7 @@ export function ReportOre() {
 
       {daApprovare > 0 && (
         <Card tono="avviso" className="p-4 flex flex-wrap items-center justify-between gap-3">
-          <span className="font-bold text-avviso-titolo">{daApprovare} chiusure evento da approvare</span>
+          <span className="font-semibold text-avviso-titolo">{daApprovare} chiusure evento da approvare</span>
           <Pulsante variante="scuro" caricamento={approvaTutte.isPending} onClick={() => {
             if (!confirm(`Approvare tutte le ${daApprovare} chiusure del mese, con le relative spese?`)) return
             for (const r of righe.filter((x) => x.stato === 'inviato' && x.evento)) {
@@ -112,7 +112,7 @@ function BloccoOperatore({ nome, righe }: { nome: string; righe: RigaReport[] })
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-xs text-tenue border-b border-bordo">
-              {['Data', 'Evento', 'Location', 'Viaggio', 'Totale', 'Compenso', 'Rimborsi', ''].map((h) => <th key={h} className="px-5 py-3 font-bold whitespace-nowrap">{h}</th>)}
+              {['Data', 'Evento', 'Location', 'Viaggio', 'Totale', 'Compenso', 'Rimborsi', ''].map((h) => <th key={h} className="px-5 py-3 font-semibold whitespace-nowrap">{h}</th>)}
             </tr>
           </thead>
           <tbody>
@@ -133,15 +133,15 @@ function RigaTabella({ r }: { r: RigaReport }) {
       <td className="px-5 py-3 whitespace-nowrap">
         {r.evento ? (
           <>
-            <Link to={`/gestione/eventi/${r.evento.id}`} className="font-semibold hover:underline">{r.evento.tipo_booth?.nome ?? 'Evento'} · {r.evento.citta}</Link>
+            <Link to={`/gestione/eventi/${r.evento.id}`} className="font-semibold hover:underline">{r.evento.tipo_booth?.nome ?? 'Evento'}, {r.evento.citta}</Link>
             <span className="text-xs text-tenue"> {r.evento.regione}</span>
           </>
         ) : '—'}
       </td>
       <td className="px-5 py-3 whitespace-nowrap">{durata(r.minuti_in_location)}</td>
       <td className="px-5 py-3 whitespace-nowrap">{durata(r.minuti_viaggio)}</td>
-      <td className="px-5 py-3 whitespace-nowrap font-bold">{durata(r.minuti_totali)}</td>
-      <td className="px-5 py-3 whitespace-nowrap font-bold">{euro(r.compenso)}</td>
+      <td className="px-5 py-3 whitespace-nowrap font-semibold">{durata(r.minuti_totali)}</td>
+      <td className="px-5 py-3 whitespace-nowrap font-semibold">{euro(r.compenso)}</td>
       <td className="px-5 py-3 whitespace-nowrap">{euro(speseApprovabili(r))}</td>
       <td className="px-5 py-3 whitespace-nowrap text-right">
         {r.stato === 'inviato' ? (
@@ -150,7 +150,7 @@ function RigaTabella({ r }: { r: RigaReport }) {
             Approva
           </Pulsante>
         ) : (
-          <span className={cn('text-xs font-bold', r.stato === 'approvato' ? 'text-accento' : 'text-urgente-testo')}>
+          <span className={cn('text-xs font-semibold', r.stato === 'approvato' ? 'text-accento' : 'text-urgente-testo')}>
             {r.stato === 'approvato' ? 'Approvate' : 'Respinte'}
           </span>
         )}

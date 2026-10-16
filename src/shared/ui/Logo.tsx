@@ -21,10 +21,10 @@ export function Logo({ chiaro, taglia = 'md', sottotitolo, className }: {
         <>
           <Segno className={segno} />
           <span className="flex flex-col leading-none">
-            <span className={cn('font-display font-bold tracking-tight', t, chiaro ? 'text-white' : 'text-inchiostro')} aria-label={BRAND.nome}>
-              social<span className="text-marchio">booth</span>
+            <span className={cn('font-display font-bold tracking-[-0.02em]', t, chiaro ? 'text-white' : 'text-inchiostro')} aria-label={BRAND.nome}>
+              socialbooth
             </span>
-            {sottotitolo && <span className={cn('text-[11px] font-bold uppercase tracking-[0.14em] mt-1', chiaro ? 'text-su-scuro-tenue' : 'text-tenue')}>{sottotitolo}</span>}
+            {sottotitolo && <span className={cn('text-[12px] font-medium mt-0.5', chiaro ? 'text-su-scuro-tenue' : 'text-tenue')}>{sottotitolo}</span>}
           </span>
         </>
       )}

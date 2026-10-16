@@ -31,7 +31,7 @@ export function Magazzini() {
       <div className="flex flex-wrap gap-4 justify-between items-end">
         <div>
           <p className="text-sm font-semibold text-tenue">Gestione</p>
-          <h1 className="font-display text-4xl font-bold tracking-tight mt-1">Magazzini</h1>
+          <h1 className="font-display text-4xl font-semibold tracking-tight mt-1">Magazzini</h1>
           <p className="text-tenue mt-2 max-w-2xl">Da qui partono gli operatori: l'indirizzo serve per calcolare in automatico i tempi di viaggio.</p>
         </div>
         {admin && (
@@ -58,7 +58,7 @@ export function Magazzini() {
         <Card><Vuoto titolo="Nessun magazzino" testo="Aggiungili uno per uno o importali tutti da un file Excel." /></Card>
       ) : perRegione.map(([regione, lista]) => (
         <section key={regione} className="flex flex-col gap-2.5">
-          <h2 className="text-sm font-bold uppercase tracking-wider text-tenue">{regione} · {lista.length}</h2>
+          <h2 className="text-sm font-semibold text-tenue">{regione}, {lista.length}</h2>
           <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
             {lista.map((m) => <SchedaMagazzino key={m.id} m={m} admin={admin} />)}
           </div>
@@ -78,20 +78,20 @@ function SchedaMagazzino({ m, admin }: { m: Riga<'magazzini'>; admin: boolean })
   return (
     <Card className="p-5 flex flex-col gap-3">
       <div className="flex items-start gap-3">
-        <div className="size-11 rounded-xl bg-inchiostro text-white flex items-center justify-center shrink-0"><Building2 className="size-5" aria-hidden /></div>
+        <div className="size-11 rounded-md bg-inchiostro text-white flex items-center justify-center shrink-0"><Building2 className="size-5" aria-hidden /></div>
         <div className="min-w-0">
-          <p className="font-bold text-[16px]">{m.nome}</p>
-          <p className="text-sm text-tenue">{m.indirizzo}, {m.citta} · {m.regione}</p>
+          <p className="font-semibold text-[16px]">{m.nome}</p>
+          <p className="text-sm text-tenue">{m.indirizzo}, {m.citta}, {m.regione}</p>
         </div>
       </div>
-      <p className={posizione ? 'text-xs font-bold text-accento flex items-center gap-1.5' : 'text-xs font-bold text-urgente-testo flex items-center gap-1.5'}>
+      <p className={posizione ? 'text-xs font-semibold text-accento flex items-center gap-1.5' : 'text-xs font-semibold text-urgente-testo flex items-center gap-1.5'}>
         <MapPin className="size-3.5" aria-hidden />
         {posizione ? 'Posizione trovata: viaggi calcolati in automatico' : 'Posizione non trovata: correggi l\'indirizzo'}
       </p>
       {m.note && <p className="text-sm text-tenue">{m.note}</p>}
       {elimina.error && <Errore errore={new Error('Non si può eliminare: è usato da eventi o operatori')} />}
       <div className="flex gap-2 mt-1 flex-wrap">
-        <Link to={`/gestione/magazzini/${m.id}`} className="h-11 px-4 rounded-xl bg-inchiostro text-white text-sm font-bold inline-flex items-center gap-2">
+        <Link to={`/gestione/magazzini/${m.id}`} className="h-11 px-4 rounded-md bg-inchiostro text-white text-sm font-semibold inline-flex items-center gap-2">
           <Package className="size-4" aria-hidden /> Attrezzatura
         </Link>
       {admin && (

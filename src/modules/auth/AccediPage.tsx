@@ -28,7 +28,7 @@ export function AccediPage() {
   return (
     <PaginaAccesso>
       <div>
-        <h1 className="font-display text-[34px] font-bold tracking-tight leading-none">Bentornato</h1>
+        <h1 className="font-display text-[34px] font-semibold tracking-tight leading-none">Bentornato</h1>
         <p className="text-tenue mt-2 font-medium">Accedi per vedere i tuoi eventi.</p>
       </div>
 
@@ -40,7 +40,7 @@ export function AccediPage() {
       </form>
 
       <p className="text-sm text-tenue text-center">
-        Sei un operatore e non hai un account? <Link to="/registrati" className="font-bold text-accento">Registrati</Link>
+        Sei un operatore e non hai un account? <Link to="/registrati" className="font-semibold text-accento">Registrati</Link>
       </p>
     </PaginaAccesso>
   )

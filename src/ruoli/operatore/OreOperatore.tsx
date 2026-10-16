@@ -26,9 +26,9 @@ export function OreOperatore() {
   return (
     <div className="flex flex-col gap-5 px-5 pt-sicura pb-6">
       <div className="pt-2">
-        <h1 className="font-display text-[30px] font-bold tracking-tight">Le mie ore</h1>
+        <h1 className="font-display text-[30px] font-semibold tracking-tight">Le mie ore</h1>
         <p className="text-sm text-tenue">
-          Tariffa: <strong className="text-inchiostro">{profilo.tariffa_oraria != null ? `${euro(profilo.tariffa_oraria)}/h` : 'da impostare'}</strong> · viaggio incluso
+          Tariffa: <strong className="text-inchiostro">{profilo.tariffa_oraria != null ? `${euro(profilo.tariffa_oraria)}/h` : 'da impostare'}</strong>, viaggio incluso
         </p>
       </div>
 
@@ -50,26 +50,26 @@ export function OreOperatore() {
             <Card tono="scuro" className="p-4 flex flex-col gap-3">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-accento-chiaro">{etichettaMese(mese)}</p>
-                  <p className="font-bold mt-0.5">{valide.length} eventi · {durata(minuti)}</p>
+                  <p className="text-xs font-semibold text-accento-chiaro">{etichettaMese(mese)}</p>
+                  <p className="font-semibold mt-0.5">{valide.length} eventi, {durata(minuti)}</p>
                 </div>
-                <p className="font-display text-2xl font-bold">{euro(compenso)}</p>
+                <p className="font-display text-2xl font-semibold">{euro(compenso)}</p>
               </div>
-              <Link to={`/riepilogo/${profilo.id}/${mese}`} className="h-10 rounded-xl bg-scuro-2 text-sm font-bold inline-flex items-center justify-center gap-2">
+              <Link to={`/riepilogo/${profilo.id}/${mese}`} className="h-10 rounded-md bg-scuro-2 text-sm font-semibold inline-flex items-center justify-center gap-2">
                 <FileDown className="size-4" aria-hidden /> Riepilogo del mese in PDF
               </Link>
             </Card>
             {righe.map((r) => (
               <Card key={r.id} className="p-4 flex items-center gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold truncate">{r.evento?.tipo_booth?.nome ?? 'Evento'} · {r.evento?.citta}</p>
+                  <p className="font-semibold truncate">{r.evento?.tipo_booth?.nome ?? 'Evento'}, {r.evento?.citta}</p>
                   <p className="text-sm text-tenue">
-                    {r.evento ? dataBreve(r.evento.allestimento_il) : ''} · {durata(r.minuti_in_location)} + {durata(r.minuti_viaggio)} viaggio
+                    {r.evento ? dataBreve(r.evento.allestimento_il) : ''}, {durata(r.minuti_in_location)} + {durata(r.minuti_viaggio)} viaggio
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold">{euro(r.compenso)}</p>
-                  <p className={cn('text-xs font-bold',
+                  <p className="font-semibold">{euro(r.compenso)}</p>
+                  <p className={cn('text-xs font-semibold',
                     r.stato === 'approvato' ? 'text-accento' : r.stato === 'respinto' ? 'text-urgente-testo' : 'text-avviso-testo')}>
                     {r.stato === 'approvato' ? 'Approvate' : r.stato === 'respinto' ? 'Respinte' : 'In verifica'}
                   </p>
@@ -98,8 +98,8 @@ function AndamentoCompensi({ righe }: { righe: RigaOre[] }) {
   return (
     <Card className="p-4 flex flex-col gap-2">
       <div className="flex justify-between items-baseline">
-        <p className="font-bold">Compensi, ultimi 6 mesi</p>
-        <p className="font-display text-xl font-bold">{euro(totale)}</p>
+        <p className="font-semibold">Compensi, ultimi 6 mesi</p>
+        <p className="font-display text-xl font-semibold">{euro(totale)}</p>
       </div>
       <div className="h-36" role="img" aria-label="Compensi per mese">
         <ResponsiveContainer width="100%" height="100%">

@@ -24,7 +24,7 @@ export function CarteAziendali() {
       <div className="flex flex-wrap gap-4 justify-between items-end">
         <div>
           <p className="text-sm font-semibold text-tenue">Gestione</p>
-          <h1 className="font-display text-4xl font-bold tracking-tight mt-1">Carte aziendali</h1>
+          <h1 className="font-display text-4xl font-semibold tracking-tight mt-1">Carte aziendali</h1>
           <p className="text-tenue mt-2 max-w-2xl">
             Assegna una carta a ogni operatore: quando registra una spesa sceglie "carta aziendale" e la trovi qui sotto, pronta da confrontare con l'estratto conto.
           </p>
@@ -58,19 +58,19 @@ function SchedaCarta({ c, admin }: { c: Carta; admin: boolean }) {
   if (modifica) return <Card className="p-5"><ModuloCarta c={c} onFatto={() => setModifica(false)} /></Card>
 
   return (
-    <div className={cn('rounded-[20px] p-5 flex flex-col gap-6 text-white', c.attiva ? 'bg-gradient-to-br from-inchiostro to-[#2C3A38]' : 'bg-tenue')}>
+    <div className={cn('rounded-[10px] p-5 flex flex-col gap-6 text-white', c.attiva ? 'bg-gradient-to-br from-inchiostro to-[#2C3A38]' : 'bg-tenue')}>
       <div className="flex justify-between items-start">
         <div>
-          <p className="font-bold text-[16px]">{c.nome}</p>
-          <p className="text-xs text-su-scuro-tenue">{c.circuito ?? 'Carta'}{!c.attiva && ' · disattivata'}</p>
+          <p className="font-semibold text-[16px]">{c.nome}</p>
+          <p className="text-xs text-su-scuro-tenue">{c.circuito ?? 'Carta'}{!c.attiva && ', disattivata'}</p>
         </div>
         <CreditCard className="size-6 text-accento-chiaro" aria-hidden />
       </div>
       <p className="font-display text-2xl tracking-[0.2em]">···· {c.ultime_cifre}</p>
       <div className="flex justify-between items-end gap-2">
         <div>
-          <p className="text-[11px] uppercase tracking-wider text-su-scuro-tenue">Assegnata a</p>
-          <p className="font-bold">{c.operatore?.nome ?? 'Nessuno'}</p>
+          <p className="text-[11px] text-su-scuro-tenue">Assegnata a</p>
+          <p className="font-semibold">{c.operatore?.nome ?? 'Nessuno'}</p>
         </div>
         {admin && (
           <div className="flex gap-1">
@@ -139,9 +139,9 @@ function Movimenti() {
           <TitoloSezione>Spese con carta aziendale</TitoloSezione>
           <p className="text-sm text-tenue">Totale del mese: <strong className="text-inchiostro">{euro(totale)}</strong></p>
         </div>
-        <label className="flex flex-col gap-1.5 text-[13px] font-bold text-[#3F4047]">
+        <label className="flex flex-col gap-1.5 text-[13px] font-semibold text-[#3F4047]">
           Mese
-          <input type="month" value={mese} onChange={(e) => setMese(e.target.value)} className="h-11 rounded-xl border border-bordo-forte bg-superficie px-3 text-[15px]" />
+          <input type="month" value={mese} onChange={(e) => setMese(e.target.value)} className="h-11 rounded-md border border-bordo-forte bg-superficie px-3 text-[15px]" />
         </label>
       </div>
       {movimenti.isPending ? <Caricamento className="py-6" /> : movimenti.error ? <Errore errore={movimenti.error} /> : !movimenti.data.length ? (
@@ -151,21 +151,21 @@ function Movimenti() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs text-tenue border-b border-bordo">
-                {['Data', 'Carta', 'Operatore', 'Spesa', 'Evento', 'Importo', 'Stato'].map((h) => <th key={h} className="px-3 py-2.5 font-bold">{h}</th>)}
+                {['Data', 'Carta', 'Operatore', 'Spesa', 'Evento', 'Importo', 'Stato'].map((h) => <th key={h} className="px-3 py-2.5 font-semibold">{h}</th>)}
               </tr>
             </thead>
             <tbody>
               {movimenti.data.map((m) => (
                 <tr key={m.id} className="border-b border-bordo last:border-0">
                   <td className="px-3 py-2.5 whitespace-nowrap">{dataBreve(m.creato_il)}</td>
-                  <td className="px-3 py-2.5 whitespace-nowrap">{m.carta ? `${m.carta.nome} ···· ${m.carta.ultime_cifre}` : '—'}</td>
+                  <td className="px-3 py-2.5 whitespace-nowrap">{m.carta ? `${m.carta.nome} ****${m.carta.ultime_cifre}` : '—'}</td>
                   <td className="px-3 py-2.5 whitespace-nowrap">{m.operatore?.nome ?? '—'}</td>
-                  <td className="px-3 py-2.5">{etichettaCategoria(m.categoria)}{m.descrizione && <span className="text-tenue"> · {m.descrizione}</span>}</td>
+                  <td className="px-3 py-2.5">{etichettaCategoria(m.categoria)}{m.descrizione && <span className="text-tenue">, {m.descrizione}</span>}</td>
                   <td className="px-3 py-2.5 whitespace-nowrap">
-                    {m.evento ? <Link className="hover:underline" to={`/gestione/eventi/${m.evento.id}`}>{m.evento.citta} · {dataBreve(m.evento.allestimento_il)}</Link> : '—'}
+                    {m.evento ? <Link className="hover:underline" to={`/gestione/eventi/${m.evento.id}`}>{m.evento.citta}, {dataBreve(m.evento.allestimento_il)}</Link> : '—'}
                   </td>
-                  <td className="px-3 py-2.5 font-bold whitespace-nowrap">{euro(m.importo)}</td>
-                  <td className="px-3 py-2.5 text-xs font-bold">{m.stato === 'approvato' ? 'Approvata' : m.stato === 'respinto' ? 'Respinta' : 'Da approvare'}</td>
+                  <td className="px-3 py-2.5 font-semibold whitespace-nowrap">{euro(m.importo)}</td>
+                  <td className="px-3 py-2.5 text-xs font-semibold">{m.stato === 'approvato' ? 'Approvata' : m.stato === 'respinto' ? 'Respinta' : 'Da approvare'}</td>
                 </tr>
               ))}
             </tbody>

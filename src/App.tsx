@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AccediPage } from '@/modules/auth/AccediPage'
 import { Protetto, homePerRuolo } from '@/modules/auth/Protetto'
 import { RichiedePermesso as Solo, RUOLI_GESTIONE } from '@/modules/auth/permessi'
+import { RimandoRichiesta, RimandoSquadra } from '@/ruoli/condivise/Rimandi'
 import { useAuth } from '@/modules/auth/AuthProvider'
 import { Caricamento } from '@/shared/ui/Stati'
 import { OperatoreLayout } from '@/ruoli/operatore/OperatoreLayout'
@@ -29,6 +30,10 @@ const Clienti = lazy(() => import('@/ruoli/gestione/Clienti').then((m) => ({ def
 const Utenti = lazy(() => import('@/ruoli/gestione/Utenti').then((m) => ({ default: m.Utenti })))
 const ArchivioEventi = lazy(() => import('@/ruoli/gestione/ArchivioEventi').then((m) => ({ default: m.ArchivioEventi })))
 const RiepilogoMese = lazy(() => import('@/modules/riepiloghi/components/RiepilogoMese').then((m) => ({ default: m.RiepilogoMese })))
+const PaginaRichieste = lazy(() => import('@/modules/richieste/components/PaginaRichieste').then((m) => ({ default: m.PaginaRichieste })))
+const Squadra = lazy(() => import('@/modules/squadra/components/Squadra').then((m) => ({ default: m.Squadra })))
+const RichiesteOperatore = lazy(() => import('@/ruoli/operatore/PagineSquadra').then((m) => ({ default: m.RichiesteOperatore })))
+const SquadraOperatore = lazy(() => import('@/ruoli/operatore/PagineSquadra').then((m) => ({ default: m.SquadraOperatore })))
 const Andamento = lazy(() => import('@/ruoli/gestione/andamento/Andamento').then((m) => ({ default: m.Andamento })))
 const Impostazioni = lazy(() => import('@/ruoli/gestione/Impostazioni').then((m) => ({ default: m.Impostazioni })))
 
@@ -48,8 +53,12 @@ export function App() {
         <Route path="calendario" element={<CalendarioOperatore />} />
         <Route path="ore" element={<OreOperatore />} />
         <Route path="profilo" element={<ProfiloOperatore />} />
+        <Route path="richieste" element={<RichiesteOperatore />} />
+        <Route path="squadra" element={<SquadraOperatore />} />
       </Route>
 
+      <Route path="/richieste/:id" element={<RimandoRichiesta />} />
+      <Route path="/squadra" element={<RimandoSquadra />} />
       <Route path="/riepilogo/:operatoreId/:mese" element={<Protetto ruoli={[...RUOLI_GESTIONE, 'operatore']}><RiepilogoMese /></Protetto>} />
 
       <Route path="/gestione" element={<Protetto ruoli={RUOLI_GESTIONE}><GestioneLayout /></Protetto>}>
@@ -67,6 +76,8 @@ export function App() {
         <Route path="clienti" element={<Solo permesso="clienti"><Clienti /></Solo>} />
         <Route path="utenti" element={<Solo permesso="utenti"><Utenti /></Solo>} />
         <Route path="impostazioni" element={<Solo permesso="impostazioni"><Impostazioni /></Solo>} />
+        <Route path="richieste" element={<PaginaRichieste />} />
+        <Route path="squadra" element={<Squadra />} />
         <Route path="andamento" element={<Solo permesso="soldi"><Andamento /></Solo>} />
         <Route path="regioni" element={<Navigate to="/gestione/andamento" replace />} />
         <Route path="archivio" element={<ArchivioEventi />} />

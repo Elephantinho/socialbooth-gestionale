@@ -37,9 +37,9 @@ export function ExportCommercialista() {
 
   return (
     <div className="flex flex-wrap items-end gap-2">
-      <label className="flex flex-col gap-1 text-[13px] font-bold text-[#3F4047]">
+      <label className="flex flex-col gap-1 text-[13px] font-semibold text-[#3F4047]">
         Mese
-        <input type="month" value={mese} onChange={(e) => setMese(e.target.value)} className="h-11 rounded-xl border border-bordo-forte bg-superficie px-3 font-semibold" />
+        <input type="month" value={mese} onChange={(e) => setMese(e.target.value)} className="h-11 rounded-md border border-bordo-forte bg-superficie px-3 font-semibold" />
       </label>
       <Pulsante variante="secondario" icona={<FileSpreadsheet className="size-4" aria-hidden />} caricamento={carico} onClick={scarica}>Export commercialista</Pulsante>
       {errore && <p className="w-full text-sm text-urgente-testo font-semibold">{errore}</p>}

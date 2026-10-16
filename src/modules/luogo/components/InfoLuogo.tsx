@@ -46,9 +46,9 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
 
   const segnaposti = useMemo<Segnaposto[]>(() => {
     if (!punto) return []
-    const s: Segnaposto[] = [{ id: 'evento', lat: punto.lat, lng: punto.lng, colore: '#0E6B62', raggio: 11, etichetta: 'Evento', sempre: true }]
+    const s: Segnaposto[] = [{ id: 'evento', lat: punto.lat, lng: punto.lng, colore: '#1E46C8', raggio: 11, etichetta: 'Evento', sempre: true }]
     for (const p of dintorni.data?.parcheggi.slice(0, 8) ?? []) {
-      s.push({ id: p.id, lat: p.punto.lat, lng: p.punto.lng, colore: coloriParcheggio[p.tipo].colore, raggio: selezionato === p.id ? 10 : 7, etichetta: `${p.nome} · ${coloriParcheggio[p.tipo].etichetta}`, onClick: () => setSelezionato(p.id) })
+      s.push({ id: p.id, lat: p.punto.lat, lng: p.punto.lng, colore: coloriParcheggio[p.tipo].colore, raggio: selezionato === p.id ? 10 : 7, etichetta: `${p.nome}, ${coloriParcheggio[p.tipo].etichetta}`, onClick: () => setSelezionato(p.id) })
     }
     return s
   }, [punto, dintorni.data, selezionato])
@@ -64,24 +64,24 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
       <div className="p-4 md:p-5 flex flex-col gap-4">
         <div className="flex flex-wrap justify-between gap-3 items-start">
           <div>
-            <p className="font-bold text-[16px]">{indirizzo}</p>
+            <p className="font-semibold text-[16px]">{indirizzo}</p>
             <p className="text-sm text-tenue">{citta}</p>
           </div>
           <a href={linkNavigatore(indirizzo, citta)} target="_blank" rel="noreferrer"
-            className="h-11 px-4 rounded-xl bg-inchiostro text-white font-bold text-sm inline-flex items-center gap-2">
+            className="h-11 px-4 rounded-md bg-inchiostro text-white font-semibold text-sm inline-flex items-center gap-2">
             <Car className="size-4" aria-hidden /> Naviga
           </a>
         </div>
 
         {/* ZTL e meteo */}
         <div className="grid gap-2.5 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
-          <div className={cn('rounded-2xl p-3.5 flex gap-3',
+          <div className={cn('rounded-[10px] p-3.5 flex gap-3',
             ztl?.stato === 'dentro' || ztlDichiarata ? 'bg-urgente-tenue text-urgente-testo' : ztl?.stato === 'vicino' ? 'bg-avviso text-avviso-testo' : 'bg-sfondo')}>
             {dintorni.isPending && punto ? <Loader2 className="size-5 animate-spin shrink-0" aria-hidden />
               : ztl?.stato === 'non_rilevata' && !ztlDichiarata ? <CheckCircle2 className="size-5 shrink-0 text-accento" aria-hidden />
               : <AlertTriangle className="size-5 shrink-0" aria-hidden />}
             <div className="min-w-0">
-              <p className="font-bold text-sm">
+              <p className="font-semibold text-sm">
                 {ztlDichiarata ? 'ZTL indicata dal project' : !ztl ? (dintorni.error ? 'ZTL' : 'Controllo ZTL…') : ztl.stato === 'dentro' ? 'Dentro una ZTL' : ztl.stato === 'vicino' ? 'ZTL nelle vicinanze' : 'Nessuna ZTL rilevata'}
               </p>
               <p className="text-xs opacity-80">
@@ -92,17 +92,17 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
             </div>
           </div>
 
-          <div className="rounded-2xl p-3.5 bg-sfondo flex gap-3">
+          <div className="rounded-[10px] p-3.5 bg-sfondo flex gap-3">
             {meteo.data && typeof meteo.data === 'object' && meteo.data.pioggia >= 40
               ? <CloudRain className="size-5 shrink-0 text-[#2F6FD1]" aria-hidden />
               : <Sun className="size-5 shrink-0 text-avviso-icona" aria-hidden />}
             <div className="min-w-0">
-              {meteo.isPending && punto ? <p className="text-sm font-bold">Meteo…</p>
-                : meteo.data === 'troppo_presto' ? <><p className="font-bold text-sm">Meteo</p><p className="text-xs text-tenue">Disponibile 15 giorni prima</p></>
-                : meteo.data === 'passato' || !meteo.data ? <><p className="font-bold text-sm">Meteo</p><p className="text-xs text-tenue">Non disponibile</p></>
+              {meteo.isPending && punto ? <p className="text-sm font-semibold">Meteo…</p>
+                : meteo.data === 'troppo_presto' ? <><p className="font-semibold text-sm">Meteo</p><p className="text-xs text-tenue">Disponibile 15 giorni prima</p></>
+                : meteo.data === 'passato' || !meteo.data ? <><p className="font-semibold text-sm">Meteo</p><p className="text-xs text-tenue">Non disponibile</p></>
                 : (
                   <>
-                    <p className="font-bold text-sm">{descriviMeteo(meteo.data.codice)} · {meteo.data.min}°/{meteo.data.max}°</p>
+                    <p className="font-semibold text-sm">{descriviMeteo(meteo.data.codice)}, {meteo.data.min}°/{meteo.data.max}°</p>
                     <p className="text-xs text-tenue inline-flex items-center gap-2">
                       Pioggia {meteo.data.pioggia}% <Wind className="size-3" aria-hidden /> {meteo.data.vento} km/h
                     </p>
@@ -114,15 +114,15 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
 
         {/* Mappa, parcheggi e servizi: chiusi finché non servono */}
         <button type="button" onClick={() => setAperto((a) => !a)} aria-expanded={aperto}
-          className="h-11 rounded-xl border border-bordo-forte font-bold text-sm inline-flex items-center justify-center gap-2 cursor-pointer hover:bg-sfondo">
+          className="h-11 rounded-md border border-bordo-forte font-semibold text-sm inline-flex items-center justify-center gap-2 cursor-pointer hover:bg-sfondo">
           <ChevronDown className={cn('size-4 transition', aperto && 'rotate-180')} aria-hidden />
           {aperto ? 'Chiudi' : `Mappa, parcheggi${dintorni.data?.parcheggi.length ? ` (${dintorni.data.parcheggi.length})` : ''} e servizi vicini`}
         </button>
         {aperto && (<>
         {punto ? (
-          <Mappa punti={segnaposti} altezza={compatto ? 200 : 260} className="rounded-2xl border border-bordo overflow-hidden" />
+          <Mappa punti={segnaposti} altezza={compatto ? 200 : 260} className="rounded-[10px] border border-bordo overflow-hidden" />
         ) : (
-          <div className="h-32 rounded-2xl bg-[#E7EEEA] flex items-center justify-center text-sm text-tenue font-semibold">
+          <div className="h-32 rounded-[10px] bg-[#E7EEEA] flex items-center justify-center text-sm text-tenue font-semibold">
             {posizione.isFetching ? <Loader2 className="size-5 animate-spin" aria-hidden /> : 'Posizione non trovata'}
           </div>
         )}
@@ -137,14 +137,14 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
               return (
                 <a key={p.id} href={`https://www.google.com/maps/dir/?api=1&destination=${p.punto.lat},${p.punto.lng}`} target="_blank" rel="noreferrer"
                   onMouseEnter={() => setSelezionato(p.id)}
-                  className={cn('flex items-center gap-3 rounded-xl border p-2.5 transition', selezionato === p.id ? 'border-accento bg-accento-tenue/40' : 'border-bordo hover:border-bordo-forte')}>
+                  className={cn('flex items-center gap-3 rounded-md border p-2.5 transition', selezionato === p.id ? 'border-accento bg-accento-tenue/40' : 'border-bordo hover:border-bordo-forte')}>
                   <span className="size-3 rounded-full shrink-0" style={{ background: c.colore }} aria-hidden />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold truncate">{p.nome}</p>
+                    <p className="text-sm font-semibold truncate">{p.nome}</p>
                     {p.dettaglio && <p className="text-xs text-tenue truncate">{p.dettaglio}</p>}
                   </div>
-                  <span className={cn('text-[11px] font-bold px-2 py-1 rounded-md whitespace-nowrap', c.stile)}>{c.etichetta}</span>
-                  <span className="text-xs font-bold w-14 text-right">{metri(p.distanza)}</span>
+                  <span className={cn('text-[11px] font-semibold px-2 py-1 rounded-md whitespace-nowrap', c.stile)}>{c.etichetta}</span>
+                  <span className="text-xs font-semibold w-14 text-right">{metri(p.distanza)}</span>
                 </a>
               )
             })}
@@ -159,10 +159,10 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
                 const { Icona, etichetta } = iconeServizio[cat as Servizio['categoria']]
                 return (
                   <a key={s.id} href={`https://www.google.com/maps/dir/?api=1&destination=${s.punto.lat},${s.punto.lng}`} target="_blank" rel="noreferrer"
-                    className="rounded-xl bg-sfondo p-3 flex items-center gap-2.5 hover:bg-bordo/50 transition">
+                    className="rounded-md bg-sfondo p-3 flex items-center gap-2.5 hover:bg-bordo/50 transition">
                     <Icona className="size-4 shrink-0 text-accento" aria-hidden />
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-tenue">{etichetta} · {metri(s.distanza)}</p>
+                      <p className="text-xs font-semibold text-tenue">{etichetta}, {metri(s.distanza)}</p>
                       <p className="text-sm font-semibold truncate">{s.nome || etichetta}</p>
                     </div>
                   </a>

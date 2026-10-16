@@ -3,12 +3,12 @@ import { iniziali } from '@/shared/lib/formato'
 
 // Colori per gli avatar senza foto: scelti dal nome, sempre gli stessi per la stessa persona
 const tinte = [
-  'bg-[#DCEFEC] text-[#0A524B]',
-  'bg-[#FBE6D9] text-[#8A3B0B]',
-  'bg-[#E4E6FA] text-[#33388A]',
-  'bg-[#FDF3D8] text-[#5A3E00]',
-  'bg-[#F3E1EE] text-[#7A2A62]',
-  'bg-[#E2EEF8] text-[#1F4E79]',
+  'bg-[#E7ECFB] text-[#16349A]',
+  'bg-[#EDE9E3] text-[#5A4A35]',
+  'bg-[#E4EFE8] text-[#1F5A38]',
+  'bg-[#F4E6EA] text-[#7A2E45]',
+  'bg-[#E9EAEE] text-[#3B414B]',
+  'bg-[#FFF0D2] text-[#6B4A00]',
 ]
 
 const taglie = {
@@ -28,7 +28,7 @@ export function Avatar({ nome, foto, taglia = 'md', className }: {
   return foto ? (
     <img src={foto} alt="" className={cn('rounded-full object-cover shrink-0 bg-sfondo', taglie[taglia], className)} />
   ) : (
-    <div aria-hidden className={cn('rounded-full font-bold flex items-center justify-center shrink-0 font-display', taglie[taglia], tinta, className)}>
+    <div aria-hidden className={cn('rounded-full font-semibold flex items-center justify-center shrink-0 font-display', taglie[taglia], tinta, className)}>
       {iniziali(nome)}
     </div>
   )

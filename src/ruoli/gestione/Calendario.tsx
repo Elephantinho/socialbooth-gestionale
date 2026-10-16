@@ -54,15 +54,15 @@ export function Calendario() {
 
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex items-center gap-2">
-          <button onClick={() => sposta(-1)} aria-label="Mese precedente" className="size-11 rounded-xl border border-bordo-forte bg-superficie flex items-center justify-center cursor-pointer hover:bg-sfondo">
+          <button onClick={() => sposta(-1)} aria-label="Mese precedente" className="size-11 rounded-md border border-bordo-forte bg-superficie flex items-center justify-center cursor-pointer hover:bg-sfondo">
             <ChevronLeft className="size-5" aria-hidden />
           </button>
-          <h2 className="font-display text-2xl font-bold capitalize w-56 text-center">{titolo}</h2>
-          <button onClick={() => sposta(1)} aria-label="Mese successivo" className="size-11 rounded-xl border border-bordo-forte bg-superficie flex items-center justify-center cursor-pointer hover:bg-sfondo">
+          <h2 className="font-display text-2xl font-semibold capitalize w-56 text-center">{titolo}</h2>
+          <button onClick={() => sposta(1)} aria-label="Mese successivo" className="size-11 rounded-md border border-bordo-forte bg-superficie flex items-center justify-center cursor-pointer hover:bg-sfondo">
             <ChevronRight className="size-5" aria-hidden />
           </button>
           <button onClick={() => { const d = new Date(); setMese(new Date(d.getFullYear(), d.getMonth(), 1)) }}
-            className="h-11 px-4 rounded-xl text-sm font-bold text-accento hover:bg-accento-tenue cursor-pointer">Oggi</button>
+            className="h-11 px-4 rounded-md text-sm font-semibold text-accento hover:bg-accento-tenue cursor-pointer">Oggi</button>
         </div>
         <Selezione etichetta="" aria-label="Regione" value={regione} onChange={(e) => setRegione(e.target.value)} className="w-56">
           <option value="">Tutte le regioni</option>
@@ -75,7 +75,7 @@ export function Calendario() {
           <div className="overflow-x-auto">
             <div className="min-w-[760px]">
               <div className="grid grid-cols-7 border-b border-bordo bg-sfondo">
-                {giorniSettimana.map((g) => <div key={g} className="px-3 py-2.5 text-xs font-bold text-tenue uppercase">{g}</div>)}
+                {giorniSettimana.map((g) => <div key={g} className="px-3 py-2.5 text-xs font-semibold text-tenue ">{g}</div>)}
               </div>
               <div className="grid grid-cols-7">
                 {giorni.map((d) => {
@@ -84,16 +84,16 @@ export function Calendario() {
                   const fuori = d.getMonth() !== mese.getMonth()
                   return (
                     <div key={k} className={cn('min-h-28 border-r border-b border-bordo p-1.5 flex flex-col gap-1 [&:nth-child(7n)]:border-r-0', fuori && 'bg-sfondo/60')}>
-                      <span className={cn('text-xs font-bold w-7 h-7 rounded-full flex items-center justify-center',
+                      <span className={cn('text-xs font-semibold w-7 h-7 rounded-full flex items-center justify-center',
                         k === oggi ? 'bg-accento text-white' : fuori ? 'text-tenue/60' : 'text-inchiostro')}>{d.getDate()}</span>
                       {eventi.slice(0, 3).map((e) => (
                         <Link key={e.id} to={`/gestione/eventi/${e.id}`}
                           className={cn('rounded-lg border px-1.5 py-1 text-[11px] leading-tight hover:brightness-95 transition', coloreStato[e.stato])}>
-                          <span className="font-bold">{ora(e.allestimento_il)}</span> {e.tipo_booth?.nome ?? 'Evento'}
-                          <span className="block truncate opacity-80">{e.citta}{e.operatore ? ` · ${nomeCompleto(e.operatore).split(' ')[0]}` : ''}</span>
+                          <span className="font-semibold">{ora(e.allestimento_il)}</span> {e.tipo_booth?.nome ?? 'Evento'}
+                          <span className="block truncate opacity-80">{e.citta}{e.operatore ? `, ${nomeCompleto(e.operatore).split(' ')[0]}` : ''}</span>
                         </Link>
                       ))}
-                      {eventi.length > 3 && <span className="text-[11px] font-bold text-tenue px-1">+{eventi.length - 3} altri</span>}
+                      {eventi.length > 3 && <span className="text-[11px] font-semibold text-tenue px-1">+{eventi.length - 3} altri</span>}
                     </div>
                   )
                 })}

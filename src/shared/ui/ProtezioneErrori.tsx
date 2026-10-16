@@ -26,11 +26,11 @@ export class ProtezioneErrori extends Component<{ children: ReactNode }, { error
     return (
       <div className="min-h-dvh flex items-center justify-center p-6">
         <div className="max-w-sm text-center flex flex-col gap-4 items-center">
-          <h1 className="font-display text-2xl font-bold">Qualcosa è andato storto</h1>
+          <h1 className="font-display text-2xl font-semibold">Qualcosa è andato storto</h1>
           <p className="text-tenue">Ricarica la pagina. Se il problema continua, manda uno screenshot di questo messaggio.</p>
           <p className="text-xs text-tenue bg-sfondo rounded-lg px-3 py-2 break-all">{this.state.errore.message}</p>
           <button onClick={() => { sessionStorage.removeItem('ricaricata'); window.location.reload() }}
-            className="h-12 px-6 rounded-xl bg-accento text-white font-bold cursor-pointer">Ricarica</button>
+            className="h-12 px-6 rounded-md bg-accento text-white font-semibold cursor-pointer">Ricarica</button>
         </div>
       </div>
     )

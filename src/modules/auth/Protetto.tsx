@@ -16,8 +16,8 @@ export function Protetto({ ruoli, children }: { ruoli: Enum<'ruolo'>[]; children
     return (
       <div className="min-h-dvh flex items-center justify-center px-6">
         <div className="max-w-sm flex flex-col gap-4 text-center items-center">
-          <div className="size-14 rounded-2xl bg-avviso text-avviso-titolo flex items-center justify-center"><Hourglass className="size-7" aria-hidden /></div>
-          <h1 className="font-display text-2xl font-bold">Account in attesa di approvazione</h1>
+          <div className="size-14 rounded-[10px] bg-avviso text-avviso-titolo flex items-center justify-center"><Hourglass className="size-7" aria-hidden /></div>
+          <h1 className="font-display text-2xl font-semibold">Account in attesa di approvazione</h1>
           <p className="text-tenue">Ciao {profilo.nome.split(' ')[0]}, un amministratore deve attivare il tuo account. Riprova più tardi.</p>
           <Pulsante variante="secondario" onClick={esci}>Esci</Pulsante>
         </div>

@@ -12,10 +12,8 @@ export function Caricamento({ className }: { className?: string }) {
 export function Vuoto({ titolo, testo, azione }: { titolo: string; testo?: string; azione?: React.ReactNode }) {
   return (
     <div className="flex flex-col items-center text-center gap-2 py-12 px-6">
-      <div className="size-14 rounded-full bg-accento-tenue text-accento flex items-center justify-center mb-2">
-        <Inbox className="size-6" aria-hidden />
-      </div>
-      <p className="font-bold text-[16px]">{titolo}</p>
+      <Inbox className="size-6 text-tenue mb-1" aria-hidden />
+      <p className="font-semibold text-[16px]">{titolo}</p>
       {testo && <p className="text-sm text-tenue max-w-72">{testo}</p>}
       {azione && <div className="mt-3">{azione}</div>}
     </div>
@@ -25,7 +23,7 @@ export function Vuoto({ titolo, testo, azione }: { titolo: string; testo?: strin
 export function Errore({ errore }: { errore: unknown }) {
   const msg = errore instanceof Error ? errore.message : 'Qualcosa è andato storto'
   return (
-    <div className="rounded-2xl bg-urgente-tenue text-urgente-testo p-4 text-sm font-semibold" role="alert">
+    <div className="rounded-md border-l-4 border-urgente bg-urgente-tenue text-urgente-testo px-4 py-3 text-sm font-medium" role="alert">
       {msg}
     </div>
   )

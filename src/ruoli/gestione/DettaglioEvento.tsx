@@ -51,11 +51,11 @@ export function DettaglioEvento() {
             <ArrowLeft className="size-4" aria-hidden /> {inArchivio(e) ? 'Eventi passati' : 'Eventi'}
           </Link>
           <div className="flex flex-wrap items-center gap-3 mt-1">
-            <h1 className="font-display text-4xl font-bold tracking-tight">{e.tipo_booth?.nome ?? 'Evento'}</h1>
+            <h1 className="font-display text-4xl font-semibold tracking-tight">{e.tipo_booth?.nome ?? 'Evento'}</h1>
             <StatoEvento stato={e.stato} />
           </div>
           <p className="text-tenue font-medium mt-1">
-            #{String(e.codice).padStart(4, '0')} · {dataLunga(e.allestimento_il)} · {e.citta}{e.cliente?.nome && ` · ${e.cliente.nome}`}
+            #{String(e.codice).padStart(4, '0')}, {dataLunga(e.allestimento_il)}, {e.citta}{e.cliente?.nome && `, ${e.cliente.nome}`}
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -68,7 +68,7 @@ export function DettaglioEvento() {
             <>
               {creatore && (
                 <>
-                  <Link to={`/gestione/eventi/nuovo?da=${e.id}`} className="h-11 px-4 rounded-xl border border-bordo-forte bg-superficie font-bold text-sm inline-flex items-center gap-2 hover:bg-sfondo">
+                  <Link to={`/gestione/eventi/nuovo?da=${e.id}`} className="h-11 px-4 rounded-md border border-bordo-forte bg-superficie font-semibold text-sm inline-flex items-center gap-2 hover:bg-sfondo">
                     <Copy className="size-4" aria-hidden /> Duplica
                   </Link>
                   <Pulsante variante="secondario" icona={<Ban className="size-4" aria-hidden />} onClick={annulla} disabled={aggiorna.isPending}>
@@ -121,13 +121,13 @@ export function DettaglioEvento() {
 function Riepilogo({ e }: { e: EventoGestioneCompleto }) {
   const righe: [string, string][] = [
     ['Indirizzo', `${e.indirizzo}, ${e.citta} (${e.regione})`],
-    ['Ritiro magazzino', e.ritiro_magazzino_il ? `${ora(e.ritiro_magazzino_il)} · ${e.magazzino?.nome ?? ''} · ${e.viaggio_minuti ?? '?'} min di viaggio` : '—'],
+    ['Ritiro magazzino', e.ritiro_magazzino_il ? `${ora(e.ritiro_magazzino_il)}, ${e.magazzino?.nome ?? ''}, ${e.viaggio_minuti ?? '?'} min di viaggio` : '—'],
     ['Allestimento', ora(e.allestimento_il)],
     ['Attivazione', `${ora(e.inizio_attivazione)} – ${ora(e.fine_attivazione)}`],
     ['Smontaggio', ora(e.smontaggio_il)],
     ['ZTL / Wi‑Fi / Hostess', `${e.ztl ? 'Sì' : 'No'} / ${e.wifi ? 'Sì' : 'No'} / ${e.hostess ? 'Sì' : 'No'}`],
     ['Outfit', e.outfit || '—'],
-    ['Referente', [e.referente_nome, e.referente_telefono].filter(Boolean).join(' · ') || '—'],
+    ['Referente', [e.referente_nome, e.referente_telefono].filter(Boolean).join(', ') || '—'],
   ]
   return (
     <Card className="p-5 md:p-6 flex flex-col gap-4">
@@ -135,18 +135,18 @@ function Riepilogo({ e }: { e: EventoGestioneCompleto }) {
       <dl className="grid gap-x-6 gap-y-3 grid-cols-[repeat(auto-fit,minmax(240px,1fr))]">
         {righe.map(([k, v]) => (
           <div key={k}>
-            <dt className="text-xs font-bold text-tenue">{k}</dt>
+            <dt className="text-xs font-semibold text-tenue">{k}</dt>
             <dd className="font-semibold mt-0.5">{v}</dd>
           </div>
         ))}
       </dl>
       {e.note_accesso && (
-        <div className="rounded-2xl bg-avviso p-4">
-          <p className="text-sm font-bold text-avviso-titolo">Accesso e scarico</p>
+        <div className="rounded-[10px] bg-avviso p-4">
+          <p className="text-sm font-semibold text-avviso-titolo">Accesso e scarico</p>
           <p className="text-sm text-avviso-testo mt-1 whitespace-pre-line">{e.note_accesso}</p>
         </div>
       )}
-      {e.note && <p className="text-sm whitespace-pre-line"><span className="font-bold">Note: </span>{e.note}</p>}
+      {e.note && <p className="text-sm whitespace-pre-line"><span className="font-semibold">Note: </span>{e.note}</p>}
     </Card>
   )
 }
@@ -160,10 +160,10 @@ function Operatore({ e }: { e: EventoGestioneCompleto }) {
     <Card tono="scuro" className="p-5 flex flex-col gap-4">
       <TitoloSezione>Operatore</TitoloSezione>
       {e.operatore ? (
-        <div className="bg-scuro-2 rounded-2xl p-3.5 flex items-center gap-3">
+        <div className="bg-scuro-2 rounded-[10px] p-3.5 flex items-center gap-3">
           <Link to={`/gestione/operatori/${e.operatore.id}`}><Avatar nome={nomeCompleto(e.operatore)} foto={e.operatore.foto} /></Link>
           <div className="flex-1 min-w-0">
-            <Link to={`/gestione/operatori/${e.operatore.id}`} className="font-bold truncate block hover:underline">{nomeCompleto(e.operatore)}</Link>
+            <Link to={`/gestione/operatori/${e.operatore.id}`} className="font-semibold truncate block hover:underline">{nomeCompleto(e.operatore)}</Link>
             <p className="text-xs text-su-scuro-tenue">
               {e.stato === 'proposto' ? 'Deve ancora accettare' : e.stato === 'confermato' ? 'Ha confermato' : e.stato === 'in_corso' ? 'Check-in fatto' : 'Assegnato'}
             </p>
@@ -175,13 +175,13 @@ function Operatore({ e }: { e: EventoGestioneCompleto }) {
           )}
         </div>
       ) : (
-        <div className="bg-scuro-2 rounded-2xl p-3.5 flex items-center gap-3 text-su-scuro-tenue">
+        <div className="bg-scuro-2 rounded-[10px] p-3.5 flex items-center gap-3 text-su-scuro-tenue">
           <UserRound className="size-5" aria-hidden /> Nessun operatore assegnato
         </div>
       )}
       {puoAssegnare && (
         <button onClick={() => setScegli((s) => !s)} aria-expanded={scegli}
-          className="h-11 rounded-xl bg-white text-inchiostro font-bold text-sm cursor-pointer">
+          className="h-11 rounded-md bg-white text-inchiostro font-semibold text-sm cursor-pointer">
           {e.operatore ? 'Cambia operatore' : 'Scegli operatore'}
         </button>
       )}
@@ -208,8 +208,8 @@ function Storico({ e }: { e: EventoGestioneCompleto }) {
       <TitoloSezione className="text-[15px]">Storico proposte</TitoloSezione>
       {proposte.map((p) => (
         <div key={p.id} className="flex justify-between gap-3 text-sm">
-          <span className="font-semibold">{p.operatore?.nome || 'Operatore'}{p.automatica && <span className="text-tenue font-medium"> · automatica</span>}</span>
-          <span className={cn('font-bold', p.stato === 'rifiutata' ? 'text-urgente-testo' : p.stato === 'accettata' ? 'text-accento' : 'text-tenue')}>
+          <span className="font-semibold">{p.operatore?.nome || 'Operatore'}{p.automatica && <span className="text-tenue font-medium">, automatica</span>}</span>
+          <span className={cn('font-semibold', p.stato === 'rifiutata' ? 'text-urgente-testo' : p.stato === 'accettata' ? 'text-accento' : 'text-tenue')}>
             {etichettaProposta[p.stato]}
           </span>
         </div>
@@ -231,7 +231,7 @@ function OreEvento({ e }: { e: EventoGestioneCompleto }) {
       <div className="flex flex-wrap justify-between items-center gap-3">
         <TitoloSezione>Ore e spese</TitoloSezione>
         {ore && (
-          <span className={cn('text-xs font-bold px-2.5 py-1.5 rounded-[10px]',
+          <span className={cn('text-xs font-semibold px-2.5 py-1.5 rounded-[10px]',
             ore.stato === 'approvato' ? 'bg-accento-tenue text-accento-scuro' : ore.stato === 'respinto' ? 'bg-urgente-tenue text-urgente-testo' : 'bg-avviso text-avviso-testo')}>
             {ore.stato === 'approvato' ? 'Approvate' : ore.stato === 'respinto' ? 'Respinte' : 'Da approvare'}
           </span>
@@ -245,15 +245,15 @@ function OreEvento({ e }: { e: EventoGestioneCompleto }) {
             ['Fine lavoro', checkIn.fine_il, null, null],
             ['Rientro', checkIn.rientro_il, checkIn.rientro_lat, checkIn.rientro_lng],
           ] as const).map(([etichetta, quando, lat, lng]) => (
-            <div key={etichetta} className={cn('rounded-xl p-2.5', quando ? 'bg-accento-tenue/50' : 'bg-sfondo')}>
-              <p className="text-xs font-bold text-tenue">{etichetta}</p>
-              <p className="font-bold">{quando ? ora(quando) : '—'}</p>
+            <div key={etichetta} className={cn('rounded-md p-2.5', quando ? 'bg-accento-tenue/50' : 'bg-sfondo')}>
+              <p className="text-xs font-semibold text-tenue">{etichetta}</p>
+              <p className="font-semibold">{quando ? ora(quando) : '—'}</p>
               {lat != null && <a className="text-xs underline text-accento-scuro" target="_blank" rel="noreferrer" href={`https://www.google.com/maps?q=${lat},${lng}`}>posizione</a>}
             </div>
           ))}
         </div>
       )}
-      {ore?.calcolo_automatico && <p className="text-xs font-bold text-accento">Ore calcolate in automatico dalle tappe registrate dall'operatore</p>}
+      {ore?.calcolo_automatico && <p className="text-xs font-semibold text-accento">Ore calcolate in automatico dalle tappe registrate dall'operatore</p>}
       {ore && (
         <>
           <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(130px,1fr))]">
@@ -262,7 +262,7 @@ function OreEvento({ e }: { e: EventoGestioneCompleto }) {
             <Dato etichetta="Totale ore" valore={durata(ore.minuti_totali)} />
             <Dato etichetta="Compenso" valore={euro(ore.compenso)} evidenza />
           </div>
-          {ore.nota_operatore && <p className="text-sm"><span className="font-bold">Nota operatore: </span>{ore.nota_operatore}</p>}
+          {ore.nota_operatore && <p className="text-sm"><span className="font-semibold">Nota operatore: </span>{ore.nota_operatore}</p>}
           {approva.error && <Errore errore={approva.error} />}
           {ore.stato === 'inviato' && (
             <div className="flex gap-2 flex-wrap">
@@ -284,9 +284,9 @@ function OreEvento({ e }: { e: EventoGestioneCompleto }) {
 
 function Dato({ etichetta, valore, evidenza }: { etichetta: string; valore: string; evidenza?: boolean }) {
   return (
-    <div className={cn('rounded-2xl p-3', evidenza ? 'bg-accento-tenue text-accento-scuro' : 'bg-sfondo')}>
-      <p className="text-xs font-bold opacity-80">{etichetta}</p>
-      <p className="text-lg font-bold mt-0.5">{valore}</p>
+    <div className={cn('rounded-[10px] p-3', evidenza ? 'bg-accento-tenue text-accento-scuro' : 'bg-sfondo')}>
+      <p className="text-xs font-semibold opacity-80">{etichetta}</p>
+      <p className="text-lg font-semibold mt-0.5">{valore}</p>
     </div>
   )
 }

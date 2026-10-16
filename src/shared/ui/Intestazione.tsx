@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 
-/** Intestazione uguale per tutte le pagine del pannello: titolo, descrizione e azioni a destra. */
-export function Intestazione({ titolo, sopra, descrizione, indietro, azioni, extra }: {
+/** Intestazione delle pagine del pannello: titolo, descrizione breve, azioni a destra. */
+export function Intestazione({ titolo, descrizione, indietro, azioni, extra }: {
   titolo: React.ReactNode
+  /** non più mostrato: le pagine si riconoscono dal titolo e dal menu */
   sopra?: string
   descrizione?: React.ReactNode
   indietro?: { a: string; testo: string }
@@ -13,42 +14,41 @@ export function Intestazione({ titolo, sopra, descrizione, indietro, azioni, ext
   return (
     <header className="flex flex-wrap gap-4 justify-between items-end">
       <div className="min-w-0">
-        {indietro ? (
-          <Link to={indietro.a} className="text-sm font-semibold text-tenue inline-flex items-center gap-1 hover:text-inchiostro transition">
+        {indietro && (
+          <Link to={indietro.a} className="text-sm font-medium text-tenue inline-flex items-center gap-1 hover:text-inchiostro mb-1">
             <ArrowLeft className="size-4" aria-hidden /> {indietro.testo}
           </Link>
-        ) : sopra ? (
-          <p className="text-sm font-semibold text-tenue">{sopra}</p>
-        ) : null}
-        <div className="flex flex-wrap items-center gap-3 mt-1">
-          <h1 className="font-display text-[34px] md:text-4xl font-bold tracking-tight leading-tight">{titolo}</h1>
+        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="font-display text-[30px] md:text-[34px] font-semibold leading-tight">{titolo}</h1>
           {extra}
         </div>
-        {descrizione && <p className="text-tenue mt-2 max-w-2xl">{descrizione}</p>}
+        {descrizione && <p className="text-tenue mt-1.5 max-w-[68ch]">{descrizione}</p>}
       </div>
       {azioni && <div className="flex gap-2 flex-wrap">{azioni}</div>}
     </header>
   )
 }
 
-/** Riquadro con un numero grande e un'etichetta */
+/**
+ * Un numero con la sua etichetta. Niente riquadri colorati: bordo sottile,
+ * e una barra a sinistra quando il numero chiede attenzione.
+ */
 export function Numero({ valore, etichetta, tono = 'chiaro', icona }: {
   valore: React.ReactNode
   etichetta: string
   tono?: 'chiaro' | 'scuro' | 'accento' | 'urgente'
   icona?: React.ReactNode
 }) {
-  const stili = {
-    chiaro: 'bg-superficie border border-bordo',
-    scuro: 'bg-inchiostro text-white',
-    accento: 'bg-accento-tenue text-accento-scuro',
-    urgente: 'bg-urgente-tenue text-urgente-testo',
-  }
+  const barra = { chiaro: 'border-l-bordo', scuro: 'border-l-inchiostro', accento: 'border-l-accento', urgente: 'border-l-urgente' }[tono]
+  const colore = { chiaro: '', scuro: '', accento: 'text-accento-scuro', urgente: 'text-urgente-testo' }[tono]
   return (
-    <div className={`rounded-[20px] p-4 md:p-5 flex flex-col gap-1 h-full ${stili[tono]}`}>
-      {icona && <div className="opacity-70 mb-1">{icona}</div>}
-      <p className="font-display text-[26px] md:text-3xl font-bold leading-tight truncate">{valore}</p>
-      <p className={`text-sm font-semibold ${tono === 'chiaro' ? 'text-tenue' : tono === 'scuro' ? 'text-su-scuro-tenue' : 'opacity-80'}`}>{etichetta}</p>
+    <div className={`h-full rounded-[10px] bg-superficie border border-bordo border-l-4 ${barra} px-4 py-3.5 flex items-start gap-3`}>
+      <div className="min-w-0 flex-1">
+        <p className={`text-[26px] font-semibold leading-tight truncate tabular-nums ${colore}`}>{valore}</p>
+        <p className="text-sm text-tenue mt-0.5">{etichetta}</p>
+      </div>
+      {icona && <div className="text-tenue mt-1.5">{icona}</div>}
     </div>
   )
 }

@@ -37,13 +37,13 @@ export function Adesso({ eventi }: { eventi: EventoLista[] }) {
           {lista.map((e) => {
             const f = fase(e)
             return (
-              <Link key={e.id} to={`/gestione/eventi/${e.id}`} className="rounded-2xl border border-bordo p-3 flex items-center gap-3 hover:border-bordo-forte transition">
+              <Link key={e.id} to={`/gestione/eventi/${e.id}`} className="rounded-[10px] border border-bordo p-3 flex items-center gap-3 hover:border-bordo-forte transition">
                 {e.operatore ? <Avatar nome={nomeCompleto(e.operatore)} foto={e.operatore.foto} /> : <span className="size-11 rounded-full bg-sfondo" />}
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm truncate">{e.operatore ? nomeCompleto(e.operatore) : 'Nessun operatore'}</p>
-                  <p className="text-xs text-tenue truncate">{e.tipo_booth?.nome ?? 'Evento'} · {e.citta}</p>
+                  <p className="font-semibold text-sm truncate">{e.operatore ? nomeCompleto(e.operatore) : 'Nessun operatore'}</p>
+                  <p className="text-xs text-tenue truncate">{e.tipo_booth?.nome ?? 'Evento'}, {e.citta}</p>
                 </div>
-                <span className={cn('text-[11px] font-bold px-2 py-1 rounded-lg text-right', f.stile)}>{f.testo}</span>
+                <span className={cn('text-[11px] font-semibold px-2 py-1 rounded-lg text-right', f.stile)}>{f.testo}</span>
               </Link>
             )
           })}

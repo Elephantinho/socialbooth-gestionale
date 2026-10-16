@@ -219,7 +219,7 @@ export function leggiBrief(testo: string, ctx: Contesto): { dati: BriefLetto; ri
     ['smontaggio', 'Smontaggio', d.smontaggio],
     ['indirizzo', 'Indirizzo', d.indirizzo],
     ['citta', 'Città', d.citta && `${d.citta}${d.regione ? ` (${d.regione})` : ''}`],
-    ['referenteNome', 'Referente', [d.referenteNome, d.referenteTelefono].filter(Boolean).join(' · ') || undefined],
+    ['referenteNome', 'Referente', [d.referenteNome, d.referenteTelefono].filter(Boolean).join(', ') || undefined],
     ['hostess', 'Hostess', d.hostess == null ? undefined : sn(d.hostess)],
     ['wifi', 'Wi‑Fi', d.wifi == null ? undefined : sn(d.wifi)],
     ['ztl', 'ZTL', d.ztl == null ? undefined : sn(d.ztl)],

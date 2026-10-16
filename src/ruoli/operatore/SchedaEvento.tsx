@@ -36,9 +36,9 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
   return (
     <>
       <div className="px-5 pt-4">
-        <p className="text-[13px] font-bold tracking-wider uppercase text-tenue">Evento #{String(e.codice).padStart(4, '0')}</p>
-        <h1 className="font-display text-[34px] font-bold tracking-tight leading-[1.05] mt-1">{e.tipo_booth?.nome ?? 'Evento'}</h1>
-        <p className="text-base font-medium text-[#3F4047] mt-1.5">{dataLunga(e.allestimento_il)} · {e.citta}</p>
+        <p className="text-[13px] font-semibold tracking-wider text-tenue">Evento #{String(e.codice).padStart(4, '0')}</p>
+        <h1 className="font-display text-[34px] font-semibold tracking-tight leading-[1.05] mt-1">{e.tipo_booth?.nome ?? 'Evento'}</h1>
+        <p className="text-base font-medium text-[#3F4047] mt-1.5">{dataLunga(e.allestimento_il)}, {e.citta}</p>
       </div>
 
       <div className="flex flex-col gap-3.5 p-5">
@@ -52,7 +52,7 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
           <Card tono="avviso" className="p-4 flex gap-3">
             <AlertTriangle className="size-[22px] text-avviso-titolo shrink-0" aria-hidden />
             <div>
-              <p className="font-bold text-[15px] text-avviso-titolo">Accesso e scarico</p>
+              <p className="font-semibold text-[15px] text-avviso-titolo">Accesso e scarico</p>
               <p className="text-sm leading-relaxed mt-1 whitespace-pre-line">{e.note_accesso}</p>
             </div>
           </Card>
@@ -68,18 +68,18 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
         {e.referente_nome && (
           <Card className="p-4 flex flex-col gap-3">
             <div className="flex items-center gap-3">
-              <div className="size-11 rounded-full bg-accento-tenue text-accento-scuro font-bold flex items-center justify-center">{iniziali(e.referente_nome)}</div>
+              <div className="size-11 rounded-full bg-accento-tenue text-accento-scuro font-semibold flex items-center justify-center">{iniziali(e.referente_nome)}</div>
               <div>
-                <p className="text-xs font-bold text-tenue">Referente in loco</p>
-                <p className="font-bold text-[16px]">{e.referente_nome}</p>
+                <p className="text-xs font-semibold text-tenue">Referente in loco</p>
+                <p className="font-semibold text-[16px]">{e.referente_nome}</p>
               </div>
             </div>
             {numero && (
               <div className="flex gap-2">
-                <a href={`tel:${numero}`} className="flex-1 h-11 rounded-xl border border-bordo font-bold text-sm flex items-center justify-center gap-2">
+                <a href={`tel:${numero}`} className="flex-1 h-11 rounded-md border border-bordo font-semibold text-sm flex items-center justify-center gap-2">
                   <Phone className="size-4" aria-hidden /> Chiama
                 </a>
-                <a href={`https://wa.me/${numero.replace('+', '')}`} target="_blank" rel="noreferrer" className="flex-1 h-11 rounded-xl border border-bordo font-bold text-sm flex items-center justify-center gap-2">
+                <a href={`https://wa.me/${numero.replace('+', '')}`} target="_blank" rel="noreferrer" className="flex-1 h-11 rounded-md border border-bordo font-semibold text-sm flex items-center justify-center gap-2">
                   <MessageCircle className="size-4" aria-hidden /> WhatsApp
                 </a>
               </div>
@@ -89,7 +89,7 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
 
         {e.note && (
           <Card className="p-4">
-            <p className="text-xs font-bold text-tenue mb-1">Note</p>
+            <p className="text-xs font-semibold text-tenue mb-1">Note</p>
             <p className="text-[15px] whitespace-pre-line">{e.note}</p>
           </Card>
         )}
@@ -107,7 +107,7 @@ function Programma({ e }: { e: EventoDettaglio }) {
   const passi = [
     e.ritiro_magazzino_il && {
       ora: e.ritiro_magazzino_il, titolo: 'Ritiro al magazzino',
-      nota: [e.magazzino?.nome, e.viaggio_minuti && `~${e.viaggio_minuti} min di viaggio`].filter(Boolean).join(' · '),
+      nota: [e.magazzino?.nome, e.viaggio_minuti && `~${e.viaggio_minuti} min di viaggio`].filter(Boolean).join(', '),
       stile: 'border-[3px] border-accento',
     },
     { ora: e.allestimento_il, titolo: 'Allestimento', stile: 'bg-accento' },
@@ -121,13 +121,13 @@ function Programma({ e }: { e: EventoDettaglio }) {
       <ol>
         {passi.map((p, i) => (
           <li key={p.titolo} className="flex gap-3.5">
-            <span className="w-12 font-bold text-[15px]">{ora(p.ora)}</span>
+            <span className="w-12 font-semibold text-[15px]">{ora(p.ora)}</span>
             <span className="flex flex-col items-center" aria-hidden>
               <span className={cn('size-3 rounded-full mt-1 box-border', p.stile)} />
               {i < passi.length - 1 && <span className="w-0.5 flex-1 bg-bordo" />}
             </span>
             <div className={cn('flex-1', i < passi.length - 1 && 'pb-4')}>
-              <p className="font-bold text-[15px]">{p.titolo}</p>
+              <p className="font-semibold text-[15px]">{p.titolo}</p>
               {p.nota && <p className="text-[13px] text-tenue mt-0.5">{p.nota}</p>}
             </div>
           </li>
@@ -139,10 +139,10 @@ function Programma({ e }: { e: EventoDettaglio }) {
 
 function Info({ etichetta, valore, nota, piccolo }: { etichetta: string; valore: string; nota?: string; piccolo?: boolean }) {
   return (
-    <Card className="rounded-2xl p-3.5">
-      <p className="text-xs font-bold text-tenue">{etichetta}</p>
-      <p className={cn('font-bold mt-1', piccolo ? 'text-[15px] leading-snug' : 'text-[17px]')}>{valore}</p>
-      {nota && <p className="text-xs font-bold text-urgente-testo mt-0.5">{nota}</p>}
+    <Card className="rounded-[10px] p-3.5">
+      <p className="text-xs font-semibold text-tenue">{etichetta}</p>
+      <p className={cn('font-semibold mt-1', piccolo ? 'text-[15px] leading-snug' : 'text-[17px]')}>{valore}</p>
+      {nota && <p className="text-xs font-semibold text-urgente-testo mt-0.5">{nota}</p>}
     </Card>
   )
 }

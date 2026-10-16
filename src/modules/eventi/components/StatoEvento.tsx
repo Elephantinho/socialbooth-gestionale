@@ -14,7 +14,7 @@ const stati: Record<Enum<'stato_evento'>, { etichetta: string; stile: string; pu
 export function StatoEvento({ stato, className }: { stato: Enum<'stato_evento'>; className?: string }) {
   const s = stati[stato]
   return (
-    <span className={cn('inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-bold whitespace-nowrap', s.stile, className)}>
+    <span className={cn('inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold whitespace-nowrap', s.stile, className)}>
       <span className={cn('size-2 rounded-full', s.punto)} aria-hidden />
       {s.etichetta}
     </span>

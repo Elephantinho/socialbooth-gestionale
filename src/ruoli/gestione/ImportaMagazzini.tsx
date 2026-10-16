@@ -62,7 +62,7 @@ export function ImportaMagazzini({ onFatto }: { onFatto: () => void }) {
       </p>
       <div className="flex flex-wrap gap-2">
         <Pulsante variante="secondario" icona={<Download className="size-4" aria-hidden />} onClick={scaricaModello}>Scarica modello</Pulsante>
-        <label className="h-11 px-4 rounded-xl bg-inchiostro text-white text-sm font-bold inline-flex items-center gap-2 cursor-pointer">
+        <label className="h-11 px-4 rounded-md bg-inchiostro text-white text-sm font-semibold inline-flex items-center gap-2 cursor-pointer">
           <FileUp className="size-4" aria-hidden /> Scegli file CSV
           <input type="file" accept=".csv,text/csv" className="sr-only" onChange={(e) => e.target.files?.[0] && leggi(e.target.files[0])} />
         </label>
@@ -76,7 +76,7 @@ export function ImportaMagazzini({ onFatto }: { onFatto: () => void }) {
               {scartate.slice(0, 8).map((r) => <li key={r.riga}>Riga {r.riga}: {!r.regione ? 'regione non riconosciuta' : 'mancano dati'}</li>)}
             </ul>
           )}
-          <div className="max-h-56 overflow-auto rounded-xl border border-bordo">
+          <div className="max-h-56 overflow-auto rounded-md border border-bordo">
             <table className="w-full text-sm">
               <tbody>
                 {valide.map((m, i) => (
@@ -84,15 +84,15 @@ export function ImportaMagazzini({ onFatto }: { onFatto: () => void }) {
                     <td className="px-3 py-2 font-semibold">{m.nome}</td>
                     <td className="px-3 py-2 text-tenue">{m.indirizzo}, {m.citta}</td>
                     <td className="px-3 py-2">{m.regione}</td>
-                    <td className="px-3 py-2 text-right text-xs font-bold">{i < fatti ? '✓' : ''}</td>
+                    <td className="px-3 py-2 text-right text-xs font-semibold">{i < fatti ? '✓' : ''}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          {inCorso && <p className="text-sm font-bold" role="status">Importo e cerco le posizioni… {fatti}/{valide.length}</p>}
+          {inCorso && <p className="text-sm font-semibold" role="status">Importo e cerco le posizioni… {fatti}/{valide.length}</p>}
           {problemi.length > 0 && (
-            <ul className="text-xs text-avviso-testo bg-avviso rounded-xl p-3 list-disc pl-6">
+            <ul className="text-xs text-avviso-testo bg-avviso rounded-md p-3 list-disc pl-6">
               {problemi.map((p) => <li key={p}>{p}</li>)}
             </ul>
           )}

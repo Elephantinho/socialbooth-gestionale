@@ -76,16 +76,16 @@ export function DettaglioOperatore() {
         )}
         <div className="flex-[1_1_260px] min-w-0 flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{nome}</h1>
-            {!o.attivo && <span className="text-xs font-bold bg-avviso text-avviso-testo px-2.5 py-1 rounded-full">In attesa di approvazione</span>}
+            <h1 className="font-display text-3xl md:text-4xl font-semibold tracking-tight">{nome}</h1>
+            {!o.attivo && <span className="text-xs font-semibold bg-avviso text-avviso-testo px-2.5 py-1 rounded-full">In attesa di approvazione</span>}
           </div>
           <div className="flex flex-wrap gap-1.5">
             {o.zone?.length ? o.zone.map((z) => (
-              <span key={z.regione} className="text-xs font-bold bg-accento-tenue text-accento-scuro px-2.5 py-1 rounded-full">{z.regione}</span>
-            )) : <span className="text-xs font-bold text-urgente-testo">Nessuna regione</span>}
+              <span key={z.regione} className="text-xs font-semibold bg-accento-tenue text-accento-scuro px-2.5 py-1 rounded-full">{z.regione}</span>
+            )) : <span className="text-xs font-semibold text-urgente-testo">Nessuna regione</span>}
           </div>
           <p className="text-sm text-tenue flex flex-wrap gap-x-3 gap-y-1">
-            <span className="inline-flex items-center gap-1.5 font-semibold text-inchiostro"><Building2 className="size-4" aria-hidden />{o.magazzino ? `${o.magazzino.nome} · ${o.magazzino.citta}` : 'Nessun magazzino'}</span>
+            <span className="inline-flex items-center gap-1.5 font-semibold text-inchiostro"><Building2 className="size-4" aria-hidden />{o.magazzino ? `${o.magazzino.nome}, ${o.magazzino.citta}` : 'Nessun magazzino'}</span>
             {soldi && <span>{o.tariffa_oraria != null ? `${euro(o.tariffa_oraria)}/ora` : 'Tariffa da impostare'}</span>}
             {o.telefono && <span>{o.telefono}</span>}
           </p>
@@ -93,12 +93,12 @@ export function DettaglioOperatore() {
         <div className="flex gap-2 flex-wrap">
           {numero && (
             <>
-              <a href={`tel:${numero}`} className="h-11 px-4 rounded-xl border border-bordo-forte font-bold text-sm inline-flex items-center gap-2 hover:bg-sfondo"><Phone className="size-4" aria-hidden />Chiama</a>
-              <a href={`https://wa.me/${numero.replace('+', '')}`} target="_blank" rel="noreferrer" className="h-11 px-4 rounded-xl border border-bordo-forte font-bold text-sm inline-flex items-center gap-2 hover:bg-sfondo"><MessageCircle className="size-4" aria-hidden />WhatsApp</a>
+              <a href={`tel:${numero}`} className="h-11 px-4 rounded-md border border-bordo-forte font-semibold text-sm inline-flex items-center gap-2 hover:bg-sfondo"><Phone className="size-4" aria-hidden />Chiama</a>
+              <a href={`https://wa.me/${numero.replace('+', '')}`} target="_blank" rel="noreferrer" className="h-11 px-4 rounded-md border border-bordo-forte font-semibold text-sm inline-flex items-center gap-2 hover:bg-sfondo"><MessageCircle className="size-4" aria-hidden />WhatsApp</a>
             </>
           )}
           {soldi && (
-            <Link to={`/riepilogo/${o.id}/${meseCorrente()}`} className="h-11 px-4 rounded-xl border border-bordo-forte font-bold text-sm inline-flex items-center gap-2 hover:bg-sfondo">
+            <Link to={`/riepilogo/${o.id}/${meseCorrente()}`} className="h-11 px-4 rounded-md border border-bordo-forte font-semibold text-sm inline-flex items-center gap-2 hover:bg-sfondo">
               <FileDown className="size-4" aria-hidden /> Riepilogo PDF
             </Link>
           )}
@@ -132,10 +132,10 @@ export function DettaglioOperatore() {
       <Card className="overflow-hidden">
         <div className="p-5 flex flex-wrap items-center justify-between gap-3 border-b border-bordo">
           <TitoloSezione>Eventi</TitoloSezione>
-          <div className="flex rounded-xl bg-sfondo p-1" role="tablist">
-            {([['mese', `Questo mese · ${delMese.length}`], ['prossimi', `Prossimi · ${prossimi.length}`], ['archivio', `Archivio · ${archivio.length}`]] as const).map(([k, t]) => (
+          <div className="flex rounded-md bg-sfondo p-1" role="tablist">
+            {([['mese', `Questo mese, ${delMese.length}`], ['prossimi', `Prossimi, ${prossimi.length}`], ['archivio', `Archivio, ${archivio.length}`]] as const).map(([k, t]) => (
               <button key={k} role="tab" aria-selected={scheda === k} onClick={() => setScheda(k)}
-                className={cn('h-9 px-3.5 rounded-[9px] text-sm font-bold cursor-pointer whitespace-nowrap transition', scheda === k ? 'bg-inchiostro text-white' : 'text-tenue hover:text-inchiostro')}>
+                className={cn('h-9 px-3.5 rounded-[5px] text-sm font-semibold cursor-pointer whitespace-nowrap transition', scheda === k ? 'bg-inchiostro text-white' : 'text-tenue hover:text-inchiostro')}>
                 {t}
               </button>
             ))}
@@ -148,7 +148,7 @@ export function DettaglioOperatore() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs text-tenue">
-                  {['Data', 'Evento', 'Stato', 'Ore', ...(soldi ? ['Compenso', 'Margine'] : [])].map((h) => <th key={h} className="px-5 py-3 font-bold whitespace-nowrap">{h}</th>)}
+                  {['Data', 'Evento', 'Stato', 'Ore', ...(soldi ? ['Compenso', 'Margine'] : [])].map((h) => <th key={h} className="px-5 py-3 font-semibold whitespace-nowrap">{h}</th>)}
                 </tr>
               </thead>
               <tbody>
@@ -156,15 +156,15 @@ export function DettaglioOperatore() {
                   <tr key={e.id} className="border-t border-bordo hover:bg-sfondo/60 transition">
                     <td className="px-5 py-3 whitespace-nowrap font-semibold">{dataBreve(e.allestimento_il)}</td>
                     <td className="px-5 py-3 min-w-48">
-                      <Link to={`/gestione/eventi/${e.id}`} className="font-bold hover:underline">{e.tipo_booth?.nome ?? 'Evento'} · {e.citta}</Link>
+                      <Link to={`/gestione/eventi/${e.id}`} className="font-semibold hover:underline">{e.tipo_booth?.nome ?? 'Evento'}, {e.citta}</Link>
                       {e.cliente?.nome && <p className="text-xs text-tenue">{e.cliente.nome}</p>}
                     </td>
                     <td className="px-5 py-3"><StatoEvento stato={e.stato} /></td>
                     <td className="px-5 py-3 whitespace-nowrap">{minuti != null ? durata(minuti) : '—'}</td>
-                    {soldi && <td className="px-5 py-3 whitespace-nowrap font-bold">{compenso != null ? euro(compenso) : '—'}</td>}
+                    {soldi && <td className="px-5 py-3 whitespace-nowrap font-semibold">{compenso != null ? euro(compenso) : '—'}</td>}
                     {soldi && <td className="px-5 py-3 whitespace-nowrap">
                       {margine == null ? <span className="text-tenue text-xs font-semibold">ricavo mancante</span> : (
-                        <span className={cn('font-bold', margine < 0 ? 'text-urgente-testo' : 'text-accento')}>
+                        <span className={cn('font-semibold', margine < 0 ? 'text-urgente-testo' : 'text-accento')}>
                           {euro(margine)}{!definitivo && <span className="text-xs font-semibold text-tenue"> prev.</span>}
                         </span>
                       )}

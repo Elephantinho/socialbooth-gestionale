@@ -56,6 +56,16 @@ anche tra i *Redirect URLs*. Così il link di conferma email riporta all'app.
 - Costi e compensi (approvazione), **Andamento**: com'è andata (mese, regione, operatori, clienti) e cosa arriva (previsione)
 - Carte aziendali, clienti e location in Archivio, utenti e ruoli, impostazioni
 
+**Richieste**: chiunque chiede qualcosa a un ruolo o a una persona (carta a un operatore o a un magazzino,
+attrezzatura da portare, trasferimenti tra magazzini, guasti). Chi la riceve la prende in carico e la segna fatta;
+una richiesta di carta fatta registra da sola la ricarica dell'operatore.
+
+**Chat della squadra**: un canale per tutti e messaggi diretti, con chi è online e "visto X fa".
+I messaggi diretti arrivano anche come notifica sul telefono.
+
+**Aspetto**: un solo carattere (Schibsted Grotesk), fondo grigio freddo e fogli bianchi, blu stampa per le azioni,
+angoli 10px per i pannelli e 6px per i comandi, niente ombre né animazioni decorative. Tutto in `src/index.css`.
+
 **Notifiche sul telefono**: funzionano su Android (Chrome) anche senza installare nulla; su iPhone dopo
 "Aggiungi a Home". Le manda la funzione `supabase/functions/invia-push` a ogni notifica nuova; le chiavi
 stanno nella tabella `segreti` del database, mai nel codice.

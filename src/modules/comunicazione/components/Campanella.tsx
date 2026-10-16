@@ -39,7 +39,7 @@ export function Campanella({ scura }: { scura?: boolean }) {
           scura ? 'bg-scuro-2 text-white hover:bg-scuro-3' : 'bg-superficie border border-bordo hover:border-bordo-forte')}>
         <Bell className="size-5" aria-hidden />
         {nonLette > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-urgente text-white text-[11px] font-bold flex items-center justify-center border-2 border-superficie">
+          <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-urgente text-white text-[11px] font-semibold flex items-center justify-center border-2 border-superficie">
             {nonLette > 9 ? '9+' : nonLette}
           </span>
         )}
@@ -49,16 +49,16 @@ export function Campanella({ scura }: { scura?: boolean }) {
         {aperta && (
           <motion.div initial={{ opacity: 0, y: -6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 w-[min(360px,calc(100vw-32px))] max-h-[70vh] overflow-y-auto rounded-2xl bg-superficie text-inchiostro border border-bordo shadow-[0_20px_50px_-20px_rgba(21,22,26,0.45)] z-50">
+            className="absolute right-0 mt-2 w-[min(360px,calc(100vw-32px))] max-h-[70vh] overflow-y-auto rounded-[10px] bg-superficie text-inchiostro border border-bordo shadow-[0_20px_50px_-20px_rgba(21,22,26,0.45)] z-50">
             <div className="flex items-center justify-between px-4 py-3 border-b border-bordo sticky top-0 bg-superficie">
-              <p className="font-bold">Notifiche</p>
+              <p className="font-semibold">Notifiche</p>
               {nonLette > 0 && (
-                <button onClick={() => segna.mutate({ utenteId: profilo.id })} className="text-xs font-bold text-accento inline-flex items-center gap-1 cursor-pointer">
+                <button onClick={() => segna.mutate({ utenteId: profilo.id })} className="text-xs font-semibold text-accento inline-flex items-center gap-1 cursor-pointer">
                   <CheckCheck className="size-4" aria-hidden /> Segna tutte lette
                 </button>
               )}
             </div>
-            <AttivaNotifiche modo="impostazione" className="m-3 rounded-xl" />
+            <AttivaNotifiche modo="impostazione" className="m-3 rounded-md" />
             {!data?.length ? (
               <p className="p-6 text-sm text-tenue text-center">Nessuna notifica per ora.</p>
             ) : data.map((n) => (
@@ -69,7 +69,7 @@ export function Campanella({ scura }: { scura?: boolean }) {
               }} className={cn('w-full text-left px-4 py-3 flex gap-3 border-b border-bordo last:border-0 hover:bg-sfondo transition cursor-pointer', !n.letta && 'bg-accento-tenue/30')}>
                 <span className={cn('size-2 rounded-full mt-1.5 shrink-0', n.letta ? 'bg-transparent' : 'bg-accento')} aria-hidden />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-bold">{n.titolo}</span>
+                  <span className="block text-sm font-semibold">{n.titolo}</span>
                   {n.testo && <span className="block text-sm text-tenue truncate">{n.testo}</span>}
                 </span>
                 <span className="text-[11px] text-tenue whitespace-nowrap">{quando(n.creata_il)}</span>

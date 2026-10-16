@@ -38,6 +38,42 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['montaggio']['Insert']>
         Relationships: []
       }
+      richieste: {
+        Row: {
+          id: string; tipo: 'carta' | 'attrezzatura' | 'trasferimento' | 'manutenzione' | 'altro'; titolo: string; dettagli: string | null
+          da_id: string; per_ruolo: Database['public']['Enums']['ruolo'] | null; per_utente: string | null
+          operatore_id: string | null; magazzino_id: string | null; evento_id: string | null; quantita: number | null; scadenza: string | null
+          stato: 'aperta' | 'in_corso' | 'fatta' | 'annullata'; preso_da: string | null; nota_chiusura: string | null
+          creato_il: string; chiuso_il: string | null
+        }
+        Insert: {
+          id?: string; tipo: 'carta' | 'attrezzatura' | 'trasferimento' | 'manutenzione' | 'altro'; titolo: string; dettagli?: string | null
+          da_id?: string; per_ruolo?: Database['public']['Enums']['ruolo'] | null; per_utente?: string | null
+          operatore_id?: string | null; magazzino_id?: string | null; evento_id?: string | null; quantita?: number | null; scadenza?: string | null
+          stato?: 'aperta' | 'in_corso' | 'fatta' | 'annullata'; preso_da?: string | null; nota_chiusura?: string | null; chiuso_il?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['richieste']['Insert']>
+        Relationships: [
+          { foreignKeyName: 'richieste_da_id_fkey'; columns: ['da_id']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
+          { foreignKeyName: 'richieste_per_utente_fkey'; columns: ['per_utente']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
+          { foreignKeyName: 'richieste_operatore_id_fkey'; columns: ['operatore_id']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
+          { foreignKeyName: 'richieste_preso_da_fkey'; columns: ['preso_da']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
+          { foreignKeyName: 'richieste_magazzino_id_fkey'; columns: ['magazzino_id']; isOneToOne: false; referencedRelation: 'magazzini'; referencedColumns: ['id'] },
+          { foreignKeyName: 'richieste_evento_id_fkey'; columns: ['evento_id']; isOneToOne: false; referencedRelation: 'eventi'; referencedColumns: ['id'] },
+        ]
+      }
+      chat_messaggi: {
+        Row: { id: string; canale: string; autore_id: string; testo: string; creato_il: string }
+        Insert: { id?: string; canale: string; autore_id?: string; testo: string; creato_il?: string }
+        Update: Partial<Database['public']['Tables']['chat_messaggi']['Insert']>
+        Relationships: []
+      }
+      chat_letture: {
+        Row: { utente_id: string; canale: string; letto_il: string }
+        Insert: { utente_id?: string; canale: string; letto_il?: string }
+        Update: Partial<Database['public']['Tables']['chat_letture']['Insert']>
+        Relationships: []
+      }
       notifiche: {
         Row: { id: string; utente_id: string; titolo: string; testo: string | null; link: string | null; letta: boolean; creata_il: string }
         Insert: { id?: string; utente_id: string; titolo: string; testo?: string | null; link?: string | null; letta?: boolean; creata_il?: string }
@@ -277,6 +313,9 @@ export type Database = {
       media_stampe_per_evento: { Args: never; Returns: number }
       invia_ricarica_carta: { Args: { p_operatore: string; p_stampe: number; p_note?: string }; Returns: undefined }
       segna_attrezzatura: { Args: { p_evento: string; p_azione: 'prelievo' | 'rientro' }; Returns: undefined }
+      persone_squadra: { Args: never; Returns: { id: string; nome: string; cognome: string; foto: string | null; ruolo: Database['public']['Enums']['ruolo']; visto_il: string | null; regioni: string[] }[] }
+      chat_non_letti: { Args: never; Returns: { canale: string; non_letti: number; ultimo: string }[] }
+      segna_visto: { Args: never; Returns: undefined }
       chiave_push: { Args: never; Returns: string | null }
       segnala_carta: { Args: { p_stampe: number; p_operatore?: string }; Returns: undefined }
       registra_tappa: { Args: { p_evento: string; p_tappa: string; p_lat?: number; p_lng?: number }; Returns: undefined }

@@ -15,7 +15,7 @@ export function ZoneScoperte({ futuri }: { futuri: EventoLista[] }) {
       <AlertTriangle className="size-5 text-avviso-titolo shrink-0" aria-hidden />
       <p className="text-sm">
         <strong className="text-avviso-titolo">Zone scoperte:</strong> ci sono eventi in {scoperte.join(', ')} ma nessun operatore attivo.{' '}
-        <Link to="/gestione/operatori" className="font-bold underline">Vai agli operatori</Link>
+        <Link to="/gestione/operatori" className="font-semibold underline">Vai agli operatori</Link>
       </p>
     </Card>
   )

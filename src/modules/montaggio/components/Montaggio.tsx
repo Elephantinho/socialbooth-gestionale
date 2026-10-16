@@ -35,7 +35,7 @@ export function ChecklistMontaggio({ eventoId, wifi }: { eventoId: string; wifi:
     <Card className="p-4 flex flex-col gap-3">
       <div className="flex justify-between items-center">
         <TitoloSezione className="text-[15px]">Montaggio</TitoloSezione>
-        <span className={cn('text-xs font-bold', fatte.length === voci.length ? 'text-accento' : 'text-tenue')}>{fatte.length}/{voci.length}</span>
+        <span className={cn('text-xs font-semibold', fatte.length === voci.length ? 'text-accento' : 'text-tenue')}>{fatte.length}/{voci.length}</span>
       </div>
       <div className="flex flex-col">
         {voci.map((v) => (
@@ -47,11 +47,11 @@ export function ChecklistMontaggio({ eventoId, wifi }: { eventoId: string; wifi:
       </div>
 
       <div className="border-t border-bordo pt-3 flex flex-col gap-2">
-        <p className="text-sm font-bold">Foto del set montato</p>
+        <p className="text-sm font-semibold">Foto del set montato</p>
         <p className="text-xs text-tenue">Arriva subito al project: è la prova per il cliente che è tutto pronto.</p>
         {!!foto.data?.length && (
           <div className="flex gap-2 overflow-x-auto">
-            {foto.data.map((f) => f.url && <img key={f.id} src={f.url} alt={`Set montato alle ${ora(f.creato_il)}`} className="h-24 w-24 object-cover rounded-xl border border-bordo shrink-0" />)}
+            {foto.data.map((f) => f.url && <img key={f.id} src={f.url} alt={`Set montato alle ${ora(f.creato_il)}`} className="h-24 w-24 object-cover rounded-md border border-bordo shrink-0" />)}
           </div>
         )}
         <input ref={input} type="file" accept="image/*" capture="environment" className="hidden"
@@ -86,7 +86,7 @@ export function StatoMontaggio({ eventoId }: { eventoId: string }) {
         <div className="grid grid-cols-3 gap-2">
           {foto.data.map((f) => f.url && (
             <a key={f.id} href={f.url} target="_blank" rel="noreferrer">
-              <img src={f.url} alt={`Set montato alle ${ora(f.creato_il)}`} className="aspect-square w-full object-cover rounded-xl border border-bordo" />
+              <img src={f.url} alt={`Set montato alle ${ora(f.creato_il)}`} className="aspect-square w-full object-cover rounded-md border border-bordo" />
             </a>
           ))}
         </div>

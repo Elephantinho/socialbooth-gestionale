@@ -7,11 +7,11 @@ import { Mappa, type Segnaposto } from '@/shared/ui/Mappa'
 import type { EventoGestione as EventoLista } from '../types'
 
 const colori: Record<string, { colore: string; etichetta: string }> = {
-  da_assegnare: { colore: '#D9480F', etichetta: 'Da assegnare' },
-  proposto: { colore: '#E8A33D', etichetta: 'In attesa' },
-  confermato: { colore: '#00897B', etichetta: 'Confermato' },
-  in_corso: { colore: '#15161A', etichetta: 'In corso' },
-  magazzino: { colore: '#5A5FC4', etichetta: 'Magazzino' },
+  da_assegnare: { colore: '#C2321F', etichetta: 'Da assegnare' },
+  proposto: { colore: '#D89A00', etichetta: 'In attesa' },
+  confermato: { colore: '#1E46C8', etichetta: 'Confermato' },
+  in_corso: { colore: '#16181D', etichetta: 'In corso' },
+  magazzino: { colore: '#8A8F98', etichetta: 'Magazzino' },
 }
 
 /** Eventi e magazzini sulla mappa: un clic su un evento lo apre */
@@ -22,7 +22,7 @@ export function MappaEventi({ eventi }: { eventi: EventoLista[] }) {
   const punti = useMemo<Segnaposto[]>(() => {
     const s: Segnaposto[] = eventi.filter((e) => e.lat != null && e.lng != null && colori[e.stato]).map((e) => ({
       id: e.id, lat: e.lat!, lng: e.lng!, colore: colori[e.stato].colore, raggio: 8,
-      etichetta: `${dataBreve(e.allestimento_il)} · ${e.tipo_booth?.nome ?? 'Evento'} · ${e.citta}`,
+      etichetta: `${dataBreve(e.allestimento_il)}, ${e.tipo_booth?.nome ?? 'Evento'}, ${e.citta}`,
       onClick: () => naviga(`/gestione/eventi/${e.id}`),
     }))
     for (const m of magazzini.data ?? []) {

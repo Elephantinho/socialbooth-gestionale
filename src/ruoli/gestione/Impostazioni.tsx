@@ -57,7 +57,7 @@ function Voce({ chiave, valore, descrizione, modificabile }: { chiave: string; v
         setOk(false)
         salva.mutate({ chiave, valore: v === '' ? null : Number(v.replace(',', '.')) }, { onSuccess: () => { setOk(true); qc.invalidateQueries({ queryKey: ['impostazioni'] }) } })
       }}>
-        <p className="font-bold">{e.titolo}</p>
+        <p className="font-semibold">{e.titolo}</p>
         {descrizione && <p className="text-sm text-tenue -mt-2">{descrizione}</p>}
         <div className="flex gap-2 items-end">
           <Campo etichetta={e.unita} type="number" step={e.passo} min={0} value={v} disabled={!modificabile} onChange={(ev) => setV(ev.target.value)} className="flex-1" />

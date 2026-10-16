@@ -288,6 +288,7 @@ export function useTempoReale() {
   useEffect(() => {
     const canale = supabase.channel(`modifiche-${crypto.randomUUID()}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'eventi' }, () => qc.invalidateQueries({ queryKey: chiavi.tutti }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'richieste' }, () => qc.invalidateQueries({ queryKey: ['richieste'] }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'proposte' }, () => qc.invalidateQueries({ queryKey: chiavi.tutti }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'ore_lavorate' }, () => qc.invalidateQueries({ queryKey: chiavi.ore }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'costi_evento' }, () => {

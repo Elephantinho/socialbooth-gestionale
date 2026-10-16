@@ -1,5 +1,8 @@
+import { useProfilo } from '@/modules/auth/AuthProvider'
+import { useRichieste } from '@/modules/richieste/api'
+import { perMe } from '@/modules/richieste/components/ListaRichieste'
 import { Link } from 'react-router-dom'
-import { CalendarCheck, FileText, Hourglass, Printer, UserCheck, UserX, Wallet } from 'lucide-react'
+import { Inbox, CalendarCheck, FileText, Hourglass, Printer, UserCheck, UserX, Wallet } from 'lucide-react'
 import { usePuo, type Permesso } from '@/modules/auth/permessi'
 import { useReportOre } from '@/modules/eventi/api'
 import { useOperatori } from '@/modules/anagrafiche/api'
@@ -26,6 +29,8 @@ export function DaFare({ futuri, tutti }: { futuri: EventoLista[]; tutti: Evento
   const ore = useReportOre(meseCorrente(), { enabled: puo('ore.approva') })
   const operatori = useOperatori()
   const carta = useScorteVisibili()
+  const io = useProfilo()
+  const richiestePerMe = (useRichieste().data ?? []).filter((r) => (r.stato === 'aperta' || r.stato === 'in_corso') && perMe(r, io)).length
 
   const daAssegnare = futuri.filter((e) => e.stato === 'da_assegnare').length
   const inAttesa = futuri.filter((e) => e.stato === 'proposto').length
@@ -37,11 +42,12 @@ export function DaFare({ futuri, tutti }: { futuri: EventoLista[]; tutti: Evento
   const daIncassare = completati.filter((e) => e.fattura_importo != null && !e.fattura_pagata).reduce((s, e) => s + Number(e.fattura_importo), 0)
 
   const riquadri: Riquadro[] = [
-    { permesso: 'eventi.assegna', a: '/gestione?filtro=assegnare', valore: daAssegnare, etichetta: 'eventi da assegnare', urgente: daAssegnare > 0, Icona: UserX },
-    { permesso: 'eventi.assegna', a: '/gestione?filtro=attesa', valore: inAttesa, etichetta: 'in attesa di risposta', urgente: false, Icona: Hourglass },
-    { permesso: 'operatori.gestisci', a: '/gestione/operatori', valore: nuoviOperatori, etichetta: 'operatori da approvare', urgente: nuoviOperatori > 0, Icona: UserCheck },
-    { permesso: 'carta.ricarica', valore: cartaRossa, etichetta: 'operatori senza carta', urgente: cartaRossa > 0, Icona: Printer },
-    { permesso: 'ore.approva', a: '/gestione/report', valore: daApprovare, etichetta: 'chiusure da approvare', urgente: daApprovare > 0, Icona: CalendarCheck },
+    { permesso: [], a: '/gestione/richieste', valore: richiestePerMe, etichetta: 'richieste per te', urgente: richiestePerMe > 0, Icona: Inbox },
+    { permesso: 'eventi.assegna', a: '/gestione?filtro=assegnare', valore: daAssegnare, etichetta: 'eventi senza operatore', urgente: daAssegnare > 0, Icona: UserX },
+    { permesso: 'eventi.assegna', a: '/gestione?filtro=attesa', valore: inAttesa, etichetta: 'proposte che l\'operatore non ha ancora accettato', urgente: false, Icona: Hourglass },
+    { permesso: 'operatori.gestisci', a: '/gestione/operatori', valore: nuoviOperatori, etichetta: 'nuovi operatori da attivare', urgente: nuoviOperatori > 0, Icona: UserCheck },
+    { permesso: 'carta.ricarica', valore: cartaRossa, etichetta: 'operatori con poca carta', urgente: cartaRossa > 0, Icona: Printer },
+    { permesso: 'ore.approva', a: '/gestione/report', valore: daApprovare, etichetta: 'eventi finiti con ore da approvare', urgente: daApprovare > 0, Icona: CalendarCheck },
     { permesso: 'fatture', a: '/gestione/archivio?filtro=fatturare', valore: daFatturare, etichetta: 'eventi da fatturare', urgente: daFatturare > 0, Icona: FileText },
     { permesso: 'fatture', a: '/gestione/archivio?filtro=incassare', valore: euro(Math.round(daIncassare)), etichetta: 'da incassare', urgente: false, Icona: Wallet },
   ]

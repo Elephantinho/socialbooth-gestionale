@@ -30,12 +30,12 @@ export function CalendarioOperatore() {
 
   return (
     <div className="flex flex-col gap-5 px-5 pt-sicura pb-6">
-      <h1 className="font-display text-[30px] font-bold tracking-tight pt-2">Calendario</h1>
+      <h1 className="font-display text-[30px] font-semibold tracking-tight pt-2">Calendario</h1>
 
-      <div className="flex rounded-xl bg-superficie border border-bordo p-1" role="tablist">
+      <div className="flex rounded-md bg-superficie border border-bordo p-1" role="tablist">
         {[false, true].map((p) => (
           <button key={String(p)} role="tab" aria-selected={mostraPassati === p} onClick={() => setMostraPassati(p)}
-            className={`flex-1 h-10 rounded-[9px] text-sm font-bold cursor-pointer ${mostraPassati === p ? 'bg-inchiostro text-white' : 'text-tenue'}`}>
+            className={`flex-1 h-10 rounded-[5px] text-sm font-semibold cursor-pointer ${mostraPassati === p ? 'bg-inchiostro text-white' : 'text-tenue'}`}>
             {p ? 'Passati' : 'In programma'}
           </button>
         ))}
@@ -45,16 +45,16 @@ export function CalendarioOperatore() {
         <Card><Vuoto titolo={mostraPassati ? 'Nessun evento passato' : 'Nessun evento in programma'} /></Card>
       ) : Object.entries(gruppi).map(([mese, eventi]) => (
         <section key={mese} className="flex flex-col gap-2">
-          <h2 className="text-sm font-bold text-tenue uppercase tracking-wider">{mese}</h2>
+          <h2 className="text-sm font-semibold text-tenue">{mese}</h2>
           {eventi.map((e) => (
             <Link key={e.id} to={`/operatore/eventi/${e.id}`}>
               <Card className="p-4 flex items-center gap-3 active:scale-[0.99] transition">
                 <div className="w-14 text-center shrink-0">
-                  <p className="font-display text-2xl font-bold leading-none">{new Date(e.allestimento_il).getDate()}</p>
-                  <p className="text-xs font-bold text-tenue uppercase">{new Date(e.allestimento_il).toLocaleDateString('it-IT', { weekday: 'short' })}</p>
+                  <p className="font-display text-2xl font-semibold leading-none">{new Date(e.allestimento_il).getDate()}</p>
+                  <p className="text-xs font-semibold text-tenue ">{new Date(e.allestimento_il).toLocaleDateString('it-IT', { weekday: 'short' })}</p>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold truncate">{e.tipo_booth?.nome ?? 'Evento'} · {e.citta}</p>
+                  <p className="font-semibold truncate">{e.tipo_booth?.nome ?? 'Evento'}, {e.citta}</p>
                   <p className="text-sm text-tenue">{ora(e.allestimento_il)} – {ora(e.smontaggio_il)}</p>
                 </div>
                 {e.stato === 'completato' ? <StatoEvento stato={e.stato} /> : <ArrowRight className="size-5 text-tenue" aria-hidden />}
@@ -85,7 +85,7 @@ function Indisponibilita() {
       <div className="flex items-center justify-between">
         <TitoloSezione className="text-[15px] flex items-center gap-2"><CalendarOff className="size-4" aria-hidden /> Giorni non disponibile</TitoloSezione>
         {!aperto && (
-          <button onClick={() => setAperto(true)} className="text-sm font-bold text-accento inline-flex items-center gap-1 cursor-pointer">
+          <button onClick={() => setAperto(true)} className="text-sm font-semibold text-accento inline-flex items-center gap-1 cursor-pointer">
             <Plus className="size-4" aria-hidden /> Aggiungi
           </button>
         )}
@@ -113,9 +113,9 @@ function Indisponibilita() {
       )}
 
       {data?.map((i) => (
-        <div key={i.id} className="flex items-center justify-between gap-3 rounded-xl bg-sfondo px-3 py-2.5">
+        <div key={i.id} className="flex items-center justify-between gap-3 rounded-md bg-sfondo px-3 py-2.5">
           <div>
-            <p className="font-bold text-sm">{i.dal === i.al ? dataBreve(i.dal) : `${dataBreve(i.dal)} → ${dataBreve(i.al)}`}</p>
+            <p className="font-semibold text-sm">{i.dal === i.al ? dataBreve(i.dal) : `${dataBreve(i.dal)} → ${dataBreve(i.al)}`}</p>
             {i.motivo && <p className="text-xs text-tenue">{i.motivo}</p>}
           </div>
           <button aria-label="Elimina" onClick={() => elimina.mutate(i.id)} className="size-9 rounded-lg flex items-center justify-center text-tenue cursor-pointer">

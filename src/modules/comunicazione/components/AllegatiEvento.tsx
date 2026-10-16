@@ -17,7 +17,7 @@ export function AllegatiEvento({ eventoId, fotoSet }: { eventoId: string; fotoSe
   const scegli = (files: FileList | null, nome?: string, cartella?: string) => {
     setErrore(undefined)
     for (const file of Array.from(files ?? [])) {
-      carica.mutate({ eventoId, file, nome: nome ? `${nome} · ${new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}` : undefined, cartella }, { onError: setErrore })
+      carica.mutate({ eventoId, file, nome: nome ? `${nome}, ${new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}` : undefined, cartella }, { onError: setErrore })
     }
   }
 
@@ -27,12 +27,12 @@ export function AllegatiEvento({ eventoId, fotoSet }: { eventoId: string; fotoSe
         <TitoloSezione className="text-[15px] flex items-center gap-2"><Paperclip className="size-4" aria-hidden /> Documenti e foto</TitoloSezione>
         <div className="flex gap-1.5">
           {fotoSet && (
-            <label className="h-9 px-3 rounded-lg bg-inchiostro text-white text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer">
+            <label className="h-9 px-3 rounded-lg bg-inchiostro text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">
               <Camera className="size-3.5" aria-hidden /> Foto del set
               <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(e) => scegli(e.target.files, 'Foto del set', 'foto')} />
             </label>
           )}
-          <label className="h-9 px-3 rounded-lg border border-bordo-forte text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer hover:bg-sfondo">
+          <label className="h-9 px-3 rounded-lg border border-bordo-forte text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer hover:bg-sfondo">
             <Upload className="size-3.5" aria-hidden /> Carica
             <input type="file" multiple className="sr-only" onChange={(e) => scegli(e.target.files)} />
           </label>
@@ -47,13 +47,13 @@ export function AllegatiEvento({ eventoId, fotoSet }: { eventoId: string; fotoSe
           {data.map((a) => {
             const immagine = a.tipo?.startsWith('image/')
             return (
-              <li key={a.id} className="flex items-center gap-3 rounded-xl border border-bordo p-2.5">
+              <li key={a.id} className="flex items-center gap-3 rounded-md border border-bordo p-2.5">
                 <span className="size-9 rounded-lg bg-sfondo flex items-center justify-center shrink-0">
                   {immagine ? <Immagine className="size-4 text-accento" aria-hidden /> : <FileText className="size-4 text-tenue" aria-hidden />}
                 </span>
                 <button onClick={() => apriFile(a.percorso).catch(setErrore)} className="flex-1 min-w-0 text-left cursor-pointer">
-                  <span className="block text-sm font-bold truncate hover:underline">{a.nome}</span>
-                  <span className="block text-xs text-tenue">{[nomeCompleto(a.autore), dimensione(a.dimensione)].filter(Boolean).join(' · ')}</span>
+                  <span className="block text-sm font-semibold truncate hover:underline">{a.nome}</span>
+                  <span className="block text-xs text-tenue">{[nomeCompleto(a.autore), dimensione(a.dimensione)].filter(Boolean).join(', ')}</span>
                 </button>
                 <button aria-label={`Elimina ${a.nome}`} onClick={() => confirm(`Eliminare ${a.nome}?`) && elimina.mutate({ id: a.id, percorso: a.percorso, eventoId })}
                   className="size-9 rounded-lg flex items-center justify-center text-tenue hover:bg-sfondo cursor-pointer">

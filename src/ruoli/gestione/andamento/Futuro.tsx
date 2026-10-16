@@ -45,10 +45,10 @@ export function Futuro() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex rounded-xl bg-superficie border border-bordo p-1 w-fit flex-wrap" role="tablist">
+      <div className="flex rounded-md bg-superficie border border-bordo p-1 w-fit flex-wrap" role="tablist">
         {periodi.map((p) => (
           <button key={p.mesi} role="tab" aria-selected={mesi === p.mesi} onClick={() => setMesi(p.mesi)}
-            className={cn('h-9 px-4 rounded-[9px] text-sm font-bold cursor-pointer', mesi === p.mesi ? 'bg-inchiostro text-white' : 'text-tenue')}>
+            className={cn('h-9 px-4 rounded-[5px] text-sm font-semibold cursor-pointer', mesi === p.mesi ? 'bg-inchiostro text-white' : 'text-tenue')}>
             {p.etichetta}
           </button>
         ))}
@@ -64,7 +64,7 @@ export function Futuro() {
             <Numero valore={tondo(totale.compensi)} etichetta="compensi operatori" />
             <Numero valore={tondo(totale.carta)} etichetta="carta" />
             <Numero valore={tondo(totale.altriCosti - totale.carta)} etichetta="altri costi" />
-            <Numero valore={tondo(totale.margine)} etichetta={`margine · ${percentuale(totale.margine, totale.ricavi)}`} tono={totale.margine < 0 ? 'urgente' : 'scuro'} />
+            <Numero valore={tondo(totale.margine)} etichetta={`margine, ${percentuale(totale.margine, totale.ricavi)}`} tono={totale.margine < 0 ? 'urgente' : 'scuro'} />
           </div>
 
           {(totale.senzaPrezzo > 0 || totale.senzaOperatore > 0 || !data.costoStampa) && (
@@ -83,7 +83,7 @@ export function Futuro() {
           <Card className={cn('p-5 flex flex-wrap items-center gap-4', mancanti > 0 && 'border-2 border-[#E03E3E]')}>
             <Printer className={cn('size-6', mancanti > 0 ? 'text-[#C62828]' : 'text-accento')} aria-hidden />
             <div className="flex-1 min-w-56">
-              <p className="font-bold">
+              <p className="font-semibold">
                 {data.mediaStampe ? `Servono circa ${stampeNecessarie.toLocaleString('it-IT')} stampe` : 'Ancora nessuna media di stampe per evento'}
                 {data.mediaStampe ? ` (${data.mediaStampe} a evento)` : ''}
               </p>
@@ -92,7 +92,7 @@ export function Futuro() {
                 {mancanti > 0 && carta.parametri && ((n) => ` Da comprare: ${n} confezion${n === 1 ? 'e' : 'i'}.`)(confezioniPer(mancanti, carta.parametri.perConfezione))}
               </p>
             </div>
-            {puo('carta.ricarica') && <Link to="/gestione/panoramica" className="text-sm font-bold text-accento hover:underline">Carta per operatore →</Link>}
+            {puo('carta.ricarica') && <Link to="/gestione/panoramica" className="text-sm font-semibold text-accento hover:underline">Carta per operatore →</Link>}
           </Card>
 
           <Card className="p-5 flex flex-col gap-3">
@@ -118,10 +118,10 @@ export function Futuro() {
           <Card className="overflow-hidden">
             <div className="p-5 border-b border-bordo flex flex-wrap items-center justify-between gap-3">
               <TitoloSezione>Dettaglio</TitoloSezione>
-              <div className="flex rounded-xl bg-sfondo p-1" role="tablist">
+              <div className="flex rounded-md bg-sfondo p-1" role="tablist">
                 {(['mese', 'regione', 'evento'] as const).map((k) => (
                   <button key={k} role="tab" aria-selected={vista === k} onClick={() => setVista(k)}
-                    className={cn('h-8 px-3 rounded-[9px] text-xs font-bold cursor-pointer', vista === k ? 'bg-inchiostro text-white' : 'text-tenue')}>
+                    className={cn('h-8 px-3 rounded-[5px] text-xs font-semibold cursor-pointer', vista === k ? 'bg-inchiostro text-white' : 'text-tenue')}>
                     Per {k}
                   </button>
                 ))}
@@ -132,7 +132,7 @@ export function Futuro() {
                 <thead>
                   <tr className="text-left text-xs text-tenue bg-sfondo">
                     {[vista === 'mese' ? 'Mese' : vista === 'regione' ? 'Regione' : 'Evento', 'Eventi', 'Ricavi', 'Compensi', 'Carta', 'Altri costi', 'Costi totali', 'Margine']
-                      .map((c, i) => <th key={c} className={cn('px-4 py-3 font-bold whitespace-nowrap', i > 0 && 'text-right')}>{c}</th>)}
+                      .map((c, i) => <th key={c} className={cn('px-4 py-3 font-semibold whitespace-nowrap', i > 0 && 'text-right')}>{c}</th>)}
                   </tr>
                 </thead>
                 <tbody>
@@ -142,8 +142,8 @@ export function Futuro() {
                       return (
                         <tr key={e.id} className="border-t border-bordo">
                           <td className="px-4 py-2.5">
-                            <Link to={`/gestione/eventi/${e.id}`} className="font-semibold hover:underline whitespace-nowrap">{dataBreve(e.allestimento_il)} · {e.citta}</Link>
-                            <span className="block text-xs text-tenue">{e.regione}{e.operatore ? ` · ${nomeCompleto(e.operatore)}` : ' · senza operatore'}</span>
+                            <Link to={`/gestione/eventi/${e.id}`} className="font-semibold hover:underline whitespace-nowrap">{dataBreve(e.allestimento_il)}, {e.citta}</Link>
+                            <span className="block text-xs text-tenue">{e.regione}{e.operatore ? `, ${nomeCompleto(e.operatore)}` : ', senza operatore'}</span>
                           </td>
                           <td />
                           <Celle c={c} />
@@ -152,12 +152,12 @@ export function Futuro() {
                     })
                     : (vista === 'mese' ? perMese : perRegione).map((r) => (
                       <tr key={r.chiave} className="border-t border-bordo">
-                        <td className="px-4 py-3 font-bold whitespace-nowrap capitalize">{vista === 'mese' ? etichettaMese(r.chiave) : r.chiave}</td>
+                        <td className="px-4 py-3 font-semibold whitespace-nowrap capitalize">{vista === 'mese' ? etichettaMese(r.chiave) : r.chiave}</td>
                         <td className="px-4 py-3 text-right">{r.eventi}</td>
                         <Celle c={r} />
                       </tr>
                     ))}
-                  <tr className="border-t-2 border-inchiostro bg-inchiostro text-white font-bold">
+                  <tr className="border-t-2 border-inchiostro bg-inchiostro text-white font-semibold">
                     <td className="px-4 py-3">Totale</td>
                     <td className="px-4 py-3 text-right">{totale.eventi}</td>
                     <Celle c={totale} scuro />
@@ -180,7 +180,7 @@ function Celle({ c, scuro }: { c: ReturnType<typeof totalePrevisione>; scuro?: b
       <td className="px-4 py-2.5 text-right whitespace-nowrap">{tondo(c.carta)}</td>
       <td className="px-4 py-2.5 text-right whitespace-nowrap">{tondo(c.altriCosti - c.carta)}</td>
       <td className="px-4 py-2.5 text-right font-semibold whitespace-nowrap">{tondo(c.costiTotali)}</td>
-      <td className={cn('px-4 py-2.5 text-right font-bold whitespace-nowrap',
+      <td className={cn('px-4 py-2.5 text-right font-semibold whitespace-nowrap',
         c.margine < 0 ? (scuro ? 'text-[#FF9C7A]' : 'text-urgente-testo') : scuro ? 'text-accento-chiaro' : 'text-accento')}>{tondo(c.margine)}</td>
     </>
   )

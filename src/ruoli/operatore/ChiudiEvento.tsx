@@ -80,7 +80,7 @@ export function ChiudiEvento({ e, onChiudi, soloSpese }: { e: EventoDettaglio; o
         aria-label="Chiudi evento"
       >
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-2xl font-bold">{soloSpese ? 'Aggiungi spese' : 'Ore a mano'}</h2>
+          <h2 className="font-display text-2xl font-semibold">{soloSpese ? 'Aggiungi spese' : 'Ore a mano'}</h2>
           <button type="button" onClick={onChiudi} aria-label="Chiudi" className="size-10 rounded-full bg-superficie border border-bordo flex items-center justify-center cursor-pointer">
             <X className="size-5" aria-hidden />
           </button>
@@ -101,10 +101,10 @@ export function ChiudiEvento({ e, onChiudi, soloSpese }: { e: EventoDettaglio; o
           <Campo etichetta="Stampe effettuate" type="number" min={0} inputMode="numeric" placeholder="0" value={stampe} onChange={(ev) => setStampe(ev.target.value)} />
         </div>
 
-        <div className="rounded-2xl bg-inchiostro text-white p-4 grid grid-cols-3 gap-2 text-center">
-          <div><p className="text-xs text-su-scuro-tenue">Location</p><p className="font-bold">{durata(minutiLocation)}</p></div>
-          <div><p className="text-xs text-su-scuro-tenue">Viaggio</p><p className="font-bold">{durata(minutiViaggio)}</p></div>
-          <div><p className="text-xs text-accento-chiaro">Totale</p><p className="font-bold text-accento-chiaro">{durata(minutiLocation + minutiViaggio)}</p></div>
+        <div className="rounded-[10px] bg-inchiostro text-white p-4 grid grid-cols-3 gap-2 text-center">
+          <div><p className="text-xs text-su-scuro-tenue">Location</p><p className="font-semibold">{durata(minutiLocation)}</p></div>
+          <div><p className="text-xs text-su-scuro-tenue">Viaggio</p><p className="font-semibold">{durata(minutiViaggio)}</p></div>
+          <div><p className="text-xs text-accento-chiaro">Totale</p><p className="font-semibold text-accento-chiaro">{durata(minutiLocation + minutiViaggio)}</p></div>
         </div>
 
         {cambiato && (
@@ -115,41 +115,41 @@ export function ChiudiEvento({ e, onChiudi, soloSpese }: { e: EventoDettaglio; o
 
         <div className="flex flex-col gap-2.5">
           <div className="flex justify-between items-center">
-            <span className="text-[13px] font-bold text-[#3F4047]">Spese sostenute</span>
+            <span className="text-[13px] font-semibold text-[#3F4047]">Spese sostenute</span>
             <button type="button" onClick={() => setSpese((s) => [...s, { categoria: 'carburante', importo: '', descrizione: '', conCarta: !!carta }])}
-              className="text-sm font-bold text-accento inline-flex items-center gap-1 cursor-pointer">
+              className="text-sm font-semibold text-accento inline-flex items-center gap-1 cursor-pointer">
               <Plus className="size-4" aria-hidden /> Aggiungi
             </button>
           </div>
-          {carta && <p className="text-xs text-tenue -mt-1">Hai la carta aziendale <strong>{carta.nome} ···· {carta.ultime_cifre}</strong>.</p>}
+          {carta && <p className="text-xs text-tenue -mt-1">Hai la carta aziendale <strong>{carta.nome} ****{carta.ultime_cifre}</strong>.</p>}
 
           {spese.map((s, i) => (
-            <div key={i} className="rounded-2xl bg-superficie border border-bordo p-3 flex flex-col gap-2.5">
+            <div key={i} className="rounded-[10px] bg-superficie border border-bordo p-3 flex flex-col gap-2.5">
               <div className="flex gap-2 items-end">
                 <Selezione etichetta="Tipo" className="flex-1" value={s.categoria} onChange={(ev) => aggiorna(i, { categoria: ev.target.value as Enum<'categoria_costo'> })}>
                   {CATEGORIE_COSTO.map((c) => <option key={c.id} value={c.id}>{c.etichetta}</option>)}
                 </Selezione>
                 <Campo etichetta="Importo €" inputMode="decimal" className="w-28" value={s.importo} onChange={(ev) => aggiorna(i, { importo: ev.target.value })} />
                 <button type="button" aria-label="Togli spesa" onClick={() => setSpese((l) => l.filter((_, j) => j !== i))}
-                  className="size-12 rounded-xl border border-bordo flex items-center justify-center cursor-pointer shrink-0">
+                  className="size-12 rounded-md border border-bordo flex items-center justify-center cursor-pointer shrink-0">
                   <Trash2 className="size-4" aria-hidden />
                 </button>
               </div>
               <Campo etichetta="Descrizione (facoltativa)" placeholder="Es. caffè per il cliente" value={s.descrizione} onChange={(ev) => aggiorna(i, { descrizione: ev.target.value })} />
-              <label className={cn('h-11 rounded-xl border border-dashed text-sm font-bold inline-flex items-center justify-center gap-2 cursor-pointer',
+              <label className={cn('h-11 rounded-md border border-dashed text-sm font-semibold inline-flex items-center justify-center gap-2 cursor-pointer',
                 s.foto ? 'border-accento text-accento bg-accento-tenue/40' : 'border-bordo-forte text-tenue')}>
                 <Camera className="size-4" aria-hidden /> {s.foto ? 'Foto scontrino aggiunta ✓' : 'Fotografa lo scontrino'}
                 <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(ev) => ev.target.files?.[0] && aggiorna(i, { foto: ev.target.files[0] })} />
               </label>
-              <div className="flex rounded-xl bg-sfondo p-1" role="group" aria-label="Come hai pagato">
+              <div className="flex rounded-md bg-sfondo p-1" role="group" aria-label="Come hai pagato">
                 {carta && (
                   <button type="button" aria-pressed={s.conCarta} onClick={() => aggiorna(i, { conCarta: true })}
-                    className={cn('flex-1 h-10 rounded-[9px] text-sm font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer', s.conCarta ? 'bg-superficie shadow-sm' : 'text-tenue')}>
+                    className={cn('flex-1 h-10 rounded-[5px] text-sm font-semibold inline-flex items-center justify-center gap-1.5 cursor-pointer', s.conCarta ? 'bg-superficie shadow-sm' : 'text-tenue')}>
                     <CreditCard className="size-4" aria-hidden /> Carta aziendale
                   </button>
                 )}
                 <button type="button" aria-pressed={!s.conCarta} onClick={() => aggiorna(i, { conCarta: false })}
-                  className={cn('flex-1 h-10 rounded-[9px] text-sm font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer', !s.conCarta ? 'bg-superficie shadow-sm' : 'text-tenue')}>
+                  className={cn('flex-1 h-10 rounded-[5px] text-sm font-semibold inline-flex items-center justify-center gap-1.5 cursor-pointer', !s.conCarta ? 'bg-superficie shadow-sm' : 'text-tenue')}>
                   <Wallet className="size-4" aria-hidden /> Pagato da me
                 </button>
               </div>
@@ -157,7 +157,7 @@ export function ChiudiEvento({ e, onChiudi, soloSpese }: { e: EventoDettaglio; o
           ))}
           {spese.length > 0 && (
             <p className="text-sm text-tenue">
-              {conCarta > 0 && <>Con carta: <strong className="text-inchiostro">{euro(conCarta)}</strong> · </>}
+              {conCarta > 0 && <>Con carta: <strong className="text-inchiostro">{euro(conCarta)}</strong>, </>}
               Da rimborsarti: <strong className="text-inchiostro">{euro(daRimborsare)}</strong>
             </p>
           )}

@@ -25,11 +25,11 @@ export function Classifiche({ eventi }: { eventi: Evento[] }) {
         <TitoloSezione>Operatori</TitoloSezione>
         {perOperatore.length === 0 ? <p className="text-sm text-tenue">Nessun evento assegnato nel periodo.</p> : perOperatore.map((r, i) => (
           <Link key={r.op.id} to={`/gestione/operatori/${r.op.id}`} className="flex items-center gap-3 hover:opacity-80">
-            <span className="w-5 text-sm font-bold text-tenue">{i + 1}</span>
+            <span className="w-5 text-sm font-semibold text-tenue">{i + 1}</span>
             <Avatar nome={nomeCompleto(r.op)} foto={r.op.foto} taglia="sm" />
             <span className="flex-1 min-w-0 font-semibold truncate">{nomeCompleto(r.op)}</span>
             <span className="text-sm text-tenue">{r.eventi} eventi</span>
-            <span className={cn('text-sm font-bold w-24 text-right', r.margine < 0 ? 'text-urgente-testo' : 'text-accento')}>{euro(Math.round(r.margine))}</span>
+            <span className={cn('text-sm font-semibold w-24 text-right', r.margine < 0 ? 'text-urgente-testo' : 'text-accento')}>{euro(Math.round(r.margine))}</span>
           </Link>
         ))}
       </Card>
@@ -37,10 +37,10 @@ export function Classifiche({ eventi }: { eventi: Evento[] }) {
         <TitoloSezione>Clienti</TitoloSezione>
         {perCliente.length === 0 ? <p className="text-sm text-tenue">Nessun cliente indicato nel periodo.</p> : perCliente.map((r, i) => (
           <div key={r.nome} className="flex items-center gap-3">
-            <span className="w-5 text-sm font-bold text-tenue">{i + 1}</span>
+            <span className="w-5 text-sm font-semibold text-tenue">{i + 1}</span>
             <span className="flex-1 min-w-0 font-semibold truncate">{r.nome}</span>
             <span className="text-sm text-tenue">{r.eventi} eventi</span>
-            <span className="text-sm font-bold w-24 text-right">{euro(Math.round(r.ricavi))}</span>
+            <span className="text-sm font-semibold w-24 text-right">{euro(Math.round(r.ricavi))}</span>
           </div>
         ))}
       </Card>

@@ -3,7 +3,7 @@ import { Logo } from '@/shared/ui/Logo'
 import { useScortaOperatore } from '@/modules/carta/api'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { AlertTriangle, ArrowRight, Printer } from 'lucide-react'
+import { AlertTriangle, ArrowRight, Printer, Inbox } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { Avatar } from '@/shared/ui/Avatar'
 import { Campanella } from '@/modules/comunicazione/components/Campanella'
@@ -29,8 +29,8 @@ export function HomeOperatore() {
       <header className="flex items-start justify-between pt-2">
         <div>
           <Logo taglia="sm" className="mb-3" />
-          <p className="text-[13px] font-semibold text-tenue first-letter:uppercase">{oggi}</p>
-          <h1 className="font-display text-[30px] font-bold tracking-tight leading-tight">
+          <p className="text-[13px] font-semibold text-tenue first-letter:">{oggi}</p>
+          <h1 className="font-display text-[30px] font-semibold tracking-tight leading-tight">
             Ciao, {profilo.nome.split(' ')[0] || 'operatore'}
           </h1>
         </div>
@@ -43,6 +43,14 @@ export function HomeOperatore() {
       </header>
 
       <AttivaNotifiche />
+      <Link to="/operatore/richieste" className="rounded-[10px] border border-bordo bg-superficie px-4 py-3 flex items-center gap-3">
+        <Inbox className="size-5 text-accento" aria-hidden />
+        <span className="flex-1">
+          <span className="block font-semibold">Chiedi qualcosa all'ufficio</span>
+          <span className="block text-sm text-tenue">Carta, attrezzatura che manca, un guasto</span>
+        </span>
+        <ArrowRight className="size-4 text-tenue" aria-hidden />
+      </Link>
       <AvvisoCartaOperatore id={profilo.id} />
 
       {eventi.isPending ? <Caricamento /> : eventi.error ? <Errore errore={eventi.error} /> : prossimo ? (
@@ -55,7 +63,7 @@ export function HomeOperatore() {
         <section className="flex flex-col gap-2.5">
           <div className="flex items-center gap-2">
             <TitoloSezione>Da accettare</TitoloSezione>
-            <span className="rounded-full bg-urgente px-2 text-xs font-bold text-white">{proposte.data.length}</span>
+            <span className="rounded-full bg-urgente px-2 text-xs font-semibold text-white">{proposte.data.length}</span>
           </div>
           {proposte.data.map((p) => <PropostaCard key={p.id} proposta={p} />)}
         </section>
@@ -69,8 +77,8 @@ export function HomeOperatore() {
             <Link key={e.id} to={`/operatore/eventi/${e.id}`}>
               <Card className="p-4 flex items-center justify-between active:scale-[0.99] transition">
                 <div>
-                  <p className="font-bold">{e.tipo_booth?.nome ?? 'Evento'}</p>
-                  <p className="text-sm text-tenue">{dataBreve(e.allestimento_il)} · {e.citta}</p>
+                  <p className="font-semibold">{e.tipo_booth?.nome ?? 'Evento'}</p>
+                  <p className="text-sm text-tenue">{dataBreve(e.allestimento_il)}, {e.citta}</p>
                 </div>
                 <ArrowRight className="size-5 text-tenue" aria-hidden />
               </Card>
@@ -80,7 +88,7 @@ export function HomeOperatore() {
       )}
 
       <section className="flex flex-col gap-2.5">
-        <TitoloSezione className="first-letter:uppercase">{nomeMese}</TitoloSezione>
+        <TitoloSezione className="first-letter:">{nomeMese}</TitoloSezione>
         <div className="grid grid-cols-3 gap-2">
           <Statistica valore={String(mese.data?.eventi ?? '—')} etichetta="eventi" />
           <Statistica valore={mese.data ? `${Math.round(mese.data.minuti / 60)} h` : '—'} etichetta="lavorate" />
@@ -93,15 +101,15 @@ export function HomeOperatore() {
 
 function ProssimoEvento({ evento: e }: { evento: EventoDettaglio }) {
   return (
-    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+    <div>
       <Card tono="scuro" className="rounded-3xl p-5 flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold tracking-wider uppercase text-accento-chiaro">Prossimo evento</span>
-          <span className="text-xs font-bold bg-scuro-3 px-2.5 py-1.5 rounded-full">{traQuanto(e.allestimento_il)}</span>
+          <span className="text-xs font-semibold tracking-wider text-accento-chiaro">Prossimo evento</span>
+          <span className="text-xs font-semibold bg-scuro-3 px-2.5 py-1.5 rounded-full">{traQuanto(e.allestimento_il)}</span>
         </div>
         <div>
-          <p className="font-display text-[26px] font-bold leading-tight">{e.tipo_booth?.nome ?? 'Evento'}</p>
-          <p className="text-[15px] text-[#C9CAD1] mt-1">{dataBreve(e.allestimento_il)} · {e.citta}</p>
+          <p className="font-display text-[26px] font-semibold leading-tight">{e.tipo_booth?.nome ?? 'Evento'}</p>
+          <p className="text-[15px] text-[#C9CAD1] mt-1">{dataBreve(e.allestimento_il)}, {e.citta}</p>
         </div>
         <div className="grid grid-cols-3 gap-2">
           <Orario etichetta="Ritiro" valore={ora(e.ritiro_magazzino_il)} />
@@ -116,20 +124,20 @@ function ProssimoEvento({ evento: e }: { evento: EventoDettaglio }) {
         )}
         <Link
           to={`/operatore/eventi/${e.id}`}
-          className="h-[50px] rounded-[14px] bg-white text-inchiostro font-bold text-[15px] flex items-center justify-center gap-2 active:scale-[0.98] transition"
+          className="h-[50px] rounded-md bg-white text-inchiostro font-semibold text-[15px] flex items-center justify-center gap-2 active:scale-[0.98] transition"
         >
           Apri scheda evento <ArrowRight className="size-[18px]" aria-hidden />
         </Link>
       </Card>
-    </motion.div>
+    </div>
   )
 }
 
 function Orario({ etichetta, valore }: { etichetta: string; valore: string }) {
   return (
-    <div className="bg-scuro-2 rounded-[14px] px-3 py-2.5">
+    <div className="bg-scuro-2 rounded-md px-3 py-2.5">
       <p className="text-[11px] font-semibold text-su-scuro-tenue">{etichetta}</p>
-      <p className="text-lg font-bold mt-0.5">{valore}</p>
+      <p className="text-lg font-semibold mt-0.5">{valore}</p>
     </div>
   )
 }
@@ -147,12 +155,12 @@ function PropostaCard({ proposta }: { proposta: Proposta }) {
       <Card className="p-4 flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="font-bold text-[16px]">{e.tipo_booth?.nome ?? 'Evento'}</p>
-            <p className="text-sm text-tenue mt-0.5">{dataBreve(e.allestimento_il)} · {e.citta}</p>
+            <p className="font-semibold text-[16px]">{e.tipo_booth?.nome ?? 'Evento'}</p>
+            <p className="text-sm text-tenue mt-0.5">{dataBreve(e.allestimento_il)}, {e.citta}</p>
             <p className="text-sm text-tenue">{ora(e.allestimento_il)} – {ora(e.smontaggio_il)}</p>
           </div>
           {oreAllaScadenza != null && (
-            <span className="shrink-0 text-xs font-bold text-urgente-testo bg-urgente-tenue px-2.5 py-1.5 rounded-[10px]">
+            <span className="shrink-0 text-xs font-semibold text-urgente-testo bg-urgente-tenue px-2.5 py-1.5 rounded-[10px]">
               Scade tra {oreAllaScadenza} h
             </span>
           )}
@@ -175,8 +183,8 @@ function PropostaCard({ proposta }: { proposta: Proposta }) {
 
 function Statistica({ valore, etichetta, evidenza }: { valore: string; etichetta: string; evidenza?: boolean }) {
   return (
-    <Card tono={evidenza ? 'accento' : 'chiaro'} className="rounded-2xl p-3">
-      <p className="font-display text-[22px] font-bold leading-tight truncate">{valore}</p>
+    <Card tono={evidenza ? 'accento' : 'chiaro'} className="rounded-[10px] p-3">
+      <p className="font-display text-[22px] font-semibold leading-tight truncate">{valore}</p>
       <p className={evidenza ? 'text-xs font-semibold' : 'text-xs font-semibold text-tenue'}>{etichetta}</p>
     </Card>
   )
@@ -188,7 +196,7 @@ function AvvisoCartaOperatore({ id }: { id: string }) {
   const { data } = useScortaOperatore(id)
   if (!data || data.livello === 'ok') return null
   return (
-    <Link to="/operatore/profilo" className="rounded-2xl bg-[#C62828] text-white p-4 flex items-center gap-3 active:scale-[0.99] transition">
+    <Link to="/operatore/profilo" className="rounded-[10px] bg-[#C62828] text-white p-4 flex items-center gap-3 active:scale-[0.99] transition">
       <Printer className="size-6 shrink-0" aria-hidden />
       <span className="flex-1">
         <strong className="block">{data.livello === 'finita' ? 'Carta finita' : 'Carta in esaurimento'}</strong>

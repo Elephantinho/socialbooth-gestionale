@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useScorteCarta } from '@/modules/carta/api'
 import { BadgeCarta } from '@/modules/carta/components/Carta'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { Building2, Check, Search, Sparkles } from 'lucide-react'
 import { usePuo } from '@/modules/auth/permessi'
 import { useAggiornaProfilo, useMagazzini, useOperatori } from '@/modules/anagrafiche/api'
@@ -47,7 +46,7 @@ export function Operatori() {
           <span className="sr-only">Cerca operatore</span>
           <Search className="size-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-tenue" aria-hidden />
           <input value={cerca} onChange={(e) => setCerca(e.target.value)} placeholder="Cerca per nome"
-            className="w-full h-12 rounded-xl border border-bordo-forte bg-superficie pl-10 pr-3 text-[15px] focus:outline-none focus:border-accento focus:ring-3 focus:ring-accento/15" />
+            className="w-full h-12 rounded-md border border-bordo-forte bg-superficie pl-10 pr-3 text-[15px] focus:outline-none focus:border-accento focus:ring-3 focus:ring-accento/15" />
         </label>
         <Selezione etichetta="" aria-label="Regione" value={regioneFiltro} onChange={(e) => setRegioneFiltro(e.target.value)} className="w-56">
           <option value="">Tutte le regioni</option>
@@ -61,7 +60,7 @@ export function Operatori() {
         <>
           {inAttesa.length > 0 && (
             <section className="flex flex-col gap-3">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-urgente-testo">Da approvare · {inAttesa.length}</h2>
+              <h2 className="text-sm font-semibold text-urgente-testo">Da approvare, {inAttesa.length}</h2>
               <Griglia>{inAttesa.map((o) => <SchedaOperatore key={o.id} o={o} admin={admin} />)}</Griglia>
             </section>
           )}
@@ -69,10 +68,10 @@ export function Operatori() {
           {perRegione.map((g) => (
             <section key={g.regione} className="flex flex-col gap-3">
               <h2 className="flex flex-wrap items-center gap-2">
-                <span className="font-display text-xl font-bold">{g.regione}</span>
+                <span className="font-display text-xl font-semibold">{g.regione}</span>
                 <span className="text-sm font-semibold text-tenue">{g.operatori.length} {g.operatori.length === 1 ? 'operatore' : 'operatori'}</span>
                 {g.operatori.length === 1 && (
-                  <span className="text-[11px] font-bold bg-accento-tenue text-accento-scuro px-2 py-1 rounded-md inline-flex items-center gap-1">
+                  <span className="text-[11px] font-semibold bg-accento-tenue text-accento-scuro px-2 py-1 rounded-md inline-flex items-center gap-1">
                     <Sparkles className="size-3" aria-hidden /> assegnazione automatica
                   </span>
                 )}
@@ -83,7 +82,7 @@ export function Operatori() {
 
           {!regioneFiltro && senzaRegione.length > 0 && (
             <section className="flex flex-col gap-3">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-urgente-testo">Senza regione · non ricevono eventi</h2>
+              <h2 className="text-sm font-semibold text-urgente-testo">Senza regione, non ricevono eventi</h2>
               <Griglia>{senzaRegione.map((o) => <SchedaOperatore key={o.id} o={o} admin={admin} />)}</Griglia>
             </section>
           )}
@@ -104,12 +103,12 @@ function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
   const aggiorna = useAggiornaProfilo()
   const nome = nomeCompleto(o)
   return (
-    <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }}>
-      <Card className="p-4 flex flex-col gap-3 h-full hover:shadow-[0_8px_24px_-12px_rgba(21,22,26,0.25)] transition-shadow">
+    <div>
+      <Card className="p-4 flex flex-col gap-3 h-full">
         <Link to={`/gestione/operatori/${o.id}`} className="flex items-center gap-3 min-w-0">
           <Avatar nome={nome} foto={o.foto} taglia="lg" />
           <div className="min-w-0">
-            <p className="font-bold text-[16px] truncate">{nome}</p>
+            <p className="font-semibold text-[16px] truncate">{nome}</p>
             {soldi && <p className="text-sm text-tenue">{o.tariffa_oraria != null ? `${euro(o.tariffa_oraria)}/ora` : 'tariffa da impostare'}</p>}
           </div>
         </Link>
@@ -118,7 +117,7 @@ function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
         </p>
         {o.attivo && carta && <CartaOperatore id={o.id} />}
         <div className="flex flex-wrap gap-1.5">
-          {o.zone.map((z) => <span key={z.regione} className="text-[11px] font-bold bg-sfondo border border-bordo px-2 py-0.5 rounded-full">{z.regione}</span>)}
+          {o.zone.map((z) => <span key={z.regione} className="text-[11px] font-semibold bg-sfondo border border-bordo px-2 py-0.5 rounded-full">{z.regione}</span>)}
         </div>
         {admin && !o.attivo && (
           <Pulsante className="mt-auto" icona={<Check className="size-4" aria-hidden />} caricamento={aggiorna.isPending}
@@ -127,7 +126,7 @@ function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
           </Pulsante>
         )}
       </Card>
-    </motion.div>
+    </div>
   )
 }
 
@@ -174,7 +173,7 @@ export function ModificaOperatore({ o, onFatto }: { o: Operatore | (Operatore & 
         {tariffe && <Campo etichetta="Tariffa oraria (€)" type="number" min={0} step="0.5" value={tariffa} onChange={(e) => setTariffa(e.target.value)} />}
         <Selezione etichetta="Magazzino di riferimento" disabled={!gestisce} value={magazzinoId} onChange={(e) => setMagazzinoId(e.target.value)}>
           <option value="">— Nessuno —</option>
-          {magazzini.data?.map((m) => <option key={m.id} value={m.id}>{m.nome} · {m.citta}</option>)}
+          {magazzini.data?.map((m) => <option key={m.id} value={m.id}>{m.nome}, {m.citta}</option>)}
         </Selezione>
         <Selezione etichetta="Stato" disabled={!gestisce} value={attivo ? 'si' : 'no'} onChange={(e) => setAttivo(e.target.value === 'si')}>
           <option value="si">Attivo (riceve eventi)</option>

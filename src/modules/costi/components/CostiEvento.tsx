@@ -47,28 +47,28 @@ export function CostiEvento({ e }: { e: EventoGestioneCompleto }) {
       {aggiungi && <NuovoCosto eventoId={e.id} fase={['in_corso', 'completato'].includes(e.stato) ? 'finale' : 'previsto'} onFatto={() => setAggiungi(false)} />}
 
       {/* Tabella previsto / finale */}
-      <div className="overflow-x-auto rounded-2xl border border-bordo">
+      <div className="overflow-x-auto rounded-[10px] border border-bordo">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-sfondo text-left text-xs text-tenue">
-              <th className="px-4 py-2.5 font-bold">Voce</th>
-              <th className="px-4 py-2.5 font-bold text-right">Previsto</th>
-              <th className="px-4 py-2.5 font-bold text-right">Finale</th>
+              <th className="px-4 py-2.5 font-semibold">Voce</th>
+              <th className="px-4 py-2.5 font-semibold text-right">Previsto</th>
+              <th className="px-4 py-2.5 font-semibold text-right">Finale</th>
             </tr>
           </thead>
           <tbody>
             <Riga voce={`Operatore${e.operatore?.tariffa_oraria == null ? ' (tariffa mancante)' : ''}`} previsto={r.operatoriPrevisto} finale={r.operatoriFinale} />
             {r.perCategoria.map((c) => <Riga key={c.categoria} voce={etichettaCategoria(c.categoria)} previsto={c.previsto} finale={c.finale} />)}
-            <tr className="border-t-2 border-inchiostro font-bold">
+            <tr className="border-t-2 border-inchiostro font-semibold">
               <td className="px-4 py-3">Totale costi</td>
               <td className="px-4 py-3 text-right">{euro(r.totalePrevisto)}</td>
               <td className="px-4 py-3 text-right">{euro(r.totaleFinale)}</td>
             </tr>
-            <tr className="font-bold">
+            <tr className="font-semibold">
               <td className="px-4 py-3">Ricavo</td>
               <td className="px-4 py-3 text-right" colSpan={2}>{r.ricavo == null ? <span className="text-tenue font-semibold">da inserire</span> : euro(r.ricavo)}</td>
             </tr>
-            <tr className="bg-inchiostro text-white font-bold">
+            <tr className="bg-inchiostro text-white font-semibold">
               <td className="px-4 py-3">Margine</td>
               <td className={cn('px-4 py-3 text-right', (r.marginePrevisto ?? 0) < 0 && 'text-[#FF9C7A]')}>{r.marginePrevisto == null ? '—' : euro(r.marginePrevisto)}</td>
               <td className={cn('px-4 py-3 text-right', (r.margineFinale ?? 0) < 0 && 'text-[#FF9C7A]')}>{r.margineFinale == null ? '—' : euro(r.margineFinale)}</td>
@@ -79,7 +79,7 @@ export function CostiEvento({ e }: { e: EventoGestioneCompleto }) {
 
       {costi.data.length > 0 && (
         <details className="group flex flex-col gap-2" open={costi.data.some((c) => c.stato === 'inviato' || Number(c.costo_unitario) === 0)}>
-          <summary className="text-sm font-bold cursor-pointer select-none mb-2">Dettaglio voci · {costi.data.length}</summary>
+          <summary className="text-sm font-semibold cursor-pointer select-none mb-2">Dettaglio voci, {costi.data.length}</summary>
           <div className="flex flex-col gap-2">{costi.data.map((c) => <VoceCosto key={c.id} c={c} />)}</div>
         </details>
       )}
@@ -108,18 +108,18 @@ function VoceCosto({ c }: { c: Voce }) {
   const senzaPrezzo = Number(c.costo_unitario) === 0
 
   return (
-    <div className={cn('rounded-xl border border-bordo p-3 flex flex-wrap items-center gap-3', c.stato === 'respinto' && 'opacity-50')}>
-      <span className={cn('text-[11px] font-bold uppercase px-2 py-1 rounded-md', c.fase === 'previsto' ? 'bg-sfondo text-tenue' : 'bg-accento-tenue text-accento-scuro')}>
+    <div className={cn('rounded-md border border-bordo p-3 flex flex-wrap items-center gap-3', c.stato === 'respinto' && 'opacity-50')}>
+      <span className={cn('text-[11px] font-semibold px-2 py-1 rounded-md', c.fase === 'previsto' ? 'bg-sfondo text-tenue' : 'bg-accento-tenue text-accento-scuro')}>
         {c.fase}
       </span>
       <div className="flex-[1_1_200px] min-w-0">
-        <p className="font-semibold text-sm">{etichettaCategoria(c.categoria)}{c.descrizione && <span className="text-tenue font-medium"> · {c.descrizione}</span>}</p>
+        <p className="font-semibold text-sm">{etichettaCategoria(c.categoria)}{c.descrizione && <span className="text-tenue font-medium">, {c.descrizione}</span>}</p>
         <p className="text-xs text-tenue">
-          {Number(c.quantita) !== 1 && `${Number(c.quantita)} × ${euro(Number(c.costo_unitario))} · `}
-          {etichettaPagamento(c.pagato_con)}{c.carta && ` (${c.carta.nome} ···· ${c.carta.ultime_cifre})`}
-          {c.operatore?.nome && ` · ${c.operatore.nome}`}
-          {c.stato === 'inviato' && c.operatore_id && <span className="text-avviso-testo font-bold"> · da approvare</span>}
-          {c.scontrino && <> · <button type="button" onClick={() => apriFile(c.scontrino!)} className="font-bold text-accento underline cursor-pointer">vedi scontrino</button></>}
+          {Number(c.quantita) !== 1 && `${Number(c.quantita)} × ${euro(Number(c.costo_unitario))}, `}
+          {etichettaPagamento(c.pagato_con)}{c.carta && ` (${c.carta.nome} ****${c.carta.ultime_cifre})`}
+          {c.operatore?.nome && `, ${c.operatore.nome}`}
+          {c.stato === 'inviato' && c.operatore_id && <span className="text-avviso-testo font-semibold">, da approvare</span>}
+          {c.scontrino && <>, <button type="button" onClick={() => apriFile(c.scontrino!)} className="font-semibold text-accento underline cursor-pointer">vedi scontrino</button></>}
         </p>
       </div>
       {senzaPrezzo ? (
@@ -129,7 +129,7 @@ function VoceCosto({ c }: { c: Voce }) {
           <Pulsante type="submit" caricamento={aggiorna.isPending}>OK</Pulsante>
         </form>
       ) : (
-        <p className="font-bold">{euro(c.importo)}</p>
+        <p className="font-semibold">{euro(c.importo)}</p>
       )}
       <button aria-label="Elimina voce" onClick={() => confirm('Eliminare questa voce?') && elimina.mutate(c.id)}
         className="size-9 rounded-lg flex items-center justify-center text-tenue hover:bg-sfondo cursor-pointer">
@@ -152,7 +152,7 @@ function NuovoCosto({ eventoId, fase, onFatto }: { eventoId: string; fase: Enum<
   const unita = CATEGORIE_COSTO.find((c) => c.id === categoria)?.unita
 
   return (
-    <form className="rounded-2xl bg-sfondo p-4 flex flex-col gap-3.5" onSubmit={(ev) => {
+    <form className="rounded-[10px] bg-sfondo p-4 flex flex-col gap-3.5" onSubmit={(ev) => {
       ev.preventDefault()
       const carta = carte.data?.find((c) => c.id === cartaId)
       aggiungi.mutate({
@@ -177,7 +177,7 @@ function NuovoCosto({ eventoId, fase, onFatto }: { eventoId: string; fase: Enum<
         {pagato === 'carta_aziendale' && (
           <Selezione etichetta="Carta" value={cartaId} onChange={(ev) => setCartaId(ev.target.value)}>
             <option value="">— Scegli —</option>
-            {carte.data?.map((c) => <option key={c.id} value={c.id}>{c.nome} ···· {c.ultime_cifre}</option>)}
+            {carte.data?.map((c) => <option key={c.id} value={c.id}>{c.nome} ****{c.ultime_cifre}</option>)}
           </Selezione>
         )}
       </div>
@@ -212,7 +212,7 @@ function RicavoFattura({ e }: { e: EventoGestioneCompleto }) {
         },
       }, { onSuccess: () => setSalvato(true) })
     }}>
-      <p className="text-sm font-bold">Ricavo e fattura al cliente</p>
+      <p className="text-sm font-semibold">Ricavo e fattura al cliente</p>
       <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(160px,1fr))]">
         <Campo etichetta="Prezzo concordato €" inputMode="decimal" value={prezzo} onChange={(ev) => setPrezzo(ev.target.value)} />
         <Campo etichetta="N° fattura" value={numeroFattura} onChange={(ev) => setNumeroFattura(ev.target.value)} />
@@ -226,7 +226,7 @@ function RicavoFattura({ e }: { e: EventoGestioneCompleto }) {
       {aggiorna.error && <Errore errore={aggiorna.error} />}
       <div className="flex items-center gap-3">
         <Pulsante type="submit" variante="scuro" caricamento={aggiorna.isPending}>Salva ricavo</Pulsante>
-        {salvato && <span className="text-sm font-bold text-accento" role="status">Salvato</span>}
+        {salvato && <span className="text-sm font-semibold text-accento" role="status">Salvato</span>}
       </div>
       <p className="text-xs text-tenue">Il margine usa l'importo della fattura se c'è, altrimenti il prezzo concordato.</p>
     </form>

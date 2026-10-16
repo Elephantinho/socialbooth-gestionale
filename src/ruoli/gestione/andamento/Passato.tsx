@@ -47,10 +47,10 @@ export function Passato() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex rounded-xl bg-superficie border border-bordo p-1 w-fit flex-wrap" role="tablist">
+      <div className="flex rounded-md bg-superficie border border-bordo p-1 w-fit flex-wrap" role="tablist">
         {periodi.map((p) => (
           <button key={p.id} role="tab" aria-selected={periodo === p.id} onClick={() => setPeriodo(p.id)}
-            className={cn('h-9 px-4 rounded-[9px] text-sm font-bold cursor-pointer', periodo === p.id ? 'bg-inchiostro text-white' : 'text-tenue')}>
+            className={cn('h-9 px-4 rounded-[5px] text-sm font-semibold cursor-pointer', periodo === p.id ? 'bg-inchiostro text-white' : 'text-tenue')}>
             {p.etichetta}
           </button>
         ))}
@@ -64,7 +64,7 @@ export function Passato() {
             <Numero valore={euro(Math.round(totale.ricavi))} etichetta="ricavi" tono="accento" />
             <Numero valore={euro(Math.round(totale.compensi))} etichetta="compensi operatori" />
             <Numero valore={euro(Math.round(totale.altriCosti))} etichetta="altri costi" />
-            <Numero valore={euro(Math.round(totale.margine))} etichetta={`margine · ${percentuale(totale.margine, totale.ricavi)}`} tono={totale.margine < 0 ? 'urgente' : 'scuro'} />
+            <Numero valore={euro(Math.round(totale.margine))} etichetta={`margine, ${percentuale(totale.margine, totale.ricavi)}`} tono={totale.margine < 0 ? 'urgente' : 'scuro'} />
           </div>
 
           {mesi > 1 && (
@@ -103,7 +103,7 @@ export function Passato() {
                 <thead>
                   <tr className="text-left text-xs text-tenue bg-sfondo">
                     {['Regione', 'Eventi', 'Ricavi', 'Compensi', 'Altri costi', 'Costi totali', 'Margine', '%'].map((c, i) => (
-                      <th key={c} className={cn('px-4 py-3 font-bold whitespace-nowrap', i > 0 && 'text-right')}>{c}</th>
+                      <th key={c} className={cn('px-4 py-3 font-semibold whitespace-nowrap', i > 0 && 'text-right')}>{c}</th>
                     ))}
                   </tr>
                 </thead>
@@ -112,7 +112,7 @@ export function Passato() {
                     <Fragment key={r.regione}>
                       <tr className="border-t border-bordo hover:bg-sfondo/60 cursor-pointer" onClick={() => setAperta((a) => (a === r.regione ? undefined : r.regione))}
                         aria-expanded={aperta === r.regione}>
-                        <td className="px-4 py-3 font-bold whitespace-nowrap">
+                        <td className="px-4 py-3 font-semibold whitespace-nowrap">
                           <span className="inline-flex items-center gap-1.5"><ChevronDown className={cn('size-4 transition', aperta === r.regione && 'rotate-180')} aria-hidden />{r.regione}</span>
                         </td>
                         <td className="px-4 py-3 text-right">{r.eventi}</td>
@@ -120,7 +120,7 @@ export function Passato() {
                         <td className="px-4 py-3 text-right">{euro(Math.round(r.compensi))}</td>
                         <td className="px-4 py-3 text-right">{euro(Math.round(r.altriCosti))}</td>
                         <td className="px-4 py-3 text-right font-semibold">{euro(Math.round(r.costiTotali))}</td>
-                        <td className={cn('px-4 py-3 text-right font-bold', r.margine < 0 ? 'text-urgente-testo' : 'text-accento')}>{euro(Math.round(r.margine))}</td>
+                        <td className={cn('px-4 py-3 text-right font-semibold', r.margine < 0 ? 'text-urgente-testo' : 'text-accento')}>{euro(Math.round(r.margine))}</td>
                         <td className="px-4 py-3 text-right text-tenue">{percentuale(r.margine, r.ricavi)}</td>
                       </tr>
                       {aperta === r.regione && (data ?? []).filter((e) => e.regione === r.regione).map((e) => {
@@ -128,22 +128,22 @@ export function Passato() {
                         return (
                           <tr key={e.id} className="bg-sfondo/50 border-t border-bordo/60 text-[13px]">
                             <td className="pl-10 pr-4 py-2">
-                              <Link to={`/gestione/eventi/${e.id}`} className="font-semibold hover:underline">{dataBreve(e.allestimento_il)} · {e.citta}</Link>
-                              <span className="block text-xs text-tenue">{e.tipo_booth?.nome ?? 'Evento'}{e.operatore ? ` · ${nomeCompleto(e.operatore)}` : ''}{e.cliente ? ` · ${e.cliente.nome}` : ''}</span>
+                              <Link to={`/gestione/eventi/${e.id}`} className="font-semibold hover:underline">{dataBreve(e.allestimento_il)}, {e.citta}</Link>
+                              <span className="block text-xs text-tenue">{e.tipo_booth?.nome ?? 'Evento'}{e.operatore ? `, ${nomeCompleto(e.operatore)}` : ''}{e.cliente ? `, ${e.cliente.nome}` : ''}</span>
                             </td>
                             <td />
                             <td className="px-4 py-2 text-right">{c.ricavi ? euro(c.ricavi) : <span className="text-tenue">manca</span>}</td>
                             <td className="px-4 py-2 text-right">{euro(c.compensi)}</td>
                             <td className="px-4 py-2 text-right">{euro(c.altriCosti)}</td>
                             <td className="px-4 py-2 text-right">{euro(c.costiTotali)}</td>
-                            <td className={cn('px-4 py-2 text-right font-bold', c.margine < 0 ? 'text-urgente-testo' : '')}>{euro(c.margine)}</td>
+                            <td className={cn('px-4 py-2 text-right font-semibold', c.margine < 0 ? 'text-urgente-testo' : '')}>{euro(c.margine)}</td>
                             <td />
                           </tr>
                         )
                       })}
                     </Fragment>
                   ))}
-                  <tr className="border-t-2 border-inchiostro bg-inchiostro text-white font-bold">
+                  <tr className="border-t-2 border-inchiostro bg-inchiostro text-white font-semibold">
                     <td className="px-4 py-3">Totale</td>
                     <td className="px-4 py-3 text-right">{totale.eventi}</td>
                     <td className="px-4 py-3 text-right">{euro(Math.round(totale.ricavi))}</td>

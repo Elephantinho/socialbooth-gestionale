@@ -22,10 +22,10 @@ export function TotaliPeriodo({ righe, titolo = 'Totali', senzaCompensi }: { rig
     <Card className="overflow-hidden">
       <div className="p-4 flex flex-wrap items-center justify-between gap-3 border-b border-bordo">
         <TitoloSezione className="text-[15px]">{titolo}</TitoloSezione>
-        <div className="flex rounded-xl bg-sfondo p-1" role="tablist">
+        <div className="flex rounded-md bg-sfondo p-1" role="tablist">
           {(['settimana', 'mese'] as const).map((k) => (
             <button key={k} role="tab" aria-selected={per === k} onClick={() => setPer(k)}
-              className={cn('h-8 px-3 rounded-[9px] text-xs font-bold cursor-pointer capitalize', per === k ? 'bg-inchiostro text-white' : 'text-tenue')}>
+              className={cn('h-8 px-3 rounded-[5px] text-xs font-semibold cursor-pointer capitalize', per === k ? 'bg-inchiostro text-white' : 'text-tenue')}>
               Per {k}
             </button>
           ))}
@@ -36,12 +36,12 @@ export function TotaliPeriodo({ righe, titolo = 'Totali', senzaCompensi }: { rig
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs text-tenue">
-                <th className="px-4 py-2.5 font-bold">{per === 'settimana' ? 'Settimana' : 'Mese'}</th>
-                <th className="px-4 py-2.5 font-bold text-right">Eventi</th>
-                <th className="px-4 py-2.5 font-bold text-right">Location</th>
-                <th className="px-4 py-2.5 font-bold text-right">Viaggio</th>
-                <th className="px-4 py-2.5 font-bold text-right">Totale ore</th>
-                {!senzaCompensi && <th className="px-4 py-2.5 font-bold text-right">Compenso</th>}
+                <th className="px-4 py-2.5 font-semibold">{per === 'settimana' ? 'Settimana' : 'Mese'}</th>
+                <th className="px-4 py-2.5 font-semibold text-right">Eventi</th>
+                <th className="px-4 py-2.5 font-semibold text-right">Location</th>
+                <th className="px-4 py-2.5 font-semibold text-right">Viaggio</th>
+                <th className="px-4 py-2.5 font-semibold text-right">Totale ore</th>
+                {!senzaCompensi && <th className="px-4 py-2.5 font-semibold text-right">Compenso</th>}
               </tr>
             </thead>
             <tbody>
@@ -51,8 +51,8 @@ export function TotaliPeriodo({ righe, titolo = 'Totali', senzaCompensi }: { rig
                   <td className="px-4 py-2.5 text-right">{g.eventi}</td>
                   <td className="px-4 py-2.5 text-right whitespace-nowrap">{durata(g.location)}</td>
                   <td className="px-4 py-2.5 text-right whitespace-nowrap">{durata(g.viaggio)}</td>
-                  <td className="px-4 py-2.5 text-right whitespace-nowrap font-bold">{durata(g.location + g.viaggio)}</td>
-                  {!senzaCompensi && <td className="px-4 py-2.5 text-right whitespace-nowrap font-bold">{euro(g.compenso)}</td>}
+                  <td className="px-4 py-2.5 text-right whitespace-nowrap font-semibold">{durata(g.location + g.viaggio)}</td>
+                  {!senzaCompensi && <td className="px-4 py-2.5 text-right whitespace-nowrap font-semibold">{euro(g.compenso)}</td>}
                 </tr>
               ))}
             </tbody>

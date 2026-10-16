@@ -47,10 +47,10 @@ export function RegistratiPage() {
   if (inviata) {
     return (
       <Centro>
-        <div className="size-14 rounded-2xl bg-accento text-white flex items-center justify-center"><MailCheck className="size-7" aria-hidden /></div>
-        <h1 className="font-display text-3xl font-bold tracking-tight">Controlla la tua email</h1>
+        <div className="size-14 rounded-[10px] bg-accento text-white flex items-center justify-center"><MailCheck className="size-7" aria-hidden /></div>
+        <h1 className="font-display text-3xl font-semibold tracking-tight">Controlla la tua email</h1>
         <p className="text-tenue">Ti abbiamo mandato un link a <strong className="text-inchiostro">{email}</strong> per confermare l'account. Poi un amministratore lo attiverà.</p>
-        <Link to="/accedi" className="font-bold text-accento">Torna all'accesso</Link>
+        <Link to="/accedi" className="font-semibold text-accento">Torna all'accesso</Link>
       </Centro>
     )
   }
@@ -59,7 +59,7 @@ export function RegistratiPage() {
     <Centro>
       <Link to="/accedi" className="text-sm font-semibold text-tenue inline-flex items-center gap-1"><ArrowLeft className="size-4" aria-hidden /> Accedi</Link>
       <div>
-        <h1 className="font-display text-[32px] font-bold tracking-tight leading-tight">Diventa operatore</h1>
+        <h1 className="font-display text-[32px] font-semibold tracking-tight leading-tight">Diventa operatore</h1>
         <p className="text-tenue mt-2 font-medium">Indica dove lavori: gli eventi della tua zona ti arriveranno in automatico.</p>
       </div>
       <form onSubmit={registrati} className="flex flex-col gap-4">

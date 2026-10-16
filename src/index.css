@@ -5,36 +5,42 @@
   Per cambiare l'aspetto dell'app intera basta modificare questi valori.
 */
 @theme {
-  --font-sans: "Manrope", system-ui, sans-serif;
-  --font-display: "Bricolage Grotesque", "Manrope", sans-serif;
+  /* Una sola famiglia: Schibsted Grotesk, nata per i giornali, leggibile anche piccola e di notte */
+  --font-sans: "Schibsted Grotesk", system-ui, sans-serif;
+  --font-display: "Schibsted Grotesk", system-ui, sans-serif;
 
-  --color-sfondo: #F4F3EF;      /* fondo pagina */
-  --color-superficie: #FFFFFF;  /* card */
-  --color-inchiostro: #15161A;  /* testo principale, card in evidenza */
-  --color-tenue: #5E5F66;       /* testo secondario */
-  --color-bordo: #E3E1DB;
-  --color-bordo-forte: #D5D3CC;
+  /* Fondo grigio freddo e carta bianca, come un piano di lavoro con i fogli sopra */
+  --color-sfondo: #F2F3F5;
+  --color-superficie: #FFFFFF;
+  --color-inchiostro: #16181D;
+  --color-tenue: #5B616B;
+  --color-bordo: #DCDFE4;
+  --color-bordo-forte: #C5CAD2;
 
   /* Colori del marchio Socialbooth: cambia qui per aggiornare logo e dettagli */
-  --color-marchio: #0E6B62;
+  --color-marchio: #1E46C8;
 
-  --color-accento: #0E6B62;        /* azioni principali */
-  --color-accento-scuro: #0A524B;
-  --color-accento-tenue: #DCEFEC;
-  --color-accento-chiaro: #9FD8D0; /* su fondo scuro */
+  /* Blu stampa: le azioni e ciò che è selezionato */
+  --color-accento: #1E46C8;
+  --color-accento-scuro: #16349A;
+  --color-accento-tenue: #E7ECFB;
+  --color-accento-chiaro: #A9BCFA;
 
-  --color-avviso: #FDF3D8;         /* fondo avvisi */
-  --color-avviso-testo: #5A3E00;
-  --color-avviso-titolo: #4A3300;
-  --color-avviso-icona: #F2C14E;
+  /* Segnali: ambra = da guardare, rosso = da fare subito, verde = tutto ok / online */
+  --color-avviso: #FFF3D6;
+  --color-avviso-testo: #6B4A00;
+  --color-avviso-titolo: #573C00;
+  --color-avviso-icona: #D89A00;
 
-  --color-urgente: #D9480F;
-  --color-urgente-tenue: #FBE6D9;
-  --color-urgente-testo: #8A3B0B;
+  --color-urgente: #C2321F;
+  --color-urgente-tenue: #FCE8E4;
+  --color-urgente-testo: #96210F;
 
-  --color-scuro-2: #24252B;        /* riquadri dentro card scure */
-  --color-scuro-3: #2A2B31;
-  --color-su-scuro-tenue: #A9AAB2;
+  --color-ok: #1F7A45;
+
+  --color-scuro-2: #262A31;
+  --color-scuro-3: #30353D;
+  --color-su-scuro-tenue: #A3A9B3;
 }
 
 html, body, #root { height: 100%; }
@@ -45,9 +51,14 @@ body {
   color: var(--color-inchiostro);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: "tnum" 1;  /* cifre della stessa larghezza: orari e importi in colonna */
   -webkit-tap-highlight-color: transparent;
 }
 
 /* Spazio per notch e barra di sistema su Android/iOS */
 .pb-sicura { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
 .pt-sicura { padding-top: max(20px, env(safe-area-inset-top)); }
+
+h1, h2, h3 { letter-spacing: -0.012em; }
+:focus-visible { outline: 2px solid var(--color-accento); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }

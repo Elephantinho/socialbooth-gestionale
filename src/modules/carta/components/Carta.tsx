@@ -24,10 +24,10 @@ const stili: Record<LivelloCarta, { badge: string; barra: string; testo: string 
 export function BadgeCarta({ stato, compatto }: { stato: Pick<StatoCarta, 'livello' | 'disponibili'>; compatto?: boolean }) {
   const s = stili[stato.livello]
   return (
-    <span className={cn('inline-flex items-center gap-1 rounded-full font-bold whitespace-nowrap', compatto ? 'text-[11px] px-2 py-0.5' : 'text-xs px-2.5 py-1', s.badge)}
+    <span className={cn('inline-flex items-center gap-1 rounded-full font-semibold whitespace-nowrap', compatto ? 'text-[11px] px-2 py-0.5' : 'text-xs px-2.5 py-1', s.badge)}
       title={`${s.testo}: ${stampe(stato.disponibili)}`}>
       <Printer className="size-3.5" aria-hidden />
-      {compatto ? stato.disponibili.toLocaleString('it-IT') : `${s.testo} · ${stampe(stato.disponibili)}`}
+      {compatto ? stato.disponibili.toLocaleString('it-IT') : `${s.testo}, ${stampe(stato.disponibili)}`}
     </span>
   )
 }
@@ -57,11 +57,11 @@ export function InviaRicarica({ operatore, suggerite, perConfezione, onFatto }: 
       invia.mutate({ operatore, stampe: confezioni * perConfezione, note: note.trim() }, { onSuccess: () => onFatto?.() })
     }}>
       <div className="flex items-center gap-3">
-        <span className="text-sm font-bold">Confezioni</span>
-        <div className="flex items-center rounded-xl border border-bordo-forte bg-superficie">
+        <span className="text-sm font-semibold">Confezioni</span>
+        <div className="flex items-center rounded-md border border-bordo-forte bg-superficie">
           <button type="button" aria-label="Una confezione in meno" className="size-10 grid place-items-center cursor-pointer disabled:opacity-40"
             disabled={confezioni <= 1} onClick={() => setConfezioni((c) => Math.max(1, c - 1))}><Minus className="size-4" /></button>
-          <span className="w-8 text-center font-bold tabular-nums">{confezioni}</span>
+          <span className="w-8 text-center font-semibold tabular-nums">{confezioni}</span>
           <button type="button" aria-label="Una confezione in più" className="size-10 grid place-items-center cursor-pointer"
             onClick={() => setConfezioni((c) => c + 1)}><Plus className="size-4" /></button>
         </div>
@@ -90,7 +90,7 @@ export function AvvisiCarta() {
           <Printer className={cn('size-5', critici.length ? 'text-[#C62828]' : 'text-accento')} aria-hidden />
           Carta degli operatori
         </TitoloSezione>
-        <span className={cn('text-sm font-bold', critici.length ? 'text-[#9B1C1C]' : 'text-accento-scuro')}>
+        <span className={cn('text-sm font-semibold', critici.length ? 'text-[#9B1C1C]' : 'text-accento-scuro')}>
           {critici.length ? `${critici.length} da ricaricare` : 'Tutti hanno carta a sufficienza'}
         </span>
       </div>
@@ -101,10 +101,10 @@ export function AvvisiCarta() {
               <div className="flex flex-wrap items-center gap-3">
                 <Avatar nome={nomeCompleto(o)} foto={o.foto} taglia="sm" />
                 <div className="min-w-0 flex-1">
-                  <Link to={`/gestione/operatori/${o.id}`} className="font-bold hover:underline">{nomeCompleto(o)}</Link>
+                  <Link to={`/gestione/operatori/${o.id}`} className="font-semibold hover:underline">{nomeCompleto(o)}</Link>
                   <p className="text-xs text-tenue">
                     {o.regioni.join(', ') || 'Nessuna regione'}
-                    {o.prossimiEventi > 0 && ` · ${o.prossimiEventi} event${o.prossimiEventi === 1 ? 'o' : 'i'} in arrivo (~${stampe(o.fabbisogno)})`}
+                    {o.prossimiEventi > 0 && `, ${o.prossimiEventi} event${o.prossimiEventi === 1 ? 'o' : 'i'} in arrivo (~${stampe(o.fabbisogno)})`}
                   </p>
                 </div>
                 <BadgeCarta stato={o} />
@@ -115,7 +115,7 @@ export function AvvisiCarta() {
               <AnimatePresence initial={false}>
                 {aperto === o.id && parametri && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                    <div className="rounded-2xl bg-sfondo p-4">
+                    <div className="rounded-[10px] bg-sfondo p-4">
                       <InviaRicarica operatore={o.id} suggerite={o.daMandare} perConfezione={parametri.perConfezione} onFatto={() => setAperto(undefined)} />
                     </div>
                   </motion.div>
@@ -154,14 +154,14 @@ export function SchedaCarta({ operatore, modo }: { operatore: string; modo: 'ges
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <TitoloSezione className="flex items-center gap-2"><Printer className="size-5" aria-hidden /> Carta</TitoloSezione>
-          <p className={cn('font-display text-3xl font-bold mt-1', rossa ? 'text-[#C62828]' : '')}>{stampe(data.disponibili)}</p>
+          <p className={cn('font-display text-3xl font-semibold mt-1', rossa ? 'text-[#C62828]' : '')}>{stampe(data.disponibili)}</p>
           <p className="text-sm text-tenue">
             {data.prossimiEventi > 0
-              ? `${data.prossimiEventi} event${data.prossimiEventi === 1 ? 'o' : 'i'} in arrivo · servono circa ${stampe(data.fabbisogno)}`
+              ? `${data.prossimiEventi} event${data.prossimiEventi === 1 ? 'o' : 'i'} in arrivo, servono circa ${stampe(data.fabbisogno)}`
               : 'Nessun evento in arrivo'}
             {data.eventiCoperti != null && (data.eventiCoperti === 0
-              ? ' · non basta per un evento'
-              : ` · basta per ~${data.eventiCoperti} event${data.eventiCoperti === 1 ? 'o' : 'i'}`)}
+              ? ', non basta per un evento'
+              : `, basta per ~${data.eventiCoperti} event${data.eventiCoperti === 1 ? 'o' : 'i'}`)}
           </p>
         </div>
         <BadgeCarta stato={data} />
@@ -169,7 +169,7 @@ export function SchedaCarta({ operatore, modo }: { operatore: string; modo: 'ges
       <BarraCarta stato={data} perConfezione={data.parametri.perConfezione} />
 
       {modo === 'operatore' && rossa && (
-        <p className="rounded-xl bg-[#FDE2E1] text-[#9B1C1C] text-sm font-semibold px-3 py-2">
+        <p className="rounded-md bg-[#FDE2E1] text-[#9B1C1C] text-sm font-semibold px-3 py-2">
           Il project e l'amministrazione sono già stati avvisati: ti manderanno una ricarica.
         </p>
       )}
@@ -185,12 +185,12 @@ export function SchedaCarta({ operatore, modo }: { operatore: string; modo: 'ges
       </div>
 
       {azione === 'ricarica' && (
-        <div className="rounded-2xl bg-sfondo p-4">
+        <div className="rounded-[10px] bg-sfondo p-4">
           <InviaRicarica operatore={operatore} suggerite={data.daMandare} perConfezione={data.parametri.perConfezione} onFatto={() => setAzione(undefined)} />
         </div>
       )}
       {azione === 'conta' && (
-        <form className="rounded-2xl bg-sfondo p-4 flex flex-wrap items-end gap-3" onSubmit={(e) => {
+        <form className="rounded-[10px] bg-sfondo p-4 flex flex-wrap items-end gap-3" onSubmit={(e) => {
           e.preventDefault()
           const n = Number(contate)
           if (Number.isFinite(n) && n >= 0) segnala.mutate({ stampe: Math.round(n), operatore }, { onSuccess: () => { setAzione(undefined); setContate('') } })
@@ -204,15 +204,15 @@ export function SchedaCarta({ operatore, modo }: { operatore: string; modo: 'ges
 
       {data.movimenti.length > 0 && (
         <details className="group">
-          <summary className="text-sm font-bold text-tenue cursor-pointer select-none">Storico</summary>
+          <summary className="text-sm font-semibold text-tenue cursor-pointer select-none">Storico</summary>
           <ul className="mt-2 flex flex-col divide-y divide-bordo text-sm">
             {data.movimenti.map((m) => (
               <li key={m.id} className="py-2 flex items-center justify-between gap-3">
                 <span className="min-w-0">
                   <span className="font-semibold">{etichettaMovimento[m.tipo]}</span>
-                  <span className="text-tenue"> · {dataBreve(m.creato_il)}{m.evento ? ` · ${m.evento.citta}` : ''}{m.note ? ` · ${m.note}` : ''}</span>
+                  <span className="text-tenue">, {dataBreve(m.creato_il)}{m.evento ? `, ${m.evento.citta}` : ''}{m.note ? `, ${m.note}` : ''}</span>
                 </span>
-                <span className={cn('font-bold tabular-nums whitespace-nowrap', m.tipo === 'ricarica' && 'text-accento', m.tipo === 'consumo' && 'text-[#9B1C1C]')}>
+                <span className={cn('font-semibold tabular-nums whitespace-nowrap', m.tipo === 'ricarica' && 'text-accento', m.tipo === 'consumo' && 'text-[#9B1C1C]')}>
                   {m.tipo === 'correzione' ? `= ${m.stampe}` : m.stampe > 0 ? `+${m.stampe}` : m.stampe}
                 </span>
               </li>

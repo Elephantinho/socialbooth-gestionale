@@ -73,7 +73,7 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
           <Pulsante taglia="xl" pieno icona={<Car className="size-5" aria-hidden />} caricamento={registra.isPending} onClick={() => vai('partenza')}>
             Parto dal magazzino
           </Pulsante>
-          <button onClick={() => vai('arrivo')} disabled={registra.isPending} className="text-sm font-bold text-tenue py-1 cursor-pointer">Vado direttamente in location</button>
+          <button onClick={() => vai('arrivo')} disabled={registra.isPending} className="text-sm font-semibold text-tenue py-1 cursor-pointer">Vado direttamente in location</button>
         </>
       )
     } else if (!t?.check_in_il) {
@@ -88,13 +88,13 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
             descrizione: 'Stampe effettuate', operatore_id: profilo.id, pagato_con: 'azienda', stato: 'inviato' })
           setChiediStampe(false)
         }}>
-          <label className="text-sm font-bold" htmlFor="stampe-fatte">Quante stampe hai fatto? <span className="text-tenue font-semibold">(dal contatore della stampante)</span></label>
+          <label className="text-sm font-semibold" htmlFor="stampe-fatte">Quante stampe hai fatto? <span className="text-tenue font-semibold">(dal contatore della stampante)</span></label>
           <div className="flex gap-2">
             <input id="stampe-fatte" type="number" min={0} inputMode="numeric" autoFocus value={stampe} onChange={(ev) => setStampe(ev.target.value)}
-              placeholder="Es. 350" className="h-14 flex-1 min-w-0 rounded-2xl border border-bordo-forte bg-superficie px-4 text-lg font-bold" />
+              placeholder="Es. 350" className="h-14 flex-1 min-w-0 rounded-[10px] border border-bordo-forte bg-superficie px-4 text-lg font-semibold" />
             <Pulsante type="submit" taglia="xl" variante="scuro" caricamento={registra.isPending}>Conferma</Pulsante>
           </div>
-          <button type="button" onClick={() => { vai('fine'); setChiediStampe(false) }} className="text-sm font-bold text-tenue py-1 cursor-pointer">Salta</button>
+          <button type="button" onClick={() => { vai('fine'); setChiediStampe(false) }} className="text-sm font-semibold text-tenue py-1 cursor-pointer">Salta</button>
         </form>
       ) : (
         <Pulsante taglia="xl" pieno variante="scuro" icona={<Flag className="size-5" aria-hidden />} onClick={() => setChiediStampe(true)}>Ho finito e smontato</Pulsante>
@@ -106,7 +106,7 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
             Rientrato in magazzino
           </Pulsante>
           <button onClick={() => confirm('Chiudere senza rientro? Il ritorno verrà stimato con il viaggio previsto.') && vai('chiudi')}
-            disabled={registra.isPending} className="text-sm font-bold text-tenue py-1 cursor-pointer">Non rientro in magazzino, chiudi qui</button>
+            disabled={registra.isPending} className="text-sm font-semibold text-tenue py-1 cursor-pointer">Non rientro in magazzino, chiudi qui</button>
         </>
       )
     }
@@ -119,8 +119,8 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
     <>
       <Card className="p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          <p className="font-bold text-[15px]">Le tue tappe</p>
-          <span className="text-xs font-bold text-accento bg-accento-tenue px-2 py-1 rounded-md">Ore calcolate in automatico</span>
+          <p className="font-semibold text-[15px]">Le tue tappe</p>
+          <span className="text-xs font-semibold text-accento bg-accento-tenue px-2 py-1 rounded-md">Ore calcolate in automatico</span>
         </div>
         <ol className="flex flex-col">
           {passi.map((p, i) => {
@@ -136,8 +136,8 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
                   {i < passi.length - 1 && <span className={cn('w-0.5 flex-1 min-h-4', fatto ? 'bg-accento' : 'bg-bordo')} />}
                 </span>
                 <div className="pb-3 pt-1 flex-1 flex justify-between gap-2">
-                  <span className={cn('text-sm font-bold', !fatto && 'text-tenue')}>{p.etichetta}</span>
-                  <span className="text-sm font-bold">{p.quando ? ora(p.quando) : ''}</span>
+                  <span className={cn('text-sm font-semibold', !fatto && 'text-tenue')}>{p.etichetta}</span>
+                  <span className="text-sm font-semibold">{p.quando ? ora(p.quando) : ''}</span>
                 </div>
               </li>
             )
@@ -146,13 +146,13 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
         {(andata != null || inLocation != null) && (
           <p className="text-sm text-tenue -mt-1">
             {andata != null && <>Andata <strong className="text-inchiostro">{durata(andata)}</strong></>}
-            {andata != null && inLocation != null && ' · '}
+            {andata != null && inLocation != null && ', '}
             {inLocation != null && <>In location <strong className="text-inchiostro">{durata(inLocation)}</strong></>}
           </p>
         )}
         {chiuso && t && (
-          <div className="rounded-2xl bg-accento-tenue text-accento-scuro p-3.5">
-            <p className="font-bold">Evento chiuso · {durata(t.minuti_totali)} totali</p>
+          <div className="rounded-[10px] bg-accento-tenue text-accento-scuro p-3.5">
+            <p className="font-semibold">Evento chiuso, {durata(t.minuti_totali)} totali</p>
             <p className="text-sm">{durata(t.minuti_in_location)} in location + {durata(t.minuti_viaggio)} di viaggio. Ore inviate al project.</p>
             {t.nota_operatore && <p className="text-xs mt-1 opacity-80">{t.nota_operatore}</p>}
           </div>
@@ -163,15 +163,15 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
       <div aria-hidden className="h-44 order-last" />
       <div className="fixed bottom-0 inset-x-0 z-30 max-w-md mx-auto bg-sfondo/95 backdrop-blur border-t border-bordo px-5 pt-3.5 pb-sicura flex flex-col gap-1.5 shadow-[0_-8px_24px_-16px_rgba(21,22,26,0.25)]">
         {registra.error && <Errore errore={registra.error} />}
-        {auto && <p className="text-center text-sm font-bold text-accento" role="status">{auto}</p>}
+        {auto && <p className="text-center text-sm font-semibold text-accento" role="status">{auto}</p>}
         {prossima && !auto && <p className="text-center text-xs text-tenue">Con l'app aperta, {prossima === 'arrivo' ? "l'arrivo" : 'il rientro'} si registra da solo quando sei sul posto</p>}
         {azione}
         <div className="flex justify-center gap-4">
-          <button onClick={() => setSpese(true)} className="text-sm font-bold text-accento py-1 inline-flex items-center gap-1.5 cursor-pointer">
+          <button onClick={() => setSpese(true)} className="text-sm font-semibold text-accento py-1 inline-flex items-center gap-1.5 cursor-pointer">
             <Receipt className="size-4" aria-hidden /> Aggiungi una spesa
           </button>
           {!chiuso && (
-            <button onClick={() => setManuale(true)} className="text-sm font-bold text-tenue py-1 cursor-pointer">Inserisci ore a mano</button>
+            <button onClick={() => setManuale(true)} className="text-sm font-semibold text-tenue py-1 cursor-pointer">Inserisci ore a mano</button>
           )}
         </div>
       </div>
