@@ -13,6 +13,8 @@ import { Campanella } from '@/modules/comunicazione/components/Campanella'
 
 // Pannello web per project e admin.
 type Voce = { a: string; etichetta: string; Icona: typeof Settings; permesso?: Permesso }
+
+// Il menu è uno solo: ogni ruolo vede solo le voci per cui ha il permesso (vedi permessi.tsx)
 const gruppi: { titolo: string; voci: Voce[] }[] = [
   {
     titolo: 'Lavoro',
@@ -21,24 +23,34 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
       { a: '/gestione', etichetta: 'Eventi', Icona: CalendarDays },
       { a: '/gestione/calendario', etichetta: 'Calendario', Icona: CalendarRange },
       { a: '/gestione/attivita', etichetta: 'Attività', Icona: ListChecks },
-      { a: '/gestione/operatori', etichetta: 'Operatori', Icona: Users },
-      { a: '/gestione/clienti', etichetta: 'Clienti', Icona: Briefcase },
     ],
   },
   {
-    titolo: 'Risorse',
+    titolo: 'Squadra',
     voci: [
-      { a: '/gestione/magazzini', etichetta: 'Magazzini', Icona: Building2 },
-      { a: '/gestione/location', etichetta: 'Location', Icona: MapPin },
+      { a: '/gestione/operatori', etichetta: 'Operatori', Icona: Users, permesso: 'operatori.vedi' },
+      { a: '/gestione/magazzini', etichetta: 'Magazzini', Icona: Building2, permesso: 'magazzini' },
     ],
   },
   {
-    titolo: 'Amministrazione',
+    titolo: 'Anagrafiche',
     voci: [
-      { a: '/gestione/previsione', etichetta: 'Previsione costi', Icona: TrendingUp, permesso: 'soldi' },
-      { a: '/gestione/regioni', etichetta: 'Regioni', Icona: MappaIcona, permesso: 'soldi' },
-      { a: '/gestione/report', etichetta: 'Costi e compensi', Icona: BarChart3, permesso: 'soldi' },
+      { a: '/gestione/clienti', etichetta: 'Clienti', Icona: Briefcase, permesso: 'clienti' },
+      { a: '/gestione/location', etichetta: 'Location', Icona: MapPin, permesso: 'location' },
+    ],
+  },
+  {
+    titolo: 'Conti',
+    voci: [
+      { a: '/gestione/report', etichetta: 'Costi e compensi', Icona: BarChart3, permesso: 'ore.approva' },
+      { a: '/gestione/previsione', etichetta: 'Previsione costi', Icona: TrendingUp, permesso: 'analisi' },
+      { a: '/gestione/regioni', etichetta: 'Regioni', Icona: MappaIcona, permesso: 'analisi' },
       { a: '/gestione/carte', etichetta: 'Carte aziendali', Icona: CreditCard, permesso: 'carte' },
+    ],
+  },
+  {
+    titolo: 'Sistema',
+    voci: [
       { a: '/gestione/utenti', etichetta: 'Utenti e ruoli', Icona: ShieldCheck, permesso: 'utenti' },
       { a: '/gestione/impostazioni', etichetta: 'Impostazioni', Icona: Settings, permesso: 'impostazioni' },
     ],

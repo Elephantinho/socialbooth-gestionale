@@ -1,3 +1,4 @@
+import { usePuo } from '@/modules/auth/permessi'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AlertTriangle, Printer } from 'lucide-react'
@@ -30,6 +31,7 @@ export function Previsione() {
   const [vista, setVista] = useState<'mese' | 'regione' | 'evento'>('mese')
   const { data, isPending, error } = useEconomiaFutura(mesi)
   const carta = useScorteCarta()
+  const puo = usePuo()
 
   const parametri = data && { tariffaMedia: data.tariffaMedia, costoStampa: data.costoStampa, mediaStampe: data.mediaStampe }
   const perMese = useMemo(() => (data && parametri ? previsionePer(data.eventi, parametri, (e) => chiaveMese(e.allestimento_il)) : []), [data])
@@ -76,7 +78,7 @@ export function Previsione() {
                 {totale.senzaOperatore > 0 && (
                   <li>{totale.senzaOperatore} eventi senza operatore: compenso stimato con la tariffa media{data.tariffaMedia ? ` (${euro(data.tariffaMedia)}/h)` : ''}.</li>
                 )}
-                {!data.costoStampa && <li>Costo della confezione di carta non impostato: <Link to="/gestione/impostazioni" className="underline">impostalo qui</Link>.</li>}
+                {!data.costoStampa && <li>Costo della confezione di carta non impostato: {puo('impostazioni') ? <Link to="/gestione/impostazioni" className="underline">impostalo qui</Link> : "chiedi all'admin di impostarlo"}.</li>}
               </ul>
             </Card>
           )}
@@ -93,7 +95,7 @@ export function Previsione() {
                 {mancanti > 0 && carta.parametri && ((n) => ` Da comprare: ${n} confezion${n === 1 ? 'e' : 'i'}.`)(confezioniPer(mancanti, carta.parametri.perConfezione))}
               </p>
             </div>
-            <Link to="/gestione/panoramica" className="text-sm font-bold text-accento hover:underline">Carta per operatore →</Link>
+            {puo('carta.ricarica') && <Link to="/gestione/panoramica" className="text-sm font-bold text-accento hover:underline">Carta per operatore →</Link>}
           </Card>
 
           <Card className="p-5 flex flex-col gap-3">

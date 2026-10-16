@@ -1,6 +1,6 @@
-import { usePuo } from '@/modules/auth/permessi'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
+import { usePuo, type Permesso } from '@/modules/auth/permessi'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronDown, Plus } from 'lucide-react'
 import { useEventiGestione } from '@/modules/eventi/api'
@@ -14,26 +14,34 @@ import { cn } from '@/shared/lib/cn'
 import { Card } from '@/shared/ui/Card'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 
-const filtri = [
-  { id: 'tutti', etichetta: 'Tutti', stati: null },
-  { id: 'assegnare', etichetta: 'Da assegnare', stati: ['da_assegnare', 'bozza'] },
-  { id: 'attesa', etichetta: 'In attesa', stati: ['proposto'] },
-  { id: 'confermati', etichetta: 'Confermati', stati: ['confermato', 'in_corso'] },
-  { id: 'completati', etichetta: 'Completati', stati: ['completato'] },
-  { id: 'annullati', etichetta: 'Annullati', stati: ['annullato'] },
-] as const
+type Filtro = { id: string; etichetta: string; passa: (e: EventoGestione) => boolean; permesso?: Permesso }
+
+const tra = (...stati: string[]) => (e: EventoGestione) => stati.includes(e.stato)
+
+// Ogni ruolo vede le schede che gli servono ("Da fatturare" solo a chi fattura)
+const filtri: Filtro[] = [
+  { id: 'tutti', etichetta: 'Tutti', passa: (e) => e.stato !== 'annullato' },
+  { id: 'assegnare', etichetta: 'Da assegnare', passa: tra('da_assegnare', 'bozza'), permesso: 'eventi.assegna' },
+  { id: 'attesa', etichetta: 'In attesa', passa: tra('proposto'), permesso: 'eventi.assegna' },
+  { id: 'confermati', etichetta: 'Confermati', passa: tra('confermato', 'in_corso') },
+  { id: 'completati', etichetta: 'Completati', passa: tra('completato') },
+  { id: 'fatturare', etichetta: 'Da fatturare', passa: (e) => e.stato === 'completato' && !e.fattura_numero, permesso: 'fatture' },
+  { id: 'incassare', etichetta: 'Da incassare', passa: (e) => e.fattura_importo != null && !e.fattura_pagata, permesso: 'fatture' },
+  { id: 'annullati', etichetta: 'Annullati', passa: tra('annullato') },
+]
 
 export function ElencoEventi() {
   const { data, isPending, error } = useEventiGestione()
-  const [filtro, setFiltro] = useState<(typeof filtri)[number]['id']>('tutti')
-
-  const attivo = filtri.find((f) => f.id === filtro)!
-  // "Tutti" non mostra gli annullati
-  const passa = (stati: readonly string[] | null, stato: string) => (stati ? stati.includes(stato) : stato !== 'annullato')
-  const eventi = (data ?? []).filter((e) => passa(attivo.stati, e.stato))
-  const conta = (stati: readonly string[] | null) => (data ?? []).filter((e) => passa(stati, e.stato)).length
-
   const puo = usePuo()
+  const [parametri, setParametri] = useSearchParams()
+  const visibili = filtri.filter((f) => !f.permesso || puo(f.permesso))
+  const attivo = visibili.find((f) => f.id === parametri.get('filtro')) ?? visibili[0]
+  const filtro = attivo.id
+  const setFiltro = (id: string) => setParametri(id === 'tutti' ? {} : { filtro: id }, { replace: true })
+
+  const eventi = (data ?? []).filter(attivo.passa)
+  const conta = (f: Filtro) => (data ?? []).filter(f.passa).length
+
   return (
     <div className="flex flex-col gap-6">
       <Intestazione sopra="Gestione" titolo="Eventi" azioni={puo('eventi.crea') &&
@@ -44,14 +52,14 @@ export function ElencoEventi() {
       } />
 
       <div className="flex gap-2 overflow-x-auto pb-1" role="tablist">
-        {filtri.map((f) => (
+        {visibili.map((f) => (
           <button key={f.id} role="tab" aria-selected={filtro === f.id} onClick={() => setFiltro(f.id)}
             className={cn(
               'h-10 px-4 rounded-full text-sm font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-2',
               filtro === f.id ? 'bg-inchiostro text-white' : 'bg-superficie border border-bordo text-[#3F4047] hover:border-bordo-forte',
             )}>
             {f.etichetta}
-            <span className={cn('text-xs', filtro === f.id ? 'text-accento-chiaro' : 'text-tenue')}>{conta(f.stati)}</span>
+            <span className={cn('text-xs', filtro === f.id ? 'text-accento-chiaro' : 'text-tenue')}>{conta(f)}</span>
           </button>
         ))}
       </div>
@@ -62,16 +70,16 @@ export function ElencoEventi() {
         </Card>
       ) : (
         <div className="flex flex-col gap-2.5">
-          {eventi.map((e) => <RigaEvento key={e.id} e={e} />)}
+          {eventi.map((e) => <RigaEvento key={e.id} e={e} assegna={puo('eventi.assegna')} />)}
         </div>
       )}
     </div>
   )
 }
 
-function RigaEvento({ e }: { e: EventoGestione }) {
+function RigaEvento({ e, assegna }: { e: EventoGestione; assegna: boolean }) {
   const [aperto, setAperto] = useState(false)
-  const assegnabile = e.stato === 'da_assegnare'
+  const assegnabile = assegna && e.stato === 'da_assegnare'
 
   return (
     <Card className="overflow-hidden hover:shadow-[0_8px_24px_-14px_rgba(21,22,26,0.3)] transition-shadow">

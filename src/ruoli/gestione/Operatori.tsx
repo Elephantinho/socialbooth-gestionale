@@ -98,7 +98,9 @@ const Griglia = ({ children }: { children: React.ReactNode }) => (
 )
 
 function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
-  const soldi = usePuo()('soldi')
+  const puo = usePuo()
+  const soldi = puo('tariffe')
+  const carta = puo('carta.ricarica')
   const aggiorna = useAggiornaProfilo()
   const nome = nomeCompleto(o)
   return (
@@ -114,7 +116,7 @@ function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
         <p className={o.magazzino ? 'text-sm font-semibold inline-flex items-center gap-1.5' : 'text-sm font-semibold text-urgente-testo inline-flex items-center gap-1.5'}>
           <Building2 className="size-4 shrink-0" aria-hidden /> <span className="truncate">{o.magazzino?.nome ?? 'Nessun magazzino'}</span>
         </p>
-        {o.attivo && <CartaOperatore id={o.id} />}
+        {o.attivo && carta && <CartaOperatore id={o.id} />}
         <div className="flex flex-wrap gap-1.5">
           {o.zone.map((z) => <span key={z.regione} className="text-[11px] font-bold bg-sfondo border border-bordo px-2 py-0.5 rounded-full">{z.regione}</span>)}
         </div>

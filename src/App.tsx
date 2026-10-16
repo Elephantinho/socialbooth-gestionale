@@ -55,20 +55,20 @@ export function App() {
         <Route path="eventi/nuovo" element={<Solo permesso="eventi.crea"><NuovoEvento /></Solo>} />
         <Route path="eventi/:id" element={<DettaglioEvento />} />
         <Route path="panoramica" element={<Panoramica />} />
-        <Route path="operatori" element={<Operatori />} />
+        <Route path="operatori" element={<Solo permesso="operatori.vedi"><Operatori /></Solo>} />
         <Route path="operatori/:id" element={<DettaglioOperatore />} />
-        <Route path="location" element={<Location />} />
-        <Route path="magazzini" element={<Magazzini />} />
-        <Route path="magazzini/:id" element={<InventarioMagazzino />} />
+        <Route path="location" element={<Solo permesso="location"><Location /></Solo>} />
+        <Route path="magazzini" element={<Solo permesso="magazzini"><Magazzini /></Solo>} />
+        <Route path="magazzini/:id" element={<Solo permesso="magazzini"><InventarioMagazzino /></Solo>} />
         <Route path="carte" element={<Solo permesso="carte"><CarteAziendali /></Solo>} />
         <Route path="attivita" element={<Attivita />} />
         <Route path="calendario" element={<Calendario />} />
-        <Route path="clienti" element={<Clienti />} />
+        <Route path="clienti" element={<Solo permesso="clienti"><Clienti /></Solo>} />
         <Route path="utenti" element={<Solo permesso="utenti"><Utenti /></Solo>} />
-        <Route path="impostazioni" element={<Impostazioni />} />
-        <Route path="regioni" element={<Solo permesso="soldi"><Regioni /></Solo>} />
-        <Route path="previsione" element={<Solo permesso="soldi"><Previsione /></Solo>} />
-        <Route path="report" element={<Solo permesso="soldi"><ReportOre /></Solo>} />
+        <Route path="impostazioni" element={<Solo permesso="impostazioni"><Impostazioni /></Solo>} />
+        <Route path="regioni" element={<Solo permesso="analisi"><Regioni /></Solo>} />
+        <Route path="previsione" element={<Solo permesso="analisi"><Previsione /></Solo>} />
+        <Route path="report" element={<Solo permesso="ore.approva"><ReportOre /></Solo>} />
       </Route>
 
       <Route path="*" element={<Inizio />} />

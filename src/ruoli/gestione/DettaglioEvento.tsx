@@ -103,7 +103,7 @@ export function DettaglioEvento() {
             <Operatore e={e} />
             <InfoLuogo indirizzo={e.indirizzo} citta={e.citta} lat={e.lat} lng={e.lng} data={e.allestimento_il}
               magazzino={e.magazzino ? { nome: e.magazzino.nome, lat: e.magazzino.lat, lng: e.magazzino.lng } : null} ztlDichiarata={e.ztl} compatto />
-            <AttrezzaturaEvento eventoId={e.id} magazzinoId={e.magazzino_id} modificabile={!annullato && !chiuso} />
+            <AttrezzaturaEvento eventoId={e.id} magazzinoId={e.magazzino_id} modificabile={(puo('eventi.crea') || puo('magazzini')) && !annullato && !chiuso} />
             <AttivitaEvento eventoId={e.id} />
             <AllegatiEvento eventoId={e.id} />
             <Storico e={e} />
@@ -149,7 +149,7 @@ function Riepilogo({ e }: { e: EventoGestioneCompleto }) {
 
 function Operatore({ e }: { e: EventoGestioneCompleto }) {
   const [scegli, setScegli] = useState(false)
-  const puoAssegnare = ['da_assegnare', 'proposto', 'confermato'].includes(e.stato)
+  const puoAssegnare = usePuo()('eventi.assegna') && ['da_assegnare', 'proposto', 'confermato'].includes(e.stato)
   const numero = e.operatore?.telefono?.replace(/[^\d+]/g, '')
 
   return (

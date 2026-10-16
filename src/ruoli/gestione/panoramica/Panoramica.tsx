@@ -12,13 +12,23 @@ import { MappaEventi } from './MappaEventi'
 import { ProssimiGiorni } from './ProssimiGiorni'
 import { ZoneScoperte } from './ZoneScoperte'
 
+const sottotitolo = {
+  admin: 'Cosa decidere, chi sta lavorando, dove e come vanno i conti.',
+  project: 'I tuoi eventi: cosa assegnare, cosa approvare e come vanno.',
+  gestore_operatori: 'La squadra: chi approvare, cosa assegnare, chi lavora oggi e chi ha bisogno di carta.',
+  amministrazione: 'I conti: chiusure da approvare, fatture, incassi e margini.',
+  operatore: '',
+} as const
+
 /**
- * Prima pagina dell'ufficio, dall'urgente al riepilogo:
- * 1. cosa decidere  2. carta da mandare  3. chi lavora oggi  4. mappa  5. conti (solo chi vede i soldi)
+ * Prima pagina dell'ufficio, dall'urgente al riepilogo.
+ * Le sezioni compaiono solo a chi servono:
+ * - squadra (assegnare, carta, chi lavora oggi, mappa): project, gestore operatori, admin
+ * - conti (ricavi, costi, regioni, classifiche): project, amministrazione, admin
  */
 export function Panoramica() {
   const profilo = useProfilo()
-  const soldi = usePuo()('soldi')
+  const puo = usePuo()
   const eventi = useEventiGestione()
 
   const tutti = useMemo(() => (eventi.data ?? []).filter((e) => e.stato !== 'annullato'), [eventi.data])
@@ -27,20 +37,17 @@ export function Panoramica() {
   if (eventi.isPending) return <Caricamento />
   if (eventi.error) return <Errore errore={eventi.error} />
 
+  const squadra = puo('eventi.assegna')
   const oggi = new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })
   return (
     <div className="flex flex-col gap-6">
-      <Intestazione
-        sopra={oggi.replace(/^./, (c) => c.toUpperCase())}
-        titolo={`Ciao, ${profilo.nome || 'benvenuto'}`}
-        descrizione={soldi ? 'Cosa assegnare, cosa approvare, dove state lavorando e come vanno i conti.' : 'Cosa assegnare, chi sta lavorando e dove.'}
-      />
-      <DaFare futuri={futuri} />
-      <AvvisiCarta />
-      <Adesso eventi={tutti} />
-      <ZoneScoperte futuri={futuri} />
-      <MappaEventi futuri={futuri} tutti={tutti} />
-      {soldi
+      <Intestazione sopra={oggi.replace(/^./, (c) => c.toUpperCase())} titolo={`Ciao, ${profilo.nome || 'benvenuto'}`} descrizione={sottotitolo[profilo.ruolo]} />
+      <DaFare futuri={futuri} tutti={tutti} />
+      {puo('carta.ricarica') && <AvvisiCarta />}
+      {squadra && <Adesso eventi={tutti} />}
+      {puo('operatori.gestisci') && <ZoneScoperte futuri={futuri} />}
+      {squadra && <MappaEventi futuri={futuri} tutti={tutti} />}
+      {puo('soldi')
         ? <ContiDelMese affianco={<ProssimiGiorni futuri={futuri} className="flex-[1_1_300px]" />} />
         : <ProssimiGiorni futuri={futuri} />}
     </div>

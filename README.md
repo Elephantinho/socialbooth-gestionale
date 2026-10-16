@@ -16,13 +16,13 @@ npm run dev            # apre su http://localhost:5173
 
 ### Utenti e ruoli
 
-| Ruolo | Cosa fa | Non vede |
+| Ruolo | Menu | Panoramica |
 |---|---|---|
-| **Admin** | Il titolare: tutto | — |
-| **Project** | Crea e segue i propri eventi, costi e margini dei suoi eventi | Eventi degli altri project |
-| **Gestore operatori** | Approva gli operatori, regioni e magazzino, assegna gli eventi, manda la carta, gestisce i magazzini | Soldi: costi, compensi, margini, tariffe |
-| **Amministrazione** | Costi, compensi, approvazione ore, fatture, carte aziendali, tariffe, previsioni | — (non crea eventi) |
-| **Operatore** | App sul telefono (a chiamata: pagato a ore per evento) | Pannello web |
+| **Admin** | Tutto | Tutto |
+| **Project** | Eventi (i suoi), Calendario, Attività, Clienti, Location, Costi e compensi | Da assegnare, carta dei suoi operatori, chi lavora oggi, conti dei suoi eventi |
+| **Gestore operatori** | Eventi (tutti), Calendario, Attività, Operatori, Magazzini | Da assegnare, operatori da approvare, carta, zone scoperte, mappa. Niente soldi |
+| **Amministrazione** | Eventi (tutti, in lettura), Operatori (tariffe), Clienti, Costi e compensi, Previsione, Regioni, Carte | Chiusure da approvare, da fatturare, da incassare, conti |
+| **Operatore** | App sul telefono (a chiamata: pagato a ore per evento) | — |
 
 I permessi stanno in un posto solo per lato: `src/modules/auth/permessi.tsx` (menu e pulsanti) e
 le funzioni `e_gestione()`, `vede_tutti_eventi()`, `gestisce_operatori()`, `amministra()` nel database (migrazione 0015).

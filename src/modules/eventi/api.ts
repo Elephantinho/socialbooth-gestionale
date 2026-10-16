@@ -262,9 +262,10 @@ export function useApprovaOre() {
 }
 
 /** Tutte le ore del mese per il report (project vede i suoi eventi, admin tutti). */
-export function useReportOre(mese: string /* yyyy-mm */) {
+export function useReportOre(mese: string /* yyyy-mm */, opzioni: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: ['ore', 'report', mese],
+    enabled: opzioni.enabled ?? true,
     queryFn: async () => {
       const inizio = new Date(`${mese}-01T00:00:00`)
       const fine = new Date(inizio); fine.setMonth(fine.getMonth() + 1)

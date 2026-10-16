@@ -7,30 +7,46 @@ import type { Enum } from '@/shared/types/database'
 export type Ruolo = Enum<'ruolo'>
 
 export type Permesso =
-  | 'eventi.crea'          // creare e modificare eventi
+  | 'eventi.crea'          // creare, modificare, annullare eventi
   | 'eventi.tutti'         // vedere gli eventi di tutti (il project vede i suoi)
-  | 'operatori.gestisci'   // approvare, regioni, magazzino di riferimento, assegnare
-  | 'soldi'                // costi, compensi, margini, previsioni
-  | 'tariffe'              // cambiare la tariffa oraria degli operatori
+  | 'eventi.assegna'       // scegliere o cambiare l'operatore di un evento
+  | 'operatori.vedi'       // pagina Operatori
+  | 'operatori.gestisci'   // approvare, regioni, magazzino di riferimento
+  | 'carta.ricarica'       // vedere la carta degli operatori e mandare ricariche
+  | 'magazzini'            // magazzini e inventario
+  | 'location'             // location salvate
+  | 'clienti'              // clienti
+  | 'soldi'                // costi, ricavi e margini degli eventi che vede
+  | 'ore.approva'          // pagina Costi e compensi: approvare chiusure e spese
+  | 'analisi'              // analisi di tutta l'azienda: Previsione e Regioni
+  | 'fatture'              // eventi da fatturare e da incassare
+  | 'tariffe'              // tariffa oraria degli operatori
   | 'carte'                // carte aziendali
-  | 'magazzini'            // creare magazzini e importarli
-  | 'clienti'              // creare e modificare clienti
   | 'utenti'               // cambiare i ruoli
   | 'impostazioni'         // valori dei calcoli automatici
 
+const TUTTI: Permesso[] = [
+  'eventi.crea', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'carta.ricarica', 'magazzini',
+  'location', 'clienti', 'soldi', 'ore.approva', 'analisi', 'fatture', 'tariffe', 'carte', 'utenti', 'impostazioni',
+]
+
+/** Ogni ruolo ha solo quello che gli serve; l'admin ha tutto */
 const PERMESSI: Record<Ruolo, Permesso[]> = {
-  admin: ['eventi.crea', 'eventi.tutti', 'operatori.gestisci', 'soldi', 'tariffe', 'carte', 'magazzini', 'clienti', 'utenti', 'impostazioni'],
-  project: ['eventi.crea', 'soldi', 'clienti'],
-  gestore_operatori: ['eventi.tutti', 'operatori.gestisci', 'magazzini'],
-  amministrazione: ['eventi.tutti', 'soldi', 'tariffe', 'carte', 'clienti'],
+  admin: TUTTI,
+  // Segue i propri eventi dall'inizio alla fine
+  project: ['eventi.crea', 'eventi.assegna', 'carta.ricarica', 'location', 'clienti', 'soldi', 'ore.approva'],
+  // Organizza la squadra: operatori, assegnazioni, carta, magazzini. Niente soldi.
+  gestore_operatori: ['eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'carta.ricarica', 'magazzini'],
+  // Conti dell'azienda: costi, compensi, fatture, tariffe, carte
+  amministrazione: ['eventi.tutti', 'operatori.vedi', 'clienti', 'soldi', 'ore.approva', 'analisi', 'fatture', 'tariffe', 'carte'],
   operatore: [],
 }
 
 export const RUOLI: { id: Ruolo; etichetta: string; descrizione: string }[] = [
   { id: 'admin', etichetta: 'Admin', descrizione: 'Il titolare: vede e può fare tutto' },
-  { id: 'project', etichetta: 'Project', descrizione: 'Crea e segue i propri eventi' },
-  { id: 'gestore_operatori', etichetta: 'Gestore operatori', descrizione: 'Approva gli operatori, assegna gli eventi, manda la carta. Non vede i soldi' },
-  { id: 'amministrazione', etichetta: 'Amministrazione', descrizione: 'Costi, compensi, fatture e carte aziendali' },
+  { id: 'project', etichetta: 'Project', descrizione: 'Crea e segue i propri eventi: operatore, costi, chiusure' },
+  { id: 'gestore_operatori', etichetta: 'Gestore operatori', descrizione: 'Operatori, assegnazioni, carta e magazzini. Non vede i soldi' },
+  { id: 'amministrazione', etichetta: 'Amministrazione', descrizione: 'Costi, compensi, fatture, tariffe e carte. Non crea eventi' },
   { id: 'operatore', etichetta: 'Operatore', descrizione: "Usa l'app sul telefono" },
 ]
 

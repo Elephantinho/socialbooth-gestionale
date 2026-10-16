@@ -63,8 +63,8 @@ export function DettaglioOperatore() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Link to="/gestione/operatori" className="text-sm font-semibold text-tenue inline-flex items-center gap-1 hover:text-inchiostro w-fit">
-        <ArrowLeft className="size-4" aria-hidden /> Operatori
+      <Link to={puo('operatori.vedi') ? '/gestione/operatori' : '/gestione'} className="text-sm font-semibold text-tenue inline-flex items-center gap-1 hover:text-inchiostro w-fit">
+        <ArrowLeft className="size-4" aria-hidden /> {puo('operatori.vedi') ? 'Operatori' : 'Eventi'}
       </Link>
 
       {/* Profilo */}
@@ -116,7 +116,7 @@ export function DettaglioOperatore() {
         )}
       </div>
 
-      {o.ruolo === 'operatore' && <SchedaCarta operatore={o.id} modo="gestione" />}
+      {o.ruolo === 'operatore' && puo('carta.ricarica') && <SchedaCarta operatore={o.id} modo="gestione" />}
 
       <TotaliPeriodo titolo={soldi ? 'Ore e compensi per periodo' : 'Ore per periodo'} senzaCompensi={!soldi} righe={tutti.flatMap(({ e }) => {
         const o = e.ore.find((x) => x.operatore_id === op.data.id && x.check_out_il && x.stato !== 'respinto')

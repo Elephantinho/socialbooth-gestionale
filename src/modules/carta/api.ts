@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase, ok } from '@/shared/lib/supabase'
 import { statoCarta, type StatoCarta } from './logic/scorta'
+import { usePuo } from '@/modules/auth/permessi'
 
 // Scorta di carta degli operatori: quanta ne hanno, quanta ne serve, ricariche.
 
@@ -57,6 +58,16 @@ export function useScorteCarta() {
     },
   })
   return { ...query, parametri: parametri.data }
+}
+
+/**
+ * Le scorte che interessano a chi guarda: chi gestisce la squadra vede tutti gli operatori,
+ * il project solo quelli che lavorano ai suoi prossimi eventi.
+ */
+export function useScorteVisibili() {
+  const tutti = usePuo()('operatori.vedi')
+  const q = useScorteCarta()
+  return { ...q, data: tutti ? q.data : q.data?.filter((o) => o.prossimiEventi > 0) }
 }
 
 /** Scorta di un solo operatore (pagina operatore lato gestione e profilo dell'operatore) */

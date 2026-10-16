@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, Minus, PackagePlus, Plus, Printer } from 'lucide-react'
-import { useInviaRicarica, useScortaOperatore, useScorteCarta, useSegnalaCarta } from '../api'
+import { useInviaRicarica, useScortaOperatore, useScorteVisibili, useSegnalaCarta } from '../api'
 import { confezioniPer, type LivelloCarta, type StatoCarta } from '../logic/scorta'
 import { dataBreve, nomeCompleto } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
@@ -76,7 +76,7 @@ export function InviaRicarica({ operatore, suggerite, perConfezione, onFatto }: 
 
 /** Riquadro della Panoramica: chi sta finendo la carta, con il tasto per mandarla */
 export function AvvisiCarta() {
-  const { data, isPending, error, parametri } = useScorteCarta()
+  const { data, isPending, error, parametri } = useScorteVisibili()
   const [aperto, setAperto] = useState<string>()
   if (isPending) return null
   if (error) return <Errore errore={error} />
