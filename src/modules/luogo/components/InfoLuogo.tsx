@@ -46,7 +46,7 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
 
   const segnaposti = useMemo<Segnaposto[]>(() => {
     if (!punto) return []
-    const s: Segnaposto[] = [{ id: 'evento', lat: punto.lat, lng: punto.lng, colore: '#1E46C8', raggio: 11, etichetta: 'Evento', sempre: true }]
+    const s: Segnaposto[] = [{ id: 'evento', lat: punto.lat, lng: punto.lng, colore: '#0E7C6E', raggio: 11, etichetta: 'Evento', sempre: true }]
     for (const p of dintorni.data?.parcheggi.slice(0, 8) ?? []) {
       s.push({ id: p.id, lat: p.punto.lat, lng: p.punto.lng, colore: coloriParcheggio[p.tipo].colore, raggio: selezionato === p.id ? 10 : 7, etichetta: `${p.nome}, ${coloriParcheggio[p.tipo].etichetta}`, onClick: () => setSelezionato(p.id) })
     }

@@ -64,7 +64,7 @@ una richiesta di carta fatta registra da sola la ricarica dell'operatore.
 I messaggi diretti arrivano anche come notifica sul telefono.
 
 **Aspetto**: chiaro e arioso. Un solo carattere (Schibsted Grotesk), fondo quasi bianco e fogli bianchi con bordi leggeri,
-un blu vivace per azioni e selezione, tinte pastello per gli stati, nessun riquadro scuro. Tutto in `src/index.css`.
+un verde petrolio per azioni e selezione, menu laterale scuro, tinte pastello per gli stati, nessun riquadro scuro. Tutto in `src/index.css`.
 
 **Notifiche sul telefono**: funzionano su Android (Chrome) anche senza installare nulla; su iPhone dopo
 "Aggiungi a Home". Le manda la funzione `supabase/functions/invia-push` a ogni notifica nuova; le chiavi

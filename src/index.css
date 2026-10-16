@@ -18,15 +18,22 @@
   --color-bordo-forte: #D3D8E0;
 
   /* Colori del marchio Socialbooth: cambia qui per aggiornare logo e dettagli */
-  --color-marchio: #3D5BD9;
+  --color-marchio: #0E7C6E;
 
-  /* Blu vivace e amichevole per azioni e selezione; la sua tinta chiara per ciò che è in evidenza */
-  --color-accento: #3D5BD9;
-  --color-accento-scuro: #2C46B8;
-  --color-accento-tenue: #EEF2FE;
-  --color-accento-chiaro: #B9C7F7;
-  --color-evidenza: #F3F6FF;
-  --color-evidenza-bordo: #DCE3FA;
+  /* Verde petrolio per azioni e selezione; la sua tinta chiara per ciò che è in evidenza */
+  --color-accento: #0E7C6E;
+  --color-accento-scuro: #0A5E54;
+  --color-accento-tenue: #E3F3EF;
+  --color-accento-chiaro: #8FD6C8;
+  --color-evidenza: #F1F8F6;
+  --color-evidenza-bordo: #D4EAE4;
+
+  /* Menu laterale scuro */
+  --color-menu: #16181D;
+  --color-menu-2: #22252C;
+  --color-menu-3: #2C3038;
+  --color-menu-testo: #C9CBD2;
+  --color-menu-tenue: #8B8E97;
 
   /* Segnali in tinte pastello: ambra da guardare, rosso da fare subito, verde tutto ok / online */
   --color-avviso: #FFF6E0;
@@ -43,7 +50,7 @@
 
   /* Vecchi colori "scuri": ora chiari, così nessun riquadro è più nero */
   --color-scuro-2: #FFFFFF;
-  --color-scuro-3: #E3E9FB;
+  --color-scuro-3: #D9EEE8;
   --color-su-scuro-tenue: #667085;
 }
 

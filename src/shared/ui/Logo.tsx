@@ -24,7 +24,7 @@ export function Logo({ chiaro, taglia = 'md', sottotitolo, className }: {
             <span className={cn('font-display font-bold tracking-[-0.02em]', t, chiaro ? 'text-white' : 'text-inchiostro')} aria-label={BRAND.nome}>
               socialbooth
             </span>
-            {sottotitolo && <span className={cn('text-[12px] font-medium mt-0.5', chiaro ? 'text-su-scuro-tenue' : 'text-tenue')}>{sottotitolo}</span>}
+            {sottotitolo && <span className={cn('text-[12px] font-medium mt-0.5', chiaro ? 'text-menu-tenue' : 'text-tenue')}>{sottotitolo}</span>}
           </span>
         </>
       )}

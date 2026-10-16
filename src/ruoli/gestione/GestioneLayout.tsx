@@ -77,18 +77,18 @@ export function GestioneLayout() {
     <PresenzaProvider utenteId={profilo.id}>
       <div className="min-h-dvh lg:flex">
         {/* Barra superiore su telefono e tablet */}
-        <div className="lg:hidden sticky top-0 z-30 bg-superficie border-b border-bordo px-4 h-14 flex items-center justify-between">
-          <Logo taglia="sm" />
+        <div className="lg:hidden sticky top-0 z-30 bg-menu text-white px-4 h-14 flex items-center justify-between">
+          <Logo chiaro taglia="sm" />
           <div className="flex items-center gap-2">
-            <Campanella />
-            <button onClick={() => setMenuAperto(true)} aria-label="Apri menu" className="size-10 rounded-lg border border-bordo-forte flex items-center justify-center cursor-pointer">
+            <Campanella scura />
+            <button onClick={() => setMenuAperto(true)} aria-label="Apri menu" className="size-10 rounded-lg bg-menu-2 flex items-center justify-center cursor-pointer">
               <Menu className="size-5" aria-hidden />
             </button>
           </div>
         </div>
 
         {/* Menu laterale fisso su computer */}
-        <aside className="hidden lg:flex w-[248px] shrink-0 sticky top-0 h-dvh border-r border-bordo">
+        <aside className="hidden lg:flex w-[248px] shrink-0 sticky top-0 h-dvh">
           <MenuLaterale />
         </aside>
 
@@ -131,11 +131,11 @@ function MenuLaterale({ onChiudi }: { onChiudi?: () => void }) {
     .map((g) => ({ ...g, voci: g.voci.filter((v) => !v.permesso || puo(v.permesso)) }))
     .filter((g) => g.voci.length)
   return (
-    <div className="h-full w-full bg-superficie p-4 flex flex-col gap-6 overflow-y-auto">
+    <div className="h-full w-full bg-menu text-white p-4 flex flex-col gap-6 overflow-y-auto">
       <div className="flex items-center justify-between px-2 pt-1">
-        <Logo taglia="sm" sottotitolo="Gestionale" />
+        <Logo chiaro taglia="sm" sottotitolo="Gestionale" />
         {onChiudi && (
-          <button onClick={onChiudi} aria-label="Chiudi menu" className="size-9 rounded-lg border border-bordo-forte flex items-center justify-center cursor-pointer">
+          <button onClick={onChiudi} aria-label="Chiudi menu" className="size-9 rounded-lg bg-menu-2 flex items-center justify-center cursor-pointer">
             <X className="size-5" aria-hidden />
           </button>
         )}
@@ -144,12 +144,12 @@ function MenuLaterale({ onChiudi }: { onChiudi?: () => void }) {
       <nav className="flex flex-col gap-5" aria-label="Sezioni">
         {visibili.map((g) => (
           <div key={g.titolo} className="flex flex-col">
-            <p className="px-2 mb-1 text-[12px] font-medium text-tenue">{g.titolo}</p>
+            <p className="px-2 mb-1 text-[12px] font-medium text-menu-tenue">{g.titolo}</p>
             {g.voci.map(({ a, etichetta, Icona }) => (
               <NavLink key={a} to={a} end={a === '/gestione'}
                 className={({ isActive }) => cn(
                   'flex items-center gap-2.5 h-9 px-2 rounded-lg text-[14px] border-l-[3px]',
-                  isActive ? 'border-accento bg-accento-tenue text-accento-scuro font-semibold rounded-l-none' : 'border-transparent text-inchiostro hover:bg-sfondo',
+                  isActive ? 'border-accento-chiaro bg-menu-3 text-white font-semibold rounded-l-none' : 'border-transparent text-menu-testo hover:bg-menu-2 hover:text-white',
                 )}>
                 <Icona className="size-[17px] shrink-0" strokeWidth={1.75} aria-hidden />
                 <span className="flex-1 truncate">{etichetta}</span>
@@ -160,13 +160,13 @@ function MenuLaterale({ onChiudi }: { onChiudi?: () => void }) {
         ))}
       </nav>
 
-      <div className="mt-auto flex items-center gap-3 border-t border-bordo pt-4 px-1">
+      <div className="mt-auto flex items-center gap-3 border-t border-menu-3 pt-4 px-1">
         <Avatar nome={nomeCompleto(profilo)} foto={profilo.foto} taglia="sm" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold truncate">{nomeCompleto(profilo)}</p>
-          <p className="text-xs text-tenue">{etichettaRuolo(profilo.ruolo)}</p>
+          <p className="text-xs text-menu-tenue">{etichettaRuolo(profilo.ruolo)}</p>
         </div>
-        <button onClick={esci} aria-label="Esci" className="size-9 rounded-lg hover:bg-sfondo flex items-center justify-center cursor-pointer text-tenue">
+        <button onClick={esci} aria-label="Esci" className="size-9 rounded-lg hover:bg-menu-2 flex items-center justify-center cursor-pointer text-menu-testo">
           <LogOut className="size-4" aria-hidden />
         </button>
       </div>

@@ -58,7 +58,7 @@ function SchedaCarta({ c, admin }: { c: Carta; admin: boolean }) {
   if (modifica) return <Card className="p-5"><ModuloCarta c={c} onFatto={() => setModifica(false)} /></Card>
 
   return (
-    <div className={cn('rounded-xl p-5 flex flex-col gap-6 text-white', c.attiva ? 'bg-gradient-to-br from-accento to-[#6F86F0]' : 'bg-tenue')}>
+    <div className={cn('rounded-xl p-5 flex flex-col gap-6 text-white', c.attiva ? 'bg-gradient-to-br from-accento-scuro to-accento' : 'bg-tenue')}>
       <div className="flex justify-between items-start">
         <div>
           <p className="font-semibold text-[16px]">{c.nome}</p>

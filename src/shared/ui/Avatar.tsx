@@ -3,7 +3,7 @@ import { iniziali } from '@/shared/lib/formato'
 
 // Colori per gli avatar senza foto: scelti dal nome, sempre gli stessi per la stessa persona
 const tinte = [
-  'bg-[#E7ECFB] text-[#16349A]',
+  'bg-[#E3F3EF] text-[#0A5E54]',
   'bg-[#EDE9E3] text-[#5A4A35]',
   'bg-[#E4EFE8] text-[#1F5A38]',
   'bg-[#F4E6EA] text-[#7A2E45]',

@@ -2,7 +2,7 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { euro } from '@/shared/lib/formato'
 
 // Colori validati per il daltonismo (teal / arancio) con il validatore della palette
-export const COLORE_RICAVI = '#1E46C8'
+export const COLORE_RICAVI = '#0E8C7E'
 export const COLORE_COSTI = '#D97A1E'
 
 export type PuntoAndamento = { mese: string; ricavi: number; costi: number; margine: number }

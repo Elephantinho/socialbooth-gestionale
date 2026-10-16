@@ -13,7 +13,7 @@ export function PaginaAccesso({ children }: { children: React.ReactNode }) {
         <div className="flex gap-10 items-end">
           {/* Striscia fotografica: quattro scatti, come quelli che stampate agli eventi */}
           <div className="w-28 shrink-0 bg-white p-2 pb-6 shadow-[0_8px_24px_-12px_rgba(31,37,51,0.35)] flex flex-col gap-2 -rotate-3" aria-hidden>
-            {['#C9D3FB', '#FFD7A8', '#3D5BD9', '#BFE5CF'].map((c) => <div key={c} className="aspect-square" style={{ background: c }} />)}
+            {['#BFE5DC', '#FFD7A8', '#0E7C6E', '#F6C9C1'].map((c) => <div key={c} className="aspect-square" style={{ background: c }} />)}
           </div>
           <div className="flex flex-col gap-4 max-w-sm">
             <h2 className="text-[34px] font-semibold leading-[1.1]">Eventi, operatori e magazzini di {BRAND.nome}.</h2>

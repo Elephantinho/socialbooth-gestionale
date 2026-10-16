@@ -36,7 +36,7 @@ export function Campanella({ scura }: { scura?: boolean }) {
     <div className="relative" ref={box}>
       <button onClick={() => setAperta((a) => !a)} aria-label={`Notifiche${nonLette ? `, ${nonLette} nuove` : ''}`} aria-expanded={aperta}
         className={cn('relative size-11 rounded-full flex items-center justify-center cursor-pointer transition',
-          scura ? 'bg-scuro-2 text-white hover:bg-scuro-3' : 'bg-superficie border border-bordo hover:border-bordo-forte')}>
+          scura ? 'bg-menu-2 text-white hover:bg-menu-3' : 'bg-superficie border border-bordo hover:border-bordo-forte')}>
         <Bell className="size-5" aria-hidden />
         {nonLette > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-urgente text-white text-[11px] font-semibold flex items-center justify-center border-2 border-superficie">
