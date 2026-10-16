@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Building2, FileUp, MapPin, Package, Pencil, Plus, Trash2 } from 'lucide-react'
 import { ImportaMagazzini } from './ImportaMagazzini'
-import { useProfilo } from '@/modules/auth/AuthProvider'
+import { usePuo } from '@/modules/auth/permessi'
 import { useEliminaMagazzino, useMagazzini, useSalvaMagazzino } from '@/modules/anagrafiche/api'
 import { trovaCoordinate } from '@/modules/viaggio/api'
 import { REGIONI, type Enum, type Riga } from '@/shared/types/database'
@@ -14,7 +14,7 @@ import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 
 export function Magazzini() {
   const { data, isPending, error } = useMagazzini()
-  const admin = useProfilo().ruolo === 'admin'
+  const admin = usePuo()('magazzini')
   const [nuovo, setNuovo] = useState(false)
   const [importa, setImporta] = useState(false)
   const [cerca, setCerca] = useState('')

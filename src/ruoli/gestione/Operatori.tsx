@@ -4,7 +4,7 @@ import { BadgeCarta } from '@/modules/carta/components/Carta'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Building2, Check, Search, Sparkles } from 'lucide-react'
-import { useProfilo } from '@/modules/auth/AuthProvider'
+import { usePuo } from '@/modules/auth/permessi'
 import { useAggiornaProfilo, useMagazzini, useOperatori } from '@/modules/anagrafiche/api'
 import { SceltaRegioni } from '@/modules/auth/SceltaRegioni'
 import { euro, nomeCompleto } from '@/shared/lib/formato'
@@ -20,7 +20,7 @@ type Operatore = NonNullable<ReturnType<typeof useOperatori>['data']>[number]
 
 export function Operatori() {
   const { data, isPending, error } = useOperatori()
-  const admin = useProfilo().ruolo === 'admin'
+  const admin = usePuo()('operatori.gestisci')
   const [regioneFiltro, setRegioneFiltro] = useState('')
   const [cerca, setCerca] = useState('')
 
@@ -98,6 +98,7 @@ const Griglia = ({ children }: { children: React.ReactNode }) => (
 )
 
 function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
+  const soldi = usePuo()('soldi')
   const aggiorna = useAggiornaProfilo()
   const nome = nomeCompleto(o)
   return (
@@ -107,7 +108,7 @@ function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
           <Avatar nome={nome} foto={o.foto} taglia="lg" />
           <div className="min-w-0">
             <p className="font-bold text-[16px] truncate">{nome}</p>
-            <p className="text-sm text-tenue">{o.tariffa_oraria != null ? `${euro(o.tariffa_oraria)}/ora` : 'tariffa da impostare'}</p>
+            {soldi && <p className="text-sm text-tenue">{o.tariffa_oraria != null ? `${euro(o.tariffa_oraria)}/ora` : 'tariffa da impostare'}</p>}
           </div>
         </Link>
         <p className={o.magazzino ? 'text-sm font-semibold inline-flex items-center gap-1.5' : 'text-sm font-semibold text-urgente-testo inline-flex items-center gap-1.5'}>
@@ -134,8 +135,14 @@ function CartaOperatore({ id }: { id: string }) {
   return scorta ? <div><BadgeCarta stato={scorta} /></div> : null
 }
 
-/** Modifica dei dati di un operatore (solo admin) */
+/**
+ * Modifica dei dati di un operatore.
+ * Gestore operatori: anagrafica, regioni, magazzino, stato. Amministrazione: tariffa. Admin: tutto.
+ */
 export function ModificaOperatore({ o, onFatto }: { o: Operatore | (Operatore & Record<string, unknown>); onFatto: () => void }) {
+  const puo = usePuo()
+  const gestisce = puo('operatori.gestisci')
+  const tariffe = puo('tariffe')
   const magazzini = useMagazzini()
   const aggiorna = useAggiornaProfilo()
   const [nome, setNome] = useState(o.nome)
@@ -151,25 +158,28 @@ export function ModificaOperatore({ o, onFatto }: { o: Operatore | (Operatore & 
       e.preventDefault()
       aggiorna.mutate({
         id: o.id,
-        modifiche: { nome, cognome, telefono: telefono || null, tariffa_oraria: tariffa ? Number(tariffa) : null, magazzino_id: magazzinoId || null, attivo },
-        regioni,
+        modifiche: {
+          ...(gestisce ? { nome, cognome, telefono: telefono || null, magazzino_id: magazzinoId || null, attivo } : {}),
+          ...(tariffe ? { tariffa_oraria: tariffa ? Number(tariffa) : null } : {}),
+        },
+        regioni: gestisce ? regioni : undefined,
       }, { onSuccess: onFatto })
     }}>
       <div className="grid gap-3.5 grid-cols-[repeat(auto-fit,minmax(190px,1fr))]">
-        <Campo etichetta="Nome" required value={nome} onChange={(e) => setNome(e.target.value)} />
-        <Campo etichetta="Cognome" value={cognome} onChange={(e) => setCognome(e.target.value)} />
-        <Campo etichetta="Telefono" type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
-        <Campo etichetta="Tariffa oraria (€)" type="number" min={0} step="0.5" value={tariffa} onChange={(e) => setTariffa(e.target.value)} />
-        <Selezione etichetta="Magazzino di riferimento" value={magazzinoId} onChange={(e) => setMagazzinoId(e.target.value)}>
+        <Campo etichetta="Nome" required disabled={!gestisce} value={nome} onChange={(e) => setNome(e.target.value)} />
+        <Campo etichetta="Cognome" disabled={!gestisce} value={cognome} onChange={(e) => setCognome(e.target.value)} />
+        <Campo etichetta="Telefono" type="tel" disabled={!gestisce} value={telefono} onChange={(e) => setTelefono(e.target.value)} />
+        {tariffe && <Campo etichetta="Tariffa oraria (€)" type="number" min={0} step="0.5" value={tariffa} onChange={(e) => setTariffa(e.target.value)} />}
+        <Selezione etichetta="Magazzino di riferimento" disabled={!gestisce} value={magazzinoId} onChange={(e) => setMagazzinoId(e.target.value)}>
           <option value="">— Nessuno —</option>
           {magazzini.data?.map((m) => <option key={m.id} value={m.id}>{m.nome} · {m.citta}</option>)}
         </Selezione>
-        <Selezione etichetta="Stato" value={attivo ? 'si' : 'no'} onChange={(e) => setAttivo(e.target.value === 'si')}>
+        <Selezione etichetta="Stato" disabled={!gestisce} value={attivo ? 'si' : 'no'} onChange={(e) => setAttivo(e.target.value === 'si')}>
           <option value="si">Attivo (riceve eventi)</option>
           <option value="no">Non attivo</option>
         </Selezione>
       </div>
-      <SceltaRegioni valore={regioni} onChange={setRegioni} etichetta="Regioni di riferimento" />
+      {gestisce && <SceltaRegioni valore={regioni} onChange={setRegioni} etichetta="Regioni di riferimento" />}
       {aggiorna.error && <Errore errore={aggiorna.error} />}
       <div className="flex gap-2">
         <Pulsante type="submit" caricamento={aggiorna.isPending}>Salva</Pulsante>

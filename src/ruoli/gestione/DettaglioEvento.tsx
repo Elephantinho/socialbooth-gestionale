@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, Ban, Check, Copy, Pencil, Phone, RotateCcw, UserRound, X } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
+import { usePuo } from '@/modules/auth/permessi'
 import { useAggiornaEvento, useApprovaOre, useEventoGestione } from '@/modules/eventi/api'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
 import { ModuloEvento } from '@/modules/eventi/components/ModuloEvento'
@@ -26,6 +27,8 @@ export function DettaglioEvento() {
   const { data: e, isPending, error } = useEventoGestione(id)
   const [modifica, setModifica] = useState(false)
   const aggiorna = useAggiornaEvento()
+  const puo = usePuo()
+  const modificabile = puo('eventi.crea')
 
   if (isPending) return <Caricamento />
   if (error) return <Errore errore={error} />
@@ -55,7 +58,7 @@ export function DettaglioEvento() {
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          {annullato ? (
+          {!modificabile ? null : annullato ? (
             <Pulsante variante="secondario" icona={<RotateCcw className="size-4" aria-hidden />} caricamento={aggiorna.isPending}
               onClick={() => aggiorna.mutate({ id: e.id, modifiche: { stato: 'da_assegnare', operatore_id: null } })}>
               Riapri evento
@@ -93,7 +96,7 @@ export function DettaglioEvento() {
           <div className="flex-[999_1_520px] min-w-0 flex flex-col gap-4">
             <Riepilogo e={e} />
             <OreEvento e={e} />
-            <CostiEvento e={e} />
+            {puo('soldi') && <CostiEvento e={e} />}
             <ChatEvento eventoId={e.id} />
           </div>
           <aside className="flex-[1_1_320px] min-w-0 flex flex-col gap-4">

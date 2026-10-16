@@ -71,7 +71,7 @@ export type Database = {
       articoli: {
         Row: {
           id: string; magazzino_id: string; nome: string; categoria: string; quantita: number; codice: string | null
-          stato: Database['public']['Enums']['stato_articolo']; note: string | null; creato_il: string
+          stato: Database['public']['Enums']['stato_articolo']; note: string | null; creato_il: string; in_uso: number
         }
         Insert: {
           id?: string; magazzino_id: string; nome: string; categoria?: string; quantita?: number; codice?: string | null
@@ -83,7 +83,7 @@ export type Database = {
         ]
       }
       attrezzatura_evento: {
-        Row: { evento_id: string; articolo_id: string; quantita: number }
+        Row: { evento_id: string; articolo_id: string; quantita: number; prelevato_il: string | null; rientrato_il: string | null }
         Insert: { evento_id: string; articolo_id: string; quantita?: number }
         Update: { evento_id?: string; articolo_id?: string; quantita?: number }
         Relationships: [
@@ -306,6 +306,7 @@ export type Database = {
       costo_per_stampa: { Args: never; Returns: number }
       media_stampe_per_evento: { Args: never; Returns: number }
       invia_ricarica_carta: { Args: { p_operatore: string; p_stampe: number; p_note?: string }; Returns: undefined }
+      segna_attrezzatura: { Args: { p_evento: string; p_azione: 'prelievo' | 'rientro' }; Returns: undefined }
       segnala_carta: { Args: { p_stampe: number; p_operatore?: string }; Returns: undefined }
       registra_tappa: { Args: { p_evento: string; p_tappa: string; p_lat?: number; p_lng?: number }; Returns: undefined }
       lavoro_evento: { Args: { p_evento: string }; Returns: boolean }
@@ -315,7 +316,7 @@ export type Database = {
         | 'Abruzzo' | 'Basilicata' | 'Calabria' | 'Campania' | 'Emilia-Romagna' | 'Friuli-Venezia Giulia' | 'Lazio'
         | 'Liguria' | 'Lombardia' | 'Marche' | 'Molise' | 'Piemonte' | 'Puglia' | 'Sardegna' | 'Sicilia' | 'Toscana'
         | 'Trentino-Alto Adige' | 'Umbria' | "Valle d'Aosta" | 'Veneto'
-      ruolo: 'admin' | 'project' | 'operatore'
+      ruolo: 'admin' | 'project' | 'gestore_operatori' | 'amministrazione' | 'operatore'
       stato_approvazione: 'inviato' | 'approvato' | 'respinto'
       stato_evento: 'bozza' | 'da_assegnare' | 'proposto' | 'confermato' | 'in_corso' | 'completato' | 'annullato'
       stato_proposta: 'in_attesa' | 'accettata' | 'rifiutata' | 'scaduta' | 'revocata'

@@ -28,6 +28,7 @@ export function InventarioMagazzino() {
     return acc
   }, {}))
   const totalePezzi = (articoli.data ?? []).reduce((s, a) => s + a.quantita, 0)
+  const fuori = (articoli.data ?? []).reduce((s, a) => s + a.in_uso, 0)
 
   return (
     <div className="flex flex-col gap-6">
@@ -37,7 +38,8 @@ export function InventarioMagazzino() {
             <ArrowLeft className="size-4" aria-hidden /> Magazzini
           </Link>
           <h1 className="font-display text-4xl font-bold tracking-tight mt-1">{magazzino?.nome ?? 'Magazzino'}</h1>
-          <p className="text-tenue mt-1">{magazzino ? `${magazzino.indirizzo}, ${magazzino.citta} · ` : ''}{articoli.data?.length ?? 0} articoli · {totalePezzi} pezzi</p>
+          <p className="text-tenue mt-1">{magazzino ? `${magazzino.indirizzo}, ${magazzino.citta} · ` : ''}{articoli.data?.length ?? 0} articoli · {totalePezzi} pezzi{fuori ? ` · ${fuori} fuori per eventi` : ''}</p>
+          <p className="text-xs text-tenue mt-1">Si aggiorna da solo: l'attrezzatura esce quando l'operatore parte dal magazzino e rientra quando torna. I consumabili si scalano.</p>
         </div>
         {!nuovo && <Pulsante taglia="lg" icona={<Plus className="size-[18px]" aria-hidden />} onClick={() => setNuovo(true)}>Aggiungi articolo</Pulsante>}
       </div>
@@ -71,7 +73,10 @@ function RigaArticolo({ a }: { a: Riga<'articoli'> }) {
         <p className="font-bold">{a.nome}</p>
         <p className="text-sm text-tenue">{[a.codice, a.note].filter(Boolean).join(' · ') || '—'}</p>
       </div>
-      <span className="font-display text-xl font-bold w-14 text-right">×{a.quantita}</span>
+      <div className="text-right min-w-24">
+        <p className="font-display text-xl font-bold">{a.quantita - a.in_uso}<span className="text-sm text-tenue font-semibold"> / {a.quantita}</span></p>
+        <p className={cn('text-xs font-semibold', a.in_uso ? 'text-avviso-testo' : 'text-tenue')}>{a.in_uso ? `${a.in_uso} fuori per eventi` : 'tutti in magazzino'}</p>
+      </div>
       <span className={cn('text-xs font-bold px-2.5 py-1.5 rounded-[10px]', stato.stile)}>{stato.etichetta}</span>
       <div className="flex gap-1">
         <button aria-label={`Modifica ${a.nome}`} onClick={() => setModifica(true)} className="size-10 rounded-lg flex items-center justify-center hover:bg-sfondo cursor-pointer">

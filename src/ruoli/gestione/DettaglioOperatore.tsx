@@ -1,8 +1,8 @@
+import { usePuo } from '@/modules/auth/permessi'
 import { SchedaCarta } from '@/modules/carta/components/Carta'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, Building2, CalendarCheck, Archive, Pencil, Phone, MessageCircle, TrendingUp, Wallet } from 'lucide-react'
-import { useProfilo } from '@/modules/auth/AuthProvider'
 import { useEventiDiOperatore, useOperatore } from '@/modules/anagrafiche/api'
 import { FotoProfilo } from '@/modules/anagrafiche/components/FotoProfilo'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
@@ -35,7 +35,10 @@ function conti(e: EventoOp, operatoreId: string, tariffa: number | null) {
 
 export function DettaglioOperatore() {
   const { id = '' } = useParams()
-  const admin = useProfilo().ruolo === 'admin'
+  const puo = usePuo()
+  const admin = puo('operatori.gestisci')
+  const modificabile = admin || puo('tariffe')
+  const soldi = puo('soldi')
   const op = useOperatore(id)
   const eventi = useEventiDiOperatore(id)
   const [modifica, setModifica] = useState(false)
@@ -83,7 +86,7 @@ export function DettaglioOperatore() {
           </div>
           <p className="text-sm text-tenue flex flex-wrap gap-x-3 gap-y-1">
             <span className="inline-flex items-center gap-1.5 font-semibold text-inchiostro"><Building2 className="size-4" aria-hidden />{o.magazzino ? `${o.magazzino.nome} · ${o.magazzino.citta}` : 'Nessun magazzino'}</span>
-            <span>{o.tariffa_oraria != null ? `${euro(o.tariffa_oraria)}/ora` : 'Tariffa da impostare'}</span>
+            {soldi && <span>{o.tariffa_oraria != null ? `${euro(o.tariffa_oraria)}/ora` : 'Tariffa da impostare'}</span>}
             {o.telefono && <span>{o.telefono}</span>}
           </p>
         </div>
@@ -94,7 +97,7 @@ export function DettaglioOperatore() {
               <a href={`https://wa.me/${numero.replace('+', '')}`} target="_blank" rel="noreferrer" className="h-11 px-4 rounded-xl border border-bordo-forte font-bold text-sm inline-flex items-center gap-2 hover:bg-sfondo"><MessageCircle className="size-4" aria-hidden />WhatsApp</a>
             </>
           )}
-          {admin && <Pulsante variante={modifica ? 'scuro' : 'primario'} icona={<Pencil className="size-4" aria-hidden />} onClick={() => setModifica((m) => !m)}>{modifica ? 'Chiudi' : 'Modifica'}</Pulsante>}
+          {modificabile && <Pulsante variante={modifica ? 'scuro' : 'primario'} icona={<Pencil className="size-4" aria-hidden />} onClick={() => setModifica((m) => !m)}>{modifica ? 'Chiudi' : 'Modifica'}</Pulsante>}
         </div>
       </Card>
 
@@ -104,14 +107,18 @@ export function DettaglioOperatore() {
       <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(170px,1fr))]">
         <Numero valore={delMese.length} etichetta="eventi questo mese" icona={<CalendarCheck className="size-5" aria-hidden />} />
         <Numero valore={archivio.length} etichetta="eventi archiviati" icona={<Archive className="size-5" aria-hidden />} />
-        <Numero valore={euro(compensoMese)} etichetta="compensi del mese" tono="accento" icona={<Wallet className="size-5" aria-hidden />} />
-        <Numero valore={euro(compensoTotale)} etichetta="compensi totali" tono="scuro" icona={<Wallet className="size-5" aria-hidden />} />
-        <Numero valore={euro(margineTotale)} etichetta="margine generato" tono={margineTotale < 0 ? 'urgente' : 'chiaro'} icona={<TrendingUp className="size-5" aria-hidden />} />
+        {soldi && (
+          <>
+            <Numero valore={euro(compensoMese)} etichetta="compensi del mese" tono="accento" icona={<Wallet className="size-5" aria-hidden />} />
+            <Numero valore={euro(compensoTotale)} etichetta="compensi totali" tono="scuro" icona={<Wallet className="size-5" aria-hidden />} />
+            <Numero valore={euro(margineTotale)} etichetta="margine generato" tono={margineTotale < 0 ? 'urgente' : 'chiaro'} icona={<TrendingUp className="size-5" aria-hidden />} />
+          </>
+        )}
       </div>
 
       {o.ruolo === 'operatore' && <SchedaCarta operatore={o.id} modo="gestione" />}
 
-      <TotaliPeriodo titolo="Ore e compensi per periodo" righe={tutti.flatMap(({ e }) => {
+      <TotaliPeriodo titolo={soldi ? 'Ore e compensi per periodo' : 'Ore per periodo'} senzaCompensi={!soldi} righe={tutti.flatMap(({ e }) => {
         const o = e.ore.find((x) => x.operatore_id === op.data.id && x.check_out_il && x.stato !== 'respinto')
         return o ? [{ quando: e.allestimento_il, minutiLocation: o.minuti_in_location, minutiViaggio: o.minuti_viaggio, compenso: o.compenso ?? 0 }] : []
       })} />
@@ -136,7 +143,7 @@ export function DettaglioOperatore() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs text-tenue">
-                  {['Data', 'Evento', 'Stato', 'Ore', 'Compenso', 'Margine'].map((h) => <th key={h} className="px-5 py-3 font-bold whitespace-nowrap">{h}</th>)}
+                  {['Data', 'Evento', 'Stato', 'Ore', ...(soldi ? ['Compenso', 'Margine'] : [])].map((h) => <th key={h} className="px-5 py-3 font-bold whitespace-nowrap">{h}</th>)}
                 </tr>
               </thead>
               <tbody>
@@ -149,14 +156,14 @@ export function DettaglioOperatore() {
                     </td>
                     <td className="px-5 py-3"><StatoEvento stato={e.stato} /></td>
                     <td className="px-5 py-3 whitespace-nowrap">{minuti != null ? durata(minuti) : '—'}</td>
-                    <td className="px-5 py-3 whitespace-nowrap font-bold">{compenso != null ? euro(compenso) : '—'}</td>
-                    <td className="px-5 py-3 whitespace-nowrap">
+                    {soldi && <td className="px-5 py-3 whitespace-nowrap font-bold">{compenso != null ? euro(compenso) : '—'}</td>}
+                    {soldi && <td className="px-5 py-3 whitespace-nowrap">
                       {margine == null ? <span className="text-tenue text-xs font-semibold">ricavo mancante</span> : (
                         <span className={cn('font-bold', margine < 0 ? 'text-urgente-testo' : 'text-accento')}>
                           {euro(margine)}{!definitivo && <span className="text-xs font-semibold text-tenue"> prev.</span>}
                         </span>
                       )}
-                    </td>
+                    </td>}
                   </tr>
                 ))}
               </tbody>

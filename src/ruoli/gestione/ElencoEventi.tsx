@@ -1,3 +1,4 @@
+import { usePuo } from '@/modules/auth/permessi'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -32,9 +33,10 @@ export function ElencoEventi() {
   const eventi = (data ?? []).filter((e) => passa(attivo.stati, e.stato))
   const conta = (stati: readonly string[] | null) => (data ?? []).filter((e) => passa(stati, e.stato)).length
 
+  const puo = usePuo()
   return (
     <div className="flex flex-col gap-6">
-      <Intestazione sopra="Gestione" titolo="Eventi" azioni={
+      <Intestazione sopra="Gestione" titolo="Eventi" azioni={puo('eventi.crea') &&
         <Link to="/gestione/eventi/nuovo"
           className="h-12 px-5 rounded-xl bg-accento text-white font-bold text-sm flex items-center gap-2 hover:bg-accento-scuro transition shadow-[0_6px_16px_-8px_rgba(14,107,98,0.7)]">
           <Plus className="size-[18px]" aria-hidden /> Nuovo evento

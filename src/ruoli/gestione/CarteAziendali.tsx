@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CreditCard, Pencil, Plus, Trash2 } from 'lucide-react'
-import { useProfilo } from '@/modules/auth/AuthProvider'
+import { usePuo } from '@/modules/auth/permessi'
 import { useOperatori } from '@/modules/anagrafiche/api'
 import { useCarte, useEliminaCarta, useMovimentiCarte, useSalvaCarta } from '@/modules/costi/api'
 import { etichettaCategoria } from '@/modules/costi/costanti'
@@ -16,7 +16,7 @@ type Carta = NonNullable<ReturnType<typeof useCarte>['data']>[number]
 
 export function CarteAziendali() {
   const carte = useCarte()
-  const admin = useProfilo().ruolo === 'admin'
+  const admin = usePuo()('carte')
   const [nuova, setNuova] = useState(false)
 
   return (

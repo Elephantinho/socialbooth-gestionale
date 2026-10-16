@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Check } from 'lucide-react'
-import { useProfilo } from '@/modules/auth/AuthProvider'
+import { usePuo } from '@/modules/auth/permessi'
 import { useImpostazioni, useSalvaImpostazione, useStatisticheStampe } from '@/modules/anagrafiche/api'
 import { euro } from '@/shared/lib/formato'
 import { Card } from '@/shared/ui/Card'
@@ -21,7 +21,7 @@ const etichette: Record<string, { titolo: string; unita: string; passo: string }
 /** Valori usati dai calcoli automatici */
 export function Impostazioni() {
   const { data, isPending, error } = useImpostazioni()
-  const admin = useProfilo().ruolo === 'admin'
+  const admin = usePuo()('impostazioni')
   const statistiche = useStatisticheStampe()
   const costo = typeof statistiche.data?.costo === 'number' && statistiche.data.costo > 0 ? statistiche.data.costo : null
   const media = typeof statistiche.data?.media === 'number' && statistiche.data.media > 0 ? statistiche.data.media : null

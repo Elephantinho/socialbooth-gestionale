@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AccediPage } from '@/modules/auth/AccediPage'
 import { Protetto, homePerRuolo } from '@/modules/auth/Protetto'
+import { RichiedePermesso as Solo, RUOLI_GESTIONE } from '@/modules/auth/permessi'
 import { useAuth } from '@/modules/auth/AuthProvider'
 import { Caricamento } from '@/shared/ui/Stati'
 import { OperatoreLayout } from '@/ruoli/operatore/OperatoreLayout'
@@ -11,7 +12,7 @@ import { GestioneLayout } from '@/ruoli/gestione/GestioneLayout'
 const ElencoEventi = lazy(() => import('@/ruoli/gestione/ElencoEventi').then((m) => ({ default: m.ElencoEventi })))
 const NuovoEvento = lazy(() => import('@/ruoli/gestione/NuovoEvento').then((m) => ({ default: m.NuovoEvento })))
 const DettaglioEvento = lazy(() => import('@/ruoli/gestione/DettaglioEvento').then((m) => ({ default: m.DettaglioEvento })))
-const Panoramica = lazy(() => import('@/ruoli/gestione/Panoramica').then((m) => ({ default: m.Panoramica })))
+const Panoramica = lazy(() => import('@/ruoli/gestione/panoramica/Panoramica').then((m) => ({ default: m.Panoramica })))
 const Operatori = lazy(() => import('@/ruoli/gestione/Operatori').then((m) => ({ default: m.Operatori })))
 const Magazzini = lazy(() => import('@/ruoli/gestione/Magazzini').then((m) => ({ default: m.Magazzini })))
 const Location = lazy(() => import('@/ruoli/gestione/Location').then((m) => ({ default: m.Location })))
@@ -49,9 +50,9 @@ export function App() {
         <Route path="profilo" element={<ProfiloOperatore />} />
       </Route>
 
-      <Route path="/gestione" element={<Protetto ruoli={['project', 'admin']}><GestioneLayout /></Protetto>}>
+      <Route path="/gestione" element={<Protetto ruoli={RUOLI_GESTIONE}><GestioneLayout /></Protetto>}>
         <Route index element={<ElencoEventi />} />
-        <Route path="eventi/nuovo" element={<NuovoEvento />} />
+        <Route path="eventi/nuovo" element={<Solo permesso="eventi.crea"><NuovoEvento /></Solo>} />
         <Route path="eventi/:id" element={<DettaglioEvento />} />
         <Route path="panoramica" element={<Panoramica />} />
         <Route path="operatori" element={<Operatori />} />
@@ -59,15 +60,15 @@ export function App() {
         <Route path="location" element={<Location />} />
         <Route path="magazzini" element={<Magazzini />} />
         <Route path="magazzini/:id" element={<InventarioMagazzino />} />
-        <Route path="carte" element={<CarteAziendali />} />
+        <Route path="carte" element={<Solo permesso="carte"><CarteAziendali /></Solo>} />
         <Route path="attivita" element={<Attivita />} />
         <Route path="calendario" element={<Calendario />} />
         <Route path="clienti" element={<Clienti />} />
-        <Route path="utenti" element={<Utenti />} />
+        <Route path="utenti" element={<Solo permesso="utenti"><Utenti /></Solo>} />
         <Route path="impostazioni" element={<Impostazioni />} />
-        <Route path="regioni" element={<Regioni />} />
-        <Route path="previsione" element={<Previsione />} />
-        <Route path="report" element={<ReportOre />} />
+        <Route path="regioni" element={<Solo permesso="soldi"><Regioni /></Solo>} />
+        <Route path="previsione" element={<Solo permesso="soldi"><Previsione /></Solo>} />
+        <Route path="report" element={<Solo permesso="soldi"><ReportOre /></Solo>} />
       </Route>
 
       <Route path="*" element={<Inizio />} />

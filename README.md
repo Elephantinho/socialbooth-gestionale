@@ -16,15 +16,20 @@ npm run dev            # apre su http://localhost:5173
 
 ### Utenti e ruoli
 
-- **Operatori**: si registrano da soli dalla pagina `/registrati` (nome, telefono, regioni in cui lavorano).
-  Nascono *non attivi*: un admin li approva dalla pagina **Operatori**, dove imposta anche tariffa oraria e magazzino.
-- **Admin e project**: si creano dalla dashboard di Supabase (*Authentication → Users → Add user*, con *Auto Confirm User*),
-  poi si assegna il ruolo da **SQL Editor**:
+| Ruolo | Cosa fa | Non vede |
+|---|---|---|
+| **Admin** | Il titolare: tutto | — |
+| **Project** | Crea e segue i propri eventi, costi e margini dei suoi eventi | Eventi degli altri project |
+| **Gestore operatori** | Approva gli operatori, regioni e magazzino, assegna gli eventi, manda la carta, gestisce i magazzini | Soldi: costi, compensi, margini, tariffe |
+| **Amministrazione** | Costi, compensi, approvazione ore, fatture, carte aziendali, tariffe, previsioni | — (non crea eventi) |
+| **Operatore** | App sul telefono (a chiamata: pagato a ore per evento) | Pannello web |
 
-```sql
-update profili set ruolo = 'project', nome = 'Nome Cognome'
- where id = (select id from auth.users where email = 'email@esempio.it');
-```
+I permessi stanno in un posto solo per lato: `src/modules/auth/permessi.tsx` (menu e pulsanti) e
+le funzioni `e_gestione()`, `vede_tutti_eventi()`, `gestisce_operatori()`, `amministra()` nel database (migrazione 0015).
+
+- **Operatori**: si registrano da soli dalla pagina `/registrati` (nome, telefono, regioni in cui lavorano).
+  Nascono *non attivi*: admin o gestore operatori li approvano dalla pagina **Operatori**.
+- **Gli altri ruoli**: la persona si registra, poi l'admin cambia il ruolo da **Utenti e ruoli**.
 
 **Importante per la registrazione**: in Supabase, *Authentication → URL Configuration*, imposta come
 *Site URL* l'indirizzo dell'app pubblicata (es. `https://socialbooth-gestionale.vercel.app`) e aggiungilo
@@ -80,13 +85,15 @@ src/
     anagrafiche/        clienti, tipi di booth, magazzini, location, operatori, indisponibilità
     viaggio/            indirizzo → coordinate, tempi di percorrenza (OpenStreetMap)
     costi/              costi previsti/finali, carte aziendali, calcolo del margine (logic/riepilogo.ts)
-    attrezzatura/       inventario dei magazzini e attrezzatura degli eventi
+    attrezzatura/       inventario dei magazzini e attrezzatura degli eventi (esce/rientra con le tappe)
+    carta/              scorta di carta degli operatori, ricariche, avvisi
     luogo/              ZTL, parcheggi, servizi vicini, meteo
     comunicazione/      notifiche, chat dell'evento, documenti e foto
     attivita/           to-do e bacheca
   ruoli/                ← solo le schermate, che usano i moduli
     operatore/          app telefono
-    gestione/           pannello web project/admin
+    gestione/           pannello web (admin, project, gestore operatori, amministrazione)
+      panoramica/       la prima pagina, divisa in sezioni (DaFare, Adesso, MappaEventi, ContiDelMese…)
   shared/               ← pezzi comuni
     ui/                 Pulsante, Card, Campo, stati di caricamento/vuoto/errore
     lib/                client Supabase, formattazione date e importi
@@ -102,3 +109,6 @@ Le regole di calcolo (orari, ritiro dal magazzino, ore) stanno in `modules/*/log
 - **Assegnazione automatica**: quando un evento passa a *da assegnare*, se nella sua regione c'è un solo operatore libero (zona giusta, non indisponibile, senza eventi sovrapposti) gli viene proposto in automatico. Altrimenti sceglie il project. Se l'operatore rifiuta, l'evento torna da assegnare e lui viene escluso.
 - **Compenso a ore**: (minuti in location + minuti di viaggio andata e ritorno) × tariffa oraria. La tariffa viene fotografata al momento della chiusura dell'evento.
 - **Sicurezza**: ogni ruolo vede solo i propri dati (Row Level Security). L'operatore modifica gli eventi solo tramite le funzioni `rispondi_proposta`, `check_in`, `chiudi_evento`.
+- **Magazzino automatico**: quando l'operatore registra "Parto dal magazzino" l'attrezzatura dell'evento risulta fuori (i consumabili si scalano), con "Rientrato" torna disponibile.
+- **Carta**: le stampe dichiarate a fine evento scalano la scorta dell'operatore; sotto soglia (Impostazioni) o se non basta per i prossimi eventi diventa rossa e admin, gestori e project ricevono una notifica.
+- **Previsione costi**: ogni nuovo evento riceve il costo previsto della carta (media stampe × costo per stampa); la pagina Previsione somma compensi, carta e costi previsti degli eventi futuri.

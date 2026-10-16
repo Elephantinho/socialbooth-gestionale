@@ -7,7 +7,7 @@ import { Card, TitoloSezione } from '@/shared/ui/Card'
 export type RigaPeriodo = { quando: string; minutiLocation: number; minutiViaggio: number; compenso: number }
 
 /** Totali di ore e compensi per settimana o per mese */
-export function TotaliPeriodo({ righe, titolo = 'Totali' }: { righe: RigaPeriodo[]; titolo?: string }) {
+export function TotaliPeriodo({ righe, titolo = 'Totali', senzaCompensi }: { righe: RigaPeriodo[]; titolo?: string; senzaCompensi?: boolean }) {
   const [per, setPer] = useState<'settimana' | 'mese'>('settimana')
 
   const gruppi = [...righe.reduce((m, r) => {
@@ -41,7 +41,7 @@ export function TotaliPeriodo({ righe, titolo = 'Totali' }: { righe: RigaPeriodo
                 <th className="px-4 py-2.5 font-bold text-right">Location</th>
                 <th className="px-4 py-2.5 font-bold text-right">Viaggio</th>
                 <th className="px-4 py-2.5 font-bold text-right">Totale ore</th>
-                <th className="px-4 py-2.5 font-bold text-right">Compenso</th>
+                {!senzaCompensi && <th className="px-4 py-2.5 font-bold text-right">Compenso</th>}
               </tr>
             </thead>
             <tbody>
@@ -52,7 +52,7 @@ export function TotaliPeriodo({ righe, titolo = 'Totali' }: { righe: RigaPeriodo
                   <td className="px-4 py-2.5 text-right whitespace-nowrap">{durata(g.location)}</td>
                   <td className="px-4 py-2.5 text-right whitespace-nowrap">{durata(g.viaggio)}</td>
                   <td className="px-4 py-2.5 text-right whitespace-nowrap font-bold">{durata(g.location + g.viaggio)}</td>
-                  <td className="px-4 py-2.5 text-right whitespace-nowrap font-bold">{euro(g.compenso)}</td>
+                  {!senzaCompensi && <td className="px-4 py-2.5 text-right whitespace-nowrap font-bold">{euro(g.compenso)}</td>}
                 </tr>
               ))}
             </tbody>

@@ -1,19 +1,31 @@
 import { useState } from 'react'
-import { Package, Pencil } from 'lucide-react'
-import { useArticoli, useAttrezzaturaEvento, useImpostaAttrezzatura } from '../api'
+import { ArrowDownToLine, ArrowUpFromLine, Package, Pencil } from 'lucide-react'
+import { useArticoli, useAttrezzaturaEvento, useImpostaAttrezzatura, useSegnaAttrezzatura } from '../api'
+import { ETICHETTE_STATO, statoAttrezzatura } from '../logic/stato'
+import { ora, dataBreve } from '@/shared/lib/formato'
+import { cn } from '@/shared/lib/cn'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore } from '@/shared/ui/Stati'
 
-/** Attrezzatura da portare all'evento, scelta dall'inventario del magazzino. */
+/**
+ * Attrezzatura da portare all'evento, scelta dall'inventario del magazzino.
+ * Esce dal magazzino da sola quando l'operatore registra "Parto dal magazzino"
+ * e rientra con "Rientrato"; qui si può segnare anche a mano.
+ */
 export function AttrezzaturaEvento({ eventoId, magazzinoId, modificabile }: { eventoId: string; magazzinoId: string | null; modificabile: boolean }) {
   const assegnata = useAttrezzaturaEvento(eventoId)
+  const segna = useSegnaAttrezzatura()
   const [modifica, setModifica] = useState(false)
+  const stato = statoAttrezzatura(assegnata.data ?? [])
 
   return (
     <Card className="p-5 flex flex-col gap-3">
       <div className="flex justify-between items-center gap-2">
-        <TitoloSezione className="text-[15px] flex items-center gap-2"><Package className="size-4" aria-hidden /> Attrezzatura</TitoloSezione>
+        <TitoloSezione className="text-[15px] flex items-center gap-2">
+          <Package className="size-4" aria-hidden /> Attrezzatura
+          {stato !== 'vuota' && <span className={cn('text-[11px] font-bold px-2 py-0.5 rounded-full', ETICHETTE_STATO[stato].stile)}>{ETICHETTE_STATO[stato].testo}</span>}
+        </TitoloSezione>
         {modificabile && magazzinoId && !modifica && (
           <button onClick={() => setModifica(true)} className="text-sm font-bold text-accento inline-flex items-center gap-1 cursor-pointer">
             <Pencil className="size-3.5" aria-hidden /> Scegli
@@ -27,14 +39,36 @@ export function AttrezzaturaEvento({ eventoId, magazzinoId, modificabile }: { ev
       ) : assegnata.isPending ? <Caricamento className="py-4" /> : !assegnata.data?.length ? (
         <p className="text-sm text-tenue">Nessuna attrezzatura assegnata: l'operatore vedrà una checklist base.</p>
       ) : (
-        <ul className="flex flex-col gap-1.5">
-          {assegnata.data.map((a) => (
-            <li key={a.articolo_id} className="flex justify-between text-sm">
-              <span className="font-semibold">{a.articolo?.nome}{a.articolo?.codice && <span className="text-tenue font-medium"> · {a.articolo.codice}</span>}</span>
-              <span className="font-bold">×{a.quantita}</span>
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="flex flex-col gap-1.5">
+            {assegnata.data.map((a) => (
+              <li key={a.articolo_id} className="flex justify-between gap-2 text-sm">
+                <span className="font-semibold min-w-0">
+                  {a.articolo?.nome}{a.articolo?.codice && <span className="text-tenue font-medium"> · {a.articolo.codice}</span>}
+                  <span className="block text-xs text-tenue font-medium">
+                    {a.rientrato_il ? `Rientrata ${dataBreve(a.rientrato_il)} ${ora(a.rientrato_il)}`
+                      : a.prelevato_il ? `Uscita ${dataBreve(a.prelevato_il)} ${ora(a.prelevato_il)}${a.articolo?.categoria === 'Consumabili' ? ' · consumabile' : ''}`
+                      : 'In magazzino'}
+                  </span>
+                </span>
+                <span className="font-bold">×{a.quantita}</span>
+              </li>
+            ))}
+          </ul>
+          {(stato === 'in_magazzino' || stato === 'parziale' || stato === 'fuori') && (
+            <div className="flex flex-wrap gap-2 pt-1">
+              {stato !== 'fuori' && (
+                <Pulsante variante="secondario" icona={<ArrowUpFromLine className="size-4" aria-hidden />} caricamento={segna.isPending && segna.variables?.azione === 'prelievo'}
+                  onClick={() => segna.mutate({ eventoId, azione: 'prelievo' })}>Segna uscita</Pulsante>
+              )}
+              {stato !== 'in_magazzino' && (
+                <Pulsante variante="secondario" icona={<ArrowDownToLine className="size-4" aria-hidden />} caricamento={segna.isPending && segna.variables?.azione === 'rientro'}
+                  onClick={() => segna.mutate({ eventoId, azione: 'rientro' })}>Segna rientro</Pulsante>
+              )}
+            </div>
+          )}
+          {segna.error && <Errore errore={segna.error} />}
+        </>
       )}
     </Card>
   )
@@ -50,6 +84,8 @@ function Scelta({ eventoId, magazzinoId, attuale, onFatto }: {
   if (articoli.isPending) return <Caricamento className="py-4" />
   if (articoli.error) return <Errore errore={articoli.error} />
   const disponibili = articoli.data.filter((a) => a.stato === 'disponibile')
+  // pezzi liberi adesso: quelli non fuori per altri eventi (più quelli già scelti qui)
+  const liberi = (a: (typeof disponibili)[number]) => Math.max(0, a.quantita - a.in_uso) + (attuale.find((x) => x.articolo_id === a.id)?.quantita ?? 0)
   if (!disponibili.length) return <p className="text-sm text-tenue">L'inventario di questo magazzino è vuoto: aggiungi gli articoli in Magazzini.</p>
 
   return (
@@ -66,7 +102,10 @@ function Scelta({ eventoId, magazzinoId, attuale, onFatto }: {
                 onChange={(ev) => setScelte((s) => ({ ...s, [a.id]: Math.max(1, Math.min(a.quantita, Number(ev.target.value) || 1)) }))}
                 className="w-16 h-9 rounded-lg border border-bordo-forte px-2" />
             )}
-            <span className="text-xs text-tenue w-12 text-right">di {a.quantita}</span>
+            <span className={cn('text-xs w-20 text-right', q > liberi(a) ? 'text-urgente-testo font-bold' : 'text-tenue')}
+              title={a.in_uso ? `${a.in_uso} fuori per altri eventi` : undefined}>
+              {liberi(a)} liberi di {a.quantita}
+            </span>
           </div>
         )
       })}
