@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { AlertTriangle, ArrowLeft, Flag, MapPin, MessageCircle, Navigation, Phone } from 'lucide-react'
 import { ChiudiEvento } from './ChiudiEvento'
+import { useAttrezzaturaEvento } from '@/modules/attrezzatura/api'
 import { useCheckIn, useEvento } from '@/modules/eventi/api'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
 import type { EventoDettaglio } from '@/modules/eventi/types'
@@ -107,7 +108,7 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
           </Card>
         )}
 
-        <Checklist wifi={e.wifi} />
+        <Checklist eventoId={e.id} wifi={e.wifi} />
       </div>
 
       <AzioneInBasso e={e} />
@@ -159,9 +160,16 @@ function Info({ etichetta, valore, nota, piccolo }: { etichetta: string; valore:
   )
 }
 
-/** Checklist attrezzatura: per ora salvata solo sul telefono durante l'uso. */
-function Checklist({ wifi }: { wifi: boolean }) {
-  const voci = ['Booth e cavalletto', 'Stampante e carta', ...(wifi ? [] : ['Hotspot carico']), 'Props e fondale']
+/**
+ * Checklist attrezzatura: quella assegnata dal project in magazzino,
+ * altrimenti una lista base. Le spunte restano sul telefono durante l'uso.
+ */
+function Checklist({ eventoId, wifi }: { eventoId: string; wifi: boolean }) {
+  const assegnata = useAttrezzaturaEvento(eventoId).data ?? []
+  const base = assegnata.length
+    ? assegnata.map((a) => `${a.quantita > 1 ? `${a.quantita}× ` : ''}${a.articolo?.nome ?? 'Articolo'}${a.articolo?.codice ? ` (${a.articolo.codice})` : ''}`)
+    : ['Booth e cavalletto', 'Stampante e carta', 'Props e fondale']
+  const voci = [...base, ...(wifi ? [] : ['Hotspot carico'])]
   const [fatte, setFatte] = useState<string[]>([])
   return (
     <Card className="p-4 flex flex-col gap-1">

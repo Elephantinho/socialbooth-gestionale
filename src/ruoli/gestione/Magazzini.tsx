@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Building2, MapPin, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Building2, FileUp, MapPin, Package, Pencil, Plus, Trash2 } from 'lucide-react'
+import { ImportaMagazzini } from './ImportaMagazzini'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { useEliminaMagazzino, useMagazzini, useSalvaMagazzino } from '@/modules/anagrafiche/api'
 import { trovaCoordinate } from '@/modules/viaggio/api'
@@ -14,6 +16,15 @@ export function Magazzini() {
   const { data, isPending, error } = useMagazzini()
   const admin = useProfilo().ruolo === 'admin'
   const [nuovo, setNuovo] = useState(false)
+  const [importa, setImporta] = useState(false)
+  const [cerca, setCerca] = useState('')
+
+  // Raggruppati per regione, in ordine alfabetico
+  const filtrati = (data ?? []).filter((m) => `${m.nome} ${m.citta} ${m.regione}`.toLowerCase().includes(cerca.toLowerCase()))
+  const perRegione = Object.entries(filtrati.reduce<Record<string, Riga<'magazzini'>[]>>((acc, m) => {
+    (acc[m.regione] ??= []).push(m)
+    return acc
+  }, {})).sort(([a], [b]) => a.localeCompare(b))
 
   return (
     <div className="flex flex-col gap-6">
@@ -23,7 +34,12 @@ export function Magazzini() {
           <h1 className="font-display text-4xl font-bold tracking-tight mt-1">Magazzini</h1>
           <p className="text-tenue mt-2 max-w-2xl">Da qui partono gli operatori: l'indirizzo serve per calcolare in automatico i tempi di viaggio.</p>
         </div>
-        {admin && !nuovo && <Pulsante taglia="lg" icona={<Plus className="size-[18px]" aria-hidden />} onClick={() => setNuovo(true)}>Nuovo magazzino</Pulsante>}
+        {admin && (
+          <div className="flex gap-2 flex-wrap">
+            {!importa && <Pulsante taglia="lg" variante="secondario" icona={<FileUp className="size-[18px]" aria-hidden />} onClick={() => setImporta(true)}>Importa da Excel</Pulsante>}
+            {!nuovo && <Pulsante taglia="lg" icona={<Plus className="size-[18px]" aria-hidden />} onClick={() => setNuovo(true)}>Nuovo magazzino</Pulsante>}
+          </div>
+        )}
       </div>
 
       <AnimatePresence>
@@ -34,13 +50,20 @@ export function Magazzini() {
         )}
       </AnimatePresence>
 
+      {importa && <ImportaMagazzini onFatto={() => setImporta(false)} />}
+
+      {!!data?.length && <Campo etichetta="Cerca" placeholder="Nome, città o regione" value={cerca} onChange={(e) => setCerca(e.target.value)} className="max-w-md" />}
+
       {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : !data.length ? (
-        <Card><Vuoto titolo="Nessun magazzino" testo="Aggiungi almeno un magazzino per regione per calcolare i viaggi." /></Card>
-      ) : (
-        <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
-          {data.map((m) => <SchedaMagazzino key={m.id} m={m} admin={admin} />)}
-        </div>
-      )}
+        <Card><Vuoto titolo="Nessun magazzino" testo="Aggiungili uno per uno o importali tutti da un file Excel." /></Card>
+      ) : perRegione.map(([regione, lista]) => (
+        <section key={regione} className="flex flex-col gap-2.5">
+          <h2 className="text-sm font-bold uppercase tracking-wider text-tenue">{regione} · {lista.length}</h2>
+          <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
+            {lista.map((m) => <SchedaMagazzino key={m.id} m={m} admin={admin} />)}
+          </div>
+        </section>
+      ))}
     </div>
   )
 }
@@ -67,15 +90,20 @@ function SchedaMagazzino({ m, admin }: { m: Riga<'magazzini'>; admin: boolean })
       </p>
       {m.note && <p className="text-sm text-tenue">{m.note}</p>}
       {elimina.error && <Errore errore={new Error('Non si può eliminare: è usato da eventi o operatori')} />}
+      <div className="flex gap-2 mt-1 flex-wrap">
+        <Link to={`/gestione/magazzini/${m.id}`} className="h-11 px-4 rounded-xl bg-inchiostro text-white text-sm font-bold inline-flex items-center gap-2">
+          <Package className="size-4" aria-hidden /> Attrezzatura
+        </Link>
       {admin && (
-        <div className="flex gap-2 mt-1">
+        <>
           <Pulsante variante="secondario" icona={<Pencil className="size-4" aria-hidden />} onClick={() => setModifica(true)}>Modifica</Pulsante>
           <Pulsante variante="fantasma" icona={<Trash2 className="size-4" aria-hidden />} caricamento={elimina.isPending}
             onClick={() => confirm(`Eliminare ${m.nome}?`) && elimina.mutate(m.id)}>
             Elimina
           </Pulsante>
-        </div>
+        </>
       )}
+      </div>
     </Card>
   )
 }

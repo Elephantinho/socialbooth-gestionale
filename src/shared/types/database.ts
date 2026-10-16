@@ -9,6 +9,64 @@ export type Database = {
   __InternalSupabase: { PostgrestVersion: '14.18' }
   public: {
     Tables: {
+      articoli: {
+        Row: {
+          id: string; magazzino_id: string; nome: string; categoria: string; quantita: number; codice: string | null
+          stato: Database['public']['Enums']['stato_articolo']; note: string | null; creato_il: string
+        }
+        Insert: {
+          id?: string; magazzino_id: string; nome: string; categoria?: string; quantita?: number; codice?: string | null
+          stato?: Database['public']['Enums']['stato_articolo']; note?: string | null; creato_il?: string
+        }
+        Update: Partial<Database['public']['Tables']['articoli']['Insert']>
+        Relationships: [
+          { foreignKeyName: 'articoli_magazzino_id_fkey'; columns: ['magazzino_id']; isOneToOne: false; referencedRelation: 'magazzini'; referencedColumns: ['id'] },
+        ]
+      }
+      attrezzatura_evento: {
+        Row: { evento_id: string; articolo_id: string; quantita: number }
+        Insert: { evento_id: string; articolo_id: string; quantita?: number }
+        Update: { evento_id?: string; articolo_id?: string; quantita?: number }
+        Relationships: [
+          { foreignKeyName: 'attrezzatura_evento_evento_id_fkey'; columns: ['evento_id']; isOneToOne: false; referencedRelation: 'eventi'; referencedColumns: ['id'] },
+          { foreignKeyName: 'attrezzatura_evento_articolo_id_fkey'; columns: ['articolo_id']; isOneToOne: false; referencedRelation: 'articoli'; referencedColumns: ['id'] },
+        ]
+      }
+      carte_aziendali: {
+        Row: {
+          id: string; nome: string; ultime_cifre: string; circuito: string | null; operatore_id: string | null
+          attiva: boolean; note: string | null; creato_il: string
+        }
+        Insert: {
+          id?: string; nome: string; ultime_cifre: string; circuito?: string | null; operatore_id?: string | null
+          attiva?: boolean; note?: string | null; creato_il?: string
+        }
+        Update: Partial<Database['public']['Tables']['carte_aziendali']['Insert']>
+        Relationships: [
+          { foreignKeyName: 'carte_aziendali_operatore_id_fkey'; columns: ['operatore_id']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
+        ]
+      }
+      costi_evento: {
+        Row: {
+          id: string; evento_id: string; fase: Database['public']['Enums']['fase_costo']; categoria: Database['public']['Enums']['categoria_costo']
+          descrizione: string | null; quantita: number; costo_unitario: number; importo: number | null
+          pagato_con: Database['public']['Enums']['pagamento']; carta_id: string | null; operatore_id: string | null
+          scontrino: string | null; stato: Database['public']['Enums']['stato_approvazione']; creato_da: string | null; creato_il: string
+        }
+        Insert: {
+          id?: string; evento_id: string; fase: Database['public']['Enums']['fase_costo']; categoria: Database['public']['Enums']['categoria_costo']
+          descrizione?: string | null; quantita?: number; costo_unitario: number; importo?: number | null
+          pagato_con?: Database['public']['Enums']['pagamento']; carta_id?: string | null; operatore_id?: string | null
+          scontrino?: string | null; stato?: Database['public']['Enums']['stato_approvazione']; creato_da?: string | null; creato_il?: string
+        }
+        Update: Partial<Database['public']['Tables']['costi_evento']['Insert']>
+        Relationships: [
+          { foreignKeyName: 'costi_evento_evento_id_fkey'; columns: ['evento_id']; isOneToOne: false; referencedRelation: 'eventi'; referencedColumns: ['id'] },
+          { foreignKeyName: 'costi_evento_carta_id_fkey'; columns: ['carta_id']; isOneToOne: false; referencedRelation: 'carte_aziendali'; referencedColumns: ['id'] },
+          { foreignKeyName: 'costi_evento_operatore_id_fkey'; columns: ['operatore_id']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
+          { foreignKeyName: 'costi_evento_creato_da_fkey'; columns: ['creato_da']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
+        ]
+      }
       clienti: {
         Row: { creato_il: string; email: string | null; id: string; nome: string; note: string | null; project_id: string | null; telefono: string | null }
         Insert: { creato_il?: string; email?: string | null; id?: string; nome: string; note?: string | null; project_id?: string | null; telefono?: string | null }
@@ -26,6 +84,8 @@ export type Database = {
           ritiro_magazzino_il: string | null; smontaggio_il: string; stato: Database['public']['Enums']['stato_evento']
           tipo_booth_id: string | null; viaggio_minuti: number | null; wifi: boolean; ztl: boolean
           lat: number | null; lng: number | null
+          prezzo_cliente: number | null; fattura_numero: string | null; fattura_data: string | null
+          fattura_importo: number | null; fattura_pagata: boolean; stampe_effettuate: number | null
         }
         Insert: {
           aggiornato_il?: string; allestimento_il: string; citta: string; cliente_id?: string | null; codice?: number; creato_il?: string
@@ -35,6 +95,8 @@ export type Database = {
           ritiro_magazzino_il?: string | null; smontaggio_il: string; stato?: Database['public']['Enums']['stato_evento']
           tipo_booth_id?: string | null; viaggio_minuti?: number | null; wifi?: boolean; ztl?: boolean
           lat?: number | null; lng?: number | null
+          prezzo_cliente?: number | null; fattura_numero?: string | null; fattura_data?: string | null
+          fattura_importo?: number | null; fattura_pagata?: boolean; stampe_effettuate?: number | null
         }
         Update: Partial<Database['public']['Tables']['eventi']['Insert']>
         Relationships: [
@@ -171,6 +233,8 @@ export type Database = {
       }
       proponi_operatore: { Args: { p_evento: string; p_operatore: string }; Returns: undefined }
       rispondi_proposta: { Args: { p_accetta: boolean; p_proposta: string }; Returns: undefined }
+      gestisco_evento: { Args: { p_evento: string }; Returns: boolean }
+      lavoro_evento: { Args: { p_evento: string }; Returns: boolean }
     }
     Enums: {
       regione:
@@ -181,6 +245,10 @@ export type Database = {
       stato_approvazione: 'inviato' | 'approvato' | 'respinto'
       stato_evento: 'bozza' | 'da_assegnare' | 'proposto' | 'confermato' | 'in_corso' | 'completato' | 'annullato'
       stato_proposta: 'in_attesa' | 'accettata' | 'rifiutata' | 'scaduta' | 'revocata'
+      stato_articolo: 'disponibile' | 'in_manutenzione' | 'fuori_uso'
+      fase_costo: 'previsto' | 'finale'
+      categoria_costo: 'noleggio_veicolo' | 'carburante' | 'pedaggi' | 'parcheggio' | 'carta_stampe' | 'vitto' | 'alloggio' | 'materiali' | 'altro'
+      pagamento: 'carta_aziendale' | 'operatore' | 'azienda'
     }
     CompositeTypes: { [_ in never]: never }
   }

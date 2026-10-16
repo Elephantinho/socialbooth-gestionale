@@ -35,7 +35,7 @@ anche tra i *Redirect URLs*. Così il link di conferma email riporta all'app.
 **Operatore (telefono)**
 - Home: prossimo evento con orari di ritiro, allestimento e attivazione; incarichi da accettare/rifiutare; riepilogo del mese
 - Scheda evento: programma, navigatore, avvisi accesso/ZTL/Wi‑Fi, referente (chiama/WhatsApp), checklist, check-in GPS
-- Chiusura evento: orari precompilati, viaggio andata/ritorno, spese da rimborsare, nota obbligatoria se cambiano gli orari
+- Chiusura evento: orari precompilati, viaggio andata/ritorno, stampe effettuate, spese con carta aziendale o anticipate, nota obbligatoria se cambiano gli orari
 - Calendario (in programma / passati) e giorni di indisponibilità
 - Le mie ore: per mese, con compenso e stato di approvazione
 - Profilo: nome, telefono, magazzino, regioni
@@ -47,7 +47,12 @@ anche tra i *Redirect URLs*. Così il link di conferma email riporta all'app.
 - Nuovo evento: location salvate, **tempo di viaggio calcolato in automatico** dal magazzino, orario di ritiro suggerito
 - Operatori: approvazione, tariffa, magazzino, regioni, attivazione
 - Magazzini e Location salvate
-- Ore e compensi: per mese e per operatore, approvazione, esportazione Excel (CSV)
+- Ore e compensi: per mese e per operatore, approvazione, rimborsi, esportazione Excel (CSV)
+- Operatori divisi per regione, con magazzino di riferimento e avviso di assegnazione automatica
+- Magazzini divisi per regione, importazione da Excel (CSV) con ricerca automatica della posizione, inventario attrezzatura
+- Costi dell'evento: preventivo e consuntivo (operatore, noleggio veicolo, carburante, pedaggi, carta e stampe, vitto…), ricavo, fattura, margine
+- Attrezzatura assegnata all'evento dall'inventario (diventa la checklist dell'operatore)
+- Carte aziendali assegnate agli operatori (solo ultime 4 cifre) e spese pagate con carta, per il controllo dell'estratto conto
 
 ## Stack
 
@@ -68,6 +73,8 @@ src/
     assegnazione/       scelta dell'operatore
     anagrafiche/        clienti, tipi di booth, magazzini, location, operatori, indisponibilità
     viaggio/            indirizzo → coordinate, tempi di percorrenza (OpenStreetMap)
+    costi/              costi previsti/finali, carte aziendali, calcolo del margine (logic/riepilogo.ts)
+    attrezzatura/       inventario dei magazzini e attrezzatura degli eventi
   ruoli/                ← solo le schermate, che usano i moduli
     operatore/          app telefono
     gestione/           pannello web project/admin

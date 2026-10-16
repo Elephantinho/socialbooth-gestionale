@@ -8,6 +8,8 @@ import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
 import { ModuloEvento } from '@/modules/eventi/components/ModuloEvento'
 import type { EventoGestioneCompleto } from '@/modules/eventi/types'
 import { AssegnaOperatore } from '@/modules/assegnazione/AssegnaOperatore'
+import { CostiEvento } from '@/modules/costi/components/CostiEvento'
+import { AttrezzaturaEvento } from '@/modules/attrezzatura/components/AttrezzaturaEvento'
 import { dataLunga, durata, euro, iniziali, ora } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
@@ -83,9 +85,11 @@ export function DettaglioEvento() {
           <div className="flex-[999_1_520px] min-w-0 flex flex-col gap-4">
             <Riepilogo e={e} />
             <OreEvento e={e} />
+            <CostiEvento e={e} />
           </div>
           <aside className="flex-[1_1_320px] min-w-0 flex flex-col gap-4">
             <Operatore e={e} />
+            <AttrezzaturaEvento eventoId={e.id} magazzinoId={e.magazzino_id} modificabile={!annullato && !chiuso} />
             <Storico e={e} />
           </aside>
         </div>
@@ -201,7 +205,6 @@ function OreEvento({ e }: { e: EventoGestioneCompleto }) {
   const checkIn = e.ore.find((o) => o.check_in_il)
 
   if (!ore && !checkIn) return null
-  const totaleSpese = e.spese.reduce((s, x) => s + Number(x.importo), 0)
 
   return (
     <Card className="p-5 md:p-6 flex flex-col gap-4">
@@ -232,14 +235,6 @@ function OreEvento({ e }: { e: EventoGestioneCompleto }) {
             <Dato etichetta="Compenso" valore={euro(ore.compenso)} evidenza />
           </div>
           {ore.nota_operatore && <p className="text-sm"><span className="font-bold">Nota operatore: </span>{ore.nota_operatore}</p>}
-          {e.spese.length > 0 && (
-            <div className="rounded-2xl border border-bordo p-4 flex flex-col gap-1.5">
-              <p className="text-sm font-bold">Spese da rimborsare · {euro(totaleSpese)}</p>
-              {e.spese.map((s) => (
-                <p key={s.id} className="text-sm flex justify-between"><span className="capitalize">{s.tipo}{s.descrizione && ` · ${s.descrizione}`}</span><span className="font-semibold">{euro(Number(s.importo))}</span></p>
-              ))}
-            </div>
-          )}
           {approva.error && <Errore errore={approva.error} />}
           {ore.stato === 'inviato' && (
             <div className="flex gap-2 flex-wrap">
@@ -249,7 +244,7 @@ function OreEvento({ e }: { e: EventoGestioneCompleto }) {
               </Pulsante>
               <Pulsante icona={<Check className="size-4" aria-hidden />} caricamento={approva.isPending}
                 onClick={() => approva.mutate({ oreId: ore.id, eventoId: e.id, approva: true, approvatoDa: profilo.id })}>
-                Approva ore e spese
+                Approva ore e spese dell'operatore
               </Pulsante>
             </div>
           )}

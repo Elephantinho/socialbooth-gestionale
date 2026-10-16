@@ -82,15 +82,26 @@ export function useCheckIn() {
   })
 }
 
+export type SpesaOperatore = {
+  categoria: Database['public']['Enums']['categoria_costo']
+  quantita: number
+  costo_unitario: number
+  pagato_con: Database['public']['Enums']['pagamento']
+  carta_id: string | null
+  descrizione?: string
+}
+
 export function useChiudiEvento() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (v: { eventoId: string; minutiLocation: number; minutiViaggio: number; nota?: string; spese: { tipo: string; importo: number }[]; operatoreId: string }) => {
+    mutationFn: async (v: { eventoId: string; minutiLocation: number; minutiViaggio: number; nota?: string; spese: SpesaOperatore[]; operatoreId: string }) => {
       ok(await supabase.rpc('chiudi_evento', {
         p_evento: v.eventoId, p_minuti_location: v.minutiLocation, p_minuti_viaggio: v.minutiViaggio, p_nota: v.nota || undefined,
       }))
       if (v.spese.length) {
-        ok(await supabase.from('spese').insert(v.spese.map((s) => ({ ...s, evento_id: v.eventoId, operatore_id: v.operatoreId }))))
+        ok(await supabase.from('costi_evento').insert(v.spese.map((s) => ({
+          ...s, evento_id: v.eventoId, operatore_id: v.operatoreId, fase: 'finale' as const,
+        }))))
       }
     },
     onSuccess: () => {
@@ -149,9 +160,9 @@ export function useEventoGestione(id: string) {
     queryFn: async () =>
       ok(await supabase.from('eventi')
         .select(`*, tipo_booth:tipi_booth(nome), cliente:clienti(nome), magazzino:magazzini(nome, lat, lng),
-          operatore:profili!eventi_operatore_id_fkey(nome, telefono),
+          operatore:profili!eventi_operatore_id_fkey(nome, telefono, tariffa_oraria),
           proposte(id, stato, automatica, creato_il, risposta_il, operatore:profili(nome)),
-          ore:ore_lavorate(*), spese(*)`)
+          ore:ore_lavorate(*)`)
         .eq('id', id)
         .single()),
   })
@@ -204,7 +215,9 @@ export function useApprovaOre() {
       ok(await supabase.from('ore_lavorate')
         .update({ stato, approvato_da: v.approvatoDa, approvato_il: new Date().toISOString() })
         .eq('id', v.oreId))
-      ok(await supabase.from('spese').update({ stato }).eq('evento_id', v.eventoId).eq('stato', 'inviato'))
+      // Insieme alle ore si approvano le spese finali inviate dall'operatore
+      ok(await supabase.from('costi_evento').update({ stato })
+        .eq('evento_id', v.eventoId).eq('fase', 'finale').eq('stato', 'inviato').not('operatore_id', 'is', null))
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: chiavi.tutti })
@@ -222,7 +235,7 @@ export function useReportOre(mese: string /* yyyy-mm */) {
       const fine = new Date(inizio); fine.setMonth(fine.getMonth() + 1)
       return ok(await supabase.from('ore_lavorate')
         .select(`*, operatore:profili!ore_lavorate_operatore_id_fkey(nome),
-          evento:eventi!inner(id, allestimento_il, citta, tipo_booth:tipi_booth(nome), spese(importo, stato))`)
+          evento:eventi!inner(id, allestimento_il, citta, tipo_booth:tipi_booth(nome), costi:costi_evento(importo, stato, pagato_con, fase, operatore_id))`)
         .gte('evento.allestimento_il', inizio.toISOString())
         .lt('evento.allestimento_il', fine.toISOString())
         .not('check_out_il', 'is', null)
@@ -241,6 +254,7 @@ export function useTempoReale() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'eventi' }, () => qc.invalidateQueries({ queryKey: chiavi.tutti }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'proposte' }, () => qc.invalidateQueries({ queryKey: chiavi.tutti }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'ore_lavorate' }, () => qc.invalidateQueries({ queryKey: chiavi.ore }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'costi_evento' }, () => qc.invalidateQueries({ queryKey: chiavi.tutti }))
       .subscribe()
     return () => { supabase.removeChannel(canale) }
   }, [qc])

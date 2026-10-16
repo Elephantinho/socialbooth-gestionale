@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { BarChart3, Building2, CalendarDays, Camera, LayoutGrid, LogOut, MapPin, Users } from 'lucide-react'
+import { BarChart3, Building2, CalendarDays, Camera, CreditCard, LayoutGrid, LogOut, MapPin, Users } from 'lucide-react'
 import { useAuth, useProfilo } from '@/modules/auth/AuthProvider'
 import { cn } from '@/shared/lib/cn'
 
@@ -13,6 +13,7 @@ const voci = [
   { a: '/gestione/location', etichetta: 'Location', Icona: MapPin, pronta: true },
   { a: '/gestione/magazzini', etichetta: 'Magazzini', Icona: Building2, pronta: true },
   { a: '/gestione/report', etichetta: 'Ore e compensi', Icona: BarChart3, pronta: true },
+  { a: '/gestione/carte', etichetta: 'Carte aziendali', Icona: CreditCard, pronta: true },
 ]
 
 export function GestioneLayout() {

@@ -19,6 +19,8 @@ import { CalendarioOperatore } from '@/ruoli/operatore/CalendarioOperatore'
 import { OreOperatore } from '@/ruoli/operatore/OreOperatore'
 import { ProfiloOperatore } from '@/ruoli/operatore/ProfiloOperatore'
 import { RegistratiPage } from '@/modules/auth/RegistratiPage'
+import { InventarioMagazzino } from '@/ruoli/gestione/InventarioMagazzino'
+import { CarteAziendali } from '@/ruoli/gestione/CarteAziendali'
 
 // Mappa delle pagine.
 // /operatore/*  → app telefono (operatore)
@@ -45,6 +47,8 @@ export function App() {
         <Route path="operatori" element={<Operatori />} />
         <Route path="location" element={<Location />} />
         <Route path="magazzini" element={<Magazzini />} />
+        <Route path="magazzini/:id" element={<InventarioMagazzino />} />
+        <Route path="carte" element={<CarteAziendali />} />
         <Route path="report" element={<ReportOre />} />
       </Route>
 

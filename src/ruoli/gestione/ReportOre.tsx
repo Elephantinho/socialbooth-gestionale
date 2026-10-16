@@ -10,8 +10,11 @@ import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 
+/** Spese anticipate dall'operatore su quell'evento: vanno rimborsate insieme al compenso */
 const speseApprovabili = (r: RigaReport) =>
-  (r.evento?.spese ?? []).filter((s) => s.stato !== 'respinto').reduce((t, s) => t + Number(s.importo), 0)
+  (r.evento?.costi ?? [])
+    .filter((c) => c.fase === 'finale' && c.pagato_con === 'operatore' && c.operatore_id === r.operatore_id && c.stato !== 'respinto')
+    .reduce((t, c) => t + Number(c.importo ?? 0), 0)
 
 export function ReportOre() {
   const [mese, setMese] = useState(meseCorrente())
@@ -30,7 +33,7 @@ export function ReportOre() {
   const daApprovare = righe.filter((r) => r.stato === 'inviato').length
 
   function esportaCsv() {
-    const intestazione = ['Operatore', 'Data', 'Evento', 'Città', 'Ore location', 'Ore viaggio', 'Ore totali', 'Tariffa', 'Compenso', 'Spese', 'Stato']
+    const intestazione = ['Operatore', 'Data', 'Evento', 'Città', 'Ore location', 'Ore viaggio', 'Ore totali', 'Tariffa', 'Compenso', 'Rimborsi', 'Stato']
     const linee = righe.map((r) => [
       r.operatore?.nome ?? '', r.evento ? new Date(r.evento.allestimento_il).toLocaleDateString('it-IT') : '',
       r.evento?.tipo_booth?.nome ?? '', r.evento?.citta ?? '',
@@ -92,7 +95,7 @@ function BloccoOperatore({ nome, righe }: { nome: string; righe: RigaReport[] })
           <span><span className="text-su-scuro-tenue">Eventi </span><strong>{valide.length}</strong></span>
           <span><span className="text-su-scuro-tenue">Ore </span><strong>{durata(minuti)}</strong></span>
           <span><span className="text-su-scuro-tenue">Compenso </span><strong>{euro(compenso)}</strong></span>
-          <span><span className="text-su-scuro-tenue">Spese </span><strong>{euro(spese)}</strong></span>
+          <span><span className="text-su-scuro-tenue">Rimborsi </span><strong>{euro(spese)}</strong></span>
           <span className="text-accento-chiaro"><span className="opacity-80">Totale </span><strong>{euro(compenso + spese)}</strong></span>
         </div>
       </div>
@@ -100,7 +103,7 @@ function BloccoOperatore({ nome, righe }: { nome: string; righe: RigaReport[] })
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-xs text-tenue border-b border-bordo">
-              {['Data', 'Evento', 'Location', 'Viaggio', 'Totale', 'Compenso', 'Spese', ''].map((h) => <th key={h} className="px-5 py-3 font-bold whitespace-nowrap">{h}</th>)}
+              {['Data', 'Evento', 'Location', 'Viaggio', 'Totale', 'Compenso', 'Rimborsi', ''].map((h) => <th key={h} className="px-5 py-3 font-bold whitespace-nowrap">{h}</th>)}
             </tr>
           </thead>
           <tbody>

@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Pencil, Phone } from 'lucide-react'
+import { Building2, Pencil, Phone } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { useAggiornaProfilo, useMagazzini, useOperatori } from '@/modules/anagrafiche/api'
 import { SceltaRegioni } from '@/modules/auth/SceltaRegioni'
 import { euro, iniziali } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
-import type { Enum } from '@/shared/types/database'
+import { REGIONI, type Enum } from '@/shared/types/database'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Campo, Selezione } from '@/shared/ui/Campo'
 import { Pulsante } from '@/shared/ui/Pulsante'
@@ -18,8 +18,15 @@ export function Operatori() {
   const { data, isPending, error } = useOperatori()
   const profilo = useProfilo()
   const admin = profilo.ruolo === 'admin'
+  const [regioneFiltro, setRegioneFiltro] = useState('')
   const inAttesa = (data ?? []).filter((o) => !o.attivo)
   const attivi = (data ?? []).filter((o) => o.attivo)
+
+  // Un operatore che copre più regioni compare in ognuna
+  const perRegione = REGIONI
+    .map((r) => ({ regione: r as string, operatori: attivi.filter((o) => o.zone.some((z) => z.regione === r)) }))
+    .filter((g) => g.operatori.length && (!regioneFiltro || g.regione === regioneFiltro))
+  const senzaRegione = attivi.filter((o) => !o.zone.length)
 
   return (
     <div className="flex flex-col gap-6">
@@ -41,10 +48,28 @@ export function Operatori() {
               {inAttesa.map((o) => <SchedaOperatore key={o.id} o={o} admin={admin} />)}
             </section>
           )}
-          <section className="flex flex-col gap-2.5">
-            <TitoloSezione>Attivi · {attivi.length}</TitoloSezione>
-            {attivi.map((o) => <SchedaOperatore key={o.id} o={o} admin={admin} />)}
-          </section>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <TitoloSezione>Attivi per regione · {attivi.length}</TitoloSezione>
+            <Selezione etichetta="Regione" value={regioneFiltro} onChange={(e) => setRegioneFiltro(e.target.value)} className="w-56">
+              <option value="">Tutte le regioni</option>
+              {REGIONI.map((r) => <option key={r}>{r}</option>)}
+            </Selezione>
+          </div>
+          {perRegione.map((g) => (
+            <section key={g.regione} className="flex flex-col gap-2">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-tenue flex items-center gap-2">
+                {g.regione} <span className="normal-case tracking-normal font-semibold">· {g.operatori.length} {g.operatori.length === 1 ? 'operatore' : 'operatori'}</span>
+                {g.operatori.length === 1 && <span className="normal-case tracking-normal text-[11px] bg-accento-tenue text-accento-scuro px-2 py-0.5 rounded-md">assegnazione automatica</span>}
+              </h2>
+              {g.operatori.map((o) => <SchedaOperatore key={`${g.regione}-${o.id}`} o={o} admin={admin} />)}
+            </section>
+          ))}
+          {!regioneFiltro && senzaRegione.length > 0 && (
+            <section className="flex flex-col gap-2">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-urgente-testo">Senza regione · non ricevono eventi</h2>
+              {senzaRegione.map((o) => <SchedaOperatore key={o.id} o={o} admin={admin} />)}
+            </section>
+          )}
         </>
       )}
     </div>
@@ -64,8 +89,11 @@ function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
         </div>
         <div className="flex-[1_1_200px] min-w-0">
           <p className="font-bold text-[16px] truncate">{o.nome || 'Senza nome'}</p>
-          <p className="text-sm text-tenue">
-            {o.magazzino?.nome ?? 'Nessun magazzino'} · {o.tariffa_oraria != null ? `${euro(o.tariffa_oraria)}/h` : 'tariffa da impostare'}
+          <p className="text-sm text-tenue flex flex-wrap gap-x-2">
+            <span className={o.magazzino ? 'font-bold text-inchiostro inline-flex items-center gap-1' : 'font-bold text-urgente-testo inline-flex items-center gap-1'}>
+              <Building2 className="size-3.5" aria-hidden />{o.magazzino?.nome ?? 'Nessun magazzino'}
+            </span>
+            <span>· {o.tariffa_oraria != null ? `${euro(o.tariffa_oraria)}/h` : 'tariffa da impostare'}</span>
           </p>
         </div>
         <div className="flex-[2_1_260px] flex flex-wrap gap-1.5">
