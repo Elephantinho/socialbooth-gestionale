@@ -19,7 +19,7 @@ export function Clienti() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Intestazione sopra="Gestione" titolo="Clienti" descrizione="Le aziende che vi ingaggiano, con eventi fatti, fatturato e fatture da incassare."
+      <Intestazione sopra="Archivio" titolo="Clienti" descrizione="Lo storico di chi vi ingaggia: eventi fatti, fatturato e fatture da incassare. Si compilano da soli negli eventi nuovi."
         azioni={!nuovo && <Pulsante taglia="lg" icona={<Plus className="size-[18px]" aria-hidden />} onClick={() => setNuovo(true)}>Nuovo cliente</Pulsante>} />
       {nuovo && <Card className="p-5 max-w-2xl"><ModuloCliente onFatto={() => setNuovo(false)} /></Card>}
       <Campo etichetta="Cerca" placeholder="Nome azienda" value={cerca} onChange={(e) => setCerca(e.target.value)} className="max-w-md" />

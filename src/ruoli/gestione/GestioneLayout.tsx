@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { BarChart3, Briefcase, Building2, CalendarDays, CalendarRange, Camera, CreditCard, LayoutGrid, ListChecks, LogOut, Map as MappaIcona, MapPin, Menu, Settings, ShieldCheck, TrendingUp, Users, X } from 'lucide-react'
+import { Archive, BarChart3, Briefcase, Building2, CalendarDays, CalendarRange, Camera, CreditCard, LayoutGrid, ListChecks, LogOut, Map as MappaIcona, MapPin, Menu, Settings, ShieldCheck, TrendingUp, Users, X } from 'lucide-react'
 import { useAuth, useProfilo } from '@/modules/auth/AuthProvider'
 import { etichettaRuolo, usePuo, type Permesso } from '@/modules/auth/permessi'
 import { useTempoReale } from '@/modules/eventi/api'
@@ -33,19 +33,20 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
     ],
   },
   {
-    titolo: 'Anagrafiche',
-    voci: [
-      { a: '/gestione/clienti', etichetta: 'Clienti', Icona: Briefcase, permesso: 'clienti' },
-      { a: '/gestione/location', etichetta: 'Location', Icona: MapPin, permesso: 'location' },
-    ],
-  },
-  {
     titolo: 'Conti',
     voci: [
       { a: '/gestione/report', etichetta: 'Costi e compensi', Icona: BarChart3, permesso: 'ore.approva' },
       { a: '/gestione/previsione', etichetta: 'Previsione costi', Icona: TrendingUp, permesso: 'analisi' },
       { a: '/gestione/regioni', etichetta: 'Regioni', Icona: MappaIcona, permesso: 'analisi' },
       { a: '/gestione/carte', etichetta: 'Carte aziendali', Icona: CreditCard, permesso: 'carte' },
+    ],
+  },
+  {
+    titolo: 'Archivio',
+    voci: [
+      { a: '/gestione/archivio', etichetta: 'Eventi passati', Icona: Archive },
+      { a: '/gestione/clienti', etichetta: 'Clienti', Icona: Briefcase, permesso: 'clienti' },
+      { a: '/gestione/location', etichetta: 'Location', Icona: MapPin, permesso: 'location' },
     ],
   },
   {

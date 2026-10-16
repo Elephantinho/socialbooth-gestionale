@@ -1,3 +1,4 @@
+import { usePuo } from '@/modules/auth/permessi'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Check, Download } from 'lucide-react'
@@ -53,13 +54,16 @@ export function ReportOre() {
     URL.revokeObjectURL(url)
   }
 
+  const tutti = usePuo()('eventi.tutti')
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap gap-4 justify-between items-end">
         <div>
-          <p className="text-sm font-semibold text-tenue">Gestione</p>
+          <p className="text-sm font-semibold text-tenue">Conti</p>
           <h1 className="font-display text-4xl font-bold tracking-tight mt-1">Ore, costi e compensi</h1>
-          <p className="text-tenue mt-2">Conti del mese per regione, poi le ore di ogni operatore (location + viaggio × tariffa).</p>
+          <p className="text-tenue mt-2">
+            {tutti ? 'Conti del mese per regione' : 'I conti dei tuoi eventi'}, poi le ore di ogni operatore (location + viaggio × tariffa).
+          </p>
         </div>
         <div className="flex gap-2 flex-wrap items-end">
           <label className="flex flex-col gap-1.5 text-[13px] font-bold text-[#3F4047]">

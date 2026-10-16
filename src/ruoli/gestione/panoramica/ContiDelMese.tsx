@@ -15,7 +15,7 @@ import { Caricamento } from '@/shared/ui/Stati'
 const chiaveMese = (iso: string) => perCampoData(iso).slice(0, 7)
 
 /** Ricavi, costi e margine: mese corrente, ultimi 6 mesi, regioni e classifiche */
-export function ContiDelMese({ affianco }: { affianco?: React.ReactNode }) {
+export function ContiDelMese({ affianco, miei }: { affianco?: React.ReactNode; miei?: boolean }) {
   const mese = meseCorrente()
   const economia = useEconomiaPeriodo(6)
   const eventi = useMemo(() => economia.data ?? [], [economia.data])
@@ -44,6 +44,10 @@ export function ContiDelMese({ affianco }: { affianco?: React.ReactNode }) {
 
   return (
     <>
+      <div className="flex items-baseline justify-between gap-3 flex-wrap -mb-2">
+        <TitoloSezione className="text-xl">{miei ? 'I conti dei tuoi eventi' : 'I conti'}</TitoloSezione>
+        {miei && <p className="text-sm text-tenue">Solo gli eventi che segui tu: ricavi, compensi e spese dei tuoi operatori.</p>}
+      </div>
       <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(170px,1fr))]">
         <Numero valore={conti.eventi} etichetta="eventi questo mese" icona={<CalendarCheck className="size-5" aria-hidden />} />
         <Numero valore={euro(Math.round(conti.ricavi))} etichetta="ricavi del mese" tono="accento" icona={<CircleDollarSign className="size-5" aria-hidden />} />

@@ -7,7 +7,8 @@ import type { Enum } from '@/shared/types/database'
 export type Ruolo = Enum<'ruolo'>
 
 export type Permesso =
-  | 'eventi.crea'          // creare, modificare, annullare eventi
+  | 'eventi.crea'          // creare, duplicare, annullare eventi
+  | 'eventi.modifica'      // modificare orari, luogo, magazzino e note
   | 'eventi.tutti'         // vedere gli eventi di tutti (il project vede i suoi)
   | 'eventi.assegna'       // scegliere o cambiare l'operatore di un evento
   | 'operatori.vedi'       // pagina Operatori
@@ -26,17 +27,17 @@ export type Permesso =
   | 'impostazioni'         // valori dei calcoli automatici
 
 const TUTTI: Permesso[] = [
-  'eventi.crea', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'carta.ricarica', 'magazzini',
+  'eventi.crea', 'eventi.modifica', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'carta.ricarica', 'magazzini',
   'location', 'clienti', 'soldi', 'ore.approva', 'analisi', 'fatture', 'tariffe', 'carte', 'utenti', 'impostazioni',
 ]
 
 /** Ogni ruolo ha solo quello che gli serve; l'admin ha tutto */
 const PERMESSI: Record<Ruolo, Permesso[]> = {
   admin: TUTTI,
-  // Segue i propri eventi dall'inizio alla fine
-  project: ['eventi.crea', 'eventi.assegna', 'carta.ricarica', 'location', 'clienti', 'soldi', 'ore.approva'],
-  // Organizza la squadra: operatori, assegnazioni, carta, magazzini. Niente soldi.
-  gestore_operatori: ['eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'carta.ricarica', 'magazzini'],
+  // Segue i propri eventi dall'inizio alla fine; vede solo i suoi (anche nei conti)
+  project: ['eventi.crea', 'eventi.modifica', 'eventi.assegna', 'carta.ricarica', 'location', 'clienti', 'soldi', 'ore.approva'],
+  // Tutta l'operatività: eventi di tutti, operatori, assegnazioni, carta, magazzini, location. Niente soldi.
+  gestore_operatori: ['eventi.tutti', 'eventi.modifica', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'carta.ricarica', 'magazzini', 'location'],
   // Conti dell'azienda: costi, compensi, fatture, tariffe, carte
   amministrazione: ['eventi.tutti', 'operatori.vedi', 'clienti', 'soldi', 'ore.approva', 'analisi', 'fatture', 'tariffe', 'carte'],
   operatore: [],
@@ -44,8 +45,8 @@ const PERMESSI: Record<Ruolo, Permesso[]> = {
 
 export const RUOLI: { id: Ruolo; etichetta: string; descrizione: string }[] = [
   { id: 'admin', etichetta: 'Admin', descrizione: 'Il titolare: vede e può fare tutto' },
-  { id: 'project', etichetta: 'Project', descrizione: 'Crea e segue i propri eventi: operatore, costi, chiusure' },
-  { id: 'gestore_operatori', etichetta: 'Gestore operatori', descrizione: 'Operatori, assegnazioni, carta e magazzini. Non vede i soldi' },
+  { id: 'project', etichetta: 'Project', descrizione: 'Solo i suoi eventi: calendario, operatori, ricavi e costi dei suoi eventi' },
+  { id: 'gestore_operatori', etichetta: 'Gestore operatori', descrizione: 'Tutta l\'operatività: eventi, operatori, magazzini, carta. Non vede i soldi' },
   { id: 'amministrazione', etichetta: 'Amministrazione', descrizione: 'Costi, compensi, fatture, tariffe e carte. Non crea eventi' },
   { id: 'operatore', etichetta: 'Operatore', descrizione: "Usa l'app sul telefono" },
 ]

@@ -16,13 +16,16 @@ npm run dev            # apre su http://localhost:5173
 
 ### Utenti e ruoli
 
-| Ruolo | Menu | Panoramica |
+| Ruolo | Vede | Panoramica |
 |---|---|---|
 | **Admin** | Tutto | Tutto |
-| **Project** | Eventi (i suoi), Calendario, Attività, Clienti, Location, Costi e compensi | Da assegnare, carta dei suoi operatori, chi lavora oggi, conti dei suoi eventi |
-| **Gestore operatori** | Eventi (tutti), Calendario, Attività, Operatori, Magazzini | Da assegnare, operatori da approvare, carta, zone scoperte, mappa. Niente soldi |
-| **Amministrazione** | Eventi (tutti, in lettura), Operatori (tariffe), Clienti, Costi e compensi, Previsione, Regioni, Carte | Chiusure da approvare, da fatturare, da incassare, conti |
+| **Project** | Solo i suoi eventi: calendario, attività, operatori, ricavi e costi dei suoi eventi. Archivio: eventi passati, clienti, location | Da assegnare, carta dei suoi operatori, chi lavora oggi, i conti dei suoi eventi |
+| **Gestore operatori** | Tutta l'operatività: tutti gli eventi (modifica orari, luogo, magazzino), operatori, magazzini, location, carta. Niente soldi | Da assegnare, operatori da approvare, carta, zone scoperte, mappa |
+| **Amministrazione** | Conti: costi e compensi, previsione, regioni, carte, tariffe, fatture. Eventi in lettura (cambia solo prezzo e fattura) | Chiusure da approvare, da fatturare, da incassare, conti |
 | **Operatore** | App sul telefono (a chiamata: pagato a ore per evento) | — |
+
+Menu: **Lavoro** (Panoramica, Eventi in programma, Calendario, Attività) · **Squadra** · **Conti** ·
+**Archivio** (Eventi passati, Clienti, Location) · **Sistema**. Ognuno vede solo le voci del suo ruolo.
 
 I permessi stanno in un posto solo per lato: `src/modules/auth/permessi.tsx` (menu e pulsanti) e
 le funzioni `e_gestione()`, `vede_tutti_eventi()`, `gestisce_operatori()`, `amministra()` nel database (migrazione 0015).

@@ -48,7 +48,7 @@ export function Panoramica() {
       {puo('operatori.gestisci') && <ZoneScoperte futuri={futuri} />}
       {squadra && <MappaEventi futuri={futuri} tutti={tutti} />}
       {puo('soldi')
-        ? <ContiDelMese affianco={<ProssimiGiorni futuri={futuri} className="flex-[1_1_300px]" />} />
+        ? <ContiDelMese miei={!puo('eventi.tutti')} affianco={<ProssimiGiorni futuri={futuri} className="flex-[1_1_300px]" />} />
         : <ProssimiGiorni futuri={futuri} />}
     </div>
   )

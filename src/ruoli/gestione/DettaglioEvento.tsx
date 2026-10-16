@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, Ban, Check, Copy, Pencil, Phone, RotateCcw, UserRound, X } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { usePuo } from '@/modules/auth/permessi'
+import { inArchivio } from '@/modules/eventi/logic/archivio'
 import { useAggiornaEvento, useApprovaOre, useEventoGestione } from '@/modules/eventi/api'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
 import { ModuloEvento } from '@/modules/eventi/components/ModuloEvento'
@@ -28,7 +29,8 @@ export function DettaglioEvento() {
   const [modifica, setModifica] = useState(false)
   const aggiorna = useAggiornaEvento()
   const puo = usePuo()
-  const modificabile = puo('eventi.crea')
+  const modificabile = puo('eventi.modifica')
+  const creatore = puo('eventi.crea')
 
   if (isPending) return <Caricamento />
   if (error) return <Errore errore={error} />
@@ -46,8 +48,8 @@ export function DettaglioEvento() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap gap-4 justify-between items-end">
         <div>
-          <Link to="/gestione" className="text-sm font-semibold text-tenue inline-flex items-center gap-1 hover:text-inchiostro">
-            <ArrowLeft className="size-4" aria-hidden /> Eventi
+          <Link to={inArchivio(e) ? '/gestione/archivio' : '/gestione'} className="text-sm font-semibold text-tenue inline-flex items-center gap-1 hover:text-inchiostro">
+            <ArrowLeft className="size-4" aria-hidden /> {inArchivio(e) ? 'Eventi passati' : 'Eventi'}
           </Link>
           <div className="flex flex-wrap items-center gap-3 mt-1">
             <h1 className="font-display text-4xl font-bold tracking-tight">{e.tipo_booth?.nome ?? 'Evento'}</h1>
@@ -58,19 +60,23 @@ export function DettaglioEvento() {
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          {!modificabile ? null : annullato ? (
+          {!modificabile ? null : annullato ? creatore && (
             <Pulsante variante="secondario" icona={<RotateCcw className="size-4" aria-hidden />} caricamento={aggiorna.isPending}
               onClick={() => aggiorna.mutate({ id: e.id, modifiche: { stato: 'da_assegnare', operatore_id: null } })}>
               Riapri evento
             </Pulsante>
           ) : !chiuso && (
             <>
-              <Link to={`/gestione/eventi/nuovo?da=${e.id}`} className="h-11 px-4 rounded-xl border border-bordo-forte bg-superficie font-bold text-sm inline-flex items-center gap-2 hover:bg-sfondo">
-                <Copy className="size-4" aria-hidden /> Duplica
-              </Link>
-              <Pulsante variante="secondario" icona={<Ban className="size-4" aria-hidden />} onClick={annulla} disabled={aggiorna.isPending}>
-                Annulla evento
-              </Pulsante>
+              {creatore && (
+                <>
+                  <Link to={`/gestione/eventi/nuovo?da=${e.id}`} className="h-11 px-4 rounded-xl border border-bordo-forte bg-superficie font-bold text-sm inline-flex items-center gap-2 hover:bg-sfondo">
+                    <Copy className="size-4" aria-hidden /> Duplica
+                  </Link>
+                  <Pulsante variante="secondario" icona={<Ban className="size-4" aria-hidden />} onClick={annulla} disabled={aggiorna.isPending}>
+                    Annulla evento
+                  </Pulsante>
+                </>
+              )}
               <Pulsante variante={modifica ? 'scuro' : 'primario'} icona={modifica ? <X className="size-4" aria-hidden /> : <Pencil className="size-4" aria-hidden />}
                 onClick={() => setModifica((v) => !v)}>
                 {modifica ? 'Chiudi modifica' : 'Modifica'}

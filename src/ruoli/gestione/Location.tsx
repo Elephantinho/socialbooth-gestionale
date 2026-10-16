@@ -16,7 +16,7 @@ export function Location() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <p className="text-sm font-semibold text-tenue">Gestione</p>
+        <p className="text-sm font-semibold text-tenue">Archivio</p>
         <h1 className="font-display text-4xl font-bold tracking-tight mt-1">Location salvate</h1>
         <p className="text-tenue mt-2 max-w-2xl">
           Ogni nuovo indirizzo viene salvato con accessi, ZTL e Wi‑Fi: la volta dopo si compila tutto da solo.

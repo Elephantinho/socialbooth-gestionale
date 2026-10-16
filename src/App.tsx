@@ -29,6 +29,7 @@ const Calendario = lazy(() => import('@/ruoli/gestione/Calendario').then((m) => 
 const Clienti = lazy(() => import('@/ruoli/gestione/Clienti').then((m) => ({ default: m.Clienti })))
 const Utenti = lazy(() => import('@/ruoli/gestione/Utenti').then((m) => ({ default: m.Utenti })))
 const Previsione = lazy(() => import('@/ruoli/gestione/Previsione').then((m) => ({ default: m.Previsione })))
+const ArchivioEventi = lazy(() => import('@/ruoli/gestione/ArchivioEventi').then((m) => ({ default: m.ArchivioEventi })))
 const Regioni = lazy(() => import('@/ruoli/gestione/Regioni').then((m) => ({ default: m.Regioni })))
 const Impostazioni = lazy(() => import('@/ruoli/gestione/Impostazioni').then((m) => ({ default: m.Impostazioni })))
 
@@ -67,6 +68,7 @@ export function App() {
         <Route path="utenti" element={<Solo permesso="utenti"><Utenti /></Solo>} />
         <Route path="impostazioni" element={<Solo permesso="impostazioni"><Impostazioni /></Solo>} />
         <Route path="regioni" element={<Solo permesso="analisi"><Regioni /></Solo>} />
+        <Route path="archivio" element={<ArchivioEventi />} />
         <Route path="previsione" element={<Solo permesso="analisi"><Previsione /></Solo>} />
         <Route path="report" element={<Solo permesso="ore.approva"><ReportOre /></Solo>} />
       </Route>

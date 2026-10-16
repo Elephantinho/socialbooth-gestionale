@@ -47,8 +47,8 @@ export function DaFare({ futuri, tutti }: { futuri: EventoLista[]; tutti: Evento
     { permesso: 'operatori.gestisci', a: '/gestione/operatori', valore: nuoviOperatori, etichetta: 'operatori da approvare', urgente: nuoviOperatori > 0, Icona: UserCheck },
     { permesso: 'carta.ricarica', valore: cartaRossa, etichetta: 'operatori senza carta', urgente: cartaRossa > 0, Icona: Printer },
     { permesso: 'ore.approva', a: '/gestione/report', valore: daApprovare, etichetta: 'chiusure da approvare', urgente: daApprovare > 0, Icona: CalendarCheck },
-    { permesso: 'fatture', a: '/gestione?filtro=fatturare', valore: daFatturare, etichetta: 'eventi da fatturare', urgente: daFatturare > 0, Icona: FileText },
-    { permesso: 'fatture', a: '/gestione?filtro=incassare', valore: euro(Math.round(daIncassare)), etichetta: 'da incassare', urgente: false, Icona: Wallet },
+    { permesso: 'fatture', a: '/gestione/archivio?filtro=fatturare', valore: daFatturare, etichetta: 'eventi da fatturare', urgente: daFatturare > 0, Icona: FileText },
+    { permesso: 'fatture', a: '/gestione/archivio?filtro=incassare', valore: euro(Math.round(daIncassare)), etichetta: 'da incassare', urgente: false, Icona: Wallet },
     { permesso: [], a: '/gestione/attivita', valore: aperte.length, etichetta: scadute ? `attività aperte · ${scadute} scadute` : 'attività aperte', urgente: scadute > 0, Icona: ListChecks },
   ]
   const visibili = riquadri.filter((r) => {
