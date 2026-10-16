@@ -9,6 +9,48 @@ export type Database = {
   __InternalSupabase: { PostgrestVersion: '14.18' }
   public: {
     Tables: {
+      notifiche: {
+        Row: { id: string; utente_id: string; titolo: string; testo: string | null; link: string | null; letta: boolean; creata_il: string }
+        Insert: { id?: string; utente_id: string; titolo: string; testo?: string | null; link?: string | null; letta?: boolean; creata_il?: string }
+        Update: Partial<Database['public']['Tables']['notifiche']['Insert']>
+        Relationships: []
+      }
+      messaggi: {
+        Row: { id: string; evento_id: string; autore_id: string; testo: string; creato_il: string }
+        Insert: { id?: string; evento_id: string; autore_id?: string; testo: string; creato_il?: string }
+        Update: Partial<Database['public']['Tables']['messaggi']['Insert']>
+        Relationships: [
+          { foreignKeyName: 'messaggi_autore_id_fkey'; columns: ['autore_id']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
+          { foreignKeyName: 'messaggi_evento_id_fkey'; columns: ['evento_id']; isOneToOne: false; referencedRelation: 'eventi'; referencedColumns: ['id'] },
+        ]
+      }
+      attivita: {
+        Row: {
+          id: string; titolo: string; descrizione: string | null; evento_id: string | null; assegnato_a: string | null; scadenza: string | null
+          stato: Database['public']['Enums']['stato_attivita']; priorita: Database['public']['Enums']['priorita']
+          creato_da: string | null; creato_il: string; completata_il: string | null
+        }
+        Insert: {
+          id?: string; titolo: string; descrizione?: string | null; evento_id?: string | null; assegnato_a?: string | null; scadenza?: string | null
+          stato?: Database['public']['Enums']['stato_attivita']; priorita?: Database['public']['Enums']['priorita']
+          creato_da?: string | null; creato_il?: string; completata_il?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['attivita']['Insert']>
+        Relationships: [
+          { foreignKeyName: 'attivita_assegnato_a_fkey'; columns: ['assegnato_a']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
+          { foreignKeyName: 'attivita_creato_da_fkey'; columns: ['creato_da']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
+          { foreignKeyName: 'attivita_evento_id_fkey'; columns: ['evento_id']; isOneToOne: false; referencedRelation: 'eventi'; referencedColumns: ['id'] },
+        ]
+      }
+      allegati: {
+        Row: { id: string; evento_id: string; nome: string; percorso: string; tipo: string | null; dimensione: number | null; caricato_da: string | null; creato_il: string }
+        Insert: { id?: string; evento_id: string; nome: string; percorso: string; tipo?: string | null; dimensione?: number | null; caricato_da?: string | null; creato_il?: string }
+        Update: Partial<Database['public']['Tables']['allegati']['Insert']>
+        Relationships: [
+          { foreignKeyName: 'allegati_evento_id_fkey'; columns: ['evento_id']; isOneToOne: false; referencedRelation: 'eventi'; referencedColumns: ['id'] },
+          { foreignKeyName: 'allegati_caricato_da_fkey'; columns: ['caricato_da']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
+        ]
+      }
       articoli: {
         Row: {
           id: string; magazzino_id: string; nome: string; categoria: string; quantita: number; codice: string | null
@@ -86,6 +128,7 @@ export type Database = {
           lat: number | null; lng: number | null
           prezzo_cliente: number | null; fattura_numero: string | null; fattura_data: string | null
           fattura_importo: number | null; fattura_pagata: boolean; stampe_effettuate: number | null
+          promemoria_ore_inviato: boolean
         }
         Insert: {
           aggiornato_il?: string; allestimento_il: string; citta: string; cliente_id?: string | null; codice?: number; creato_il?: string
@@ -97,6 +140,7 @@ export type Database = {
           lat?: number | null; lng?: number | null
           prezzo_cliente?: number | null; fattura_numero?: string | null; fattura_data?: string | null
           fattura_importo?: number | null; fattura_pagata?: boolean; stampe_effettuate?: number | null
+          promemoria_ore_inviato?: boolean
         }
         Update: Partial<Database['public']['Tables']['eventi']['Insert']>
         Relationships: [
@@ -251,6 +295,8 @@ export type Database = {
       fase_costo: 'previsto' | 'finale'
       categoria_costo: 'noleggio_veicolo' | 'carburante' | 'pedaggi' | 'parcheggio' | 'carta_stampe' | 'vitto' | 'alloggio' | 'materiali' | 'altro'
       pagamento: 'carta_aziendale' | 'operatore' | 'azienda'
+      stato_attivita: 'da_fare' | 'in_corso' | 'fatto'
+      priorita: 'bassa' | 'media' | 'alta'
     }
     CompositeTypes: { [_ in never]: never }
   }
