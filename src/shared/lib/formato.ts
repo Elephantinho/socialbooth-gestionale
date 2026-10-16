@@ -38,6 +38,10 @@ export const durata = (minuti: number | null | undefined) => {
 export const euro = (n: number | null | undefined) =>
   n == null ? '—' : n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })
 
+/** "Mario" + "Rossi" → "Mario Rossi" */
+export const nomeCompleto = (p: { nome?: string | null; cognome?: string | null } | null | undefined) =>
+  [p?.nome, p?.cognome].filter(Boolean).join(' ').trim() || 'Senza nome'
+
 /** Iniziali per gli avatar: "Altea Mascolo" → "AM" */
 export const iniziali = (nome: string | null | undefined) =>
   (nome ?? '?').split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join('') || '?'

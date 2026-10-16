@@ -148,7 +148,7 @@ export function useEventiGestione() {
     queryKey: ['eventi', 'gestione'],
     queryFn: async () =>
       ok(await supabase.from('eventi')
-        .select('*, tipo_booth:tipi_booth(nome), cliente:clienti(nome), operatore:profili!eventi_operatore_id_fkey(nome)')
+        .select('*, tipo_booth:tipi_booth(nome), cliente:clienti(nome), operatore:profili!eventi_operatore_id_fkey(nome, cognome, foto)')
         .order('allestimento_il')),
   })
 }
@@ -160,7 +160,7 @@ export function useEventoGestione(id: string) {
     queryFn: async () =>
       ok(await supabase.from('eventi')
         .select(`*, tipo_booth:tipi_booth(nome), cliente:clienti(nome), magazzino:magazzini(nome, lat, lng),
-          operatore:profili!eventi_operatore_id_fkey(nome, telefono, tariffa_oraria),
+          operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto, telefono, tariffa_oraria),
           proposte(id, stato, automatica, creato_il, risposta_il, operatore:profili(nome)),
           ore:ore_lavorate(*)`)
         .eq('id', id)

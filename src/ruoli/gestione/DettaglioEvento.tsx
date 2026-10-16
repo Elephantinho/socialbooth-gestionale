@@ -10,7 +10,8 @@ import type { EventoGestioneCompleto } from '@/modules/eventi/types'
 import { AssegnaOperatore } from '@/modules/assegnazione/AssegnaOperatore'
 import { CostiEvento } from '@/modules/costi/components/CostiEvento'
 import { AttrezzaturaEvento } from '@/modules/attrezzatura/components/AttrezzaturaEvento'
-import { dataLunga, durata, euro, iniziali, ora } from '@/shared/lib/formato'
+import { dataLunga, durata, euro, nomeCompleto, ora } from '@/shared/lib/formato'
+import { Avatar } from '@/shared/ui/Avatar'
 import { cn } from '@/shared/lib/cn'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
@@ -141,9 +142,9 @@ function Operatore({ e }: { e: EventoGestioneCompleto }) {
       <TitoloSezione>Operatore</TitoloSezione>
       {e.operatore ? (
         <div className="bg-scuro-2 rounded-2xl p-3.5 flex items-center gap-3">
-          <div className="size-11 rounded-full bg-accento flex items-center justify-center font-bold">{iniziali(e.operatore.nome)}</div>
+          <Link to={`/gestione/operatori/${e.operatore.id}`}><Avatar nome={nomeCompleto(e.operatore)} foto={e.operatore.foto} /></Link>
           <div className="flex-1 min-w-0">
-            <p className="font-bold truncate">{e.operatore.nome}</p>
+            <Link to={`/gestione/operatori/${e.operatore.id}`} className="font-bold truncate block hover:underline">{nomeCompleto(e.operatore)}</Link>
             <p className="text-xs text-su-scuro-tenue">
               {e.stato === 'proposto' ? 'Deve ancora accettare' : e.stato === 'confermato' ? 'Ha confermato' : e.stato === 'in_corso' ? 'Check-in fatto' : 'Assegnato'}
             </p>

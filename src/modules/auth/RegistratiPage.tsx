@@ -14,6 +14,7 @@ import type { Enum } from '@/shared/types/database'
 export function RegistratiPage() {
   const { profilo } = useAuth()
   const [nome, setNome] = useState('')
+  const [cognome, setCognome] = useState('')
   const [telefono, setTelefono] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -35,7 +36,7 @@ export function RegistratiPage() {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { nome: nome.trim(), telefono: telefono.trim(), regioni, autoregistrato: true },
+        data: { nome: nome.trim(), cognome: cognome.trim(), telefono: telefono.trim(), regioni, autoregistrato: true },
       },
     })
     setInvio(false)
@@ -62,7 +63,10 @@ export function RegistratiPage() {
         <p className="text-tenue mt-2 font-medium">Indica dove lavori: gli eventi della tua zona ti arriveranno in automatico.</p>
       </div>
       <form onSubmit={registrati} className="flex flex-col gap-4">
-        <Campo etichetta="Nome e cognome" required autoComplete="name" value={nome} onChange={(e) => setNome(e.target.value)} />
+        <div className="grid grid-cols-2 gap-3">
+          <Campo etichetta="Nome" required autoComplete="given-name" value={nome} onChange={(e) => setNome(e.target.value)} />
+          <Campo etichetta="Cognome" required autoComplete="family-name" value={cognome} onChange={(e) => setCognome(e.target.value)} />
+        </div>
         <Campo etichetta="Telefono" type="tel" required autoComplete="tel" placeholder="+39…" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
         <SceltaRegioni valore={regioni} onChange={setRegioni} />
         <Campo etichetta="Email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />

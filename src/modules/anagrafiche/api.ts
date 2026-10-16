@@ -156,3 +156,63 @@ export function useEliminaIndisponibilita() {
     onSuccess: invalida,
   })
 }
+
+/* ---------- Foto profilo ---------- */
+
+/** Rimpicciolisce l'immagine a max 512px (foto più leggere e veloci da caricare) */
+async function rimpicciolisci(file: File, lato = 512): Promise<Blob> {
+  const img = await createImageBitmap(file)
+  const scala = Math.min(1, lato / Math.max(img.width, img.height))
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.round(img.width * scala)
+  canvas.height = Math.round(img.height * scala)
+  canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height)
+  return new Promise((ok, ko) => canvas.toBlob((b) => (b ? ok(b) : ko(new Error('Immagine non valida'))), 'image/jpeg', 0.85))
+}
+
+/** Carica la foto di un utente (la propria, o di chiunque se admin) e la salva sul profilo */
+export function useCaricaFoto() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (v: { utenteId: string; file: File }) => {
+      const blob = await rimpicciolisci(v.file)
+      const percorso = `${v.utenteId}/${Date.now()}.jpg`
+      const { error } = await supabase.storage.from('foto-profilo').upload(percorso, blob, { contentType: 'image/jpeg' })
+      if (error) throw new Error(error.message)
+      const url = supabase.storage.from('foto-profilo').getPublicUrl(percorso).data.publicUrl
+      ok(await supabase.from('profili').update({ foto: url }).eq('id', v.utenteId))
+      return url
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['operatori'] })
+      qc.invalidateQueries({ queryKey: ['profilo'] })
+    },
+  })
+}
+
+/** Un operatore con zone, magazzino e numeri per la sua scheda */
+export function useOperatore(id: string) {
+  return useQuery({
+    queryKey: ['operatori', id],
+    queryFn: async () =>
+      ok(await supabase.from('profili')
+        .select('*, zone:zone_operatore(regione), magazzino:magazzini(nome, citta)')
+        .eq('id', id).single()),
+  })
+}
+
+/** Tutti gli eventi di un operatore con ore, costi e ricavo, per i numeri e i margini */
+export function useEventiDiOperatore(id: string) {
+  return useQuery({
+    queryKey: ['eventi', 'di-operatore', id],
+    queryFn: async () =>
+      ok(await supabase.from('eventi')
+        .select(`id, stato, allestimento_il, smontaggio_il, citta, regione, viaggio_minuti, prezzo_cliente, fattura_importo,
+          tipo_booth:tipi_booth(nome), cliente:clienti(nome),
+          ore:ore_lavorate(compenso, minuti_totali, stato, check_out_il, operatore_id),
+          costi:costi_evento(fase, categoria, importo, stato)`)
+        .eq('operatore_id', id)
+        .neq('stato', 'annullato')
+        .order('allestimento_il', { ascending: false })),
+  })
+}

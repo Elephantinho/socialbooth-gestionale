@@ -45,7 +45,7 @@ anche tra i *Redirect URLs*. Così il link di conferma email riporta all'app.
 - Panoramica: eventi del mese, da assegnare, in attesa, chiusure da approvare, compensi, eventi per regione, zone scoperte
 - Eventi: filtri per stato, assegnazione manuale; dettaglio con modifica, annullamento/riapertura, cambio operatore, storico proposte
 - Nuovo evento: location salvate, **tempo di viaggio calcolato in automatico** dal magazzino, orario di ritiro suggerito
-- Operatori: approvazione, tariffa, magazzino, regioni, attivazione
+- Operatori: schede con foto, divise per regione; pagina di ogni operatore con eventi del mese, archivio, compensi (mese e totali) e margine per evento
 - Magazzini e Location salvate
 - Ore e compensi: per mese e per operatore, approvazione, rimborsi, esportazione Excel (CSV)
 - Operatori divisi per regione, con magazzino di riferimento e avviso di assegnazione automatica

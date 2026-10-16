@@ -1,17 +1,17 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { AlertTriangle, ArrowRight, LogOut } from 'lucide-react'
-import { useAuth, useProfilo } from '@/modules/auth/AuthProvider'
+import { AlertTriangle, ArrowRight } from 'lucide-react'
+import { useProfilo } from '@/modules/auth/AuthProvider'
+import { Avatar } from '@/shared/ui/Avatar'
 import { useEventiOperatore, useMeseOperatore, useProposteInAttesa, useRispondiProposta } from '@/modules/eventi/api'
 import type { EventoDettaglio, Proposta } from '@/modules/eventi/types'
-import { dataBreve, euro, ora, traQuanto } from '@/shared/lib/formato'
+import { dataBreve, euro, nomeCompleto, ora, traQuanto } from '@/shared/lib/formato'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 
 export function HomeOperatore() {
   const profilo = useProfilo()
-  const { esci } = useAuth()
   const eventi = useEventiOperatore(profilo.id)
   const proposte = useProposteInAttesa(profilo.id)
   const mese = useMeseOperatore(profilo.id)
@@ -29,9 +29,9 @@ export function HomeOperatore() {
             Ciao, {profilo.nome.split(' ')[0] || 'operatore'}
           </h1>
         </div>
-        <button onClick={esci} aria-label="Esci" className="size-11 rounded-full border border-bordo bg-superficie flex items-center justify-center cursor-pointer">
-          <LogOut className="size-[18px]" aria-hidden />
-        </button>
+        <Link to="/operatore/profilo" aria-label="Il mio profilo">
+          <Avatar nome={nomeCompleto(profilo)} foto={profilo.foto} taglia="md" className="ring-2 ring-superficie" />
+        </Link>
       </header>
 
       {eventi.isPending ? <Caricamento /> : eventi.error ? <Errore errore={eventi.error} /> : prossimo ? (

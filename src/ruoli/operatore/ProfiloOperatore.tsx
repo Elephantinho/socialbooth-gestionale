@@ -3,7 +3,8 @@ import { LogOut } from 'lucide-react'
 import { useAuth, useProfilo } from '@/modules/auth/AuthProvider'
 import { useAggiornaProfilo, useMagazzini, useMieRegioni } from '@/modules/anagrafiche/api'
 import { SceltaRegioni } from '@/modules/auth/SceltaRegioni'
-import { iniziali } from '@/shared/lib/formato'
+import { nomeCompleto } from '@/shared/lib/formato'
+import { FotoProfilo } from '@/modules/anagrafiche/components/FotoProfilo'
 import type { Enum } from '@/shared/types/database'
 import { Card } from '@/shared/ui/Card'
 import { Campo, Selezione } from '@/shared/ui/Campo'
@@ -18,6 +19,7 @@ export function ProfiloOperatore() {
   const aggiorna = useAggiornaProfilo()
 
   const [nome, setNome] = useState(profilo.nome)
+  const [cognome, setCognome] = useState(profilo.cognome)
   const [telefono, setTelefono] = useState(profilo.telefono ?? '')
   const [magazzinoId, setMagazzinoId] = useState(profilo.magazzino_id ?? '')
   const [regioni, setRegioni] = useState<Enum<'regione'>[]>([])
@@ -29,7 +31,7 @@ export function ProfiloOperatore() {
     e.preventDefault()
     setSalvato(false)
     aggiorna.mutate(
-      { id: profilo.id, modifiche: { nome, telefono: telefono || null, magazzino_id: magazzinoId || null }, regioni },
+      { id: profilo.id, modifiche: { nome, cognome, telefono: telefono || null, magazzino_id: magazzinoId || null }, regioni },
       { onSuccess: () => { setSalvato(true); ricaricaProfilo() } },
     )
   }
@@ -37,16 +39,19 @@ export function ProfiloOperatore() {
   return (
     <div className="flex flex-col gap-5 px-5 pt-sicura pb-6">
       <div className="flex items-center gap-4 pt-2">
-        <div className="size-16 rounded-full bg-inchiostro text-white font-display text-2xl font-bold flex items-center justify-center">{iniziali(profilo.nome)}</div>
+        <FotoProfilo utenteId={profilo.id} nome={nomeCompleto(profilo)} foto={profilo.foto} onCaricata={ricaricaProfilo} />
         <div className="min-w-0">
-          <h1 className="font-display text-2xl font-bold truncate">{profilo.nome || 'Il mio profilo'}</h1>
+          <h1 className="font-display text-2xl font-bold truncate">{nomeCompleto(profilo)}</h1>
           <p className="text-sm text-tenue truncate">{sessione?.user.email}</p>
         </div>
       </div>
 
       <Card className="p-4">
         <form onSubmit={salva} className="flex flex-col gap-4">
-          <Campo etichetta="Nome e cognome" required value={nome} onChange={(e) => setNome(e.target.value)} />
+          <div className="grid grid-cols-2 gap-3">
+            <Campo etichetta="Nome" required value={nome} onChange={(e) => setNome(e.target.value)} />
+            <Campo etichetta="Cognome" value={cognome} onChange={(e) => setCognome(e.target.value)} />
+          </div>
           <Campo etichetta="Telefono" type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
           <Selezione etichetta="Magazzino di riferimento" value={magazzinoId} onChange={(e) => setMagazzinoId(e.target.value)}>
             <option value="">— Nessuno —</option>

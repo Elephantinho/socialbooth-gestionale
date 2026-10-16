@@ -3,11 +3,14 @@ import { AlertTriangle, ArrowRight } from 'lucide-react'
 import { useEventiGestione, useReportOre } from '@/modules/eventi/api'
 import { useOperatori } from '@/modules/anagrafiche/api'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
-import { dataBreve, euro, meseCorrente, ora, perCampoData } from '@/shared/lib/formato'
+import { dataBreve, euro, meseCorrente, nomeCompleto, ora, perCampoData } from '@/shared/lib/formato'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
+import { Intestazione } from '@/shared/ui/Intestazione'
+import { useProfilo } from '@/modules/auth/AuthProvider'
 import { Caricamento, Errore } from '@/shared/ui/Stati'
 
 export function Panoramica() {
+  const profilo = useProfilo()
   const eventi = useEventiGestione()
   const operatori = useOperatori()
   const ore = useReportOre(meseCorrente())
@@ -34,10 +37,11 @@ export function Panoramica() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <p className="text-sm font-semibold text-tenue">Gestione</p>
-        <h1 className="font-display text-4xl font-bold tracking-tight mt-1">Panoramica</h1>
-      </div>
+      <Intestazione
+        sopra={new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' }).replace(/^./, (c) => c.toUpperCase())}
+        titolo={`Ciao, ${profilo.nome || 'benvenuto'}`}
+        descrizione="Ecco come vanno gli eventi: cosa assegnare, cosa approvare e i numeri del mese."
+      />
 
       <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(190px,1fr))]">
         <Numero valore={delMese.length} etichetta="eventi questo mese" />
@@ -66,7 +70,7 @@ export function Panoramica() {
                 <p className="font-bold text-sm">{dataBreve(e.allestimento_il)}</p>
                 <p className="text-xs text-tenue">{ora(e.allestimento_il)}</p>
               </div>
-              <p className="flex-1 min-w-0 text-sm font-semibold truncate">{e.tipo_booth?.nome ?? 'Evento'} · {e.citta}<span className="text-tenue font-medium"> · {e.operatore?.nome ?? 'nessun operatore'}</span></p>
+              <p className="flex-1 min-w-0 text-sm font-semibold truncate">{e.tipo_booth?.nome ?? 'Evento'} · {e.citta}<span className="text-tenue font-medium"> · {e.operatore ? nomeCompleto(e.operatore) : 'nessun operatore'}</span></p>
               <StatoEvento stato={e.stato} />
             </Link>
           ))}

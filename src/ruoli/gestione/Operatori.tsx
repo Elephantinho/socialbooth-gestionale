@@ -1,14 +1,16 @@
 import { useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Building2, Pencil, Phone } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { Building2, Check, Search, Sparkles } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { useAggiornaProfilo, useMagazzini, useOperatori } from '@/modules/anagrafiche/api'
 import { SceltaRegioni } from '@/modules/auth/SceltaRegioni'
-import { euro, iniziali } from '@/shared/lib/formato'
-import { cn } from '@/shared/lib/cn'
+import { euro, nomeCompleto } from '@/shared/lib/formato'
 import { REGIONI, type Enum } from '@/shared/types/database'
-import { Card, TitoloSezione } from '@/shared/ui/Card'
+import { Avatar } from '@/shared/ui/Avatar'
+import { Card } from '@/shared/ui/Card'
 import { Campo, Selezione } from '@/shared/ui/Campo'
+import { Intestazione } from '@/shared/ui/Intestazione'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 
@@ -16,11 +18,13 @@ type Operatore = NonNullable<ReturnType<typeof useOperatori>['data']>[number]
 
 export function Operatori() {
   const { data, isPending, error } = useOperatori()
-  const profilo = useProfilo()
-  const admin = profilo.ruolo === 'admin'
+  const admin = useProfilo().ruolo === 'admin'
   const [regioneFiltro, setRegioneFiltro] = useState('')
-  const inAttesa = (data ?? []).filter((o) => !o.attivo)
-  const attivi = (data ?? []).filter((o) => o.attivo)
+  const [cerca, setCerca] = useState('')
+
+  const corrisponde = (o: Operatore) => nomeCompleto(o).toLowerCase().includes(cerca.toLowerCase())
+  const inAttesa = (data ?? []).filter((o) => !o.attivo && corrisponde(o))
+  const attivi = (data ?? []).filter((o) => o.attivo && corrisponde(o))
 
   // Un operatore che copre più regioni compare in ognuna
   const perRegione = REGIONI
@@ -29,45 +33,56 @@ export function Operatori() {
   const senzaRegione = attivi.filter((o) => !o.zone.length)
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <p className="text-sm font-semibold text-tenue">Gestione</p>
-        <h1 className="font-display text-4xl font-bold tracking-tight mt-1">Operatori</h1>
-        <p className="text-tenue mt-2 max-w-2xl">
-          Gli operatori si registrano dall'app indicando le loro regioni. Un admin li attiva e imposta tariffa oraria e magazzino.
-        </p>
+    <div className="flex flex-col gap-7">
+      <Intestazione
+        sopra="Gestione"
+        titolo="Operatori"
+        descrizione="Divisi per regione di riferimento. Clicca su un operatore per vedere eventi, compensi e margini."
+      />
+
+      <div className="flex flex-wrap gap-3 items-end">
+        <label className="relative flex-[1_1_260px] max-w-md">
+          <span className="sr-only">Cerca operatore</span>
+          <Search className="size-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-tenue" aria-hidden />
+          <input value={cerca} onChange={(e) => setCerca(e.target.value)} placeholder="Cerca per nome"
+            className="w-full h-12 rounded-xl border border-bordo-forte bg-superficie pl-10 pr-3 text-[15px] focus:outline-none focus:border-accento focus:ring-3 focus:ring-accento/15" />
+        </label>
+        <Selezione etichetta="" aria-label="Regione" value={regioneFiltro} onChange={(e) => setRegioneFiltro(e.target.value)} className="w-56">
+          <option value="">Tutte le regioni</option>
+          {REGIONI.map((r) => <option key={r}>{r}</option>)}
+        </Selezione>
       </div>
 
       {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : !data.length ? (
-        <Card><Vuoto titolo="Nessun operatore" testo="Condividi il link dell'app: gli operatori possono registrarsi da soli." /></Card>
+        <Card><Vuoto titolo="Nessun operatore" testo="Condividi il link dell'app: gli operatori possono registrarsi da soli scegliendo le loro regioni." /></Card>
       ) : (
         <>
           {inAttesa.length > 0 && (
-            <section className="flex flex-col gap-2.5">
-              <TitoloSezione>Da approvare <span className="text-urgente">· {inAttesa.length}</span></TitoloSezione>
-              {inAttesa.map((o) => <SchedaOperatore key={o.id} o={o} admin={admin} />)}
+            <section className="flex flex-col gap-3">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-urgente-testo">Da approvare · {inAttesa.length}</h2>
+              <Griglia>{inAttesa.map((o) => <SchedaOperatore key={o.id} o={o} admin={admin} />)}</Griglia>
             </section>
           )}
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <TitoloSezione>Attivi per regione · {attivi.length}</TitoloSezione>
-            <Selezione etichetta="Regione" value={regioneFiltro} onChange={(e) => setRegioneFiltro(e.target.value)} className="w-56">
-              <option value="">Tutte le regioni</option>
-              {REGIONI.map((r) => <option key={r}>{r}</option>)}
-            </Selezione>
-          </div>
+
           {perRegione.map((g) => (
-            <section key={g.regione} className="flex flex-col gap-2">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-tenue flex items-center gap-2">
-                {g.regione} <span className="normal-case tracking-normal font-semibold">· {g.operatori.length} {g.operatori.length === 1 ? 'operatore' : 'operatori'}</span>
-                {g.operatori.length === 1 && <span className="normal-case tracking-normal text-[11px] bg-accento-tenue text-accento-scuro px-2 py-0.5 rounded-md">assegnazione automatica</span>}
+            <section key={g.regione} className="flex flex-col gap-3">
+              <h2 className="flex flex-wrap items-center gap-2">
+                <span className="font-display text-xl font-bold">{g.regione}</span>
+                <span className="text-sm font-semibold text-tenue">{g.operatori.length} {g.operatori.length === 1 ? 'operatore' : 'operatori'}</span>
+                {g.operatori.length === 1 && (
+                  <span className="text-[11px] font-bold bg-accento-tenue text-accento-scuro px-2 py-1 rounded-md inline-flex items-center gap-1">
+                    <Sparkles className="size-3" aria-hidden /> assegnazione automatica
+                  </span>
+                )}
               </h2>
-              {g.operatori.map((o) => <SchedaOperatore key={`${g.regione}-${o.id}`} o={o} admin={admin} />)}
+              <Griglia>{g.operatori.map((o) => <SchedaOperatore key={`${g.regione}-${o.id}`} o={o} admin={admin} />)}</Griglia>
             </section>
           ))}
+
           {!regioneFiltro && senzaRegione.length > 0 && (
-            <section className="flex flex-col gap-2">
+            <section className="flex flex-col gap-3">
               <h2 className="text-sm font-bold uppercase tracking-wider text-urgente-testo">Senza regione · non ricevono eventi</h2>
-              {senzaRegione.map((o) => <SchedaOperatore key={o.id} o={o} admin={admin} />)}
+              <Griglia>{senzaRegione.map((o) => <SchedaOperatore key={o.id} o={o} admin={admin} />)}</Griglia>
             </section>
           )}
         </>
@@ -76,62 +91,47 @@ export function Operatori() {
   )
 }
 
-function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
-  const [aperto, setAperto] = useState(false)
-  const aggiorna = useAggiornaProfilo()
-  const numero = o.telefono?.replace(/[^\d+]/g, '')
+const Griglia = ({ children }: { children: React.ReactNode }) => (
+  <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">{children}</div>
+)
 
+function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
+  const aggiorna = useAggiornaProfilo()
+  const nome = nomeCompleto(o)
   return (
-    <Card className="overflow-hidden">
-      <div className="p-4 md:px-5 flex flex-wrap items-center gap-4">
-        <div className={cn('size-12 rounded-full font-bold flex items-center justify-center', o.attivo ? 'bg-accento-tenue text-accento-scuro' : 'bg-avviso text-avviso-titolo')}>
-          {iniziali(o.nome)}
+    <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }}>
+      <Card className="p-4 flex flex-col gap-3 h-full hover:shadow-[0_8px_24px_-12px_rgba(21,22,26,0.25)] transition-shadow">
+        <Link to={`/gestione/operatori/${o.id}`} className="flex items-center gap-3 min-w-0">
+          <Avatar nome={nome} foto={o.foto} taglia="lg" />
+          <div className="min-w-0">
+            <p className="font-bold text-[16px] truncate">{nome}</p>
+            <p className="text-sm text-tenue">{o.tariffa_oraria != null ? `${euro(o.tariffa_oraria)}/ora` : 'tariffa da impostare'}</p>
+          </div>
+        </Link>
+        <p className={o.magazzino ? 'text-sm font-semibold inline-flex items-center gap-1.5' : 'text-sm font-semibold text-urgente-testo inline-flex items-center gap-1.5'}>
+          <Building2 className="size-4 shrink-0" aria-hidden /> <span className="truncate">{o.magazzino?.nome ?? 'Nessun magazzino'}</span>
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          {o.zone.map((z) => <span key={z.regione} className="text-[11px] font-bold bg-sfondo border border-bordo px-2 py-0.5 rounded-full">{z.regione}</span>)}
         </div>
-        <div className="flex-[1_1_200px] min-w-0">
-          <p className="font-bold text-[16px] truncate">{o.nome || 'Senza nome'}</p>
-          <p className="text-sm text-tenue flex flex-wrap gap-x-2">
-            <span className={o.magazzino ? 'font-bold text-inchiostro inline-flex items-center gap-1' : 'font-bold text-urgente-testo inline-flex items-center gap-1'}>
-              <Building2 className="size-3.5" aria-hidden />{o.magazzino?.nome ?? 'Nessun magazzino'}
-            </span>
-            <span>· {o.tariffa_oraria != null ? `${euro(o.tariffa_oraria)}/h` : 'tariffa da impostare'}</span>
-          </p>
-        </div>
-        <div className="flex-[2_1_260px] flex flex-wrap gap-1.5">
-          {o.zone.length ? o.zone.map((z) => (
-            <span key={z.regione} className="text-xs font-bold bg-sfondo border border-bordo px-2.5 py-1 rounded-full">{z.regione}</span>
-          )) : <span className="text-xs font-bold text-urgente-testo">Nessuna regione</span>}
-        </div>
-        <div className="flex gap-2 ml-auto">
-          {numero && (
-            <a href={`tel:${numero}`} aria-label={`Chiama ${o.nome}`} className="size-11 rounded-xl border border-bordo flex items-center justify-center">
-              <Phone className="size-4" aria-hidden />
-            </a>
-          )}
-          {admin && !o.attivo && (
-            <Pulsante caricamento={aggiorna.isPending} onClick={() => aggiorna.mutate({ id: o.id, modifiche: { attivo: true } })}>Approva</Pulsante>
-          )}
-          {admin && (
-            <Pulsante variante="secondario" icona={<Pencil className="size-4" aria-hidden />} onClick={() => setAperto((a) => !a)} aria-expanded={aperto}>
-              Modifica
-            </Pulsante>
-          )}
-        </div>
-      </div>
-      {aggiorna.error && <div className="px-5 pb-4"><Errore errore={aggiorna.error} /></div>}
-      <AnimatePresence initial={false}>
-        {aperto && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden border-t border-bordo bg-sfondo/60">
-            <ModificaOperatore o={o} onFatto={() => setAperto(false)} />
-          </motion.div>
+        {admin && !o.attivo && (
+          <Pulsante className="mt-auto" icona={<Check className="size-4" aria-hidden />} caricamento={aggiorna.isPending}
+            onClick={() => aggiorna.mutate({ id: o.id, modifiche: { attivo: true } })}>
+            Approva
+          </Pulsante>
         )}
-      </AnimatePresence>
-    </Card>
+      </Card>
+    </motion.div>
   )
 }
 
-function ModificaOperatore({ o, onFatto }: { o: Operatore; onFatto: () => void }) {
+/** Modifica dei dati di un operatore (solo admin) */
+export function ModificaOperatore({ o, onFatto }: { o: Operatore | (Operatore & Record<string, unknown>); onFatto: () => void }) {
   const magazzini = useMagazzini()
   const aggiorna = useAggiornaProfilo()
+  const [nome, setNome] = useState(o.nome)
+  const [cognome, setCognome] = useState(o.cognome)
+  const [telefono, setTelefono] = useState(o.telefono ?? '')
   const [tariffa, setTariffa] = useState(o.tariffa_oraria != null ? String(o.tariffa_oraria) : '')
   const [magazzinoId, setMagazzinoId] = useState(o.magazzino_id ?? '')
   const [regioni, setRegioni] = useState<Enum<'regione'>[]>(o.zone.map((z) => z.regione))
@@ -142,11 +142,14 @@ function ModificaOperatore({ o, onFatto }: { o: Operatore; onFatto: () => void }
       e.preventDefault()
       aggiorna.mutate({
         id: o.id,
-        modifiche: { tariffa_oraria: tariffa ? Number(tariffa) : null, magazzino_id: magazzinoId || null, attivo },
+        modifiche: { nome, cognome, telefono: telefono || null, tariffa_oraria: tariffa ? Number(tariffa) : null, magazzino_id: magazzinoId || null, attivo },
         regioni,
       }, { onSuccess: onFatto })
     }}>
-      <div className="grid gap-3.5 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
+      <div className="grid gap-3.5 grid-cols-[repeat(auto-fit,minmax(190px,1fr))]">
+        <Campo etichetta="Nome" required value={nome} onChange={(e) => setNome(e.target.value)} />
+        <Campo etichetta="Cognome" value={cognome} onChange={(e) => setCognome(e.target.value)} />
+        <Campo etichetta="Telefono" type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
         <Campo etichetta="Tariffa oraria (€)" type="number" min={0} step="0.5" value={tariffa} onChange={(e) => setTariffa(e.target.value)} />
         <Selezione etichetta="Magazzino di riferimento" value={magazzinoId} onChange={(e) => setMagazzinoId(e.target.value)}>
           <option value="">— Nessuno —</option>
@@ -157,7 +160,7 @@ function ModificaOperatore({ o, onFatto }: { o: Operatore; onFatto: () => void }
           <option value="no">Non attivo</option>
         </Selezione>
       </div>
-      <SceltaRegioni valore={regioni} onChange={setRegioni} etichetta="Regioni coperte" />
+      <SceltaRegioni valore={regioni} onChange={setRegioni} etichetta="Regioni di riferimento" />
       {aggiorna.error && <Errore errore={aggiorna.error} />}
       <div className="flex gap-2">
         <Pulsante type="submit" caricamento={aggiorna.isPending}>Salva</Pulsante>

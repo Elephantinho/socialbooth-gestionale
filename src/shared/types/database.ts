@@ -158,10 +158,12 @@ export type Database = {
         Row: {
           attivo: boolean; creato_il: string; id: string; magazzino_id: string | null; nome: string
           ruolo: Database['public']['Enums']['ruolo']; tariffa_oraria: number | null; telefono: string | null
+          cognome: string; foto: string | null
         }
         Insert: {
           attivo?: boolean; creato_il?: string; id: string; magazzino_id?: string | null; nome?: string
           ruolo?: Database['public']['Enums']['ruolo']; tariffa_oraria?: number | null; telefono?: string | null
+          cognome?: string; foto?: string | null
         }
         Update: Partial<Database['public']['Tables']['profili']['Insert']>
         Relationships: [
