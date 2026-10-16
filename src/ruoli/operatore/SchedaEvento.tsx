@@ -44,6 +44,7 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
       </div>
 
       <div className="flex flex-col gap-3.5 p-5">
+        {['confermato', 'in_corso', 'completato'].includes(e.stato) && <TappeLavoro e={e} />}
         <Programma e={e} />
 
         <InfoLuogo indirizzo={e.indirizzo} citta={e.citta} lat={e.lat} lng={e.lng} data={e.allestimento_il}
@@ -100,7 +101,7 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
         <ChatEvento eventoId={e.id} />
       </div>
 
-      {['confermato', 'in_corso', 'completato'].includes(e.stato) && <div className="px-5 flex flex-col gap-3.5 pb-0"><TappeLavoro e={e} /></div>}
+
     </>
   )
 }

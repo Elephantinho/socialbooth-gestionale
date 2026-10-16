@@ -285,7 +285,7 @@ export function useReportOre(mese: string /* yyyy-mm */) {
 export function useTempoReale() {
   const qc = useQueryClient()
   useEffect(() => {
-    const canale = supabase.channel('modifiche')
+    const canale = supabase.channel(`modifiche-${crypto.randomUUID()}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'eventi' }, () => qc.invalidateQueries({ queryKey: chiavi.tutti }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'proposte' }, () => qc.invalidateQueries({ queryKey: chiavi.tutti }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'ore_lavorate' }, () => qc.invalidateQueries({ queryKey: chiavi.ore }))

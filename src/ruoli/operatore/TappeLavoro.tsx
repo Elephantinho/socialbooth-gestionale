@@ -102,7 +102,7 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
         <ol className="flex flex-col">
           {passi.map((p, i) => {
             const fatto = !!p.quando
-            const prossimo = !chiuso && !fatto && passi.slice(0, i).every((x) => x.quando || x.chiave === 'partenza')
+            const prossimo = !chiuso && i === passi.findIndex((x, j) => !x.quando && (j > 0 || !passi[1].quando))
             return (
               <li key={p.chiave} className="flex gap-3">
                 <span className="flex flex-col items-center" aria-hidden>
@@ -136,7 +136,9 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
         )}
       </Card>
 
-      <div className="sticky bottom-0 mt-auto bg-sfondo/95 backdrop-blur border-t border-bordo px-5 pt-3.5 pb-sicura flex flex-col gap-1.5 -mx-5">
+      {/* Barra fissa in basso con il prossimo tasto da premere; lo spazio sotto evita che copra la pagina */}
+      <div aria-hidden className="h-44 order-last" />
+      <div className="fixed bottom-0 inset-x-0 z-30 max-w-md mx-auto bg-sfondo/95 backdrop-blur border-t border-bordo px-5 pt-3.5 pb-sicura flex flex-col gap-1.5 shadow-[0_-8px_24px_-16px_rgba(21,22,26,0.25)]">
         {registra.error && <Errore errore={registra.error} />}
         {auto && <p className="text-center text-sm font-bold text-accento" role="status">{auto}</p>}
         {prossima && !auto && <p className="text-center text-xs text-tenue">Con l'app aperta, {prossima === 'arrivo' ? "l'arrivo" : 'il rientro'} si registra da solo quando sei sul posto</p>}

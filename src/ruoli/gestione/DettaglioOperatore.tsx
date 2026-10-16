@@ -75,7 +75,7 @@ export function DettaglioOperatore() {
             {!o.attivo && <span className="text-xs font-bold bg-avviso text-avviso-testo px-2.5 py-1 rounded-full">In attesa di approvazione</span>}
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {o.zone.length ? o.zone.map((z) => (
+            {o.zone?.length ? o.zone.map((z) => (
               <span key={z.regione} className="text-xs font-bold bg-accento-tenue text-accento-scuro px-2.5 py-1 rounded-full">{z.regione}</span>
             )) : <span className="text-xs font-bold text-urgente-testo">Nessuna regione</span>}
           </div>

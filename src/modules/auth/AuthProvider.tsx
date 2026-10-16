@@ -19,15 +19,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [sessione, setSessione] = useState<Session | null>(null)
   const [profilo, setProfilo] = useState<Profilo | null>(null)
   const [pronto, setPronto] = useState(false)
+  // false finché non abbiamo letto la sessione salvata: prima non si sa se l'utente è loggato
+  const [sessioneLetta, setSessioneLetta] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSessione(data.session))
-    const { data } = supabase.auth.onAuthStateChange((_evento, s) => setSessione(s))
+    supabase.auth.getSession().then(({ data }) => {
+      setSessione(data.session)
+      setSessioneLetta(true)
+    })
+    const { data } = supabase.auth.onAuthStateChange((_evento, s) => {
+      setSessione(s)
+      setSessioneLetta(true)
+    })
     return () => data.subscription.unsubscribe()
   }, [])
 
   // Carica il profilo (con il ruolo) quando cambia l'utente
   useEffect(() => {
+    if (!sessioneLetta) return
     let annullato = false
     const id = sessione?.user.id
     if (!id) {
@@ -42,7 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setPronto(true)
     })
     return () => { annullato = true }
-  }, [sessione?.user.id])
+  }, [sessione?.user.id, sessioneLetta])
 
   const esci = async () => { await supabase.auth.signOut() }
   const ricaricaProfilo = async () => {

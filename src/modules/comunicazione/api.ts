@@ -15,7 +15,7 @@ export function useNotifiche(utenteId: string) {
   })
   // Arrivano in tempo reale
   useEffect(() => {
-    const canale = supabase.channel(`notifiche-${utenteId}`)
+    const canale = supabase.channel(`notifiche-${utenteId}-${crypto.randomUUID()}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'notifiche', filter: `utente_id=eq.${utenteId}` },
         () => qc.invalidateQueries({ queryKey: ['notifiche', utenteId] }))
       .subscribe()
@@ -48,7 +48,7 @@ export function useMessaggi(eventoId: string) {
         .eq('evento_id', eventoId).order('creato_il')),
   })
   useEffect(() => {
-    const canale = supabase.channel(`chat-${eventoId}`)
+    const canale = supabase.channel(`chat-${eventoId}-${crypto.randomUUID()}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messaggi', filter: `evento_id=eq.${eventoId}` },
         () => qc.invalidateQueries({ queryKey: ['messaggi', eventoId] }))
       .subscribe()

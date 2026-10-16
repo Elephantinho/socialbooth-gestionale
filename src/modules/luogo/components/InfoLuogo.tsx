@@ -89,10 +89,12 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
               : <AlertTriangle className="size-5 shrink-0" aria-hidden />}
             <div className="min-w-0">
               <p className="font-bold text-sm">
-                {ztlDichiarata ? 'ZTL indicata dal project' : !ztl ? 'Controllo ZTL…' : ztl.stato === 'dentro' ? 'Dentro una ZTL' : ztl.stato === 'vicino' ? 'ZTL nelle vicinanze' : 'Nessuna ZTL rilevata'}
+                {ztlDichiarata ? 'ZTL indicata dal project' : !ztl ? (dintorni.error ? 'ZTL' : 'Controllo ZTL…') : ztl.stato === 'dentro' ? 'Dentro una ZTL' : ztl.stato === 'vicino' ? 'ZTL nelle vicinanze' : 'Nessuna ZTL rilevata'}
               </p>
               <p className="text-xs opacity-80">
-                {ztl?.dettaglio ?? (ztl?.stato === 'non_rilevata' ? 'Dalle mappe, verifica comunque i cartelli' : 'Serve il permesso per entrare')}
+                {ztlDichiarata && !ztl ? 'Serve il permesso per entrare'
+                  : !ztl ? (dintorni.error ? 'Controllo non disponibile ora' : 'Cerco sulle mappe…')
+                  : ztl.dettaglio ?? (ztl.stato === 'non_rilevata' ? 'Dalle mappe, verifica comunque i cartelli' : 'Serve il permesso per entrare')}
               </p>
             </div>
           </div>

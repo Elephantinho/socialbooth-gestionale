@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from '@/modules/auth/AuthProvider'
 import { App } from './App'
+import { ProtezioneErrori } from '@/shared/ui/ProtezioneErrori'
 import './index.css'
 
 const queryClient = new QueryClient({
@@ -12,6 +13,7 @@ const queryClient = new QueryClient({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <ProtezioneErrori>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
@@ -19,5 +21,6 @@ createRoot(document.getElementById('root')!).render(
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
+    </ProtezioneErrori>
   </StrictMode>,
 )
