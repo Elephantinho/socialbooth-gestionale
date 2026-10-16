@@ -62,7 +62,6 @@ body {
   color: var(--color-inchiostro);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  font-feature-settings: "tnum" 1;  /* cifre della stessa larghezza: orari e importi in colonna */
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -73,3 +72,7 @@ body {
 h1, h2, h3 { letter-spacing: -0.012em; }
 :focus-visible { outline: 2px solid var(--color-accento); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+
+/* Cifre della stessa larghezza solo dove servono (orari, importi, tabelle):
+   applicate a tutto il testo spostavano anche le virgole ("Ciao , Mohamed") */
+table, .tabular-nums, time { font-variant-numeric: tabular-nums; }

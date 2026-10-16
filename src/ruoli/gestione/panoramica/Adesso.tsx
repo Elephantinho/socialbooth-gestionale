@@ -21,6 +21,7 @@ export function Adesso({ eventi }: { eventi: EventoLista[] }) {
   const lista = eventi
     .filter((e) => e.stato === 'in_corso' || (e.stato === 'confermato' && perCampoData(e.allestimento_il) === oggi))
     .sort((a, b) => a.allestimento_il.localeCompare(b.allestimento_il))
+  if (!lista.length) return null
 
   return (
     <Card className="p-5 flex flex-col gap-3">
@@ -32,7 +33,7 @@ export function Adesso({ eventi }: { eventi: EventoLista[] }) {
         <TitoloSezione>In questo momento</TitoloSezione>
         <span className="text-sm text-tenue font-semibold">{lista.length ? `${lista.length} ${lista.length === 1 ? 'evento' : 'eventi'} oggi` : ''}</span>
       </div>
-      {lista.length === 0 ? <p className="text-sm text-tenue">Nessun operatore al lavoro oggi.</p> : (
+      {(
         <div className="grid gap-2 grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
           {lista.map((e) => {
             const f = fase(e)

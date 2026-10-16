@@ -7,7 +7,7 @@ import type { EventoLista } from './tipi'
 
 /** Gli eventi dei prossimi 7 giorni */
 export function ProssimiGiorni({ futuri, className }: { futuri: EventoLista[]; className?: string }) {
-  const lista = futuri.filter((e) => new Date(e.allestimento_il).getTime() - Date.now() < 7 * 86_400_000).slice(0, 8)
+  const lista = futuri.filter((e) => new Date(e.allestimento_il).getTime() - Date.now() < 7 * 86_400_000).slice(0, 5)
   return (
     <Card className={`min-w-0 p-5 flex flex-col gap-3 ${className ?? ''}`}>
       <div className="flex justify-between items-center">
@@ -20,7 +20,10 @@ export function ProssimiGiorni({ futuri, className }: { futuri: EventoLista[]; c
             <p className="font-semibold text-sm">{dataBreve(e.allestimento_il).split(' ').slice(0, 2).join(' ')}</p>
             <p className="text-xs text-tenue">{ora(e.allestimento_il)}</p>
           </div>
-          <p className="flex-1 min-w-0 text-sm font-semibold truncate">{e.tipo_booth?.nome ?? 'Evento'}, {e.citta}</p>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold truncate">{e.tipo_booth?.nome ?? 'Evento'}</p>
+            <p className="text-xs text-tenue truncate">{e.citta}</p>
+          </div>
           <StatoEvento stato={e.stato} className="text-[11px] px-2 py-1" />
         </Link>
       ))}

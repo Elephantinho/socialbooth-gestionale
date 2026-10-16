@@ -82,18 +82,18 @@ export function AvvisiCarta() {
   if (isPending) return null
   if (error) return <Errore errore={error} />
   const critici = (data ?? []).filter((o) => daRicaricare(o.livello))
-  const daImpostare = (data ?? []).filter((o) => o.livello === 'da_impostare')
-  if (!data?.length) return null
+  // In panoramica compare solo quando c'è da mandare carta a qualcuno
+  if (!critici.length) return null
 
   return (
-    <Card className={cn('p-5 flex flex-col gap-4', critici.length && 'border-[#F2B8AE] border-2')}>
+    <Card className={cn('p-5 flex flex-col gap-4', 'border-[#F2B8AE] border-2')}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <TitoloSezione className="flex items-center gap-2">
           <Printer className={cn('size-5', critici.length ? 'text-urgente' : 'text-accento')} aria-hidden />
           Carta degli operatori
         </TitoloSezione>
         <span className={cn('text-sm font-semibold', critici.length ? 'text-urgente-testo' : 'text-accento-scuro')}>
-          {critici.length ? `${critici.length} da ricaricare` : daImpostare.length === data.length ? 'Scorte ancora da impostare' : 'Tutti hanno carta a sufficienza'}
+          {critici.length} da ricaricare
         </span>
       </div>
       {critici.length > 0 && (
@@ -127,15 +127,6 @@ export function AvvisiCarta() {
           ))}
         </ul>
       )}
-      {daImpostare.length > 0 && (
-        <p className="text-sm text-tenue">
-          {daImpostare.length === 1 ? '1 operatore non ha' : `${daImpostare.length} operatori non hanno`} ancora la scorta impostata
-          ({daImpostare.slice(0, 3).map((o) => o.nome).join(', ')}{daImpostare.length > 3 ? '…' : ''}): registra una ricarica o fagli contare la carta dall'app.
-        </p>
-      )}
-      <p className="text-xs text-tenue">
-        Diventa rossa sotto le {parametri?.soglia ?? 200} stampe o quando non basta per gli eventi già assegnati. Le stampe dichiarate a fine evento si scalano da sole.
-      </p>
     </Card>
   )
 }

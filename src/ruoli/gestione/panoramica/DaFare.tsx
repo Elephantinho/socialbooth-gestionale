@@ -1,70 +1,79 @@
-import { daRicaricare } from '@/modules/carta/logic/scorta'
+import { Link } from 'react-router-dom'
+import { CheckCircle2, ChevronRight } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
+import { usePuo, type Permesso } from '@/modules/auth/permessi'
 import { useRichieste } from '@/modules/richieste/api'
 import { perMe } from '@/modules/richieste/components/ListaRichieste'
-import { Link } from 'react-router-dom'
-import { Inbox, CalendarCheck, FileText, Hourglass, Printer, UserCheck, UserX, Wallet } from 'lucide-react'
-import { usePuo, type Permesso } from '@/modules/auth/permessi'
 import { useOreDaApprovare } from '@/modules/eventi/api'
 import { useOperatori } from '@/modules/anagrafiche/api'
-import { useScorteVisibili } from '@/modules/carta/api'
 import { euro } from '@/shared/lib/formato'
-import { Numero } from '@/shared/ui/Intestazione'
+import { Card } from '@/shared/ui/Card'
 import type { EventoLista } from './tipi'
 
-type Riquadro = {
-  permesso: Permesso | Permesso[]   // basta averne uno
-  a?: string
-  valore: React.ReactNode
-  etichetta: string
-  urgente: boolean
-  Icona: typeof UserX
+type Voce = {
+  permesso?: Permesso
+  quanti: number
+  testo: string
+  a: string
 }
 
 /**
- * I numeri da guardare per primi: cosa aspetta una decisione.
- * Ogni ruolo vede solo i riquadri del suo lavoro.
+ * Cosa aspetta una decisione, una riga per cosa.
+ * Compaiono solo le voci che hanno qualcosa dentro e che spettano al ruolo:
+ * se non c'è niente, una riga sola "Niente da fare".
  */
 export function DaFare({ futuri, tutti }: { futuri: EventoLista[]; tutti: EventoLista[] }) {
   const puo = usePuo()
+  const io = useProfilo()
   const ore = useOreDaApprovare({ enabled: puo('ore.approva') })
   const operatori = useOperatori()
-  const carta = useScorteVisibili()
-  const io = useProfilo()
-  const richiestePerMe = (useRichieste().data ?? []).filter((r) => (r.stato === 'aperta' || r.stato === 'in_corso') && perMe(r, io)).length
+  const richieste = useRichieste()
 
+  const richiestePerMe = (richieste.data ?? []).filter((r) => (r.stato === 'aperta' || r.stato === 'in_corso') && perMe(r, io)).length
   const daAssegnare = futuri.filter((e) => e.stato === 'da_assegnare').length
-  const inAttesa = futuri.filter((e) => e.stato === 'proposto').length
-  const daApprovare = ore.data?.length ?? 0
-  // Il mese più vecchio con chiusure in sospeso: il link apre il report lì
   const meseDaApprovare = (ore.data ?? []).map((o) => o.evento!.allestimento_il.slice(0, 7)).sort()[0]
   const nuoviOperatori = (operatori.data ?? []).filter((o) => !o.attivo).length
-  const cartaRossa = (carta.data ?? []).filter((o) => daRicaricare(o.livello)).length
+  const coperte = new Set((operatori.data ?? []).filter((o) => o.attivo).flatMap((o) => o.zone.map((z) => z.regione as string)))
+  const scoperte = operatori.data ? [...new Set(futuri.map((e) => e.regione))].filter((r) => !coperte.has(r)) : []
   const completati = tutti.filter((e) => e.stato === 'completato')
   const daFatturare = completati.filter((e) => !e.fattura_numero).length
-  const daIncassare = completati.filter((e) => e.fattura_importo != null && !e.fattura_pagata).reduce((s, e) => s + Number(e.fattura_importo), 0)
+  const nonPagati = completati.filter((e) => e.fattura_importo != null && !e.fattura_pagata)
+  const daIncassare = nonPagati.reduce((s, e) => s + Number(e.fattura_importo), 0)
 
-  const riquadri: Riquadro[] = [
-    { permesso: [], a: '/gestione/richieste', valore: richiestePerMe, etichetta: 'richieste per te', urgente: richiestePerMe > 0, Icona: Inbox },
-    { permesso: 'eventi.assegna', a: '/gestione?filtro=assegnare', valore: daAssegnare, etichetta: 'eventi senza operatore', urgente: daAssegnare > 0, Icona: UserX },
-    { permesso: 'eventi.assegna', a: '/gestione?filtro=attesa', valore: inAttesa, etichetta: 'proposte che l\'operatore non ha ancora accettato', urgente: false, Icona: Hourglass },
-    { permesso: 'operatori.gestisci', a: '/gestione/operatori', valore: nuoviOperatori, etichetta: 'nuovi operatori da attivare', urgente: nuoviOperatori > 0, Icona: UserCheck },
-    { permesso: 'carta.ricarica', valore: cartaRossa, etichetta: 'operatori con poca carta', urgente: cartaRossa > 0, Icona: Printer },
-    { permesso: 'ore.approva', a: meseDaApprovare ? `/gestione/report?mese=${meseDaApprovare}` : '/gestione/report', valore: daApprovare, etichetta: 'eventi finiti con ore da approvare', urgente: daApprovare > 0, Icona: CalendarCheck },
-    { permesso: 'fatture', a: '/gestione/archivio?filtro=fatturare', valore: daFatturare, etichetta: 'eventi da fatturare', urgente: daFatturare > 0, Icona: FileText },
-    { permesso: 'fatture', a: '/gestione/archivio?filtro=incassare', valore: euro(Math.round(daIncassare)), etichetta: 'da incassare', urgente: false, Icona: Wallet },
+  const voci: Voce[] = [
+    { quanti: richiestePerMe, testo: richiestePerMe === 1 ? 'richiesta per te' : 'richieste per te', a: '/gestione/richieste' },
+    { permesso: 'eventi.assegna', quanti: daAssegnare, testo: daAssegnare === 1 ? 'evento senza operatore' : 'eventi senza operatore', a: '/gestione?filtro=assegnare' },
+    { permesso: 'operatori.gestisci', quanti: nuoviOperatori, testo: nuoviOperatori === 1 ? 'nuovo operatore da attivare' : 'nuovi operatori da attivare', a: '/gestione/operatori' },
+    { permesso: 'operatori.gestisci', quanti: scoperte.length, testo: `${scoperte.length === 1 ? 'regione' : 'regioni'} con eventi e nessun operatore (${scoperte.join(', ')})`, a: '/gestione/operatori' },
+    { permesso: 'ore.approva', quanti: ore.data?.length ?? 0, testo: 'chiusure da approvare (ore e spese)', a: meseDaApprovare ? `/gestione/report?mese=${meseDaApprovare}` : '/gestione/report' },
+    { permesso: 'fatture', quanti: daFatturare, testo: daFatturare === 1 ? 'evento da fatturare' : 'eventi da fatturare', a: '/gestione/archivio?filtro=fatturare' },
+    { permesso: 'fatture', quanti: nonPagati.length, testo: `fatture da incassare (${euro(Math.round(daIncassare))})`, a: '/gestione/archivio?filtro=incassare' },
   ]
-  const visibili = riquadri.filter((r) => {
-    const p = Array.isArray(r.permesso) ? r.permesso : [r.permesso]
-    return !p.length || p.some(puo)
-  })
+  const attive = voci.filter((v) => v.quanti > 0 && (!v.permesso || puo(v.permesso)))
+
+  if (!attive.length) {
+    return (
+      <Card className="p-4 flex items-center gap-3">
+        <CheckCircle2 className="size-5 text-ok shrink-0" aria-hidden />
+        <p className="font-semibold">Niente da fare adesso</p>
+      </Card>
+    )
+  }
 
   return (
-    <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(170px,1fr))]">
-      {visibili.map((r) => {
-        const numero = <Numero valore={r.valore} etichetta={r.etichetta} tono={r.urgente ? 'urgente' : 'chiaro'} icona={<r.Icona className="size-5" aria-hidden />} />
-        return r.a ? <Link key={r.etichetta} to={r.a} className="hover:opacity-90">{numero}</Link> : <div key={r.etichetta}>{numero}</div>
-      })}
-    </div>
+    <Card className="p-0 overflow-hidden">
+      <h2 className="px-4 pt-4 pb-2 text-sm font-semibold text-tenue">Da fare</h2>
+      <ul className="divide-y divide-bordo">
+        {attive.map((v) => (
+          <li key={v.a + v.testo}>
+            <Link to={v.a} className="flex items-center gap-3 px-4 py-3 hover:bg-sfondo">
+              <span className="min-w-8 h-8 px-2 rounded-lg bg-urgente-tenue text-urgente-testo font-semibold flex items-center justify-center tabular-nums">{v.quanti}</span>
+              <span className="flex-1 min-w-0">{v.testo}</span>
+              <ChevronRight className="size-4 text-tenue shrink-0" aria-hidden />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </Card>
   )
 }
