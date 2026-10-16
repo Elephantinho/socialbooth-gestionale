@@ -289,7 +289,10 @@ export function useTempoReale() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'eventi' }, () => qc.invalidateQueries({ queryKey: chiavi.tutti }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'proposte' }, () => qc.invalidateQueries({ queryKey: chiavi.tutti }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'ore_lavorate' }, () => qc.invalidateQueries({ queryKey: chiavi.ore }))
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'costi_evento' }, () => qc.invalidateQueries({ queryKey: chiavi.tutti }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'costi_evento' }, () => {
+        qc.invalidateQueries({ queryKey: chiavi.tutti })
+        qc.invalidateQueries({ queryKey: ['carta'] })   // le stampe dichiarate scalano la scorta
+      })
       .subscribe()
     return () => { supabase.removeChannel(canale) }
   }, [qc])

@@ -7,6 +7,7 @@ import { useMagazzini, useOperatori } from '@/modules/anagrafiche/api'
 import { useEconomiaPeriodo } from '@/modules/costi/api'
 import { contiEvento, contiPer, totaleConti } from '@/modules/costi/logic/perRegione'
 import { GraficoAndamento } from '@/modules/costi/components/GraficoAndamento'
+import { AvvisiCarta } from '@/modules/carta/components/Carta'
 import { TabellaRegioni } from '@/modules/costi/components/TabellaRegioni'
 import { useAttivita } from '@/modules/attivita/api'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
@@ -109,6 +110,8 @@ export function Panoramica() {
         <Link to="/gestione/report" className="hover:opacity-90"><Numero valore={oreDaApprovare} etichetta="chiusure da approvare" tono={oreDaApprovare ? 'urgente' : 'chiaro'} icona={<CalendarCheck className="size-5" aria-hidden />} /></Link>
         <Link to="/gestione/attivita" className="hover:opacity-90"><Numero valore={attivitaAperte.length} etichetta={attivitaScadute.length ? `attività aperte · ${attivitaScadute.length} scadute` : 'attività aperte'} tono={attivitaScadute.length ? 'urgente' : 'chiaro'} icona={<ListChecks className="size-5" aria-hidden />} /></Link>
       </div>
+
+      <AvvisiCarta />
 
       <Adesso eventi={tutti} />
 

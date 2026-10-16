@@ -1,3 +1,4 @@
+import { SchedaCarta } from '@/modules/carta/components/Carta'
 import { useEffect, useState } from 'react'
 import { LogOut } from 'lucide-react'
 import { useAuth, useProfilo } from '@/modules/auth/AuthProvider'
@@ -45,6 +46,8 @@ export function ProfiloOperatore() {
           <p className="text-sm text-tenue truncate">{sessione?.user.email}</p>
         </div>
       </div>
+
+      <SchedaCarta operatore={profilo.id} modo="operatore" />
 
       <Card className="p-4">
         <form onSubmit={salva} className="flex flex-col gap-4">

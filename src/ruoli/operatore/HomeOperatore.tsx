@@ -1,6 +1,7 @@
+import { useScortaOperatore } from '@/modules/carta/api'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { AlertTriangle, ArrowRight } from 'lucide-react'
+import { AlertTriangle, ArrowRight, Printer } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { Avatar } from '@/shared/ui/Avatar'
 import { Campanella } from '@/modules/comunicazione/components/Campanella'
@@ -39,6 +40,8 @@ export function HomeOperatore() {
         </Link>
         </div>
       </header>
+
+      <AvvisoCartaOperatore id={profilo.id} />
 
       {eventi.isPending ? <Caricamento /> : eventi.error ? <Errore errore={eventi.error} /> : prossimo ? (
         <ProssimoEvento evento={prossimo} />
@@ -191,5 +194,20 @@ function MieAttivita({ operatoreId }: { operatoreId: string }) {
       </div>
       {aperte.map((a) => <SchedaAttivita key={a.id} a={a} compatta />)}
     </section>
+  )
+}
+
+/** Avviso rosso in home quando la carta sta finendo */
+function AvvisoCartaOperatore({ id }: { id: string }) {
+  const { data } = useScortaOperatore(id)
+  if (!data || data.livello === 'ok') return null
+  return (
+    <Link to="/operatore/profilo" className="rounded-2xl bg-[#C62828] text-white p-4 flex items-center gap-3 active:scale-[0.99] transition">
+      <Printer className="size-6 shrink-0" aria-hidden />
+      <span className="flex-1">
+        <strong className="block">{data.livello === 'finita' ? 'Carta finita' : 'Carta in esaurimento'}</strong>
+        <span className="text-sm opacity-90">Ti restano {data.disponibili} stampe. Il project è già stato avvisato.</span>
+      </span>
+    </Link>
   )
 }

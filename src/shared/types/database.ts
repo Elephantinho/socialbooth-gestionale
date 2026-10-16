@@ -15,6 +15,17 @@ export type Database = {
         Update: { chiave?: string; valore?: number | null; descrizione?: string | null }
         Relationships: []
       }
+      movimenti_carta: {
+        Row: {
+          id: string; operatore_id: string; tipo: 'ricarica' | 'consumo' | 'correzione'; stampe: number
+          evento_id: string | null; note: string | null; fatto_da: string | null; creato_il: string
+        }
+        Insert: never
+        Update: never
+        Relationships: [
+          { foreignKeyName: 'movimenti_carta_evento_id_fkey'; columns: ['evento_id']; isOneToOne: false; referencedRelation: 'eventi'; referencedColumns: ['id'] },
+        ]
+      }
       notifiche: {
         Row: { id: string; utente_id: string; titolo: string; testo: string | null; link: string | null; letta: boolean; creata_il: string }
         Insert: { id?: string; utente_id: string; titolo: string; testo?: string | null; link?: string | null; letta?: boolean; creata_il?: string }
@@ -214,12 +225,12 @@ export type Database = {
         Row: {
           attivo: boolean; creato_il: string; id: string; magazzino_id: string | null; nome: string
           ruolo: Database['public']['Enums']['ruolo']; tariffa_oraria: number | null; telefono: string | null
-          cognome: string; foto: string | null
+          cognome: string; foto: string | null; carta_disponibile: number
         }
         Insert: {
           attivo?: boolean; creato_il?: string; id: string; magazzino_id?: string | null; nome?: string
           ruolo?: Database['public']['Enums']['ruolo']; tariffa_oraria?: number | null; telefono?: string | null
-          cognome?: string; foto?: string | null
+          cognome?: string; foto?: string | null; carta_disponibile?: number
         }
         Update: Partial<Database['public']['Tables']['profili']['Insert']>
         Relationships: [
@@ -294,6 +305,8 @@ export type Database = {
       gestisco_evento: { Args: { p_evento: string }; Returns: boolean }
       costo_per_stampa: { Args: never; Returns: number }
       media_stampe_per_evento: { Args: never; Returns: number }
+      invia_ricarica_carta: { Args: { p_operatore: string; p_stampe: number; p_note?: string }; Returns: undefined }
+      segnala_carta: { Args: { p_stampe: number; p_operatore?: string }; Returns: undefined }
       registra_tappa: { Args: { p_evento: string; p_tappa: string; p_lat?: number; p_lng?: number }; Returns: undefined }
       lavoro_evento: { Args: { p_evento: string }; Returns: boolean }
     }

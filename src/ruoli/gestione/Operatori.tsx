@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useScorteCarta } from '@/modules/carta/api'
+import { BadgeCarta } from '@/modules/carta/components/Carta'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Building2, Check, Search, Sparkles } from 'lucide-react'
@@ -111,6 +113,7 @@ function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
         <p className={o.magazzino ? 'text-sm font-semibold inline-flex items-center gap-1.5' : 'text-sm font-semibold text-urgente-testo inline-flex items-center gap-1.5'}>
           <Building2 className="size-4 shrink-0" aria-hidden /> <span className="truncate">{o.magazzino?.nome ?? 'Nessun magazzino'}</span>
         </p>
+        {o.attivo && <CartaOperatore id={o.id} />}
         <div className="flex flex-wrap gap-1.5">
           {o.zone.map((z) => <span key={z.regione} className="text-[11px] font-bold bg-sfondo border border-bordo px-2 py-0.5 rounded-full">{z.regione}</span>)}
         </div>
@@ -123,6 +126,12 @@ function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
       </Card>
     </motion.div>
   )
+}
+
+/** Badge carta: rossa se sta finendo (i dati arrivano da una sola richiesta condivisa) */
+function CartaOperatore({ id }: { id: string }) {
+  const scorta = useScorteCarta().data?.find((s) => s.id === id)
+  return scorta ? <div><BadgeCarta stato={scorta} /></div> : null
 }
 
 /** Modifica dei dati di un operatore (solo admin) */

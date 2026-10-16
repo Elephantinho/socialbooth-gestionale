@@ -142,3 +142,36 @@ export function useEconomiaPeriodo(mesi = 6) {
     },
   })
 }
+
+/** Eventi da oggi ai prossimi N mesi (inclusi quelli appena inseriti), per la previsione dei costi */
+export function useEconomiaFutura(mesi = 3) {
+  return useQuery({
+    queryKey: ['eventi', 'economia-futura', mesi],
+    queryFn: async () => {
+      const oggi = new Date(); oggi.setHours(0, 0, 0, 0)
+      const fine = new Date(oggi.getFullYear(), oggi.getMonth() + mesi, 1)
+      const [eventi, operatori, costoStampa, media] = await Promise.all([
+        supabase.from('eventi')
+          .select(`id, regione, citta, stato, allestimento_il, smontaggio_il, viaggio_minuti, prezzo_cliente, fattura_importo,
+            tipo_booth:tipi_booth(nome), cliente:clienti(id, nome),
+            operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto, tariffa_oraria),
+            ore:ore_lavorate(compenso, stato, check_out_il, minuti_totali),
+            costi:costi_evento(fase, categoria, importo, stato, pagato_con)`)
+          .not('stato', 'in', '(annullato,completato)')
+          .gte('smontaggio_il', oggi.toISOString())
+          .lt('allestimento_il', fine.toISOString())
+          .order('allestimento_il'),
+        supabase.from('profili').select('tariffa_oraria').eq('ruolo', 'operatore').eq('attivo', true).not('tariffa_oraria', 'is', null),
+        supabase.rpc('costo_per_stampa'),
+        supabase.rpc('media_stampe_per_evento'),
+      ])
+      const tariffe = ok(operatori).map((o) => Number(o.tariffa_oraria))
+      return {
+        eventi: ok(eventi),
+        tariffaMedia: tariffe.length ? tariffe.reduce((a, b) => a + b, 0) / tariffe.length : null,
+        costoStampa: Number(costoStampa.data ?? 0),
+        mediaStampe: media.data ? Number(media.data) : null,
+      }
+    },
+  })
+}

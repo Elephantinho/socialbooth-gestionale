@@ -1,3 +1,4 @@
+import { SchedaCarta } from '@/modules/carta/components/Carta'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, Building2, CalendarCheck, Archive, Pencil, Phone, MessageCircle, TrendingUp, Wallet } from 'lucide-react'
@@ -107,6 +108,8 @@ export function DettaglioOperatore() {
         <Numero valore={euro(compensoTotale)} etichetta="compensi totali" tono="scuro" icona={<Wallet className="size-5" aria-hidden />} />
         <Numero valore={euro(margineTotale)} etichetta="margine generato" tono={margineTotale < 0 ? 'urgente' : 'chiaro'} icona={<TrendingUp className="size-5" aria-hidden />} />
       </div>
+
+      {o.ruolo === 'operatore' && <SchedaCarta operatore={o.id} modo="gestione" />}
 
       <TotaliPeriodo titolo="Ore e compensi per periodo" righe={tutti.flatMap(({ e }) => {
         const o = e.ore.find((x) => x.operatore_id === op.data.id && x.check_out_il && x.stato !== 'respinto')
