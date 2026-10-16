@@ -3,6 +3,7 @@ import { distanza } from '@/modules/luogo/api'
 import { AnimatePresence } from 'framer-motion'
 import { Car, Check, Flag, Home, MapPin, Receipt } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
+import { useAggiungiCosto } from '@/modules/costi/api'
 import { useRegistraTappa, useTappe, type Tappa } from '@/modules/eventi/api'
 import type { EventoDettaglio } from '@/modules/eventi/types'
 import { durata, ora } from '@/shared/lib/formato'
@@ -24,6 +25,9 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
   const { data: t } = useTappe(e.id, profilo.id)
   const registra = useRegistraTappa()
   const [manuale, setManuale] = useState(false)
+  const [chiediStampe, setChiediStampe] = useState(false)
+  const [stampe, setStampe] = useState('')
+  const aggiungiCosto = useAggiungiCosto()
   const [spese, setSpese] = useState(false)
 
   const passi = [
@@ -75,7 +79,26 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
     } else if (!t?.check_in_il) {
       azione = <Pulsante taglia="xl" pieno icona={<MapPin className="size-5" aria-hidden />} caricamento={registra.isPending} onClick={() => vai('arrivo')}>Sono arrivato in location</Pulsante>
     } else if (!t?.fine_il) {
-      azione = <Pulsante taglia="xl" pieno variante="scuro" icona={<Flag className="size-5" aria-hidden />} caricamento={registra.isPending} onClick={() => vai('fine')}>Ho finito e smontato</Pulsante>
+      azione = chiediStampe ? (
+        <form className="flex flex-col gap-2" onSubmit={(ev) => {
+          ev.preventDefault()
+          const n = Number(stampe)
+          vai('fine')
+          if (n > 0) aggiungiCosto.mutate({ evento_id: e.id, fase: 'finale', categoria: 'carta_stampe', quantita: n, costo_unitario: 0,
+            descrizione: 'Stampe effettuate', operatore_id: profilo.id, pagato_con: 'azienda', stato: 'inviato' })
+          setChiediStampe(false)
+        }}>
+          <label className="text-sm font-bold" htmlFor="stampe-fatte">Quante stampe hai fatto? <span className="text-tenue font-semibold">(dal contatore della stampante)</span></label>
+          <div className="flex gap-2">
+            <input id="stampe-fatte" type="number" min={0} inputMode="numeric" autoFocus value={stampe} onChange={(ev) => setStampe(ev.target.value)}
+              placeholder="Es. 350" className="h-14 flex-1 min-w-0 rounded-2xl border border-bordo-forte bg-superficie px-4 text-lg font-bold" />
+            <Pulsante type="submit" taglia="xl" variante="scuro" caricamento={registra.isPending}>Conferma</Pulsante>
+          </div>
+          <button type="button" onClick={() => { vai('fine'); setChiediStampe(false) }} className="text-sm font-bold text-tenue py-1 cursor-pointer">Salta</button>
+        </form>
+      ) : (
+        <Pulsante taglia="xl" pieno variante="scuro" icona={<Flag className="size-5" aria-hidden />} onClick={() => setChiediStampe(true)}>Ho finito e smontato</Pulsante>
+      )
     } else {
       azione = (
         <>

@@ -281,3 +281,14 @@ export function useSalvaImpostazione() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['impostazioni'] }),
   })
 }
+
+/** Costo per stampa calcolato e media di stampe per evento */
+export function useStatisticheStampe() {
+  return useQuery({
+    queryKey: ['impostazioni', 'stampe'],
+    queryFn: async () => ({
+      costo: ok(await supabase.rpc('costo_per_stampa')) as number | null,
+      media: ok(await supabase.rpc('media_stampe_per_evento')) as number | null,
+    }),
+  })
+}

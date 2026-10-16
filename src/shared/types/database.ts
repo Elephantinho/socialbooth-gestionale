@@ -100,12 +100,14 @@ export type Database = {
           descrizione: string | null; quantita: number; costo_unitario: number; importo: number | null
           pagato_con: Database['public']['Enums']['pagamento']; carta_id: string | null; operatore_id: string | null
           scontrino: string | null; stato: Database['public']['Enums']['stato_approvazione']; creato_da: string | null; creato_il: string
+          stampe: number | null
         }
         Insert: {
           id?: string; evento_id: string; fase: Database['public']['Enums']['fase_costo']; categoria: Database['public']['Enums']['categoria_costo']
           descrizione?: string | null; quantita?: number; costo_unitario: number; importo?: number | null
           pagato_con?: Database['public']['Enums']['pagamento']; carta_id?: string | null; operatore_id?: string | null
           scontrino?: string | null; stato?: Database['public']['Enums']['stato_approvazione']; creato_da?: string | null; creato_il?: string
+          stampe?: number | null
         }
         Update: Partial<Database['public']['Tables']['costi_evento']['Insert']>
         Relationships: [
@@ -290,6 +292,8 @@ export type Database = {
       proponi_operatore: { Args: { p_evento: string; p_operatore: string }; Returns: undefined }
       rispondi_proposta: { Args: { p_accetta: boolean; p_proposta: string }; Returns: undefined }
       gestisco_evento: { Args: { p_evento: string }; Returns: boolean }
+      costo_per_stampa: { Args: never; Returns: number }
+      media_stampe_per_evento: { Args: never; Returns: number }
       registra_tappa: { Args: { p_evento: string; p_tappa: string; p_lat?: number; p_lng?: number }; Returns: undefined }
       lavoro_evento: { Args: { p_evento: string }; Returns: boolean }
     }

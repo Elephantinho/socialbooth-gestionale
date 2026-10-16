@@ -182,7 +182,7 @@ export function useEventiGestione() {
     queryKey: ['eventi', 'gestione'],
     queryFn: async () =>
       ok(await supabase.from('eventi')
-        .select('*, tipo_booth:tipi_booth(nome), cliente:clienti(nome), operatore:profili!eventi_operatore_id_fkey(nome, cognome, foto)')
+        .select('*, tipo_booth:tipi_booth(nome), cliente:clienti(nome), operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto), ore:ore_lavorate(partenza_il, check_in_il, fine_il, rientro_il)')
         .order('allestimento_il')),
   })
 }
