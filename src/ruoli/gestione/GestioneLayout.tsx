@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { BarChart3, Building2, CalendarDays, Camera, CreditCard, LayoutGrid, LogOut, MapPin, Menu, Users, X } from 'lucide-react'
+import { BarChart3, Briefcase, Building2, CalendarDays, CalendarRange, Camera, CreditCard, LayoutGrid, ListChecks, LogOut, MapPin, Menu, ShieldCheck, Users, X } from 'lucide-react'
 import { useAuth, useProfilo } from '@/modules/auth/AuthProvider'
 import { useTempoReale } from '@/modules/eventi/api'
 import { nomeCompleto } from '@/shared/lib/formato'
@@ -16,7 +16,10 @@ const gruppi = [
     voci: [
       { a: '/gestione/panoramica', etichetta: 'Panoramica', Icona: LayoutGrid },
       { a: '/gestione', etichetta: 'Eventi', Icona: CalendarDays },
+      { a: '/gestione/calendario', etichetta: 'Calendario', Icona: CalendarRange },
+      { a: '/gestione/attivita', etichetta: 'Attività', Icona: ListChecks },
       { a: '/gestione/operatori', etichetta: 'Operatori', Icona: Users },
+      { a: '/gestione/clienti', etichetta: 'Clienti', Icona: Briefcase },
     ],
   },
   {
@@ -31,6 +34,7 @@ const gruppi = [
     voci: [
       { a: '/gestione/report', etichetta: 'Costi e compensi', Icona: BarChart3 },
       { a: '/gestione/carte', etichetta: 'Carte aziendali', Icona: CreditCard },
+      { a: '/gestione/utenti', etichetta: 'Utenti e ruoli', Icona: ShieldCheck },
     ],
   },
 ]

@@ -4,6 +4,8 @@ import { AlertTriangle, ArrowRight } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { Avatar } from '@/shared/ui/Avatar'
 import { Campanella } from '@/modules/comunicazione/components/Campanella'
+import { useAttivita } from '@/modules/attivita/api'
+import { SchedaAttivita } from '@/modules/attivita/components/SchedaAttivita'
 import { useEventiOperatore, useMeseOperatore, useProposteInAttesa, useRispondiProposta } from '@/modules/eventi/api'
 import type { EventoDettaglio, Proposta } from '@/modules/eventi/types'
 import { dataBreve, euro, nomeCompleto, ora, traQuanto } from '@/shared/lib/formato'
@@ -53,6 +55,8 @@ export function HomeOperatore() {
           {proposte.data.map((p) => <PropostaCard key={p.id} proposta={p} />)}
         </section>
       )}
+
+      <MieAttivita operatoreId={profilo.id} />
 
       {altri.length > 0 && (
         <section className="flex flex-col gap-2.5">
@@ -171,5 +175,21 @@ function Statistica({ valore, etichetta, evidenza }: { valore: string; etichetta
       <p className="font-display text-[22px] font-bold leading-tight truncate">{valore}</p>
       <p className={evidenza ? 'text-xs font-semibold' : 'text-xs font-semibold text-tenue'}>{etichetta}</p>
     </Card>
+  )
+}
+
+/** Attività assegnate all'operatore ancora da fare */
+function MieAttivita({ operatoreId }: { operatoreId: string }) {
+  const { data } = useAttivita({ assegnatoA: operatoreId })
+  const aperte = (data ?? []).filter((a) => a.stato !== 'fatto')
+  if (!aperte.length) return null
+  return (
+    <section className="flex flex-col gap-2.5">
+      <div className="flex items-center gap-2">
+        <TitoloSezione>Da fare</TitoloSezione>
+        <span className="rounded-full bg-inchiostro px-2 text-xs font-bold text-white">{aperte.length}</span>
+      </div>
+      {aperte.map((a) => <SchedaAttivita key={a.id} a={a} compatta />)}
+    </section>
   )
 }

@@ -216,3 +216,51 @@ export function useEventiDiOperatore(id: string) {
         .order('allestimento_il', { ascending: false })),
   })
 }
+
+/* ---------- Utenti (tutti i ruoli) ---------- */
+export function useUtenti() {
+  return useQuery({
+    queryKey: ['utenti'],
+    queryFn: async () => ok(await supabase.from('profili').select('id, nome, cognome, foto, ruolo, attivo, telefono, creato_il').order('nome')),
+  })
+}
+
+export function useCambiaRuolo() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (v: { id: string; ruolo: Enum<'ruolo'>; attivo?: boolean }) =>
+      ok(await supabase.from('profili').update({ ruolo: v.ruolo, ...(v.attivo != null ? { attivo: v.attivo } : {}) }).eq('id', v.id)),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['utenti'] })
+      qc.invalidateQueries({ queryKey: ['operatori'] })
+    },
+  })
+}
+
+/* ---------- Clienti con i loro numeri ---------- */
+export function useClientiConEventi() {
+  return useQuery({
+    queryKey: ['clienti', 'completo'],
+    queryFn: async () =>
+      ok(await supabase.from('clienti')
+        .select('*, eventi(id, stato, allestimento_il, prezzo_cliente, fattura_importo, fattura_pagata)')
+        .order('nome')),
+  })
+}
+
+export function useSalvaCliente() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (c: Inserimento<'clienti'>) =>
+      c.id ? ok(await supabase.from('clienti').update(c).eq('id', c.id)) : ok(await supabase.from('clienti').insert(c)),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['clienti'] }),
+  })
+}
+
+export function useEliminaCliente() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => ok(await supabase.from('clienti').delete().eq('id', id)),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['clienti'] }),
+  })
+}

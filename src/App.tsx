@@ -22,6 +22,10 @@ import { RegistratiPage } from '@/modules/auth/RegistratiPage'
 import { InventarioMagazzino } from '@/ruoli/gestione/InventarioMagazzino'
 import { CarteAziendali } from '@/ruoli/gestione/CarteAziendali'
 import { DettaglioOperatore } from '@/ruoli/gestione/DettaglioOperatore'
+import { Attivita } from '@/ruoli/gestione/Attivita'
+import { Calendario } from '@/ruoli/gestione/Calendario'
+import { Clienti } from '@/ruoli/gestione/Clienti'
+import { Utenti } from '@/ruoli/gestione/Utenti'
 
 // Mappa delle pagine.
 // /operatore/*  → app telefono (operatore)
@@ -51,6 +55,10 @@ export function App() {
         <Route path="magazzini" element={<Magazzini />} />
         <Route path="magazzini/:id" element={<InventarioMagazzino />} />
         <Route path="carte" element={<CarteAziendali />} />
+        <Route path="attivita" element={<Attivita />} />
+        <Route path="calendario" element={<Calendario />} />
+        <Route path="clienti" element={<Clienti />} />
+        <Route path="utenti" element={<Utenti />} />
         <Route path="report" element={<ReportOre />} />
       </Route>
 

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, Ban, Check, Pencil, Phone, RotateCcw, UserRound, X } from 'lucide-react'
+import { ArrowLeft, Ban, Check, Copy, Pencil, Phone, RotateCcw, UserRound, X } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { useAggiornaEvento, useApprovaOre, useEventoGestione } from '@/modules/eventi/api'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
@@ -12,6 +12,7 @@ import { CostiEvento } from '@/modules/costi/components/CostiEvento'
 import { InfoLuogo } from '@/modules/luogo/components/InfoLuogo'
 import { AllegatiEvento } from '@/modules/comunicazione/components/AllegatiEvento'
 import { ChatEvento } from '@/modules/comunicazione/components/ChatEvento'
+import { AttivitaEvento } from '@/modules/attivita/components/AttivitaEvento'
 import { AttrezzaturaEvento } from '@/modules/attrezzatura/components/AttrezzaturaEvento'
 import { dataLunga, durata, euro, nomeCompleto, ora } from '@/shared/lib/formato'
 import { Avatar } from '@/shared/ui/Avatar'
@@ -61,6 +62,9 @@ export function DettaglioEvento() {
             </Pulsante>
           ) : !chiuso && (
             <>
+              <Link to={`/gestione/eventi/nuovo?da=${e.id}`} className="h-11 px-4 rounded-xl border border-bordo-forte bg-superficie font-bold text-sm inline-flex items-center gap-2 hover:bg-sfondo">
+                <Copy className="size-4" aria-hidden /> Duplica
+              </Link>
               <Pulsante variante="secondario" icona={<Ban className="size-4" aria-hidden />} onClick={annulla} disabled={aggiorna.isPending}>
                 Annulla evento
               </Pulsante>
@@ -97,6 +101,7 @@ export function DettaglioEvento() {
             <InfoLuogo indirizzo={e.indirizzo} citta={e.citta} lat={e.lat} lng={e.lng} data={e.allestimento_il}
               magazzino={e.magazzino ? { nome: e.magazzino.nome, lat: e.magazzino.lat, lng: e.magazzino.lng } : null} ztlDichiarata={e.ztl} compatto />
             <AttrezzaturaEvento eventoId={e.id} magazzinoId={e.magazzino_id} modificabile={!annullato && !chiuso} />
+            <AttivitaEvento eventoId={e.id} />
             <AllegatiEvento eventoId={e.id} />
             <Storico e={e} />
           </aside>

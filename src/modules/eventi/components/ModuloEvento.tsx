@@ -45,6 +45,8 @@ function daEvento(e: EventoGestioneCompleto): Valori {
 
 type Props = {
   evento?: EventoGestioneCompleto
+  /** Evento da copiare (duplica): stessi dati, data da scegliere */
+  modello?: EventoGestioneCompleto
   /** Riceve i dati pronti per il database; restituisce una Promise */
   onSalva: (dati: Omit<Inserimento<'eventi'>, 'project_id'>) => Promise<unknown>
   testoPulsante: string
@@ -52,9 +54,9 @@ type Props = {
 }
 
 /** Modulo dell'evento, usato sia per creare sia per modificare. */
-export function ModuloEvento({ evento, onSalva, testoPulsante, idModulo = 'modulo-evento' }: Props) {
+export function ModuloEvento({ evento, modello, onSalva, testoPulsante, idModulo = 'modulo-evento' }: Props) {
   const profilo = useProfilo()
-  const [m, setM] = useState<Valori>(() => (evento ? daEvento(evento) : vuoto))
+  const [m, setM] = useState<Valori>(() => (evento ? daEvento(evento) : modello ? { ...daEvento(modello), data: '' } : vuoto))
   const imposta = <K extends keyof Valori>(k: K, v: Valori[K]) => setM((p) => ({ ...p, [k]: v }))
   const testo = (k: keyof Valori) => ({ value: m[k] as string, onChange: (e: { target: { value: string } }) => imposta(k, e.target.value as never) })
 

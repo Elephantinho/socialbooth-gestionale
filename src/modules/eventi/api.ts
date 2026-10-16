@@ -158,6 +158,7 @@ export function useEventiGestione() {
 export function useEventoGestione(id: string) {
   return useQuery({
     queryKey: ['eventi', 'gestione', id],
+    enabled: !!id,
     queryFn: async () =>
       ok(await supabase.from('eventi')
         .select(`*, tipo_booth:tipi_booth(nome), cliente:clienti(nome), magazzino:magazzini(nome, lat, lng),
