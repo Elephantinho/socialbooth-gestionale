@@ -16,7 +16,7 @@ export function useTipiBooth() {
   return useQuery({
     queryKey: ['tipi_booth'],
     staleTime: Infinity,
-    queryFn: async () => ok(await supabase.from('tipi_booth').select('*').order('nome')),
+    queryFn: async () => ok(await supabase.from('tipi_booth').select('*').order('ordine').order('nome')),
   })
 }
 

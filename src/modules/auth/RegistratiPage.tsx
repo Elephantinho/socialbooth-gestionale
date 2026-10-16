@@ -1,6 +1,6 @@
+import { PaginaAccesso } from './PaginaAccesso'
 import { useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { ArrowLeft, MailCheck } from 'lucide-react'
 import { supabase } from '@/shared/lib/supabase'
 import { Campo } from '@/shared/ui/Campo'
@@ -79,11 +79,5 @@ export function RegistratiPage() {
 }
 
 function Centro({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="min-h-dvh flex justify-center px-5 py-10">
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-sm flex flex-col gap-6">
-        {children}
-      </motion.div>
-    </div>
-  )
+  return <PaginaAccesso>{children}</PaginaAccesso>
 }

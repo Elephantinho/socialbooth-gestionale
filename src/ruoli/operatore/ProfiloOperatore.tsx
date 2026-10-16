@@ -1,3 +1,5 @@
+import { Logo } from '@/shared/ui/Logo'
+import { BRAND } from '@/shared/brand'
 import { SchedaCarta } from '@/modules/carta/components/Carta'
 import { useEffect, useState } from 'react'
 import { LogOut } from 'lucide-react'
@@ -68,6 +70,10 @@ export function ProfiloOperatore() {
       </Card>
 
       <Pulsante variante="secondario" taglia="lg" pieno icona={<LogOut className="size-4" aria-hidden />} onClick={esci}>Esci</Pulsante>
+      <div className="flex flex-col items-center gap-1 pt-4 opacity-80">
+        <Logo taglia="sm" />
+        <p className="text-[11px] text-tenue">{BRAND.payoff}</p>
+      </div>
     </div>
   )
 }

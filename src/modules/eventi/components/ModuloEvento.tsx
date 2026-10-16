@@ -151,7 +151,11 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante, idModulo
               {m.clienteId === 'nuovo' && <Campo etichetta="Nome nuovo cliente" required {...testo('nuovoCliente')} />}
               <Selezione etichetta="Tipo di booth" required {...testo('tipoBoothId')}>
                 <option value="">Scegli…</option>
-                {tipi.data?.map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}
+                {[...new Set(tipi.data?.map((t) => t.linea))].map((linea) => (
+                  <optgroup key={linea} label={linea}>
+                    {tipi.data?.filter((t) => t.linea === linea).map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}
+                  </optgroup>
+                ))}
               </Selezione>
             </Griglia>
           </Sezione>

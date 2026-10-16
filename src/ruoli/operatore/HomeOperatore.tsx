@@ -1,3 +1,4 @@
+import { Logo } from '@/shared/ui/Logo'
 import { useScortaOperatore } from '@/modules/carta/api'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
@@ -28,6 +29,7 @@ export function HomeOperatore() {
     <div className="flex flex-col gap-6 px-5 pt-sicura pb-6">
       <header className="flex items-start justify-between pt-2">
         <div>
+          <Logo taglia="sm" className="mb-3" />
           <p className="text-[13px] font-semibold text-tenue first-letter:uppercase">{oggi}</p>
           <h1 className="font-display text-[30px] font-bold tracking-tight leading-tight">
             Ciao, {profilo.nome.split(' ')[0] || 'operatore'}

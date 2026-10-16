@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Archive, BarChart3, Briefcase, Building2, CalendarDays, CalendarRange, Camera, CreditCard, LayoutGrid, ListChecks, LogOut, Map as MappaIcona, MapPin, Menu, Settings, ShieldCheck, TrendingUp, Users, X } from 'lucide-react'
+import { Archive, BarChart3, Briefcase, Building2, CalendarDays, CalendarRange, CreditCard, LayoutGrid, ListChecks, LogOut, Map as MappaIcona, MapPin, Menu, Settings, ShieldCheck, TrendingUp, Users, X } from 'lucide-react'
 import { useAuth, useProfilo } from '@/modules/auth/AuthProvider'
 import { etichettaRuolo, usePuo, type Permesso } from '@/modules/auth/permessi'
 import { useTempoReale } from '@/modules/eventi/api'
@@ -9,6 +9,7 @@ import { nomeCompleto } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
 import { Caricamento } from '@/shared/ui/Stati'
 import { Avatar } from '@/shared/ui/Avatar'
+import { Logo } from '@/shared/ui/Logo'
 import { Campanella } from '@/modules/comunicazione/components/Campanella'
 
 // Pannello web per project e admin.
@@ -112,14 +113,7 @@ export function GestioneLayout() {
 }
 
 function Marchio() {
-  return (
-    <div className="flex items-center gap-2.5">
-      <div className="size-9 rounded-[10px] bg-accento flex items-center justify-center">
-        <Camera className="size-[18px]" aria-hidden />
-      </div>
-      <span className="font-display font-bold text-lg">Social Booth</span>
-    </div>
-  )
+  return <Logo chiaro taglia="sm" sottotitolo="Gestionale" />
 }
 
 function MenuLaterale({ onChiudi }: { onChiudi?: () => void }) {

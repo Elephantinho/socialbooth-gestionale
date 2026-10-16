@@ -268,9 +268,9 @@ export type Database = {
         ]
       }
       tipi_booth: {
-        Row: { id: string; nome: string }
-        Insert: { id?: string; nome: string }
-        Update: { id?: string; nome?: string }
+        Row: { id: string; nome: string; linea: string; ordine: number }
+        Insert: { id?: string; nome: string; linea?: string; ordine?: number }
+        Update: { id?: string; nome?: string; linea?: string; ordine?: number }
         Relationships: []
       }
       zone_operatore: {

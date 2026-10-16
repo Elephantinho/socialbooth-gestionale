@@ -15,6 +15,9 @@
   --color-bordo: #E3E1DB;
   --color-bordo-forte: #D5D3CC;
 
+  /* Colori del marchio Socialbooth: cambia qui per aggiornare logo e dettagli */
+  --color-marchio: #0E6B62;
+
   --color-accento: #0E6B62;        /* azioni principali */
   --color-accento-scuro: #0A524B;
   --color-accento-tenue: #DCEFEC;
