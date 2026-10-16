@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { distanza } from '@/modules/luogo/api'
 import { AnimatePresence } from 'framer-motion'
 import { Car, Check, Flag, Home, MapPin, Receipt } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
@@ -33,6 +34,31 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
   ]
   const chiuso = e.stato === 'completato' || !!t?.check_out_il
   const vai = (tappa: Tappa) => registra.mutate({ eventoId: e.id, tappa })
+
+  // Riconoscimento automatico col GPS (con l'app aperta): entro 150 m dalla location → arrivo,
+  // dopo la fine lavoro entro 150 m dal magazzino → rientro
+  const [auto, setAuto] = useState<string>()
+  const inviata = useRef<string>(undefined)
+  const prossima: Tappa | null = chiuso ? null
+    : t?.partenza_il && !t?.check_in_il ? 'arrivo'
+    : t?.fine_il && !t?.rientro_il ? 'rientro'
+    : null
+  useEffect(() => {
+    if (!prossima || !navigator.geolocation) return
+    const meta = prossima === 'arrivo'
+      ? (e.lat != null && e.lng != null ? { lat: e.lat, lng: e.lng } : null)
+      : (e.magazzino?.lat != null && e.magazzino?.lng != null ? { lat: e.magazzino.lat, lng: e.magazzino.lng } : null)
+    if (!meta) return
+    const id = navigator.geolocation.watchPosition((pos) => {
+      const d = distanza({ lat: pos.coords.latitude, lng: pos.coords.longitude }, meta)
+      if (d <= 150 && inviata.current !== prossima) {
+        inviata.current = prossima
+        setAuto(prossima === 'arrivo' ? 'Arrivo registrato in automatico' : 'Rientro registrato in automatico')
+        registra.mutate({ eventoId: e.id, tappa: prossima })
+      }
+    }, undefined, { enableHighAccuracy: true, maximumAge: 30_000 })
+    return () => navigator.geolocation.clearWatch(id)
+  }, [prossima, e.id, e.lat, e.lng, e.magazzino?.lat, e.magazzino?.lng]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Prossima azione
   let azione: React.ReactNode = null
@@ -112,6 +138,8 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
 
       <div className="sticky bottom-0 mt-auto bg-sfondo/95 backdrop-blur border-t border-bordo px-5 pt-3.5 pb-sicura flex flex-col gap-1.5 -mx-5">
         {registra.error && <Errore errore={registra.error} />}
+        {auto && <p className="text-center text-sm font-bold text-accento" role="status">{auto}</p>}
+        {prossima && !auto && <p className="text-center text-xs text-tenue">Con l'app aperta, {prossima === 'arrivo' ? "l'arrivo" : 'il rientro'} si registra da solo quando sei sul posto</p>}
         {azione}
         <div className="flex justify-center gap-4">
           <button onClick={() => setSpese(true)} className="text-sm font-bold text-accento py-1 inline-flex items-center gap-1.5 cursor-pointer">

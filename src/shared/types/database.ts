@@ -9,6 +9,12 @@ export type Database = {
   __InternalSupabase: { PostgrestVersion: '14.18' }
   public: {
     Tables: {
+      impostazioni: {
+        Row: { chiave: string; valore: number | null; descrizione: string | null }
+        Insert: { chiave: string; valore?: number | null; descrizione?: string | null }
+        Update: { chiave?: string; valore?: number | null; descrizione?: string | null }
+        Relationships: []
+      }
       notifiche: {
         Row: { id: string; utente_id: string; titolo: string; testo: string | null; link: string | null; letta: boolean; creata_il: string }
         Insert: { id?: string; utente_id: string; titolo: string; testo?: string | null; link?: string | null; letta?: boolean; creata_il?: string }

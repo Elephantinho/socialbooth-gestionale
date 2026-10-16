@@ -32,6 +32,8 @@ export function ReportOre() {
   ).sort((a, b) => a.nome.localeCompare(b.nome))
 
   const daApprovare = righe.filter((r) => r.stato === 'inviato').length
+  const profilo = useProfilo()
+  const approvaTutte = useApprovaOre()
 
   function esportaCsv() {
     const intestazione = ['Operatore', 'Data', 'Evento', 'Città', 'Regione', 'Ore location', 'Ore viaggio', 'Ore totali', 'Tariffa', 'Compenso', 'Rimborsi', 'Stato']
@@ -74,7 +76,15 @@ export function ReportOre() {
       <TabellaRegioni mese={mese} />
 
       {daApprovare > 0 && (
-        <Card tono="avviso" className="p-4 font-bold text-avviso-titolo">{daApprovare} chiusure evento da approvare</Card>
+        <Card tono="avviso" className="p-4 flex flex-wrap items-center justify-between gap-3">
+          <span className="font-bold text-avviso-titolo">{daApprovare} chiusure evento da approvare</span>
+          <Pulsante variante="scuro" caricamento={approvaTutte.isPending} onClick={() => {
+            if (!confirm(`Approvare tutte le ${daApprovare} chiusure del mese, con le relative spese?`)) return
+            for (const r of righe.filter((x) => x.stato === 'inviato' && x.evento)) {
+              approvaTutte.mutate({ oreId: r.id, eventoId: r.evento!.id, approva: true, approvatoDa: profilo.id })
+            }
+          }}>Approva tutte</Pulsante>
+        </Card>
       )}
 
       {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : !perOperatore.length ? (

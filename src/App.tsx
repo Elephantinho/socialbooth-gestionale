@@ -26,6 +26,7 @@ import { Attivita } from '@/ruoli/gestione/Attivita'
 import { Calendario } from '@/ruoli/gestione/Calendario'
 import { Clienti } from '@/ruoli/gestione/Clienti'
 import { Utenti } from '@/ruoli/gestione/Utenti'
+import { Impostazioni } from '@/ruoli/gestione/Impostazioni'
 
 // Mappa delle pagine.
 // /operatore/*  → app telefono (operatore)
@@ -59,6 +60,7 @@ export function App() {
         <Route path="calendario" element={<Calendario />} />
         <Route path="clienti" element={<Clienti />} />
         <Route path="utenti" element={<Utenti />} />
+        <Route path="impostazioni" element={<Impostazioni />} />
         <Route path="report" element={<ReportOre />} />
       </Route>
 

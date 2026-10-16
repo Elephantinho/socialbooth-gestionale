@@ -121,3 +121,24 @@ export function useEconomiaMese(mese: string) {
     },
   })
 }
+
+/** Eventi degli ultimi N mesi (incluso il corrente) con tutto il necessario per l'analitica */
+export function useEconomiaPeriodo(mesi = 6) {
+  return useQuery({
+    queryKey: ['eventi', 'economia-periodo', mesi],
+    queryFn: async () => {
+      const oggi = new Date()
+      const inizio = new Date(oggi.getFullYear(), oggi.getMonth() - (mesi - 1), 1)
+      const fine = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 1)
+      return ok(await supabase.from('eventi')
+        .select(`id, regione, citta, stato, allestimento_il, smontaggio_il, viaggio_minuti, prezzo_cliente, fattura_importo, lat, lng,
+          tipo_booth:tipi_booth(nome), cliente:clienti(id, nome),
+          operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto, tariffa_oraria),
+          ore:ore_lavorate(compenso, stato, check_out_il, minuti_totali),
+          costi:costi_evento(fase, categoria, importo, stato, pagato_con)`)
+        .neq('stato', 'annullato')
+        .gte('allestimento_il', inizio.toISOString())
+        .lt('allestimento_il', fine.toISOString()))
+    },
+  })
+}

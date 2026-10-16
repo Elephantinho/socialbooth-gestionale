@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { BarChart3, Briefcase, Building2, CalendarDays, CalendarRange, Camera, CreditCard, LayoutGrid, ListChecks, LogOut, MapPin, Menu, ShieldCheck, Users, X } from 'lucide-react'
+import { BarChart3, Briefcase, Building2, CalendarDays, CalendarRange, Camera, CreditCard, LayoutGrid, ListChecks, LogOut, MapPin, Menu, Settings, ShieldCheck, Users, X } from 'lucide-react'
 import { useAuth, useProfilo } from '@/modules/auth/AuthProvider'
 import { useTempoReale } from '@/modules/eventi/api'
 import { nomeCompleto } from '@/shared/lib/formato'
@@ -35,6 +35,7 @@ const gruppi = [
       { a: '/gestione/report', etichetta: 'Costi e compensi', Icona: BarChart3 },
       { a: '/gestione/carte', etichetta: 'Carte aziendali', Icona: CreditCard },
       { a: '/gestione/utenti', etichetta: 'Utenti e ruoli', Icona: ShieldCheck },
+      { a: '/gestione/impostazioni', etichetta: 'Impostazioni', Icona: Settings },
     ],
   },
 ]

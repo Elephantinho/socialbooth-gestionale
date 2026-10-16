@@ -30,5 +30,5 @@ export function Protetto({ ruoli, children }: { ruoli: Enum<'ruolo'>[]; children
 }
 
 export function homePerRuolo(ruolo: Enum<'ruolo'>) {
-  return ruolo === 'operatore' ? '/operatore' : '/gestione'
+  return ruolo === 'operatore' ? '/operatore' : '/gestione/panoramica'
 }

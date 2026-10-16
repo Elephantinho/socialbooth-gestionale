@@ -5,6 +5,8 @@ import { dataBreve, durata, euro } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
 import { Card } from '@/shared/ui/Card'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
+import { COLORE_RICAVI } from '@/modules/costi/components/GraficoAndamento'
 
 export function OreOperatore() {
   const profilo = useProfilo()
@@ -26,6 +28,8 @@ export function OreOperatore() {
           Tariffa: <strong className="text-inchiostro">{profilo.tariffa_oraria != null ? `${euro(profilo.tariffa_oraria)}/h` : 'da impostare'}</strong> · viaggio incluso
         </p>
       </div>
+
+      {!!data?.length && <AndamentoCompensi righe={data} />}
 
       {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : mesi.length === 0 ? (
         <Card><Vuoto titolo="Nessuna ora registrata" testo="Quando chiudi un evento, le ore compaiono qui." /></Card>
@@ -63,5 +67,37 @@ export function OreOperatore() {
         )
       })}
     </div>
+  )
+}
+
+/** Compensi degli ultimi 6 mesi, una barra per mese */
+function AndamentoCompensi({ righe }: { righe: RigaOre[] }) {
+  const oggi = new Date()
+  const dati = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(oggi.getFullYear(), oggi.getMonth() - 5 + i, 1)
+    const k = d.toLocaleDateString('sv-SE').slice(0, 7)
+    const valore = righe
+      .filter((r) => r.stato !== 'respinto' && r.evento && new Date(r.evento.allestimento_il).toLocaleDateString('sv-SE').slice(0, 7) === k)
+      .reduce((s, r) => s + (r.compenso ?? 0), 0)
+    return { mese: d.toLocaleDateString('it-IT', { month: 'short' }).replace('.', ''), compenso: Math.round(valore) }
+  })
+  const totale = dati.reduce((s, d) => s + d.compenso, 0)
+  return (
+    <Card className="p-4 flex flex-col gap-2">
+      <div className="flex justify-between items-baseline">
+        <p className="font-bold">Compensi, ultimi 6 mesi</p>
+        <p className="font-display text-xl font-bold">{euro(totale)}</p>
+      </div>
+      <div className="h-36" role="img" aria-label="Compensi per mese">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={dati} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+            <XAxis dataKey="mese" tickLine={false} axisLine={false} tick={{ fill: '#5E5F66', fontSize: 12, fontWeight: 600 }} />
+            <Tooltip cursor={{ fill: 'rgba(21,22,26,0.05)' }} formatter={(v) => [euro(Number(v)), 'Compenso']}
+              contentStyle={{ borderRadius: 12, border: '1px solid #E3E1DB', fontWeight: 600 }} />
+            <Bar dataKey="compenso" fill={COLORE_RICAVI} radius={[4, 4, 0, 0]} maxBarSize={28} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </Card>
   )
 }
