@@ -13,7 +13,7 @@ const chiavi = {
   ore: ['ore'] as const,
 }
 
-const campiEvento = '*, tipo_booth:tipi_booth(nome), magazzino:magazzini(nome, indirizzo, citta)'
+const campiEvento = '*, tipo_booth:tipi_booth(nome), magazzino:magazzini(nome, indirizzo, citta, lat, lng)'
 
 /* ---------------- Lato operatore ---------------- */
 

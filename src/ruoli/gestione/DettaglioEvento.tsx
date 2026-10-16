@@ -9,6 +9,7 @@ import { ModuloEvento } from '@/modules/eventi/components/ModuloEvento'
 import type { EventoGestioneCompleto } from '@/modules/eventi/types'
 import { AssegnaOperatore } from '@/modules/assegnazione/AssegnaOperatore'
 import { CostiEvento } from '@/modules/costi/components/CostiEvento'
+import { InfoLuogo } from '@/modules/luogo/components/InfoLuogo'
 import { AttrezzaturaEvento } from '@/modules/attrezzatura/components/AttrezzaturaEvento'
 import { dataLunga, durata, euro, nomeCompleto, ora } from '@/shared/lib/formato'
 import { Avatar } from '@/shared/ui/Avatar'
@@ -90,6 +91,8 @@ export function DettaglioEvento() {
           </div>
           <aside className="flex-[1_1_320px] min-w-0 flex flex-col gap-4">
             <Operatore e={e} />
+            <InfoLuogo indirizzo={e.indirizzo} citta={e.citta} lat={e.lat} lng={e.lng} data={e.allestimento_il}
+              magazzino={e.magazzino ? { nome: e.magazzino.nome, lat: e.magazzino.lat, lng: e.magazzino.lng } : null} ztlDichiarata={e.ztl} compatto />
             <AttrezzaturaEvento eventoId={e.id} magazzinoId={e.magazzino_id} modificabile={!annullato && !chiuso} />
             <Storico e={e} />
           </aside>

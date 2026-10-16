@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
-import { AlertTriangle, ArrowLeft, Flag, MapPin, MessageCircle, Navigation, Phone } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Flag, MapPin, MessageCircle, Phone } from 'lucide-react'
 import { ChiudiEvento } from './ChiudiEvento'
+import { InfoLuogo } from '@/modules/luogo/components/InfoLuogo'
 import { useAttrezzaturaEvento } from '@/modules/attrezzatura/api'
 import { useCheckIn, useEvento } from '@/modules/eventi/api'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
@@ -32,7 +33,6 @@ export function SchedaEvento() {
 }
 
 function Contenuto({ e }: { e: EventoDettaglio }) {
-  const mappa = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${e.indirizzo}, ${e.citta}`)}`
   const numero = e.referente_telefono?.replace(/[^\d+]/g, '') ?? ''
 
   return (
@@ -46,21 +46,8 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
       <div className="flex flex-col gap-3.5 p-5">
         <Programma e={e} />
 
-        <Card className="overflow-hidden">
-          <div className="h-24 bg-[#E7EEEA] flex items-center justify-center">
-            <MapPin className="size-8 text-accento fill-accento/20" aria-hidden />
-          </div>
-          <div className="p-4 flex flex-col gap-3">
-            <div>
-              <p className="font-bold text-[16px]">{e.indirizzo}</p>
-              <p className="text-sm text-tenue">{e.citta}</p>
-            </div>
-            <a href={mappa} target="_blank" rel="noreferrer"
-              className="h-12 rounded-xl bg-inchiostro text-white font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition">
-              <Navigation className="size-[18px]" aria-hidden /> Naviga
-            </a>
-          </div>
-        </Card>
+        <InfoLuogo indirizzo={e.indirizzo} citta={e.citta} lat={e.lat} lng={e.lng} data={e.allestimento_il}
+          magazzino={e.magazzino} ztlDichiarata={e.ztl} compatto />
 
         {e.note_accesso && (
           <Card tono="avviso" className="p-4 flex gap-3">

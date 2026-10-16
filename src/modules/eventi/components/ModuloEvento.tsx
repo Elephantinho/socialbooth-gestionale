@@ -3,6 +3,7 @@ import { Check, Loader2, MapPin, RotateCcw } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { useClienti, useCreaCliente, useLocation, useMagazzini, useSalvaLocation, useTipiBooth } from '@/modules/anagrafiche/api'
 import { useViaggio, messaggioViaggio } from '@/modules/viaggio/useViaggio'
+import { useDintorni } from '@/modules/luogo/api'
 import { costruisciOrari, minutiInLocationPrevisti, orarioRitiro } from '../logic/orari'
 import type { EventoGestioneCompleto } from '../types'
 import { combinaDataOra, durata, ora, perCampoData } from '@/shared/lib/formato'
@@ -73,6 +74,8 @@ export function ModuloEvento({ evento, onSalva, testoPulsante, idModulo = 'modul
 
   // Viaggio calcolato in automatico (si può sovrascrivere a mano)
   const viaggio = useViaggio(m.indirizzo, m.citta, puntoMagazzino)
+  // Controllo automatico della ZTL sull'indirizzo trovato
+  const ztlRilevata = useDintorni(viaggio.punto).data?.ztl
   const minutiViaggio = m.viaggioManuale ? Number(m.viaggioMinuti) || 0 : viaggio.minuti ?? (Number(m.viaggioMinuti) || 0)
 
   const calcolo = useMemo(() => {
@@ -171,6 +174,12 @@ export function ModuloEvento({ evento, onSalva, testoPulsante, idModulo = 'modul
               </Selezione>
             </Griglia>
             <AreaTesto etichetta="Accessibilità e scarico" rows={3} placeholder="Scarico, scale, sosta del mezzo…" {...testo('noteAccesso')} />
+            {ztlRilevata && ztlRilevata.stato !== 'non_rilevata' && !m.ztl && (
+              <div className="rounded-2xl bg-avviso p-3.5 flex flex-wrap items-center gap-3 text-sm text-avviso-testo">
+                <span className="flex-1 min-w-48"><strong className="text-avviso-titolo">{ztlRilevata.stato === 'dentro' ? 'Questo indirizzo sembra dentro una ZTL' : 'C\'è una ZTL vicino'}</strong>{ztlRilevata.dettaglio && ` · ${ztlRilevata.dettaglio}`}</span>
+                <button type="button" onClick={() => imposta('ztl', true)} className="h-9 px-3 rounded-lg bg-inchiostro text-white font-bold cursor-pointer">Imposta ZTL: Sì</button>
+              </div>
+            )}
             <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(140px,1fr))]">
               <SiNo etichetta="ZTL" valore={m.ztl} onChange={(v) => imposta('ztl', v)} />
               <SiNo etichetta="Wi‑Fi" valore={m.wifi} onChange={(v) => imposta('wifi', v)} />
