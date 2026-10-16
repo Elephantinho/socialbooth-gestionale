@@ -27,6 +27,7 @@ const Attivita = lazy(() => import('@/ruoli/gestione/Attivita').then((m) => ({ d
 const Calendario = lazy(() => import('@/ruoli/gestione/Calendario').then((m) => ({ default: m.Calendario })))
 const Clienti = lazy(() => import('@/ruoli/gestione/Clienti').then((m) => ({ default: m.Clienti })))
 const Utenti = lazy(() => import('@/ruoli/gestione/Utenti').then((m) => ({ default: m.Utenti })))
+const Regioni = lazy(() => import('@/ruoli/gestione/Regioni').then((m) => ({ default: m.Regioni })))
 const Impostazioni = lazy(() => import('@/ruoli/gestione/Impostazioni').then((m) => ({ default: m.Impostazioni })))
 
 // Mappa delle pagine.
@@ -63,6 +64,7 @@ export function App() {
         <Route path="clienti" element={<Clienti />} />
         <Route path="utenti" element={<Utenti />} />
         <Route path="impostazioni" element={<Impostazioni />} />
+        <Route path="regioni" element={<Regioni />} />
         <Route path="report" element={<ReportOre />} />
       </Route>
 

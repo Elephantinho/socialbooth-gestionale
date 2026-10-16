@@ -209,7 +209,7 @@ export function useEventiDiOperatore(id: string) {
       ok(await supabase.from('eventi')
         .select(`id, stato, allestimento_il, smontaggio_il, citta, regione, viaggio_minuti, prezzo_cliente, fattura_importo,
           tipo_booth:tipi_booth(nome), cliente:clienti(nome),
-          ore:ore_lavorate(compenso, minuti_totali, stato, check_out_il, operatore_id),
+          ore:ore_lavorate(compenso, minuti_totali, minuti_in_location, minuti_viaggio, stato, check_out_il, operatore_id),
           costi:costi_evento(fase, categoria, importo, stato)`)
         .eq('operatore_id', id)
         .neq('stato', 'annullato')

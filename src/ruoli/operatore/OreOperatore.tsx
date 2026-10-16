@@ -7,6 +7,7 @@ import { Card } from '@/shared/ui/Card'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
 import { COLORE_RICAVI } from '@/modules/costi/components/GraficoAndamento'
+import { TotaliPeriodo } from '@/modules/eventi/components/TotaliPeriodo'
 
 export function OreOperatore() {
   const profilo = useProfilo()
@@ -30,6 +31,11 @@ export function OreOperatore() {
       </div>
 
       {!!data?.length && <AndamentoCompensi righe={data} />}
+      {!!data?.length && (
+        <TotaliPeriodo titolo="Le mie ore per periodo" righe={data.filter((r) => r.stato !== 'respinto').map((r) => ({
+          quando: r.evento?.allestimento_il ?? r.creato_il, minutiLocation: r.minuti_in_location, minutiViaggio: r.minuti_viaggio, compenso: r.compenso ?? 0,
+        }))} />
+      )}
 
       {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : mesi.length === 0 ? (
         <Card><Vuoto titolo="Nessuna ora registrata" testo="Quando chiudi un evento, le ore compaiono qui." /></Card>

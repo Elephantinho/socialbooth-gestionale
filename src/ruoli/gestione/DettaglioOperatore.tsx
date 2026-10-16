@@ -15,6 +15,7 @@ import { Numero } from '@/shared/ui/Intestazione'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 import { ModificaOperatore } from './Operatori'
+import { TotaliPeriodo } from '@/modules/eventi/components/TotaliPeriodo'
 
 type EventoOp = NonNullable<ReturnType<typeof useEventiDiOperatore>['data']>[number]
 
@@ -106,6 +107,11 @@ export function DettaglioOperatore() {
         <Numero valore={euro(compensoTotale)} etichetta="compensi totali" tono="scuro" icona={<Wallet className="size-5" aria-hidden />} />
         <Numero valore={euro(margineTotale)} etichetta="margine generato" tono={margineTotale < 0 ? 'urgente' : 'chiaro'} icona={<TrendingUp className="size-5" aria-hidden />} />
       </div>
+
+      <TotaliPeriodo titolo="Ore e compensi per periodo" righe={tutti.flatMap(({ e }) => {
+        const o = e.ore.find((x) => x.operatore_id === op.data.id && x.check_out_il && x.stato !== 'respinto')
+        return o ? [{ quando: e.allestimento_il, minutiLocation: o.minuti_in_location, minutiViaggio: o.minuti_viaggio, compenso: o.compenso ?? 0 }] : []
+      })} />
 
       {/* Eventi */}
       <Card className="overflow-hidden">
