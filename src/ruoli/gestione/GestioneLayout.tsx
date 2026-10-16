@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { BarChart3, Briefcase, Building2, CalendarDays, CalendarRange, Camera, CreditCard, LayoutGrid, ListChecks, LogOut, MapPin, Menu, Settings, ShieldCheck, Users, X } from 'lucide-react'
@@ -6,6 +6,7 @@ import { useAuth, useProfilo } from '@/modules/auth/AuthProvider'
 import { useTempoReale } from '@/modules/eventi/api'
 import { nomeCompleto } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
+import { Caricamento } from '@/shared/ui/Stati'
 import { Avatar } from '@/shared/ui/Avatar'
 import { Campanella } from '@/modules/comunicazione/components/Campanella'
 
@@ -83,7 +84,9 @@ export function GestioneLayout() {
         <div className="max-w-[1160px] mx-auto">
           <div className="hidden lg:flex justify-end -mt-4 mb-3 relative z-20"><Campanella /></div>
           <motion.div key={posizione.pathname} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
-            <Outlet />
+            <Suspense fallback={<Caricamento />}>
+              <Outlet />
+            </Suspense>
           </motion.div>
         </div>
       </main>

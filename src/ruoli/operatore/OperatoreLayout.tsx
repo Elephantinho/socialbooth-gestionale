@@ -1,7 +1,9 @@
+import { Suspense } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CalendarDays, Clock, Home, User } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
+import { Caricamento } from '@/shared/ui/Stati'
 import { useTempoReale } from '@/modules/eventi/api'
 
 // Guscio dell'app telefono: contenuto + barra in basso.
@@ -28,7 +30,9 @@ export function OperatoreLayout() {
           transition={{ duration: 0.22, ease: 'easeOut' }}
           className="flex-1 flex flex-col"
         >
-          <Outlet />
+          <Suspense fallback={<Caricamento />}>
+            <Outlet />
+          </Suspense>
         </motion.main>
       </AnimatePresence>
 
