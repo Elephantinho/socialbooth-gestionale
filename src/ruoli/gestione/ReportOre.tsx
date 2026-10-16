@@ -9,6 +9,7 @@ import { cn } from '@/shared/lib/cn'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
+import { TabellaRegioni } from '@/modules/costi/components/TabellaRegioni'
 
 /** Spese anticipate dall'operatore su quell'evento: vanno rimborsate insieme al compenso */
 const speseApprovabili = (r: RigaReport) =>
@@ -33,10 +34,10 @@ export function ReportOre() {
   const daApprovare = righe.filter((r) => r.stato === 'inviato').length
 
   function esportaCsv() {
-    const intestazione = ['Operatore', 'Data', 'Evento', 'Città', 'Ore location', 'Ore viaggio', 'Ore totali', 'Tariffa', 'Compenso', 'Rimborsi', 'Stato']
+    const intestazione = ['Operatore', 'Data', 'Evento', 'Città', 'Regione', 'Ore location', 'Ore viaggio', 'Ore totali', 'Tariffa', 'Compenso', 'Rimborsi', 'Stato']
     const linee = righe.map((r) => [
       r.operatore?.nome ?? '', r.evento ? new Date(r.evento.allestimento_il).toLocaleDateString('it-IT') : '',
-      r.evento?.tipo_booth?.nome ?? '', r.evento?.citta ?? '',
+      r.evento?.tipo_booth?.nome ?? '', r.evento?.citta ?? '', r.evento?.regione ?? '',
       (r.minuti_in_location / 60).toFixed(2).replace('.', ','), (r.minuti_viaggio / 60).toFixed(2).replace('.', ','),
       ((r.minuti_totali ?? 0) / 60).toFixed(2).replace('.', ','), String(r.tariffa_oraria ?? '').replace('.', ','),
       String(r.compenso ?? '').replace('.', ','), speseApprovabili(r).toFixed(2).replace('.', ','), r.stato,
@@ -55,8 +56,8 @@ export function ReportOre() {
       <div className="flex flex-wrap gap-4 justify-between items-end">
         <div>
           <p className="text-sm font-semibold text-tenue">Gestione</p>
-          <h1 className="font-display text-4xl font-bold tracking-tight mt-1">Ore e compensi</h1>
-          <p className="text-tenue mt-2">Ore in location + viaggio, per la tariffa oraria di ciascun operatore.</p>
+          <h1 className="font-display text-4xl font-bold tracking-tight mt-1">Ore, costi e compensi</h1>
+          <p className="text-tenue mt-2">Conti del mese per regione, poi le ore di ogni operatore (location + viaggio × tariffa).</p>
         </div>
         <div className="flex gap-2 flex-wrap items-end">
           <label className="flex flex-col gap-1.5 text-[13px] font-bold text-[#3F4047]">
@@ -69,6 +70,8 @@ export function ReportOre() {
           </Pulsante>
         </div>
       </div>
+
+      <TabellaRegioni mese={mese} />
 
       {daApprovare > 0 && (
         <Card tono="avviso" className="p-4 font-bold text-avviso-titolo">{daApprovare} chiusure evento da approvare</Card>
@@ -122,7 +125,7 @@ function RigaTabella({ r }: { r: RigaReport }) {
     <tr className={cn('border-b border-bordo last:border-0', r.stato === 'respinto' && 'opacity-50 line-through')}>
       <td className="px-5 py-3 whitespace-nowrap font-semibold">{r.evento ? dataBreve(r.evento.allestimento_il) : '—'}</td>
       <td className="px-5 py-3 whitespace-nowrap">
-        {r.evento ? <Link to={`/gestione/eventi/${r.evento.id}`} className="font-semibold hover:underline">{r.evento.tipo_booth?.nome ?? 'Evento'} · {r.evento.citta}</Link> : '—'}
+        {r.evento ? <Link to={`/gestione/eventi/${r.evento.id}`} className="font-semibold hover:underline">{r.evento.tipo_booth?.nome ?? 'Evento'} · {r.evento.citta}</Link> <span className="text-xs text-tenue">{r.evento.regione}</span> : '—'}
       </td>
       <td className="px-5 py-3 whitespace-nowrap">{durata(r.minuti_in_location)}</td>
       <td className="px-5 py-3 whitespace-nowrap">{durata(r.minuti_viaggio)}</td>

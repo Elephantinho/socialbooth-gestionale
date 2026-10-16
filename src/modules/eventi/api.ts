@@ -235,7 +235,7 @@ export function useReportOre(mese: string /* yyyy-mm */) {
       const fine = new Date(inizio); fine.setMonth(fine.getMonth() + 1)
       return ok(await supabase.from('ore_lavorate')
         .select(`*, operatore:profili!ore_lavorate_operatore_id_fkey(nome),
-          evento:eventi!inner(id, allestimento_il, citta, tipo_booth:tipi_booth(nome), costi:costi_evento(importo, stato, pagato_con, fase, operatore_id))`)
+          evento:eventi!inner(id, allestimento_il, citta, regione, tipo_booth:tipi_booth(nome), costi:costi_evento(importo, stato, pagato_con, fase, operatore_id))`)
         .gte('evento.allestimento_il', inizio.toISOString())
         .lt('evento.allestimento_il', fine.toISOString())
         .not('check_out_il', 'is', null)

@@ -28,7 +28,7 @@ const gruppi = [
   {
     titolo: 'Amministrazione',
     voci: [
-      { a: '/gestione/report', etichetta: 'Ore e compensi', Icona: BarChart3 },
+      { a: '/gestione/report', etichetta: 'Costi e compensi', Icona: BarChart3 },
       { a: '/gestione/carte', etichetta: 'Carte aziendali', Icona: CreditCard },
     ],
   },
