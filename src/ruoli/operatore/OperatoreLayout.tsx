@@ -2,18 +2,19 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CalendarDays, Clock, Home, User } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
+import { useTempoReale } from '@/modules/eventi/api'
 
 // Guscio dell'app telefono: contenuto + barra in basso.
-// Le schede non ancora pronte sono visibili ma disattivate.
 const voci = [
   { a: '/operatore', etichetta: 'Home', Icona: Home, pronta: true },
-  { a: '/operatore/calendario', etichetta: 'Calendario', Icona: CalendarDays, pronta: false },
-  { a: '/operatore/ore', etichetta: 'Ore', Icona: Clock, pronta: false },
-  { a: '/operatore/profilo', etichetta: 'Profilo', Icona: User, pronta: false },
+  { a: '/operatore/calendario', etichetta: 'Calendario', Icona: CalendarDays, pronta: true },
+  { a: '/operatore/ore', etichetta: 'Ore', Icona: Clock, pronta: true },
+  { a: '/operatore/profilo', etichetta: 'Profilo', Icona: User, pronta: true },
 ]
 
 export function OperatoreLayout() {
   const posizione = useLocation()
+  useTempoReale()
   const inScheda = posizione.pathname.includes('/eventi/')
 
   return (

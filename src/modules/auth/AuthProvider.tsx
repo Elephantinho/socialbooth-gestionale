@@ -10,6 +10,7 @@ type StatoAuth = {
   profilo: Profilo | null
   pronto: boolean          // false finché non sappiamo se l'utente è loggato
   esci: () => Promise<void>
+  ricaricaProfilo: () => Promise<void>
 }
 
 const AuthContext = createContext<StatoAuth | null>(null)
@@ -44,8 +45,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [sessione?.user.id])
 
   const esci = async () => { await supabase.auth.signOut() }
+  const ricaricaProfilo = async () => {
+    if (!sessione?.user.id) return
+    const { data } = await supabase.from('profili').select('*').eq('id', sessione.user.id).single()
+    if (data) setProfilo(data)
+  }
 
-  return <AuthContext.Provider value={{ sessione, profilo, pronto, esci }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ sessione, profilo, pronto, esci, ricaricaProfilo }}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

@@ -38,8 +38,7 @@ end $$;
 revoke execute on function public.crea_profilo() from public, anon, authenticated;
 
 -- L'operatore può gestire le proprie regioni (oltre all'admin)
-drop policy if exists zone_write on public.zone_operatore;
-create policy zone_write on public.zone_operatore for all to authenticated
+alter policy zone_write on public.zone_operatore
   using (operatore_id = auth.uid() or public.mio_ruolo() = 'admin')
   with check (operatore_id = auth.uid() or public.mio_ruolo() = 'admin');
 
@@ -56,6 +55,8 @@ begin
 end $$;
 revoke execute on function public.chiudi_proposte_annullate() from public, anon, authenticated;
 
-drop trigger if exists eventi_annullati on public.eventi;
 create trigger eventi_annullati after update of stato on public.eventi
 for each row execute function public.chiudi_proposte_annullate();
+
+-- Aggiornamenti in tempo reale nell'app (modifiche, proposte, ore)
+alter publication supabase_realtime add table public.eventi, public.proposte, public.ore_lavorate;

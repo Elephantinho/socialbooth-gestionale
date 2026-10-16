@@ -1,69 +1,165 @@
+import { useEffect } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase, ok } from '@/shared/lib/supabase'
-import type { Inserimento } from '@/shared/types/database'
+import type { Inserimento, Database } from '@/shared/types/database'
 
 // Tutte le letture/scritture degli eventi passano da qui.
 // Le pagine usano questi hook e non chiamano mai Supabase direttamente.
 
+type AggiornamentoEvento = Database['public']['Tables']['eventi']['Update']
+
 const chiavi = {
   tutti: ['eventi'] as const,
-  operatore: (id: string) => ['eventi', 'operatore', id] as const,
-  proposte: (id: string) => ['eventi', 'proposte', id] as const,
-  dettaglio: (id: string) => ['eventi', 'dettaglio', id] as const,
-  gestione: ['eventi', 'gestione'] as const,
-  disponibili: (id: string) => ['eventi', 'disponibili', id] as const,
+  ore: ['ore'] as const,
 }
 
-const campiEvento = '*, tipo_booth:tipi_booth(nome), magazzino:magazzini(nome, indirizzo)'
+const campiEvento = '*, tipo_booth:tipi_booth(nome), magazzino:magazzini(nome, indirizzo, citta)'
+
+/* ---------------- Lato operatore ---------------- */
 
 /** Eventi confermati o in corso dell'operatore, dal più vicino. */
 export function useEventiOperatore(operatoreId: string) {
   return useQuery({
-    queryKey: chiavi.operatore(operatoreId),
+    queryKey: ['eventi', 'operatore', operatoreId],
     queryFn: async () =>
       ok(await supabase.from('eventi').select(campiEvento)
         .eq('operatore_id', operatoreId)
         .in('stato', ['confermato', 'in_corso'])
-        .gte('smontaggio_il', new Date().toISOString())
+        .gte('smontaggio_il', new Date(Date.now() - 12 * 3_600_000).toISOString())
         .order('allestimento_il')),
+  })
+}
+
+/** Tutti gli eventi dell'operatore (calendario e storico). */
+export function useCalendarioOperatore(operatoreId: string) {
+  return useQuery({
+    queryKey: ['eventi', 'calendario', operatoreId],
+    queryFn: async () =>
+      ok(await supabase.from('eventi').select(campiEvento)
+        .eq('operatore_id', operatoreId)
+        .in('stato', ['confermato', 'in_corso', 'completato'])
+        .order('allestimento_il', { ascending: false })
+        .limit(200)),
   })
 }
 
 /** Incarichi proposti all'operatore che aspettano una risposta. */
 export function useProposteInAttesa(operatoreId: string) {
   return useQuery({
-    queryKey: chiavi.proposte(operatoreId),
+    queryKey: ['eventi', 'proposte', operatoreId],
     queryFn: async () =>
       ok(await supabase.from('proposte')
-        .select(`id, scade_il, automatica, evento:eventi(${campiEvento})`)
+        .select(`id, scade_il, automatica, evento:eventi!inner(${campiEvento})`)
         .eq('operatore_id', operatoreId)
         .eq('stato', 'in_attesa')
+        .eq('evento.stato', 'proposto')
         .order('creato_il')),
   })
 }
 
 export function useEvento(id: string) {
   return useQuery({
-    queryKey: chiavi.dettaglio(id),
+    queryKey: ['eventi', 'dettaglio', id],
     queryFn: async () => ok(await supabase.from('eventi').select(campiEvento).eq('id', id).single()),
   })
 }
 
+export function useRispondiProposta() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (v: { propostaId: string; accetta: boolean }) =>
+      ok(await supabase.rpc('rispondi_proposta', { p_proposta: v.propostaId, p_accetta: v.accetta })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: chiavi.tutti }),
+  })
+}
+
+export function useCheckIn() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (v: { eventoId: string; lat: number; lng: number }) =>
+      ok(await supabase.rpc('check_in', { p_evento: v.eventoId, p_lat: v.lat, p_lng: v.lng })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: chiavi.tutti }),
+  })
+}
+
+export function useChiudiEvento() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (v: { eventoId: string; minutiLocation: number; minutiViaggio: number; nota?: string; spese: { tipo: string; importo: number }[]; operatoreId: string }) => {
+      ok(await supabase.rpc('chiudi_evento', {
+        p_evento: v.eventoId, p_minuti_location: v.minutiLocation, p_minuti_viaggio: v.minutiViaggio, p_nota: v.nota || undefined,
+      }))
+      if (v.spese.length) {
+        ok(await supabase.from('spese').insert(v.spese.map((s) => ({ ...s, evento_id: v.eventoId, operatore_id: v.operatoreId }))))
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: chiavi.tutti })
+      qc.invalidateQueries({ queryKey: chiavi.ore })
+    },
+  })
+}
+
+/** Ore inviate dall'operatore (per il riepilogo). */
+export function useMieOre(operatoreId: string) {
+  return useQuery({
+    queryKey: ['ore', 'operatore', operatoreId],
+    queryFn: async () =>
+      ok(await supabase.from('ore_lavorate')
+        .select('*, evento:eventi(allestimento_il, citta, tipo_booth:tipi_booth(nome))')
+        .eq('operatore_id', operatoreId)
+        .not('check_out_il', 'is', null)
+        .order('creato_il', { ascending: false })),
+  })
+}
+
+/** Ore e compenso dell'operatore nel mese corrente (anche in attesa di approvazione). */
+export function useMeseOperatore(operatoreId: string) {
+  const ore = useMieOre(operatoreId)
+  const inizio = new Date()
+  inizio.setDate(1); inizio.setHours(0, 0, 0, 0)
+  const righe = (ore.data ?? []).filter((r) => r.evento && new Date(r.evento.allestimento_il) >= inizio && r.stato !== 'respinto')
+  return {
+    ...ore,
+    data: ore.data && {
+      eventi: righe.length,
+      minuti: righe.reduce((s, r) => s + (r.minuti_totali ?? 0), 0),
+      compenso: righe.reduce((s, r) => s + (r.compenso ?? 0), 0),
+    },
+  }
+}
+
+/* ---------------- Lato gestione (project / admin) ---------------- */
+
 /** Elenco per project e admin (la sicurezza del database filtra cosa vede ciascuno). */
 export function useEventiGestione() {
   return useQuery({
-    queryKey: chiavi.gestione,
+    queryKey: ['eventi', 'gestione'],
     queryFn: async () =>
       ok(await supabase.from('eventi')
         .select('*, tipo_booth:tipi_booth(nome), cliente:clienti(nome), operatore:profili!eventi_operatore_id_fkey(nome)')
-        .neq('stato', 'annullato')
         .order('allestimento_il')),
+  })
+}
+
+/** Evento completo per la pagina di dettaglio in gestione. */
+export function useEventoGestione(id: string) {
+  return useQuery({
+    queryKey: ['eventi', 'gestione', id],
+    queryFn: async () =>
+      ok(await supabase.from('eventi')
+        .select(`*, tipo_booth:tipi_booth(nome), cliente:clienti(nome), magazzino:magazzini(nome, lat, lng),
+          operatore:profili!eventi_operatore_id_fkey(nome, telefono),
+          proposte(id, stato, automatica, creato_il, risposta_il, operatore:profili(nome)),
+          ore:ore_lavorate(*), spese(*)`)
+        .eq('id', id)
+        .single()),
   })
 }
 
 export function useOperatoriDisponibili(eventoId: string | undefined) {
   return useQuery({
-    queryKey: chiavi.disponibili(eventoId ?? ''),
+    queryKey: ['eventi', 'disponibili', eventoId ?? ''],
     enabled: !!eventoId,
     queryFn: async () => ok(await supabase.rpc('operatori_disponibili', { p_evento: eventoId! })),
   })
@@ -81,11 +177,11 @@ export function useCreaEvento() {
   })
 }
 
-export function useRispondiProposta() {
+export function useAggiornaEvento() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (v: { propostaId: string; accetta: boolean }) =>
-      ok(await supabase.rpc('rispondi_proposta', { p_proposta: v.propostaId, p_accetta: v.accetta })),
+    mutationFn: async (v: { id: string; modifiche: AggiornamentoEvento }) =>
+      ok(await supabase.from('eventi').update(v.modifiche).eq('id', v.id).select('id').single()),
     onSuccess: () => qc.invalidateQueries({ queryKey: chiavi.tutti }),
   })
 }
@@ -99,31 +195,53 @@ export function useProponiOperatore() {
   })
 }
 
-export function useCheckIn() {
+/** Approva o respinge ore e spese di un evento. */
+export function useApprovaOre() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (v: { eventoId: string; lat: number; lng: number }) =>
-      ok(await supabase.rpc('check_in', { p_evento: v.eventoId, p_lat: v.lat, p_lng: v.lng })),
-    onSuccess: () => qc.invalidateQueries({ queryKey: chiavi.tutti }),
+    mutationFn: async (v: { oreId: string; eventoId: string; approva: boolean; approvatoDa: string }) => {
+      const stato = v.approva ? 'approvato' : 'respinto'
+      ok(await supabase.from('ore_lavorate')
+        .update({ stato, approvato_da: v.approvatoDa, approvato_il: new Date().toISOString() })
+        .eq('id', v.oreId))
+      ok(await supabase.from('spese').update({ stato }).eq('evento_id', v.eventoId).eq('stato', 'inviato'))
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: chiavi.tutti })
+      qc.invalidateQueries({ queryKey: chiavi.ore })
+    },
   })
 }
 
-/** Ore e compenso dell'operatore nel mese corrente (tutte, anche in attesa di approvazione). */
-export function useMeseOperatore(operatoreId: string) {
+/** Tutte le ore del mese per il report (project vede i suoi eventi, admin tutti). */
+export function useReportOre(mese: string /* yyyy-mm */) {
   return useQuery({
-    queryKey: ['ore', 'mese', operatoreId],
+    queryKey: ['ore', 'report', mese],
     queryFn: async () => {
-      const inizio = new Date()
-      inizio.setDate(1); inizio.setHours(0, 0, 0, 0)
-      const righe = ok(await supabase.from('ore_lavorate')
-        .select('minuti_totali, compenso, creato_il')
-        .eq('operatore_id', operatoreId)
-        .gte('creato_il', inizio.toISOString()))
-      return {
-        eventi: righe.length,
-        minuti: righe.reduce((s, r) => s + (r.minuti_totali ?? 0), 0),
-        compenso: righe.reduce((s, r) => s + (r.compenso ?? 0), 0),
-      }
+      const inizio = new Date(`${mese}-01T00:00:00`)
+      const fine = new Date(inizio); fine.setMonth(fine.getMonth() + 1)
+      return ok(await supabase.from('ore_lavorate')
+        .select(`*, operatore:profili!ore_lavorate_operatore_id_fkey(nome),
+          evento:eventi!inner(id, allestimento_il, citta, tipo_booth:tipi_booth(nome), spese(importo, stato))`)
+        .gte('evento.allestimento_il', inizio.toISOString())
+        .lt('evento.allestimento_il', fine.toISOString())
+        .not('check_out_il', 'is', null)
+        .order('creato_il'))
     },
   })
+}
+
+/* ---------------- Tempo reale ---------------- */
+
+/** Aggiorna da solo le schermate quando cambiano eventi, proposte o ore. */
+export function useTempoReale() {
+  const qc = useQueryClient()
+  useEffect(() => {
+    const canale = supabase.channel('modifiche')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'eventi' }, () => qc.invalidateQueries({ queryKey: chiavi.tutti }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'proposte' }, () => qc.invalidateQueries({ queryKey: chiavi.tutti }))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ore_lavorate' }, () => qc.invalidateQueries({ queryKey: chiavi.ore }))
+      .subscribe()
+    return () => { supabase.removeChannel(canale) }
+  }, [qc])
 }

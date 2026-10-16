@@ -1,20 +1,24 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { BarChart3, Building2, CalendarDays, Camera, LogOut, MapPin, Users } from 'lucide-react'
+import { BarChart3, Building2, CalendarDays, Camera, LayoutGrid, LogOut, MapPin, Users } from 'lucide-react'
 import { useAuth, useProfilo } from '@/modules/auth/AuthProvider'
 import { cn } from '@/shared/lib/cn'
 
-// Pannello web per project e admin. Le voci non ancora pronte sono disattivate.
+import { useTempoReale } from '@/modules/eventi/api'
+
+// Pannello web per project e admin.
 const voci = [
+  { a: '/gestione/panoramica', etichetta: 'Panoramica', Icona: LayoutGrid, pronta: true },
   { a: '/gestione', etichetta: 'Eventi', Icona: CalendarDays, pronta: true },
-  { a: '/gestione/operatori', etichetta: 'Operatori', Icona: Users, pronta: false },
-  { a: '/gestione/location', etichetta: 'Location', Icona: MapPin, pronta: false },
-  { a: '/gestione/magazzini', etichetta: 'Magazzini', Icona: Building2, pronta: false },
-  { a: '/gestione/report', etichetta: 'Ore e report', Icona: BarChart3, pronta: false },
+  { a: '/gestione/operatori', etichetta: 'Operatori', Icona: Users, pronta: true },
+  { a: '/gestione/location', etichetta: 'Location', Icona: MapPin, pronta: true },
+  { a: '/gestione/magazzini', etichetta: 'Magazzini', Icona: Building2, pronta: true },
+  { a: '/gestione/report', etichetta: 'Ore e compensi', Icona: BarChart3, pronta: true },
 ]
 
 export function GestioneLayout() {
   const profilo = useProfilo()
   const { esci } = useAuth()
+  useTempoReale()
 
   return (
     <div className="min-h-dvh flex flex-wrap">

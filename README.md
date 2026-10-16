@@ -14,23 +14,40 @@ cp .env.example .env   # chiavi pubbliche del progetto Supabase
 npm run dev            # apre su http://localhost:5173
 ```
 
-### Creare gli utenti
+### Utenti e ruoli
 
-Per ora gli account si creano dalla dashboard di Supabase:
-
-1. **Authentication → Users → Add user → Create new user**, con email e password, spuntando *Auto Confirm User*.
-2. Ogni nuovo utente nasce come **operatore**. Per cambiargli ruolo, nome, tariffa o regioni, da **SQL Editor**:
+- **Operatori**: si registrano da soli dalla pagina `/registrati` (nome, telefono, regioni in cui lavorano).
+  Nascono *non attivi*: un admin li approva dalla pagina **Operatori**, dove imposta anche tariffa oraria e magazzino.
+- **Admin e project**: si creano dalla dashboard di Supabase (*Authentication → Users → Add user*, con *Auto Confirm User*),
+  poi si assegna il ruolo da **SQL Editor**:
 
 ```sql
--- rendere qualcuno admin o project
-update profili set ruolo = 'admin', nome = 'Mohamed' where id = (select id from auth.users where email = 'tua@email.it');
-
--- operatore: nome, tariffa oraria e regioni coperte
-update profili set nome = 'Mario Rossi', tariffa_oraria = 12 where id = (select id from auth.users where email = 'mario@email.it');
-insert into zone_operatore (operatore_id, regione) select id, 'Toscana' from auth.users where email = 'mario@email.it';
+update profili set ruolo = 'project', nome = 'Nome Cognome'
+ where id = (select id from auth.users where email = 'email@esempio.it');
 ```
 
-(Le schermate per gestire operatori e magazzini dall'app arrivano nella prossima fase.)
+**Importante per la registrazione**: in Supabase, *Authentication → URL Configuration*, imposta come
+*Site URL* l'indirizzo dell'app pubblicata (es. `https://socialbooth-gestionale.vercel.app`) e aggiungilo
+anche tra i *Redirect URLs*. Così il link di conferma email riporta all'app.
+
+## Funzionalità
+
+**Operatore (telefono)**
+- Home: prossimo evento con orari di ritiro, allestimento e attivazione; incarichi da accettare/rifiutare; riepilogo del mese
+- Scheda evento: programma, navigatore, avvisi accesso/ZTL/Wi‑Fi, referente (chiama/WhatsApp), checklist, check-in GPS
+- Chiusura evento: orari precompilati, viaggio andata/ritorno, spese da rimborsare, nota obbligatoria se cambiano gli orari
+- Calendario (in programma / passati) e giorni di indisponibilità
+- Le mie ore: per mese, con compenso e stato di approvazione
+- Profilo: nome, telefono, magazzino, regioni
+- Aggiornamenti in tempo reale (nuove proposte, modifiche)
+
+**Project / Admin (web)**
+- Panoramica: eventi del mese, da assegnare, in attesa, chiusure da approvare, compensi, eventi per regione, zone scoperte
+- Eventi: filtri per stato, assegnazione manuale; dettaglio con modifica, annullamento/riapertura, cambio operatore, storico proposte
+- Nuovo evento: location salvate, **tempo di viaggio calcolato in automatico** dal magazzino, orario di ritiro suggerito
+- Operatori: approvazione, tariffa, magazzino, regioni, attivazione
+- Magazzini e Location salvate
+- Ore e compensi: per mese e per operatore, approvazione, esportazione Excel (CSV)
 
 ## Stack
 
@@ -38,6 +55,7 @@ insert into zone_operatore (operatore_id, regione) select id, 'Toscana' from aut
 - Tailwind CSS (tema in `src/index.css`), Framer Motion, icone Lucide
 - TanStack Query per i dati, React Router per le pagine
 - Supabase: database Postgres, login, sicurezza per ruolo
+- OpenStreetMap (Nominatim + OSRM) per posizioni e tempi di viaggio
 - Capacitor per l'app Android (prossima fase)
 
 ## Struttura del codice
@@ -48,7 +66,8 @@ src/
     auth/               login, sessione, protezione delle pagine per ruolo
     eventi/             api.ts (letture/scritture), logic/ (regole pure), components/
     assegnazione/       scelta dell'operatore
-    anagrafiche/        clienti, tipi di booth, magazzini, location salvate
+    anagrafiche/        clienti, tipi di booth, magazzini, location, operatori, indisponibilità
+    viaggio/            indirizzo → coordinate, tempi di percorrenza (OpenStreetMap)
   ruoli/                ← solo le schermate, che usano i moduli
     operatore/          app telefono
     gestione/           pannello web project/admin

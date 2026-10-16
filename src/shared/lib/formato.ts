@@ -42,6 +42,12 @@ export const euro = (n: number | null | undefined) =>
 export const iniziali = (nome: string | null | undefined) =>
   (nome ?? '?').split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join('') || '?'
 
+/** ISO → "yyyy-mm-dd" (giorno italiano), per i campi data */
+export const perCampoData = (iso: string) => new Date(iso).toLocaleDateString('sv-SE', { timeZone: fuso })
+
+/** "yyyy-mm" del mese corrente */
+export const meseCorrente = () => new Date().toLocaleDateString('sv-SE', { timeZone: fuso }).slice(0, 7)
+
 /** Unisce data (yyyy-mm-dd) e ora (hh:mm) in un ISO con il fuso italiano corretto. */
 export function combinaDataOra(data: string, orario: string): string {
   // Calcola l'offset di Roma per quella data (gestisce ora legale/solare)

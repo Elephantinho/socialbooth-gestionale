@@ -9,6 +9,16 @@ import { SchedaEvento } from '@/ruoli/operatore/SchedaEvento'
 import { GestioneLayout } from '@/ruoli/gestione/GestioneLayout'
 import { ElencoEventi } from '@/ruoli/gestione/ElencoEventi'
 import { NuovoEvento } from '@/ruoli/gestione/NuovoEvento'
+import { DettaglioEvento } from '@/ruoli/gestione/DettaglioEvento'
+import { Panoramica } from '@/ruoli/gestione/Panoramica'
+import { Operatori } from '@/ruoli/gestione/Operatori'
+import { Magazzini } from '@/ruoli/gestione/Magazzini'
+import { Location } from '@/ruoli/gestione/Location'
+import { ReportOre } from '@/ruoli/gestione/ReportOre'
+import { CalendarioOperatore } from '@/ruoli/operatore/CalendarioOperatore'
+import { OreOperatore } from '@/ruoli/operatore/OreOperatore'
+import { ProfiloOperatore } from '@/ruoli/operatore/ProfiloOperatore'
+import { RegistratiPage } from '@/modules/auth/RegistratiPage'
 
 // Mappa delle pagine.
 // /operatore/*  → app telefono (operatore)
@@ -17,15 +27,25 @@ export function App() {
   return (
     <Routes>
       <Route path="/accedi" element={<AccediPage />} />
+      <Route path="/registrati" element={<RegistratiPage />} />
 
       <Route path="/operatore" element={<Protetto ruoli={['operatore']}><OperatoreLayout /></Protetto>}>
         <Route index element={<HomeOperatore />} />
         <Route path="eventi/:id" element={<SchedaEvento />} />
+        <Route path="calendario" element={<CalendarioOperatore />} />
+        <Route path="ore" element={<OreOperatore />} />
+        <Route path="profilo" element={<ProfiloOperatore />} />
       </Route>
 
       <Route path="/gestione" element={<Protetto ruoli={['project', 'admin']}><GestioneLayout /></Protetto>}>
         <Route index element={<ElencoEventi />} />
         <Route path="eventi/nuovo" element={<NuovoEvento />} />
+        <Route path="eventi/:id" element={<DettaglioEvento />} />
+        <Route path="panoramica" element={<Panoramica />} />
+        <Route path="operatori" element={<Operatori />} />
+        <Route path="location" element={<Location />} />
+        <Route path="magazzini" element={<Magazzini />} />
+        <Route path="report" element={<ReportOre />} />
       </Route>
 
       <Route path="*" element={<Inizio />} />

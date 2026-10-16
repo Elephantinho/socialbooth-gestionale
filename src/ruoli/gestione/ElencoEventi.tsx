@@ -17,6 +17,7 @@ const filtri = [
   { id: 'attesa', etichetta: 'In attesa', stati: ['proposto'] },
   { id: 'confermati', etichetta: 'Confermati', stati: ['confermato', 'in_corso'] },
   { id: 'completati', etichetta: 'Completati', stati: ['completato'] },
+  { id: 'annullati', etichetta: 'Annullati', stati: ['annullato'] },
 ] as const
 
 export function ElencoEventi() {
@@ -24,8 +25,10 @@ export function ElencoEventi() {
   const [filtro, setFiltro] = useState<(typeof filtri)[number]['id']>('tutti')
 
   const attivo = filtri.find((f) => f.id === filtro)!
-  const eventi = (data ?? []).filter((e) => !attivo.stati || (attivo.stati as readonly string[]).includes(e.stato))
-  const conta = (stati: readonly string[] | null) => (data ?? []).filter((e) => !stati || stati.includes(e.stato)).length
+  // "Tutti" non mostra gli annullati
+  const passa = (stati: readonly string[] | null, stato: string) => (stati ? stati.includes(stato) : stato !== 'annullato')
+  const eventi = (data ?? []).filter((e) => passa(attivo.stati, e.stato))
+  const conta = (stati: readonly string[] | null) => (data ?? []).filter((e) => passa(stati, e.stato)).length
 
   return (
     <div className="flex flex-col gap-6">
@@ -72,29 +75,29 @@ function RigaEvento({ e }: { e: EventoGestione }) {
 
   return (
     <Card className="overflow-hidden">
-      <div className="p-4 md:px-5 grid gap-3 items-center grid-cols-[1fr_auto] md:grid-cols-[150px_1.4fr_1fr_1fr_auto]">
-        <div className="max-md:col-span-2 max-md:flex max-md:justify-between max-md:items-center">
+      <div className="p-4 md:px-5 flex flex-wrap items-center gap-3">
+        <Link to={`/gestione/eventi/${e.id}`}
+          className="flex-[1_1_480px] min-w-0 grid gap-3 items-center grid-cols-[1fr_auto] md:grid-cols-[150px_1.4fr_1fr_auto] hover:opacity-80 transition">
           <div>
             <p className="font-bold">{dataBreve(e.allestimento_il)}</p>
             <p className="text-sm text-tenue">{ora(e.allestimento_il)} – {ora(e.smontaggio_il)}</p>
           </div>
-          <StatoEvento stato={e.stato} className="md:hidden" />
-        </div>
-        <div className="min-w-0">
-          <p className="font-bold truncate">{e.tipo_booth?.nome ?? 'Evento'}{e.cliente?.nome && <span className="font-medium text-tenue"> · {e.cliente.nome}</span>}</p>
-          <p className="text-sm text-tenue truncate">{e.indirizzo}, {e.citta}</p>
-        </div>
-        <div className="text-sm max-md:hidden">
-          <p className="text-xs font-bold text-tenue">Operatore</p>
-          <p className="font-semibold truncate">{e.operatore?.nome || '—'}</p>
-        </div>
-        <div className="max-md:hidden"><StatoEvento stato={e.stato} /></div>
-        {assegnabile ? (
+          <div className="min-w-0 max-md:col-span-2 max-md:row-start-2">
+            <p className="font-bold truncate">{e.tipo_booth?.nome ?? 'Evento'}{e.cliente?.nome && <span className="font-medium text-tenue"> · {e.cliente.nome}</span>}</p>
+            <p className="text-sm text-tenue truncate">{e.indirizzo}, {e.citta}</p>
+          </div>
+          <div className="text-sm max-md:hidden min-w-0">
+            <p className="text-xs font-bold text-tenue">Operatore</p>
+            <p className="font-semibold truncate">{e.operatore?.nome || '—'}</p>
+          </div>
+          <StatoEvento stato={e.stato} className="justify-self-end" />
+        </Link>
+        {assegnabile && (
           <button onClick={() => setAperto((a) => !a)} aria-expanded={aperto}
-            className="h-10 px-4 rounded-xl bg-inchiostro text-white text-sm font-bold flex items-center gap-1.5 cursor-pointer justify-self-end max-md:col-span-2 max-md:justify-center max-md:w-full">
+            className="h-10 px-4 rounded-xl bg-inchiostro text-white text-sm font-bold flex items-center gap-1.5 cursor-pointer max-md:w-full max-md:justify-center">
             Assegna <ChevronDown className={cn('size-4 transition', aperto && 'rotate-180')} aria-hidden />
           </button>
-        ) : <span className="max-md:hidden" />}
+        )}
       </div>
 
       <AnimatePresence initial={false}>

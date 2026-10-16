@@ -25,6 +25,7 @@ export type Database = {
           project_id: string; referente_nome: string | null; referente_telefono: string | null; regione: Regione
           ritiro_magazzino_il: string | null; smontaggio_il: string; stato: Database['public']['Enums']['stato_evento']
           tipo_booth_id: string | null; viaggio_minuti: number | null; wifi: boolean; ztl: boolean
+          lat: number | null; lng: number | null
         }
         Insert: {
           aggiornato_il?: string; allestimento_il: string; citta: string; cliente_id?: string | null; codice?: number; creato_il?: string
@@ -33,6 +34,7 @@ export type Database = {
           project_id: string; referente_nome?: string | null; referente_telefono?: string | null; regione: Regione
           ritiro_magazzino_il?: string | null; smontaggio_il: string; stato?: Database['public']['Enums']['stato_evento']
           tipo_booth_id?: string | null; viaggio_minuti?: number | null; wifi?: boolean; ztl?: boolean
+          lat?: number | null; lng?: number | null
         }
         Update: Partial<Database['public']['Tables']['eventi']['Insert']>
         Relationships: [

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Camera } from 'lucide-react'
 import { supabase } from '@/shared/lib/supabase'
@@ -51,7 +51,9 @@ export function AccediPage() {
           <Pulsante type="submit" taglia="xl" pieno caricamento={invio} className="mt-2">Accedi</Pulsante>
         </form>
 
-        <p className="text-xs text-tenue text-center">Non hai un account? Chiedi all'amministratore di crearlo.</p>
+        <p className="text-sm text-tenue text-center">
+          Sei un operatore e non hai un account? <Link to="/registrati" className="font-bold text-accento">Registrati</Link>
+        </p>
       </motion.div>
     </div>
   )

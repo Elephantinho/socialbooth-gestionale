@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { AlertTriangle, ArrowLeft, MapPin, MessageCircle, Navigation, Phone } from 'lucide-react'
+import { AnimatePresence } from 'framer-motion'
+import { AlertTriangle, ArrowLeft, Flag, MapPin, MessageCircle, Navigation, Phone } from 'lucide-react'
+import { ChiudiEvento } from './ChiudiEvento'
 import { useCheckIn, useEvento } from '@/modules/eventi/api'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
 import type { EventoDettaglio } from '@/modules/eventi/types'
@@ -185,6 +187,7 @@ function Checklist({ wifi }: { wifi: boolean }) {
 function AzioneInBasso({ e }: { e: EventoDettaglio }) {
   const checkIn = useCheckIn()
   const [erroreGps, setErroreGps] = useState<string>()
+  const [chiusura, setChiusura] = useState(false)
 
   function faiCheckIn() {
     setErroreGps(undefined)
@@ -196,24 +199,34 @@ function AzioneInBasso({ e }: { e: EventoDettaglio }) {
     )
   }
 
+  if (e.stato === 'completato') {
+    return (
+      <div className="mt-auto px-5 pb-sicura pt-3">
+        <Card tono="accento" className="p-4 text-center font-bold">Evento chiuso · ore inviate per l'approvazione</Card>
+      </div>
+    )
+  }
   if (e.stato !== 'confermato' && e.stato !== 'in_corso') return null
 
   return (
-    <div className="sticky bottom-0 mt-auto bg-sfondo/95 backdrop-blur border-t border-bordo px-5 pt-3.5 pb-sicura">
-      {(erroreGps || checkIn.error) && <div className="mb-3"><Errore errore={checkIn.error ?? new Error(erroreGps)} /></div>}
+    <div className="sticky bottom-0 mt-auto bg-sfondo/95 backdrop-blur border-t border-bordo px-5 pt-3.5 pb-sicura flex flex-col gap-2">
+      {(erroreGps || checkIn.error) && <Errore errore={checkIn.error ?? new Error(erroreGps)} />}
       {e.stato === 'confermato' ? (
         <>
           <Pulsante taglia="xl" pieno icona={<MapPin className="size-5" aria-hidden />} caricamento={checkIn.isPending} onClick={faiCheckIn}>
             Fai check-in
           </Pulsante>
-          <p className="text-center text-xs font-semibold text-tenue mt-2">Registra la tua posizione all'arrivo</p>
+          <button onClick={() => setChiusura(true)} className="text-sm font-bold text-tenue py-1 cursor-pointer">Hai già finito? Chiudi l'evento</button>
         </>
       ) : (
         <>
-          <Pulsante taglia="xl" pieno variante="scuro" disabled>Chiudi evento e inserisci ore</Pulsante>
-          <p className="text-center text-xs font-semibold text-tenue mt-2">Check-in fatto · la chiusura arriva nella prossima versione</p>
+          <Pulsante taglia="xl" pieno variante="scuro" icona={<Flag className="size-5" aria-hidden />} onClick={() => setChiusura(true)}>
+            Chiudi evento e inserisci ore
+          </Pulsante>
+          <p className="text-center text-xs font-semibold text-tenue">Check-in fatto · a fine lavoro chiudi l'evento</p>
         </>
       )}
+      <AnimatePresence>{chiusura && <ChiudiEvento e={e} onChiudi={() => setChiusura(false)} />}</AnimatePresence>
     </div>
   )
 }
