@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/*
+  Design system dell'app: tutti i colori e i font passano da qui.
+  Per cambiare l'aspetto dell'app intera basta modificare questi valori.
+*/
+@theme {
+  --font-sans: "Manrope", system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", "Manrope", sans-serif;
+
+  --color-sfondo: #F4F3EF;      /* fondo pagina */
+  --color-superficie: #FFFFFF;  /* card */
+  --color-inchiostro: #15161A;  /* testo principale, card in evidenza */
+  --color-tenue: #5E5F66;       /* testo secondario */
+  --color-bordo: #E3E1DB;
+  --color-bordo-forte: #D5D3CC;
+
+  --color-accento: #0E6B62;        /* azioni principali */
+  --color-accento-scuro: #0A524B;
+  --color-accento-tenue: #DCEFEC;
+  --color-accento-chiaro: #9FD8D0; /* su fondo scuro */
+
+  --color-avviso: #FDF3D8;         /* fondo avvisi */
+  --color-avviso-testo: #5A3E00;
+  --color-avviso-titolo: #4A3300;
+  --color-avviso-icona: #F2C14E;
+
+  --color-urgente: #D9480F;
+  --color-urgente-tenue: #FBE6D9;
+  --color-urgente-testo: #8A3B0B;
+
+  --color-scuro-2: #24252B;        /* riquadri dentro card scure */
+  --color-scuro-3: #2A2B31;
+  --color-su-scuro-tenue: #A9AAB2;
+}
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--color-sfondo);
+  color: var(--color-inchiostro);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Spazio per notch e barra di sistema su Android/iOS */
+.pb-sicura { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+.pt-sicura { padding-top: max(20px, env(safe-area-inset-top)); }
