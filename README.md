@@ -33,26 +33,31 @@ anche tra i *Redirect URLs*. Così il link di conferma email riporta all'app.
 ## Funzionalità
 
 **Operatore (telefono)**
-- Home: prossimo evento con orari di ritiro, allestimento e attivazione; incarichi da accettare/rifiutare; riepilogo del mese
-- Scheda evento: programma, navigatore, avvisi accesso/ZTL/Wi‑Fi, referente (chiama/WhatsApp), checklist, check-in GPS
-- Chiusura evento: orari precompilati, viaggio andata/ritorno, stampe effettuate, spese con carta aziendale o anticipate, nota obbligatoria se cambiano gli orari
-- Calendario (in programma / passati) e giorni di indisponibilità
-- Le mie ore: per mese, con compenso e stato di approvazione
-- Profilo: nome, telefono, magazzino, regioni
-- Aggiornamenti in tempo reale (nuove proposte, modifiche)
+- Home: prossimo evento, incarichi da accettare, attività da fare, riepilogo del mese, notifiche
+- Scheda evento: programma, **mappa con parcheggi** (gratuiti, strisce bianche, a pagamento), **ZTL rilevata**, **meteo**,
+  servizi vicini (distributore, bar, ferramenta, supermercato), referente, checklist dell'attrezzatura assegnata,
+  documenti e foto del set, chat con il project
+- **Ore automatiche**: tasti "Parto dal magazzino → Arrivato → Finito → Rientrato" con ora e posizione;
+  arrivo e rientro riconosciuti anche dal GPS con l'app aperta; viaggio e ore in location calcolati da soli
+- Spese con foto dello scontrino, pagate con carta aziendale o anticipate; stampe effettuate
+- Calendario, giorni di indisponibilità, le mie ore con grafico, profilo con foto e regioni
 
 **Project / Admin (web)**
-- Panoramica: eventi del mese, da assegnare, in attesa, chiusure da approvare, compensi, eventi per regione, zone scoperte
-- Eventi: filtri per stato, assegnazione manuale; dettaglio con modifica, annullamento/riapertura, cambio operatore, storico proposte
-- Nuovo evento: location salvate, **tempo di viaggio calcolato in automatico** dal magazzino, orario di ritiro suggerito
-- Operatori: schede con foto, divise per regione; pagina di ogni operatore con eventi del mese, archivio, compensi (mese e totali) e margine per evento
-- Magazzini e Location salvate
-- Ore e compensi: per mese e per operatore, approvazione, rimborsi, esportazione Excel (CSV)
-- Operatori divisi per regione, con magazzino di riferimento e avviso di assegnazione automatica
-- Magazzini divisi per regione, importazione da Excel (CSV) con ricerca automatica della posizione, inventario attrezzatura
-- Costi dell'evento: preventivo e consuntivo (operatore, noleggio veicolo, carburante, pedaggi, carta e stampe, vitto…), ricavo, fattura, margine
-- Attrezzatura assegnata all'evento dall'inventario (diventa la checklist dell'operatore)
-- Carte aziendali assegnate agli operatori (solo ultime 4 cifre) e spese pagate con carta, per il controllo dell'estratto conto
+- Panoramica: cose da fare subito, mappa di eventi e magazzini, ricavi/costi degli ultimi 6 mesi,
+  conti per regione, classifiche di operatori e clienti, zone scoperte
+- Eventi: elenco, calendario mensile, creazione con location salvate, **viaggio calcolato**, **ZTL suggerita**,
+  assegnazione automatica, modifica, annullamento, duplica, chat, documenti, attività, costi e margine
+- Attività in bacheca a colonne (trascinabili), anche legate agli eventi e assegnate agli operatori
+- Operatori per regione con scheda personale (eventi, archivio, compensi, margini); clienti con fatturato e insoluti
+- Magazzini per regione con import da Excel e inventario; location salvate; carte aziendali
+- Costi e compensi per regione e per operatore, approvazione (anche tutte insieme), export Excel
+- Utenti e ruoli, impostazioni (costo per stampa, ore per accettare un incarico)
+- Notifiche in-app in tempo reale
+
+**Automatismi lato server (ogni 15 minuti)**
+- Proposte non accettate in tempo → evento di nuovo da assegnare (e riassegnato se c'è un solo operatore libero)
+- Promemoria all'operatore: il giorno prima, all'ora di partenza, e se non ha chiuso l'evento
+- Eventi dimenticati aperti → chiusi con orari stimati e operatore avvisato
 
 ## Stack
 
@@ -60,7 +65,8 @@ anche tra i *Redirect URLs*. Così il link di conferma email riporta all'app.
 - Tailwind CSS (tema in `src/index.css`), Framer Motion, icone Lucide
 - TanStack Query per i dati, React Router per le pagine
 - Supabase: database Postgres, login, sicurezza per ruolo
-- OpenStreetMap (Nominatim + OSRM) per posizioni e tempi di viaggio
+- OpenStreetMap: Nominatim (indirizzi), OSRM (tempi di viaggio), Overpass (ZTL, parcheggi, servizi), mappe Leaflet
+- Open-Meteo per il meteo, Recharts per i grafici
 - Capacitor per l'app Android (prossima fase)
 
 ## Struttura del codice
@@ -75,6 +81,9 @@ src/
     viaggio/            indirizzo → coordinate, tempi di percorrenza (OpenStreetMap)
     costi/              costi previsti/finali, carte aziendali, calcolo del margine (logic/riepilogo.ts)
     attrezzatura/       inventario dei magazzini e attrezzatura degli eventi
+    luogo/              ZTL, parcheggi, servizi vicini, meteo
+    comunicazione/      notifiche, chat dell'evento, documenti e foto
+    attivita/           to-do e bacheca
   ruoli/                ← solo le schermate, che usano i moduli
     operatore/          app telefono
     gestione/           pannello web project/admin
