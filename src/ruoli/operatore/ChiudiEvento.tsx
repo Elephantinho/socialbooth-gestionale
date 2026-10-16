@@ -20,7 +20,7 @@ type RigaSpesa = { categoria: Enum<'categoria_costo'>; importo: string; descrizi
 const numero = (s: string) => Number(s.replace(',', '.')) || 0
 
 /** Foglio a scomparsa per chiudere l'evento: ore precompilate, stampe, spese con carta aziendale o anticipate. */
-export function ChiudiEvento({ e, onChiudi }: { e: EventoDettaglio; onChiudi: () => void }) {
+export function ChiudiEvento({ e, onChiudi, soloSpese }: { e: EventoDettaglio; onChiudi: () => void; soloSpese?: boolean }) {
   const profilo = useProfilo()
   const chiudi = useChiudiEvento()
   const carta = useMiaCarta(profilo.id).data
@@ -29,7 +29,7 @@ export function ChiudiEvento({ e, onChiudi }: { e: EventoDettaglio; onChiudi: ()
   const [viaggio, setViaggio] = useState(String(minutiViaggioPagati(e.viaggio_minuti)))
   const [stampe, setStampe] = useState('')
   const [nota, setNota] = useState('')
-  const [spese, setSpese] = useState<RigaSpesa[]>([])
+  const [spese, setSpese] = useState<RigaSpesa[]>(() => (soloSpese ? [{ categoria: 'carburante', importo: '', descrizione: '', conCarta: false }] : []))
 
   const [inizioIso, fineIso] = costruisciOrari(perCampoData(e.allestimento_il), [inizio, fine], combinaDataOra)
   const minutiLocation = Math.max(0, Math.round((new Date(fineIso).getTime() - new Date(inizioIso).getTime()) / 60_000))
@@ -67,7 +67,7 @@ export function ChiudiEvento({ e, onChiudi }: { e: EventoDettaglio; onChiudi: ()
     if (Number(stampe) > 0) {
       righe.push({ scontrino: null, categoria: 'carta_stampe', quantita: Number(stampe), costo_unitario: 0, descrizione: 'Stampe effettuate', pagato_con: 'azienda', carta_id: null })
     }
-    chiudi.mutate({ eventoId: e.id, operatoreId: profilo.id, minutiLocation, minutiViaggio, nota: nota.trim(), spese: righe }, { onSuccess: onChiudi })
+    chiudi.mutate({ eventoId: e.id, operatoreId: profilo.id, minutiLocation, minutiViaggio, nota: nota.trim(), spese: righe, soloSpese }, { onSuccess: onChiudi })
   }
 
   return (
@@ -80,12 +80,17 @@ export function ChiudiEvento({ e, onChiudi }: { e: EventoDettaglio; onChiudi: ()
         aria-label="Chiudi evento"
       >
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-2xl font-bold">Chiudi evento</h2>
+          <h2 className="font-display text-2xl font-bold">{soloSpese ? 'Aggiungi spese' : 'Ore a mano'}</h2>
           <button type="button" onClick={onChiudi} aria-label="Chiudi" className="size-10 rounded-full bg-superficie border border-bordo flex items-center justify-center cursor-pointer">
             <X className="size-5" aria-hidden />
           </button>
         </div>
-        <p className="text-sm text-tenue -mt-2">Gli orari sono quelli previsti: correggili se hai iniziato o finito a un'ora diversa.</p>
+        {soloSpese ? (
+          <div className="grid grid-cols-2 gap-3">
+            <Campo etichetta="Stampe effettuate" type="number" min={0} inputMode="numeric" placeholder="0" value={stampe} onChange={(ev) => setStampe(ev.target.value)} />
+          </div>
+        ) : <>
+        <p className="text-sm text-tenue -mt-2">Usa questo modulo solo se non hai registrato le tappe. Gli orari sono quelli previsti: correggili se serve.</p>
 
         <div className="grid grid-cols-2 gap-3">
           <Campo etichetta="Inizio lavoro" type="time" required value={inizio} onChange={(ev) => setInizio(ev.target.value)} />
@@ -106,6 +111,7 @@ export function ChiudiEvento({ e, onChiudi }: { e: EventoDettaglio; onChiudi: ()
           <AreaTesto etichetta="Perché sono cambiati gli orari?" required rows={2} placeholder="Es. il cliente ha prolungato di mezz'ora"
             value={nota} onChange={(ev) => setNota(ev.target.value)} />
         )}
+        </>}
 
         <div className="flex flex-col gap-2.5">
           <div className="flex justify-between items-center">
@@ -158,7 +164,7 @@ export function ChiudiEvento({ e, onChiudi }: { e: EventoDettaglio; onChiudi: ()
         </div>
 
         {(chiudi.error || erroreFoto != null) && <Errore errore={chiudi.error ?? erroreFoto} />}
-        <Pulsante type="submit" taglia="xl" pieno caricamento={chiudi.isPending || caricoFoto}>Invia ore e spese</Pulsante>
+        <Pulsante type="submit" taglia="xl" pieno caricamento={chiudi.isPending || caricoFoto}>{soloSpese ? 'Salva spese' : 'Invia ore e spese'}</Pulsante>
         <p className="text-center text-xs text-tenue -mt-2">Vanno al project per l'approvazione.</p>
       </motion.form>
     </motion.div>

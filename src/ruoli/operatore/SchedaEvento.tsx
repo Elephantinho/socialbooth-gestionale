@@ -1,19 +1,17 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { AnimatePresence } from 'framer-motion'
-import { AlertTriangle, ArrowLeft, Flag, MapPin, MessageCircle, Phone } from 'lucide-react'
-import { ChiudiEvento } from './ChiudiEvento'
+import { AlertTriangle, ArrowLeft, MessageCircle, Phone } from 'lucide-react'
+import { TappeLavoro } from './TappeLavoro'
 import { InfoLuogo } from '@/modules/luogo/components/InfoLuogo'
 import { AllegatiEvento } from '@/modules/comunicazione/components/AllegatiEvento'
 import { ChatEvento } from '@/modules/comunicazione/components/ChatEvento'
 import { useAttrezzaturaEvento } from '@/modules/attrezzatura/api'
-import { useCheckIn, useEvento } from '@/modules/eventi/api'
+import { useEvento } from '@/modules/eventi/api'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
 import type { EventoDettaglio } from '@/modules/eventi/types'
 import { dataLunga, ora, iniziali } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
-import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore } from '@/shared/ui/Stati'
 
 export function SchedaEvento() {
@@ -102,7 +100,7 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
         <ChatEvento eventoId={e.id} />
       </div>
 
-      <AzioneInBasso e={e} />
+      {['confermato', 'in_corso', 'completato'].includes(e.stato) && <div className="px-5 flex flex-col gap-3.5 pb-0"><TappeLavoro e={e} /></div>}
     </>
   )
 }
@@ -180,52 +178,5 @@ function Checklist({ eventoId, wifi }: { eventoId: string; wifi: boolean }) {
         </label>
       ))}
     </Card>
-  )
-}
-
-function AzioneInBasso({ e }: { e: EventoDettaglio }) {
-  const checkIn = useCheckIn()
-  const [erroreGps, setErroreGps] = useState<string>()
-  const [chiusura, setChiusura] = useState(false)
-
-  function faiCheckIn() {
-    setErroreGps(undefined)
-    if (!navigator.geolocation) return setErroreGps('Posizione non disponibile su questo dispositivo')
-    navigator.geolocation.getCurrentPosition(
-      (pos) => checkIn.mutate({ eventoId: e.id, lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => setErroreGps('Attiva la posizione per fare il check-in'),
-      { enableHighAccuracy: true, timeout: 15_000 },
-    )
-  }
-
-  if (e.stato === 'completato') {
-    return (
-      <div className="mt-auto px-5 pb-sicura pt-3">
-        <Card tono="accento" className="p-4 text-center font-bold">Evento chiuso · ore inviate per l'approvazione</Card>
-      </div>
-    )
-  }
-  if (e.stato !== 'confermato' && e.stato !== 'in_corso') return null
-
-  return (
-    <div className="sticky bottom-0 mt-auto bg-sfondo/95 backdrop-blur border-t border-bordo px-5 pt-3.5 pb-sicura flex flex-col gap-2">
-      {(erroreGps || checkIn.error) && <Errore errore={checkIn.error ?? new Error(erroreGps)} />}
-      {e.stato === 'confermato' ? (
-        <>
-          <Pulsante taglia="xl" pieno icona={<MapPin className="size-5" aria-hidden />} caricamento={checkIn.isPending} onClick={faiCheckIn}>
-            Fai check-in
-          </Pulsante>
-          <button onClick={() => setChiusura(true)} className="text-sm font-bold text-tenue py-1 cursor-pointer">Hai già finito? Chiudi l'evento</button>
-        </>
-      ) : (
-        <>
-          <Pulsante taglia="xl" pieno variante="scuro" icona={<Flag className="size-5" aria-hidden />} onClick={() => setChiusura(true)}>
-            Chiudi evento e inserisci ore
-          </Pulsante>
-          <p className="text-center text-xs font-semibold text-tenue">Check-in fatto · a fine lavoro chiudi l'evento</p>
-        </>
-      )}
-      <AnimatePresence>{chiusura && <ChiudiEvento e={e} onChiudi={() => setChiusura(false)} />}</AnimatePresence>
-    </div>
   )
 }

@@ -215,7 +215,7 @@ function OreEvento({ e }: { e: EventoGestioneCompleto }) {
   const profilo = useProfilo()
   const approva = useApprovaOre()
   const ore = e.ore.find((o) => o.check_out_il)
-  const checkIn = e.ore.find((o) => o.check_in_il)
+  const checkIn = e.ore.find((o) => o.partenza_il || o.check_in_il)
 
   if (!ore && !checkIn) return null
 
@@ -230,15 +230,23 @@ function OreEvento({ e }: { e: EventoGestioneCompleto }) {
           </span>
         )}
       </div>
-      {checkIn?.check_in_il && (
-        <p className="text-sm text-tenue">
-          Check-in alle <strong className="text-inchiostro">{ora(checkIn.check_in_il)}</strong>
-          {checkIn.check_in_lat != null && (
-            <> · <a className="underline" target="_blank" rel="noreferrer"
-              href={`https://www.google.com/maps?q=${checkIn.check_in_lat},${checkIn.check_in_lng}`}>vedi posizione</a></>
-          )}
-        </p>
+      {checkIn && (
+        <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(120px,1fr))]">
+          {([
+            ['Partenza', checkIn.partenza_il, checkIn.partenza_lat, checkIn.partenza_lng],
+            ['Arrivo', checkIn.check_in_il, checkIn.check_in_lat, checkIn.check_in_lng],
+            ['Fine lavoro', checkIn.fine_il, null, null],
+            ['Rientro', checkIn.rientro_il, checkIn.rientro_lat, checkIn.rientro_lng],
+          ] as const).map(([etichetta, quando, lat, lng]) => (
+            <div key={etichetta} className={cn('rounded-xl p-2.5', quando ? 'bg-accento-tenue/50' : 'bg-sfondo')}>
+              <p className="text-xs font-bold text-tenue">{etichetta}</p>
+              <p className="font-bold">{quando ? ora(quando) : '—'}</p>
+              {lat != null && <a className="text-xs underline text-accento-scuro" target="_blank" rel="noreferrer" href={`https://www.google.com/maps?q=${lat},${lng}`}>posizione</a>}
+            </div>
+          ))}
+        </div>
       )}
+      {ore?.calcolo_automatico && <p className="text-xs font-bold text-accento">Ore calcolate in automatico dalle tappe registrate dall'operatore</p>}
       {ore && (
         <>
           <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(130px,1fr))]">

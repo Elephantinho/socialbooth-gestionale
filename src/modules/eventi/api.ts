@@ -95,15 +95,48 @@ export type SpesaOperatore = {
 export function useChiudiEvento() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (v: { eventoId: string; minutiLocation: number; minutiViaggio: number; nota?: string; spese: SpesaOperatore[]; operatoreId: string }) => {
-      ok(await supabase.rpc('chiudi_evento', {
-        p_evento: v.eventoId, p_minuti_location: v.minutiLocation, p_minuti_viaggio: v.minutiViaggio, p_nota: v.nota || undefined,
-      }))
+    mutationFn: async (v: { eventoId: string; minutiLocation: number; minutiViaggio: number; nota?: string; spese: SpesaOperatore[]; operatoreId: string; soloSpese?: boolean }) => {
+      if (!v.soloSpese) {
+        ok(await supabase.rpc('chiudi_evento', {
+          p_evento: v.eventoId, p_minuti_location: v.minutiLocation, p_minuti_viaggio: v.minutiViaggio, p_nota: v.nota || undefined,
+        }))
+      }
       if (v.spese.length) {
         ok(await supabase.from('costi_evento').insert(v.spese.map((s) => ({
           ...s, evento_id: v.eventoId, operatore_id: v.operatoreId, fase: 'finale' as const,
         }))))
       }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: chiavi.tutti })
+      qc.invalidateQueries({ queryKey: chiavi.ore })
+    },
+  })
+}
+
+/** Le tappe registrate dall'operatore per un evento (partenza, arrivo, fine, rientro) */
+export function useTappe(eventoId: string, operatoreId: string) {
+  return useQuery({
+    queryKey: ['eventi', 'tappe', eventoId],
+    queryFn: async () =>
+      (ok(await supabase.from('ore_lavorate').select('*').eq('evento_id', eventoId).eq('operatore_id', operatoreId).limit(1)))[0] ?? null,
+  })
+}
+
+export type Tappa = 'partenza' | 'arrivo' | 'fine' | 'rientro' | 'chiudi'
+
+/** Registra una tappa con ora e posizione (la posizione è facoltativa: se il GPS non risponde si salva solo l'ora) */
+export function useRegistraTappa() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (v: { eventoId: string; tappa: Tappa }) => {
+      const pos = await new Promise<GeolocationPosition | null>((risolvi) => {
+        if (!navigator.geolocation) return risolvi(null)
+        navigator.geolocation.getCurrentPosition(risolvi, () => risolvi(null), { enableHighAccuracy: true, timeout: 8000, maximumAge: 60_000 })
+      })
+      ok(await supabase.rpc('registra_tappa', {
+        p_evento: v.eventoId, p_tappa: v.tappa, p_lat: pos?.coords.latitude, p_lng: pos?.coords.longitude,
+      }))
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: chiavi.tutti })

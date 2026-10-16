@@ -184,12 +184,16 @@ export type Database = {
           check_in_lat: number | null; check_in_lng: number | null; check_out_il: string | null; compenso: number | null; creato_il: string
           evento_id: string; id: string; minuti_in_location: number; minuti_totali: number | null; minuti_viaggio: number
           nota_operatore: string | null; operatore_id: string; stato: Database['public']['Enums']['stato_approvazione']; tariffa_oraria: number | null
+          partenza_il: string | null; partenza_lat: number | null; partenza_lng: number | null; fine_il: string | null
+          rientro_il: string | null; rientro_lat: number | null; rientro_lng: number | null; calcolo_automatico: boolean
         }
         Insert: {
           approvato_da?: string | null; approvato_il?: string | null; check_in_foto?: string | null; check_in_il?: string | null
           check_in_lat?: number | null; check_in_lng?: number | null; check_out_il?: string | null; compenso?: number | null; creato_il?: string
           evento_id: string; id?: string; minuti_in_location?: number; minuti_totali?: number | null; minuti_viaggio?: number
           nota_operatore?: string | null; operatore_id: string; stato?: Database['public']['Enums']['stato_approvazione']; tariffa_oraria?: number | null
+          partenza_il?: string | null; partenza_lat?: number | null; partenza_lng?: number | null; fine_il?: string | null
+          rientro_il?: string | null; rientro_lat?: number | null; rientro_lng?: number | null; calcolo_automatico?: boolean
         }
         Update: Partial<Database['public']['Tables']['ore_lavorate']['Insert']>
         Relationships: [
@@ -280,6 +284,7 @@ export type Database = {
       proponi_operatore: { Args: { p_evento: string; p_operatore: string }; Returns: undefined }
       rispondi_proposta: { Args: { p_accetta: boolean; p_proposta: string }; Returns: undefined }
       gestisco_evento: { Args: { p_evento: string }; Returns: boolean }
+      registra_tappa: { Args: { p_evento: string; p_tappa: string; p_lat?: number; p_lng?: number }; Returns: undefined }
       lavoro_evento: { Args: { p_evento: string }; Returns: boolean }
     }
     Enums: {
