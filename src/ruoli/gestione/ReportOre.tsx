@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router-dom'
 import { numeroCsv, scaricaCsv } from '@/shared/lib/csv'
 import { usePuo } from '@/modules/auth/permessi'
 import { useState } from 'react'
@@ -19,7 +20,8 @@ const speseApprovabili = (r: RigaReport) =>
     .reduce((t, c) => t + Number(c.importo ?? 0), 0)
 
 export function ReportOre() {
-  const [mese, setMese] = useState(meseCorrente())
+  const [parametri] = useSearchParams()
+  const [mese, setMese] = useState(parametri.get('mese') ?? meseCorrente())
   const { data, isPending, error } = useReportOre(mese)
 
   const righe = data ?? []
@@ -52,8 +54,7 @@ export function ReportOre() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap gap-4 justify-between items-end">
         <div>
-          <p className="text-sm font-semibold text-tenue">Conti</p>
-          <h1 className="font-display text-4xl font-semibold tracking-tight mt-1">Ore, costi e compensi</h1>
+          <h1 className="font-display text-[30px] md:text-[34px] font-semibold leading-tight">Ore, costi e compensi</h1>
           <p className="text-tenue mt-2">
             {tutti ? 'Le chiusure da approvare e le ore di ogni operatore' : 'Le chiusure dei tuoi eventi'} (location + viaggio × tariffa). I conti per regione sono in Andamento.
           </p>

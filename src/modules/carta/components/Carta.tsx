@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Check, Minus, PackagePlus, Plus, Printer } from 'lucide-react'
 import { useInviaRicarica, useScortaOperatore, useScorteVisibili, useSegnalaCarta } from '../api'
-import { confezioniPer, type LivelloCarta, type StatoCarta } from '../logic/scorta'
+import { confezioniPer, daRicaricare, type LivelloCarta, type StatoCarta } from '../logic/scorta'
 import { dataBreve, nomeCompleto } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
 import { Avatar } from '@/shared/ui/Avatar'
@@ -18,6 +18,7 @@ const stili: Record<LivelloCarta, { badge: string; barra: string; testo: string 
   finita: { badge: 'bg-urgente text-white', barra: 'bg-urgente', testo: 'Carta finita' },
   bassa: { badge: 'bg-urgente-tenue text-urgente-testo', barra: 'bg-urgente', testo: 'Carta in esaurimento' },
   ok: { badge: 'bg-accento-tenue text-accento-scuro', barra: 'bg-accento', testo: 'Carta ok' },
+  da_impostare: { badge: 'bg-sfondo text-tenue border border-bordo', barra: 'bg-bordo-forte', testo: 'Scorta da impostare' },
 }
 
 /** Etichetta colorata: verde ok, rossa quando sta finendo o è finita */
@@ -80,7 +81,8 @@ export function AvvisiCarta() {
   const [aperto, setAperto] = useState<string>()
   if (isPending) return null
   if (error) return <Errore errore={error} />
-  const critici = (data ?? []).filter((o) => o.livello !== 'ok')
+  const critici = (data ?? []).filter((o) => daRicaricare(o.livello))
+  const daImpostare = (data ?? []).filter((o) => o.livello === 'da_impostare')
   if (!data?.length) return null
 
   return (
@@ -91,7 +93,7 @@ export function AvvisiCarta() {
           Carta degli operatori
         </TitoloSezione>
         <span className={cn('text-sm font-semibold', critici.length ? 'text-urgente-testo' : 'text-accento-scuro')}>
-          {critici.length ? `${critici.length} da ricaricare` : 'Tutti hanno carta a sufficienza'}
+          {critici.length ? `${critici.length} da ricaricare` : daImpostare.length === data.length ? 'Scorte ancora da impostare' : 'Tutti hanno carta a sufficienza'}
         </span>
       </div>
       {critici.length > 0 && (
@@ -125,6 +127,12 @@ export function AvvisiCarta() {
           ))}
         </ul>
       )}
+      {daImpostare.length > 0 && (
+        <p className="text-sm text-tenue">
+          {daImpostare.length === 1 ? '1 operatore non ha' : `${daImpostare.length} operatori non hanno`} ancora la scorta impostata
+          ({daImpostare.slice(0, 3).map((o) => o.nome).join(', ')}{daImpostare.length > 3 ? '…' : ''}): registra una ricarica o fagli contare la carta dall'app.
+        </p>
+      )}
       <p className="text-xs text-tenue">
         Diventa rossa sotto le {parametri?.soglia ?? 200} stampe o quando non basta per gli eventi già assegnati. Le stampe dichiarate a fine evento si scalano da sole.
       </p>
@@ -148,7 +156,7 @@ export function SchedaCarta({ operatore, modo }: { operatore: string; modo: 'ges
   if (isPending) return <Card className="p-5"><Caricamento /></Card>
   if (error) return <Errore errore={error} />
 
-  const rossa = data.livello !== 'ok'
+  const rossa = daRicaricare(data.livello)
   return (
     <Card className={cn('p-5 flex flex-col gap-4', rossa && 'border border-[#F2B8AE]')}>
       <div className="flex flex-wrap items-start justify-between gap-3">

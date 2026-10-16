@@ -30,8 +30,7 @@ export function Magazzini() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap gap-4 justify-between items-end">
         <div>
-          <p className="text-sm font-semibold text-tenue">Gestione</p>
-          <h1 className="font-display text-4xl font-semibold tracking-tight mt-1">Magazzini</h1>
+          <h1 className="font-display text-[30px] md:text-[34px] font-semibold leading-tight">Magazzini</h1>
           <p className="text-tenue mt-2 max-w-2xl">Da qui partono gli operatori: l'indirizzo serve per calcolare in automatico i tempi di viaggio.</p>
         </div>
         {admin && (

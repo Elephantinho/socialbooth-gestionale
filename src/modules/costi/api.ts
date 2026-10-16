@@ -4,6 +4,18 @@ import type { Database, Inserimento } from '@/shared/types/database'
 
 // Costi degli eventi e carte aziendali.
 
+/** Stampe già dichiarate per un evento (per non chiederle due volte) */
+export function useStampeDichiarate(eventoId: string) {
+  return useQuery({
+    queryKey: ['eventi', 'costi', eventoId, 'stampe'],
+    queryFn: async () => {
+      const righe = ok(await supabase.from('costi_evento').select('stampe')
+        .eq('evento_id', eventoId).eq('categoria', 'carta_stampe').eq('fase', 'finale').neq('stato', 'respinto'))
+      return righe.reduce((s, r) => s + (r.stampe ?? 0), 0)
+    },
+  })
+}
+
 export function useCostiEvento(eventoId: string) {
   return useQuery({
     queryKey: ['eventi', 'costi', eventoId],

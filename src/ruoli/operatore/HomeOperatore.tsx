@@ -194,7 +194,7 @@ function Statistica({ valore, etichetta, evidenza }: { valore: string; etichetta
 /** Avviso rosso in home quando la carta sta finendo */
 function AvvisoCartaOperatore({ id }: { id: string }) {
   const { data } = useScortaOperatore(id)
-  if (!data || data.livello === 'ok') return null
+  if (!data || (data.livello !== 'bassa' && data.livello !== 'finita')) return null
   return (
     <Link to="/operatore/profilo" className="rounded-xl bg-urgente-tenue text-urgente-testo border border-[#F6C9C1] p-4 flex items-center gap-3">
       <Printer className="size-6 shrink-0" aria-hidden />

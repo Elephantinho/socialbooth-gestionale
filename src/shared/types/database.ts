@@ -246,7 +246,7 @@ export type Database = {
         Row: {
           attivo: boolean; creato_il: string; id: string; magazzino_id: string | null; nome: string
           ruolo: Database['public']['Enums']['ruolo']; tariffa_oraria: number | null; telefono: string | null
-          cognome: string; foto: string | null; carta_disponibile: number
+          cognome: string; foto: string | null; carta_disponibile: number; carta_aggiornata_il: string | null; visto_il: string | null
         }
         Insert: {
           attivo?: boolean; creato_il?: string; id: string; magazzino_id?: string | null; nome?: string

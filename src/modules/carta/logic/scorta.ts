@@ -1,6 +1,9 @@
 // Regole pure sulla scorta di carta di un operatore.
 
-export type LivelloCarta = 'ok' | 'bassa' | 'finita'
+export type LivelloCarta = 'ok' | 'bassa' | 'finita' | 'da_impostare'
+
+/** Livelli che chiedono una ricarica */
+export const daRicaricare = (l: LivelloCarta) => l === 'bassa' || l === 'finita'
 
 export type StatoCarta = {
   livello: LivelloCarta
@@ -16,11 +19,13 @@ export type StatoCarta = {
 /**
  * Rossa quando è finita; arancione/rossa quando è sotto la soglia
  * o non basta per i prossimi eventi già assegnati.
+ * "Da impostare" se nessuno ha mai registrato quanta carta ha (operatore nuovo): niente allarmi finti.
  */
-export function statoCarta(disponibili: number, soglia: number, prossimiEventi: number, mediaPerEvento: number | null): StatoCarta {
+export function statoCarta(disponibili: number, soglia: number, prossimiEventi: number, mediaPerEvento: number | null, impostata = true): StatoCarta {
   const media = mediaPerEvento && mediaPerEvento > 0 ? mediaPerEvento : 0
   const fabbisogno = Math.round(prossimiEventi * media)
-  const livello: LivelloCarta = disponibili <= 0 ? 'finita' : disponibili < soglia || disponibili < fabbisogno ? 'bassa' : 'ok'
+  const livello: LivelloCarta = !impostata ? 'da_impostare'
+    : disponibili <= 0 ? 'finita' : disponibili < soglia || disponibili < fabbisogno ? 'bassa' : 'ok'
   return {
     livello,
     disponibili,

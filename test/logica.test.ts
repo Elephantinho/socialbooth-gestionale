@@ -85,6 +85,9 @@ describe('carta', () => {
   it('rossa anche se non basta per gli eventi già assegnati', () => {
     expect(statoCarta(500, 200, 2, 300).livello).toBe('bassa')
   })
+  it('operatore nuovo senza scorta registrata: "da impostare", non rosso', () => {
+    expect(statoCarta(0, 200, 1, 300, false).livello).toBe('da_impostare')
+  })
   it('arrotonda alle confezioni intere', () => {
     expect(confezioniPer(701, 700)).toBe(2)
     expect(confezioniPer(10, 700)).toBe(1)

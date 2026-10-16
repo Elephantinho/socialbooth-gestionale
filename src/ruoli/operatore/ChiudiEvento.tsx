@@ -1,3 +1,4 @@
+import { useStampeDichiarate } from '@/modules/costi/api'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Camera, CreditCard, Plus, Trash2, Wallet, X } from 'lucide-react'
@@ -28,6 +29,8 @@ export function ChiudiEvento({ e, onChiudi, soloSpese }: { e: EventoDettaglio; o
   const [fine, setFine] = useState(ora(e.smontaggio_il))
   const [viaggio, setViaggio] = useState(String(minutiViaggioPagati(e.viaggio_minuti)))
   const [stampe, setStampe] = useState('')
+  // Se le stampe sono già state dichiarate (alla tappa "Ho finito") non si chiedono di nuovo
+  const giaDichiarate = useStampeDichiarate(e.id).data ?? 0
   const [nota, setNota] = useState('')
   const [spese, setSpese] = useState<RigaSpesa[]>(() => (soloSpese ? [{ categoria: 'carburante', importo: '', descrizione: '', conCarta: false }] : []))
 
@@ -63,8 +66,8 @@ export function ChiudiEvento({ e, onChiudi, soloSpese }: { e: EventoDettaglio; o
       pagato_con: (s.conCarta && carta ? 'carta_aziendale' : 'operatore') as Enum<'pagamento'>,
       carta_id: s.conCarta && carta ? carta.id : null,
     }))
-    // Le stampe sono un costo (carta) con quantità: il prezzo unitario lo mette il project
-    if (Number(stampe) > 0) {
+    // Le stampe diventano il costo della carta (calcolato dal costo della confezione) e scalano la scorta
+    if (!giaDichiarate && Number(stampe) > 0) {
       righe.push({ scontrino: null, categoria: 'carta_stampe', quantita: Number(stampe), costo_unitario: 0, descrizione: 'Stampe effettuate', pagato_con: 'azienda', carta_id: null })
     }
     chiudi.mutate({ eventoId: e.id, operatoreId: profilo.id, minutiLocation, minutiViaggio, nota: nota.trim(), spese: righe, soloSpese }, { onSuccess: onChiudi })
@@ -86,9 +89,11 @@ export function ChiudiEvento({ e, onChiudi, soloSpese }: { e: EventoDettaglio; o
           </button>
         </div>
         {soloSpese ? (
-          <div className="grid grid-cols-2 gap-3">
-            <Campo etichetta="Stampe effettuate" type="number" min={0} inputMode="numeric" placeholder="0" value={stampe} onChange={(ev) => setStampe(ev.target.value)} />
-          </div>
+          giaDichiarate ? <p className="text-sm text-tenue">Stampe già dichiarate: {giaDichiarate}.</p> : (
+            <div className="grid grid-cols-2 gap-3">
+              <Campo etichetta="Stampe effettuate" type="number" min={0} inputMode="numeric" placeholder="0" value={stampe} onChange={(ev) => setStampe(ev.target.value)} />
+            </div>
+          )
         ) : <>
         <p className="text-sm text-tenue -mt-2">Usa questo modulo solo se non hai registrato le tappe. Gli orari sono quelli previsti: correggili se serve.</p>
 
@@ -98,7 +103,9 @@ export function ChiudiEvento({ e, onChiudi, soloSpese }: { e: EventoDettaglio; o
         </div>
         <div className="grid grid-cols-2 gap-3">
           <Campo etichetta="Viaggio a/r (minuti)" type="number" min={0} inputMode="numeric" value={viaggio} onChange={(ev) => setViaggio(ev.target.value)} />
-          <Campo etichetta="Stampe effettuate" type="number" min={0} inputMode="numeric" placeholder="0" value={stampe} onChange={(ev) => setStampe(ev.target.value)} />
+          {giaDichiarate
+            ? <p className="text-sm text-tenue self-end pb-3">Stampe già dichiarate: {giaDichiarate}</p>
+            : <Campo etichetta="Stampe effettuate" type="number" min={0} inputMode="numeric" placeholder="0" value={stampe} onChange={(ev) => setStampe(ev.target.value)} />}
         </div>
 
         <div className="rounded-xl bg-evidenza border border-evidenza-bordo p-4 grid grid-cols-3 gap-2 text-center">

@@ -1,13 +1,14 @@
+import { daRicaricare } from '@/modules/carta/logic/scorta'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { useRichieste } from '@/modules/richieste/api'
 import { perMe } from '@/modules/richieste/components/ListaRichieste'
 import { Link } from 'react-router-dom'
 import { Inbox, CalendarCheck, FileText, Hourglass, Printer, UserCheck, UserX, Wallet } from 'lucide-react'
 import { usePuo, type Permesso } from '@/modules/auth/permessi'
-import { useReportOre } from '@/modules/eventi/api'
+import { useOreDaApprovare } from '@/modules/eventi/api'
 import { useOperatori } from '@/modules/anagrafiche/api'
 import { useScorteVisibili } from '@/modules/carta/api'
-import { euro, meseCorrente } from '@/shared/lib/formato'
+import { euro } from '@/shared/lib/formato'
 import { Numero } from '@/shared/ui/Intestazione'
 import type { EventoLista } from './tipi'
 
@@ -26,7 +27,7 @@ type Riquadro = {
  */
 export function DaFare({ futuri, tutti }: { futuri: EventoLista[]; tutti: EventoLista[] }) {
   const puo = usePuo()
-  const ore = useReportOre(meseCorrente(), { enabled: puo('ore.approva') })
+  const ore = useOreDaApprovare({ enabled: puo('ore.approva') })
   const operatori = useOperatori()
   const carta = useScorteVisibili()
   const io = useProfilo()
@@ -34,9 +35,11 @@ export function DaFare({ futuri, tutti }: { futuri: EventoLista[]; tutti: Evento
 
   const daAssegnare = futuri.filter((e) => e.stato === 'da_assegnare').length
   const inAttesa = futuri.filter((e) => e.stato === 'proposto').length
-  const daApprovare = (ore.data ?? []).filter((r) => r.stato === 'inviato').length
+  const daApprovare = ore.data?.length ?? 0
+  // Il mese più vecchio con chiusure in sospeso: il link apre il report lì
+  const meseDaApprovare = (ore.data ?? []).map((o) => o.evento!.allestimento_il.slice(0, 7)).sort()[0]
   const nuoviOperatori = (operatori.data ?? []).filter((o) => !o.attivo).length
-  const cartaRossa = (carta.data ?? []).filter((o) => o.livello !== 'ok').length
+  const cartaRossa = (carta.data ?? []).filter((o) => daRicaricare(o.livello)).length
   const completati = tutti.filter((e) => e.stato === 'completato')
   const daFatturare = completati.filter((e) => !e.fattura_numero).length
   const daIncassare = completati.filter((e) => e.fattura_importo != null && !e.fattura_pagata).reduce((s, e) => s + Number(e.fattura_importo), 0)
@@ -47,7 +50,7 @@ export function DaFare({ futuri, tutti }: { futuri: EventoLista[]; tutti: Evento
     { permesso: 'eventi.assegna', a: '/gestione?filtro=attesa', valore: inAttesa, etichetta: 'proposte che l\'operatore non ha ancora accettato', urgente: false, Icona: Hourglass },
     { permesso: 'operatori.gestisci', a: '/gestione/operatori', valore: nuoviOperatori, etichetta: 'nuovi operatori da attivare', urgente: nuoviOperatori > 0, Icona: UserCheck },
     { permesso: 'carta.ricarica', valore: cartaRossa, etichetta: 'operatori con poca carta', urgente: cartaRossa > 0, Icona: Printer },
-    { permesso: 'ore.approva', a: '/gestione/report', valore: daApprovare, etichetta: 'eventi finiti con ore da approvare', urgente: daApprovare > 0, Icona: CalendarCheck },
+    { permesso: 'ore.approva', a: meseDaApprovare ? `/gestione/report?mese=${meseDaApprovare}` : '/gestione/report', valore: daApprovare, etichetta: 'eventi finiti con ore da approvare', urgente: daApprovare > 0, Icona: CalendarCheck },
     { permesso: 'fatture', a: '/gestione/archivio?filtro=fatturare', valore: daFatturare, etichetta: 'eventi da fatturare', urgente: daFatturare > 0, Icona: FileText },
     { permesso: 'fatture', a: '/gestione/archivio?filtro=incassare', valore: euro(Math.round(daIncassare)), etichetta: 'da incassare', urgente: false, Icona: Wallet },
   ]

@@ -41,19 +41,19 @@ export function useScorteCarta() {
     queryFn: async (): Promise<ScortaOperatore[]> => {
       const p = parametri.data!
       const [operatori, eventi] = await Promise.all([
-        supabase.from('profili').select('id, nome, cognome, foto, carta_disponibile, zone:zone_operatore(regione)')
+        supabase.from('profili').select('id, nome, cognome, foto, carta_disponibile, carta_aggiornata_il, zone:zone_operatore(regione)')
           .eq('ruolo', 'operatore').eq('attivo', true),
         supabase.from('eventi').select('operatore_id')
           .in('stato', [...STATI_ASSEGNATI]).gte('smontaggio_il', new Date().toISOString()).not('operatore_id', 'is', null),
       ])
       const prossimi = new Map<string, number>()
       for (const e of ok(eventi)) prossimi.set(e.operatore_id!, (prossimi.get(e.operatore_id!) ?? 0) + 1)
-      const ordine = { finita: 0, bassa: 1, ok: 2 }
+      const ordine = { finita: 0, bassa: 1, da_impostare: 2, ok: 3 }
       return ok(operatori).map((o) => ({
         id: o.id, nome: o.nome, cognome: o.cognome, foto: o.foto,
         regioni: (o.zone ?? []).map((z) => z.regione),
         prossimiEventi: prossimi.get(o.id) ?? 0,
-        ...statoCarta(o.carta_disponibile, p.soglia, prossimi.get(o.id) ?? 0, p.media),
+        ...statoCarta(o.carta_disponibile, p.soglia, prossimi.get(o.id) ?? 0, p.media, !!o.carta_aggiornata_il),
       })).sort((a, b) => ordine[a.livello] - ordine[b.livello] || a.disponibili - b.disponibili)
     },
   })
@@ -79,7 +79,7 @@ export function useScortaOperatore(id: string | undefined) {
     queryFn: async () => {
       const p = parametri.data!
       const [profilo, eventi, movimenti] = await Promise.all([
-        supabase.from('profili').select('carta_disponibile').eq('id', id!).single(),
+        supabase.from('profili').select('carta_disponibile, carta_aggiornata_il').eq('id', id!).single(),
         supabase.from('eventi').select('id', { count: 'exact', head: true }).eq('operatore_id', id!)
           .in('stato', [...STATI_ASSEGNATI]).gte('smontaggio_il', new Date().toISOString()),
         supabase.from('movimenti_carta').select('*, evento:eventi(citta, allestimento_il)')
@@ -88,7 +88,7 @@ export function useScortaOperatore(id: string | undefined) {
       if (eventi.error) throw eventi.error
       const prossimi = eventi.count ?? 0
       return {
-        ...statoCarta(ok(profilo).carta_disponibile, p.soglia, prossimi, p.media),
+        ...statoCarta(ok(profilo).carta_disponibile, p.soglia, prossimi, p.media, !!ok(profilo).carta_aggiornata_il),
         prossimiEventi: prossimi,
         movimenti: ok(movimenti),
         parametri: p,

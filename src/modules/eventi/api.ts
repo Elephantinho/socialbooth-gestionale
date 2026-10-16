@@ -261,6 +261,17 @@ export function useApprovaOre() {
   })
 }
 
+/** Chiusure ancora da approvare, di qualsiasi mese (non solo quello corrente) */
+export function useOreDaApprovare(opzioni: { enabled?: boolean } = {}) {
+  return useQuery({
+    queryKey: ['ore', 'da-approvare'],
+    enabled: opzioni.enabled ?? true,
+    queryFn: async () => ok(await supabase.from('ore_lavorate')
+      .select('id, evento:eventi!inner(allestimento_il)')
+      .eq('stato', 'inviato').not('check_out_il', 'is', null)),
+  })
+}
+
 /** Tutte le ore del mese per il report (project vede i suoi eventi, admin tutti). */
 export function useReportOre(mese: string /* yyyy-mm */, opzioni: { enabled?: boolean } = {}) {
   return useQuery({
