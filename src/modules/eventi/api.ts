@@ -89,6 +89,7 @@ export type SpesaOperatore = {
   pagato_con: Database['public']['Enums']['pagamento']
   carta_id: string | null
   descrizione?: string
+  scontrino?: string | null
 }
 
 export function useChiudiEvento() {

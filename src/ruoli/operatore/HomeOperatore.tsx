@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { AlertTriangle, ArrowRight } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { Avatar } from '@/shared/ui/Avatar'
+import { Campanella } from '@/modules/comunicazione/components/Campanella'
 import { useEventiOperatore, useMeseOperatore, useProposteInAttesa, useRispondiProposta } from '@/modules/eventi/api'
 import type { EventoDettaglio, Proposta } from '@/modules/eventi/types'
 import { dataBreve, euro, nomeCompleto, ora, traQuanto } from '@/shared/lib/formato'
@@ -29,9 +30,12 @@ export function HomeOperatore() {
             Ciao, {profilo.nome.split(' ')[0] || 'operatore'}
           </h1>
         </div>
+        <div className="flex items-center gap-2">
+        <Campanella />
         <Link to="/operatore/profilo" aria-label="Il mio profilo">
           <Avatar nome={nomeCompleto(profilo)} foto={profilo.foto} taglia="md" className="ring-2 ring-superficie" />
         </Link>
+        </div>
       </header>
 
       {eventi.isPending ? <Caricamento /> : eventi.error ? <Errore errore={eventi.error} /> : prossimo ? (

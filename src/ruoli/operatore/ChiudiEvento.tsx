@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { CreditCard, Plus, Trash2, Wallet, X } from 'lucide-react'
+import { Camera, CreditCard, Plus, Trash2, Wallet, X } from 'lucide-react'
+import { caricaFileEvento } from '@/modules/comunicazione/api'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { useChiudiEvento } from '@/modules/eventi/api'
 import { useMiaCarta } from '@/modules/costi/api'
@@ -14,7 +15,7 @@ import { AreaTesto, Campo, Selezione } from '@/shared/ui/Campo'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Errore } from '@/shared/ui/Stati'
 
-type RigaSpesa = { categoria: Enum<'categoria_costo'>; importo: string; descrizione: string; conCarta: boolean }
+type RigaSpesa = { categoria: Enum<'categoria_costo'>; importo: string; descrizione: string; conCarta: boolean; foto?: File }
 
 const numero = (s: string) => Number(s.replace(',', '.')) || 0
 
@@ -39,16 +40,32 @@ export function ChiudiEvento({ e, onChiudi }: { e: EventoDettaglio; onChiudi: ()
 
   const aggiorna = (i: number, campi: Partial<RigaSpesa>) => setSpese((l) => l.map((x, j) => (j === i ? { ...x, ...campi } : x)))
 
-  function invia(ev: React.FormEvent) {
+  const [caricoFoto, setCaricoFoto] = useState(false)
+  const [erroreFoto, setErroreFoto] = useState<unknown>()
+
+  async function invia(ev: React.FormEvent) {
     ev.preventDefault()
-    const righe = spese.filter((s) => numero(s.importo) > 0).map((s) => ({
+    // Prima carica le foto degli scontrini nell'archivio privato dell'evento
+    setErroreFoto(undefined)
+    setCaricoFoto(true)
+    let percorsi: (string | null)[]
+    try {
+      percorsi = await Promise.all(spese.map((s) => (s.foto && numero(s.importo) > 0 ? caricaFileEvento(e.id, s.foto, s.foto.name || 'scontrino.jpg', 'scontrini') : Promise.resolve(null))))
+    } catch (err) {
+      setErroreFoto(err)
+      setCaricoFoto(false)
+      return
+    }
+    setCaricoFoto(false)
+    const righe = spese.map((s, i) => ({ s, scontrino: percorsi[i] })).filter(({ s }) => numero(s.importo) > 0).map(({ s, scontrino }) => ({
+      scontrino,
       categoria: s.categoria, quantita: 1, costo_unitario: numero(s.importo), descrizione: s.descrizione || undefined,
       pagato_con: (s.conCarta && carta ? 'carta_aziendale' : 'operatore') as Enum<'pagamento'>,
       carta_id: s.conCarta && carta ? carta.id : null,
     }))
     // Le stampe sono un costo (carta) con quantità: il prezzo unitario lo mette il project
     if (Number(stampe) > 0) {
-      righe.push({ categoria: 'carta_stampe', quantita: Number(stampe), costo_unitario: 0, descrizione: 'Stampe effettuate', pagato_con: 'azienda', carta_id: null })
+      righe.push({ scontrino: null, categoria: 'carta_stampe', quantita: Number(stampe), costo_unitario: 0, descrizione: 'Stampe effettuate', pagato_con: 'azienda', carta_id: null })
     }
     chiudi.mutate({ eventoId: e.id, operatoreId: profilo.id, minutiLocation, minutiViaggio, nota: nota.trim(), spese: righe }, { onSuccess: onChiudi })
   }
@@ -113,6 +130,11 @@ export function ChiudiEvento({ e, onChiudi }: { e: EventoDettaglio; onChiudi: ()
                 </button>
               </div>
               <Campo etichetta="Descrizione (facoltativa)" placeholder="Es. caffè per il cliente" value={s.descrizione} onChange={(ev) => aggiorna(i, { descrizione: ev.target.value })} />
+              <label className={cn('h-11 rounded-xl border border-dashed text-sm font-bold inline-flex items-center justify-center gap-2 cursor-pointer',
+                s.foto ? 'border-accento text-accento bg-accento-tenue/40' : 'border-bordo-forte text-tenue')}>
+                <Camera className="size-4" aria-hidden /> {s.foto ? 'Foto scontrino aggiunta ✓' : 'Fotografa lo scontrino'}
+                <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(ev) => ev.target.files?.[0] && aggiorna(i, { foto: ev.target.files[0] })} />
+              </label>
               <div className="flex rounded-xl bg-sfondo p-1" role="group" aria-label="Come hai pagato">
                 {carta && (
                   <button type="button" aria-pressed={s.conCarta} onClick={() => aggiorna(i, { conCarta: true })}
@@ -135,8 +157,8 @@ export function ChiudiEvento({ e, onChiudi }: { e: EventoDettaglio; onChiudi: ()
           )}
         </div>
 
-        {chiudi.error && <Errore errore={chiudi.error} />}
-        <Pulsante type="submit" taglia="xl" pieno caricamento={chiudi.isPending}>Invia ore e spese</Pulsante>
+        {(chiudi.error || erroreFoto != null) && <Errore errore={chiudi.error ?? erroreFoto} />}
+        <Pulsante type="submit" taglia="xl" pieno caricamento={chiudi.isPending || caricoFoto}>Invia ore e spese</Pulsante>
         <p className="text-center text-xs text-tenue -mt-2">Vanno al project per l'approvazione.</p>
       </motion.form>
     </motion.div>

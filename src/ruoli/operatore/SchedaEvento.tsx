@@ -4,6 +4,8 @@ import { AnimatePresence } from 'framer-motion'
 import { AlertTriangle, ArrowLeft, Flag, MapPin, MessageCircle, Phone } from 'lucide-react'
 import { ChiudiEvento } from './ChiudiEvento'
 import { InfoLuogo } from '@/modules/luogo/components/InfoLuogo'
+import { AllegatiEvento } from '@/modules/comunicazione/components/AllegatiEvento'
+import { ChatEvento } from '@/modules/comunicazione/components/ChatEvento'
 import { useAttrezzaturaEvento } from '@/modules/attrezzatura/api'
 import { useCheckIn, useEvento } from '@/modules/eventi/api'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
@@ -96,6 +98,8 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
         )}
 
         <Checklist eventoId={e.id} wifi={e.wifi} />
+        <AllegatiEvento eventoId={e.id} fotoSet={e.stato === 'in_corso' || e.stato === 'confermato'} />
+        <ChatEvento eventoId={e.id} />
       </div>
 
       <AzioneInBasso e={e} />

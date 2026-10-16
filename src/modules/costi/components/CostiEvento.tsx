@@ -7,6 +7,7 @@ import { useAggiornaCosto, useAggiungiCosto, useCarte, useCostiEvento, useElimin
 import { CATEGORIE_COSTO, PAGAMENTI, etichettaCategoria, etichettaPagamento } from '../costanti'
 import { riepilogoEconomico } from '../logic/riepilogo'
 import { euro } from '@/shared/lib/formato'
+import { apriFile } from '@/modules/comunicazione/api'
 import { cn } from '@/shared/lib/cn'
 import type { Enum } from '@/shared/types/database'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
@@ -115,6 +116,7 @@ function VoceCosto({ c }: { c: Voce }) {
           {etichettaPagamento(c.pagato_con)}{c.carta && ` (${c.carta.nome} ···· ${c.carta.ultime_cifre})`}
           {c.operatore?.nome && ` · ${c.operatore.nome}`}
           {c.stato === 'inviato' && c.operatore_id && <span className="text-avviso-testo font-bold"> · da approvare</span>}
+          {c.scontrino && <> · <button type="button" onClick={() => apriFile(c.scontrino!)} className="font-bold text-accento underline cursor-pointer">vedi scontrino</button></>}
         </p>
       </div>
       {senzaPrezzo ? (

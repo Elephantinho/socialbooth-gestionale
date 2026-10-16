@@ -7,6 +7,7 @@ import { useTempoReale } from '@/modules/eventi/api'
 import { nomeCompleto } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
 import { Avatar } from '@/shared/ui/Avatar'
+import { Campanella } from '@/modules/comunicazione/components/Campanella'
 
 // Pannello web per project e admin.
 const gruppi = [
@@ -47,9 +48,12 @@ export function GestioneLayout() {
       {/* Barra superiore su telefono e tablet */}
       <div className="lg:hidden sticky top-0 z-30 bg-inchiostro text-white px-4 h-16 flex items-center justify-between">
         <Marchio />
+        <div className="flex items-center gap-2">
+        <Campanella scura />
         <button onClick={() => setMenuAperto(true)} aria-label="Apri menu" className="size-11 rounded-xl bg-scuro-2 flex items-center justify-center cursor-pointer">
           <Menu className="size-5" aria-hidden />
         </button>
+        </div>
       </div>
 
       {/* Menu laterale fisso su computer */}
@@ -72,6 +76,7 @@ export function GestioneLayout() {
 
       <main className="flex-1 min-w-0 px-4 py-7 md:px-10 md:py-10">
         <div className="max-w-[1160px] mx-auto">
+          <div className="hidden lg:flex justify-end -mt-4 mb-3 relative z-20"><Campanella /></div>
           <motion.div key={posizione.pathname} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
             <Outlet />
           </motion.div>
