@@ -125,7 +125,12 @@ function RigaTabella({ r }: { r: RigaReport }) {
     <tr className={cn('border-b border-bordo last:border-0', r.stato === 'respinto' && 'opacity-50 line-through')}>
       <td className="px-5 py-3 whitespace-nowrap font-semibold">{r.evento ? dataBreve(r.evento.allestimento_il) : '—'}</td>
       <td className="px-5 py-3 whitespace-nowrap">
-        {r.evento ? <Link to={`/gestione/eventi/${r.evento.id}`} className="font-semibold hover:underline">{r.evento.tipo_booth?.nome ?? 'Evento'} · {r.evento.citta}</Link> <span className="text-xs text-tenue">{r.evento.regione}</span> : '—'}
+        {r.evento ? (
+          <>
+            <Link to={`/gestione/eventi/${r.evento.id}`} className="font-semibold hover:underline">{r.evento.tipo_booth?.nome ?? 'Evento'} · {r.evento.citta}</Link>
+            <span className="text-xs text-tenue"> {r.evento.regione}</span>
+          </>
+        ) : '—'}
       </td>
       <td className="px-5 py-3 whitespace-nowrap">{durata(r.minuti_in_location)}</td>
       <td className="px-5 py-3 whitespace-nowrap">{durata(r.minuti_viaggio)}</td>
