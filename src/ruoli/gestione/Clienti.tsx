@@ -47,15 +47,15 @@ function SchedaCliente({ c }: { c: Cliente }) {
   return (
     <Card className="p-5 flex flex-col gap-3">
       <div className="flex items-start gap-3">
-        <div className="size-11 rounded-md bg-accento-tenue text-accento flex items-center justify-center shrink-0"><Building className="size-5" aria-hidden /></div>
+        <div className="size-11 rounded-lg bg-accento-tenue text-accento flex items-center justify-center shrink-0"><Building className="size-5" aria-hidden /></div>
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-[16px] truncate">{c.nome}</p>
           <p className="text-sm text-tenue">{validi.length} eventi</p>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2">
-        <div className="rounded-md bg-sfondo p-3"><p className="text-xs font-semibold text-tenue">Fatturato</p><p className="font-semibold">{euro(fatturato)}</p></div>
-        <div className={daIncassare > 0 ? 'rounded-md bg-avviso p-3 text-avviso-testo' : 'rounded-md bg-sfondo p-3'}>
+        <div className="rounded-lg bg-sfondo p-3"><p className="text-xs font-semibold text-tenue">Fatturato</p><p className="font-semibold">{euro(fatturato)}</p></div>
+        <div className={daIncassare > 0 ? 'rounded-lg bg-avviso p-3 text-avviso-testo' : 'rounded-lg bg-sfondo p-3'}>
           <p className="text-xs font-semibold opacity-80">Da incassare</p><p className="font-semibold">{euro(daIncassare)}</p>
         </div>
       </div>

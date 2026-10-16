@@ -32,10 +32,10 @@ export function CalendarioOperatore() {
     <div className="flex flex-col gap-5 px-5 pt-sicura pb-6">
       <h1 className="font-display text-[30px] font-semibold tracking-tight pt-2">Calendario</h1>
 
-      <div className="flex rounded-md bg-superficie border border-bordo p-1" role="tablist">
+      <div className="flex rounded-lg bg-superficie border border-bordo p-1" role="tablist">
         {[false, true].map((p) => (
           <button key={String(p)} role="tab" aria-selected={mostraPassati === p} onClick={() => setMostraPassati(p)}
-            className={`flex-1 h-10 rounded-[5px] text-sm font-semibold cursor-pointer ${mostraPassati === p ? 'bg-inchiostro text-white' : 'text-tenue'}`}>
+            className={`flex-1 h-10 rounded-md text-sm font-semibold cursor-pointer ${mostraPassati === p ? 'bg-accento-tenue text-accento-scuro' : 'text-tenue'}`}>
             {p ? 'Passati' : 'In programma'}
           </button>
         ))}
@@ -113,7 +113,7 @@ function Indisponibilita() {
       )}
 
       {data?.map((i) => (
-        <div key={i.id} className="flex items-center justify-between gap-3 rounded-md bg-sfondo px-3 py-2.5">
+        <div key={i.id} className="flex items-center justify-between gap-3 rounded-lg bg-sfondo px-3 py-2.5">
           <div>
             <p className="font-semibold text-sm">{i.dal === i.al ? dataBreve(i.dal) : `${dataBreve(i.dal)} → ${dataBreve(i.al)}`}</p>
             {i.motivo && <p className="text-xs text-tenue">{i.motivo}</p>}

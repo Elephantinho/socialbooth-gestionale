@@ -77,7 +77,7 @@ function RigaArticolo({ a }: { a: Riga<'articoli'> }) {
         <p className="font-display text-xl font-semibold">{a.quantita - a.in_uso}<span className="text-sm text-tenue font-semibold"> / {a.quantita}</span></p>
         <p className={cn('text-xs font-semibold', a.in_uso ? 'text-avviso-testo' : 'text-tenue')}>{a.in_uso ? `${a.in_uso} fuori per eventi` : 'tutti in magazzino'}</p>
       </div>
-      <span className={cn('text-xs font-semibold px-2.5 py-1.5 rounded-[10px]', stato.stile)}>{stato.etichetta}</span>
+      <span className={cn('text-xs font-semibold px-2.5 py-1.5 rounded-xl', stato.stile)}>{stato.etichetta}</span>
       <div className="flex gap-1">
         <button aria-label={`Modifica ${a.nome}`} onClick={() => setModifica(true)} className="size-10 rounded-lg flex items-center justify-center hover:bg-sfondo cursor-pointer">
           <Pencil className="size-4" aria-hidden />

@@ -15,8 +15,8 @@ import { Caricamento, Errore } from '@/shared/ui/Stati'
 const stampe = (n: number) => `${n.toLocaleString('it-IT')} stamp${n === 1 ? 'a' : 'e'}`
 
 const stili: Record<LivelloCarta, { badge: string; barra: string; testo: string }> = {
-  finita: { badge: 'bg-[#C62828] text-white', barra: 'bg-[#C62828]', testo: 'Carta finita' },
-  bassa: { badge: 'bg-[#FDE2E1] text-[#9B1C1C]', barra: 'bg-[#E03E3E]', testo: 'Carta in esaurimento' },
+  finita: { badge: 'bg-urgente text-white', barra: 'bg-urgente', testo: 'Carta finita' },
+  bassa: { badge: 'bg-urgente-tenue text-urgente-testo', barra: 'bg-urgente', testo: 'Carta in esaurimento' },
   ok: { badge: 'bg-accento-tenue text-accento-scuro', barra: 'bg-accento', testo: 'Carta ok' },
 }
 
@@ -58,7 +58,7 @@ export function InviaRicarica({ operatore, suggerite, perConfezione, onFatto }: 
     }}>
       <div className="flex items-center gap-3">
         <span className="text-sm font-semibold">Confezioni</span>
-        <div className="flex items-center rounded-md border border-bordo-forte bg-superficie">
+        <div className="flex items-center rounded-lg border border-bordo-forte bg-superficie">
           <button type="button" aria-label="Una confezione in meno" className="size-10 grid place-items-center cursor-pointer disabled:opacity-40"
             disabled={confezioni <= 1} onClick={() => setConfezioni((c) => Math.max(1, c - 1))}><Minus className="size-4" /></button>
           <span className="w-8 text-center font-semibold tabular-nums">{confezioni}</span>
@@ -84,13 +84,13 @@ export function AvvisiCarta() {
   if (!data?.length) return null
 
   return (
-    <Card className={cn('p-5 flex flex-col gap-4', critici.length && 'border-[#E03E3E] border-2')}>
+    <Card className={cn('p-5 flex flex-col gap-4', critici.length && 'border-[#F2B8AE] border-2')}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <TitoloSezione className="flex items-center gap-2">
-          <Printer className={cn('size-5', critici.length ? 'text-[#C62828]' : 'text-accento')} aria-hidden />
+          <Printer className={cn('size-5', critici.length ? 'text-urgente' : 'text-accento')} aria-hidden />
           Carta degli operatori
         </TitoloSezione>
-        <span className={cn('text-sm font-semibold', critici.length ? 'text-[#9B1C1C]' : 'text-accento-scuro')}>
+        <span className={cn('text-sm font-semibold', critici.length ? 'text-urgente-testo' : 'text-accento-scuro')}>
           {critici.length ? `${critici.length} da ricaricare` : 'Tutti hanno carta a sufficienza'}
         </span>
       </div>
@@ -115,7 +115,7 @@ export function AvvisiCarta() {
               <AnimatePresence initial={false}>
                 {aperto === o.id && parametri && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-                    <div className="rounded-[10px] bg-sfondo p-4">
+                    <div className="rounded-xl bg-sfondo p-4">
                       <InviaRicarica operatore={o.id} suggerite={o.daMandare} perConfezione={parametri.perConfezione} onFatto={() => setAperto(undefined)} />
                     </div>
                   </motion.div>
@@ -150,11 +150,11 @@ export function SchedaCarta({ operatore, modo }: { operatore: string; modo: 'ges
 
   const rossa = data.livello !== 'ok'
   return (
-    <Card className={cn('p-5 flex flex-col gap-4', rossa && 'border-2 border-[#E03E3E]')}>
+    <Card className={cn('p-5 flex flex-col gap-4', rossa && 'border border-[#F2B8AE]')}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <TitoloSezione className="flex items-center gap-2"><Printer className="size-5" aria-hidden /> Carta</TitoloSezione>
-          <p className={cn('font-display text-3xl font-semibold mt-1', rossa ? 'text-[#C62828]' : '')}>{stampe(data.disponibili)}</p>
+          <p className={cn('font-display text-3xl font-semibold mt-1', rossa ? 'text-urgente' : '')}>{stampe(data.disponibili)}</p>
           <p className="text-sm text-tenue">
             {data.prossimiEventi > 0
               ? `${data.prossimiEventi} event${data.prossimiEventi === 1 ? 'o' : 'i'} in arrivo, servono circa ${stampe(data.fabbisogno)}`
@@ -169,7 +169,7 @@ export function SchedaCarta({ operatore, modo }: { operatore: string; modo: 'ges
       <BarraCarta stato={data} perConfezione={data.parametri.perConfezione} />
 
       {modo === 'operatore' && rossa && (
-        <p className="rounded-md bg-[#FDE2E1] text-[#9B1C1C] text-sm font-semibold px-3 py-2">
+        <p className="rounded-lg bg-urgente-tenue text-urgente-testo text-sm font-semibold px-3 py-2">
           Il project e l'amministrazione sono già stati avvisati: ti manderanno una ricarica.
         </p>
       )}
@@ -185,12 +185,12 @@ export function SchedaCarta({ operatore, modo }: { operatore: string; modo: 'ges
       </div>
 
       {azione === 'ricarica' && (
-        <div className="rounded-[10px] bg-sfondo p-4">
+        <div className="rounded-xl bg-sfondo p-4">
           <InviaRicarica operatore={operatore} suggerite={data.daMandare} perConfezione={data.parametri.perConfezione} onFatto={() => setAzione(undefined)} />
         </div>
       )}
       {azione === 'conta' && (
-        <form className="rounded-[10px] bg-sfondo p-4 flex flex-wrap items-end gap-3" onSubmit={(e) => {
+        <form className="rounded-xl bg-sfondo p-4 flex flex-wrap items-end gap-3" onSubmit={(e) => {
           e.preventDefault()
           const n = Number(contate)
           if (Number.isFinite(n) && n >= 0) segnala.mutate({ stampe: Math.round(n), operatore }, { onSuccess: () => { setAzione(undefined); setContate('') } })
@@ -212,7 +212,7 @@ export function SchedaCarta({ operatore, modo }: { operatore: string; modo: 'ges
                   <span className="font-semibold">{etichettaMovimento[m.tipo]}</span>
                   <span className="text-tenue">, {dataBreve(m.creato_il)}{m.evento ? `, ${m.evento.citta}` : ''}{m.note ? `, ${m.note}` : ''}</span>
                 </span>
-                <span className={cn('font-semibold tabular-nums whitespace-nowrap', m.tipo === 'ricarica' && 'text-accento', m.tipo === 'consumo' && 'text-[#9B1C1C]')}>
+                <span className={cn('font-semibold tabular-nums whitespace-nowrap', m.tipo === 'ricarica' && 'text-accento', m.tipo === 'consumo' && 'text-urgente-testo')}>
                   {m.tipo === 'correzione' ? `= ${m.stampe}` : m.stampe > 0 ? `+${m.stampe}` : m.stampe}
                 </span>
               </li>

@@ -51,7 +51,7 @@ export function Utenti() {
                 <span className="sr-only">Ruolo di {nomeCompleto(u)}</span>
                 <select value={u.ruolo} disabled={u.id === io.id || cambia.isPending}
                   onChange={(e) => scegli(u, e.target.value as Ruolo)}
-                  className="h-10 rounded-md border border-bordo-forte bg-superficie px-3 font-semibold cursor-pointer disabled:cursor-not-allowed disabled:opacity-60">
+                  className="h-10 rounded-lg border border-bordo-forte bg-superficie px-3 font-semibold cursor-pointer disabled:cursor-not-allowed disabled:opacity-60">
                   {RUOLI.map((r) => <option key={r.id} value={r.id}>{r.etichetta}</option>)}
                 </select>
               </label>

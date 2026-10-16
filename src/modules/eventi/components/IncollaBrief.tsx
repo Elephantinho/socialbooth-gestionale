@@ -22,9 +22,9 @@ export function IncollaBrief({ tipi, clienti, onCompila }: {
   }
 
   return (
-    <section className="rounded-[10px] border-2 border-dashed border-accento/40 bg-accento-tenue/40 p-4 md:p-5 flex flex-col gap-3">
+    <section className="rounded-xl border-2 border-dashed border-accento/40 bg-accento-tenue/40 p-4 md:p-5 flex flex-col gap-3">
       <div className="flex items-start gap-3">
-        <div className="size-10 rounded-md bg-accento text-white flex items-center justify-center shrink-0"><ClipboardPaste className="size-5" aria-hidden /></div>
+        <div className="size-10 rounded-lg bg-accento text-white flex items-center justify-center shrink-0"><ClipboardPaste className="size-5" aria-hidden /></div>
         <div>
           <h2 className="font-semibold">Hai il brief del cliente?</h2>
           <p className="text-sm text-tenue">Incollalo qui: data, orari, indirizzo, referente e note si compilano da soli. Poi controlli.</p>
@@ -33,7 +33,7 @@ export function IncollaBrief({ tipi, clienti, onCompila }: {
       <textarea value={testo} onChange={(e) => { setTesto(e.target.value); setLetti(undefined) }} rows={testo ? 7 : 3}
         aria-label="Testo del brief"
         placeholder={'Es.\nPHOTOBOOTH 28/10 Firenze\nVia Gusciana 27\nAllestimento 17:30, evento 19-23\nReferente Marco 333 1234567'}
-        className="w-full rounded-[10px] border border-bordo-forte bg-superficie px-4 py-3 text-sm leading-relaxed resize-y" />
+        className="w-full rounded-xl border border-bordo-forte bg-superficie px-4 py-3 text-sm leading-relaxed resize-y" />
       <div className="flex flex-wrap items-center gap-2">
         <Pulsante type="button" icona={<Sparkles className="size-4" aria-hidden />} disabled={testo.trim().length < 10} onClick={compila}>Compila il modulo</Pulsante>
         {testo && <Pulsante type="button" variante="fantasma" icona={<X className="size-4" aria-hidden />} onClick={() => { setTesto(''); setLetti(undefined) }}>Svuota</Pulsante>}

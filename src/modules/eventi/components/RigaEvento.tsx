@@ -21,8 +21,8 @@ export function RigaEvento({ e, assegna = false, extra }: { e: EventoGestione; a
         <Link to={`/gestione/eventi/${e.id}`}
           className="flex-[1_1_480px] min-w-0 grid gap-x-4 gap-y-2 items-center grid-cols-[auto_1fr_auto] md:grid-cols-[auto_1.4fr_1fr_auto]">
           {/* Data come un biglietto: in alto il mese su una fascia, sotto il giorno e l'ora di allestimento */}
-          <div className={cn('w-14 rounded-md overflow-hidden border text-center bg-superficie', e.stato === 'da_assegnare' ? 'border-urgente' : 'border-bordo-forte')}>
-            <p className={cn('text-[11px] font-semibold py-0.5 text-white', e.stato === 'da_assegnare' ? 'bg-urgente' : 'bg-inchiostro')}>
+          <div className={cn('w-14 rounded-lg overflow-hidden border text-center bg-superficie', e.stato === 'da_assegnare' ? 'border-urgente' : 'border-bordo-forte')}>
+            <p className={cn('text-[11px] font-semibold py-0.5 text-white', e.stato === 'da_assegnare' ? 'bg-urgente' : 'bg-accento')}>
               {new Date(e.allestimento_il).toLocaleDateString('it-IT', { month: 'short', timeZone: 'Europe/Rome' }).replace('.', '')}
             </p>
             <p className="text-[22px] font-semibold leading-tight pt-0.5">{new Date(e.allestimento_il).toLocaleDateString('it-IT', { day: 'numeric', timeZone: 'Europe/Rome' })}</p>
@@ -45,7 +45,7 @@ export function RigaEvento({ e, assegna = false, extra }: { e: EventoGestione; a
         </Link>
         {assegnabile && (
           <button onClick={() => setAperto((a) => !a)} aria-expanded={aperto}
-            className="h-10 px-4 rounded-md bg-inchiostro text-white text-sm font-semibold flex items-center gap-1.5 cursor-pointer max-md:w-full max-md:justify-center">
+            className="h-10 px-4 rounded-lg bg-accento text-white text-sm font-semibold flex items-center gap-1.5 cursor-pointer max-md:w-full max-md:justify-center">
             Assegna <ChevronDown className={cn('size-4 transition', aperto && 'rotate-180')} aria-hidden />
           </button>
         )}

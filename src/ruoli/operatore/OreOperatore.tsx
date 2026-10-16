@@ -50,12 +50,12 @@ export function OreOperatore() {
             <Card tono="scuro" className="p-4 flex flex-col gap-3">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-xs font-semibold text-accento-chiaro">{etichettaMese(mese)}</p>
+                  <p className="text-xs font-semibold text-accento">{etichettaMese(mese)}</p>
                   <p className="font-semibold mt-0.5">{valide.length} eventi, {durata(minuti)}</p>
                 </div>
                 <p className="font-display text-2xl font-semibold">{euro(compenso)}</p>
               </div>
-              <Link to={`/riepilogo/${profilo.id}/${mese}`} className="h-10 rounded-md bg-scuro-2 text-sm font-semibold inline-flex items-center justify-center gap-2">
+              <Link to={`/riepilogo/${profilo.id}/${mese}`} className="h-10 rounded-lg bg-superficie border border-evidenza-bordo text-accento-scuro text-sm font-semibold inline-flex items-center justify-center gap-2">
                 <FileDown className="size-4" aria-hidden /> Riepilogo del mese in PDF
               </Link>
             </Card>

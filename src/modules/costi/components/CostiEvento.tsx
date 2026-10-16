@@ -47,7 +47,7 @@ export function CostiEvento({ e }: { e: EventoGestioneCompleto }) {
       {aggiungi && <NuovoCosto eventoId={e.id} fase={['in_corso', 'completato'].includes(e.stato) ? 'finale' : 'previsto'} onFatto={() => setAggiungi(false)} />}
 
       {/* Tabella previsto / finale */}
-      <div className="overflow-x-auto rounded-[10px] border border-bordo">
+      <div className="overflow-x-auto rounded-xl border border-bordo">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-sfondo text-left text-xs text-tenue">
@@ -68,10 +68,10 @@ export function CostiEvento({ e }: { e: EventoGestioneCompleto }) {
               <td className="px-4 py-3">Ricavo</td>
               <td className="px-4 py-3 text-right" colSpan={2}>{r.ricavo == null ? <span className="text-tenue font-semibold">da inserire</span> : euro(r.ricavo)}</td>
             </tr>
-            <tr className="bg-inchiostro text-white font-semibold">
+            <tr className="bg-evidenza text-inchiostro font-semibold border-t-2 border-evidenza-bordo">
               <td className="px-4 py-3">Margine</td>
-              <td className={cn('px-4 py-3 text-right', (r.marginePrevisto ?? 0) < 0 && 'text-[#FF9C7A]')}>{r.marginePrevisto == null ? '—' : euro(r.marginePrevisto)}</td>
-              <td className={cn('px-4 py-3 text-right', (r.margineFinale ?? 0) < 0 && 'text-[#FF9C7A]')}>{r.margineFinale == null ? '—' : euro(r.margineFinale)}</td>
+              <td className={cn('px-4 py-3 text-right', (r.marginePrevisto ?? 0) < 0 && 'text-urgente-testo')}>{r.marginePrevisto == null ? '—' : euro(r.marginePrevisto)}</td>
+              <td className={cn('px-4 py-3 text-right', (r.margineFinale ?? 0) < 0 && 'text-urgente-testo')}>{r.margineFinale == null ? '—' : euro(r.margineFinale)}</td>
             </tr>
           </tbody>
         </table>
@@ -108,8 +108,8 @@ function VoceCosto({ c }: { c: Voce }) {
   const senzaPrezzo = Number(c.costo_unitario) === 0
 
   return (
-    <div className={cn('rounded-md border border-bordo p-3 flex flex-wrap items-center gap-3', c.stato === 'respinto' && 'opacity-50')}>
-      <span className={cn('text-[11px] font-semibold px-2 py-1 rounded-md', c.fase === 'previsto' ? 'bg-sfondo text-tenue' : 'bg-accento-tenue text-accento-scuro')}>
+    <div className={cn('rounded-lg border border-bordo p-3 flex flex-wrap items-center gap-3', c.stato === 'respinto' && 'opacity-50')}>
+      <span className={cn('text-[11px] font-semibold px-2 py-1 rounded-lg', c.fase === 'previsto' ? 'bg-sfondo text-tenue' : 'bg-accento-tenue text-accento-scuro')}>
         {c.fase}
       </span>
       <div className="flex-[1_1_200px] min-w-0">
@@ -152,7 +152,7 @@ function NuovoCosto({ eventoId, fase, onFatto }: { eventoId: string; fase: Enum<
   const unita = CATEGORIE_COSTO.find((c) => c.id === categoria)?.unita
 
   return (
-    <form className="rounded-[10px] bg-sfondo p-4 flex flex-col gap-3.5" onSubmit={(ev) => {
+    <form className="rounded-xl bg-sfondo p-4 flex flex-col gap-3.5" onSubmit={(ev) => {
       ev.preventDefault()
       const carta = carte.data?.find((c) => c.id === cartaId)
       aggiungi.mutate({

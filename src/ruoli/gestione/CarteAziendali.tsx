@@ -58,18 +58,18 @@ function SchedaCarta({ c, admin }: { c: Carta; admin: boolean }) {
   if (modifica) return <Card className="p-5"><ModuloCarta c={c} onFatto={() => setModifica(false)} /></Card>
 
   return (
-    <div className={cn('rounded-[10px] p-5 flex flex-col gap-6 text-white', c.attiva ? 'bg-gradient-to-br from-inchiostro to-[#2C3A38]' : 'bg-tenue')}>
+    <div className={cn('rounded-xl p-5 flex flex-col gap-6 text-white', c.attiva ? 'bg-gradient-to-br from-accento to-[#6F86F0]' : 'bg-tenue')}>
       <div className="flex justify-between items-start">
         <div>
           <p className="font-semibold text-[16px]">{c.nome}</p>
-          <p className="text-xs text-su-scuro-tenue">{c.circuito ?? 'Carta'}{!c.attiva && ', disattivata'}</p>
+          <p className="text-xs text-white/75">{c.circuito ?? 'Carta'}{!c.attiva && ', disattivata'}</p>
         </div>
-        <CreditCard className="size-6 text-accento-chiaro" aria-hidden />
+        <CreditCard className="size-6 text-accento" aria-hidden />
       </div>
       <p className="font-display text-2xl tracking-[0.2em]">···· {c.ultime_cifre}</p>
       <div className="flex justify-between items-end gap-2">
         <div>
-          <p className="text-[11px] text-su-scuro-tenue">Assegnata a</p>
+          <p className="text-[11px] text-white/75">Assegnata a</p>
           <p className="font-semibold">{c.operatore?.nome ?? 'Nessuno'}</p>
         </div>
         {admin && (
@@ -139,9 +139,9 @@ function Movimenti() {
           <TitoloSezione>Spese con carta aziendale</TitoloSezione>
           <p className="text-sm text-tenue">Totale del mese: <strong className="text-inchiostro">{euro(totale)}</strong></p>
         </div>
-        <label className="flex flex-col gap-1.5 text-[13px] font-semibold text-[#3F4047]">
+        <label className="flex flex-col gap-1.5 text-[13px] font-semibold text-tenue">
           Mese
-          <input type="month" value={mese} onChange={(e) => setMese(e.target.value)} className="h-11 rounded-md border border-bordo-forte bg-superficie px-3 text-[15px]" />
+          <input type="month" value={mese} onChange={(e) => setMese(e.target.value)} className="h-11 rounded-lg border border-bordo-forte bg-superficie px-3 text-[15px]" />
         </label>
       </div>
       {movimenti.isPending ? <Caricamento className="py-6" /> : movimenti.error ? <Errore errore={movimenti.error} /> : !movimenti.data.length ? (

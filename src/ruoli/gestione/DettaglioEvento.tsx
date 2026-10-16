@@ -68,7 +68,7 @@ export function DettaglioEvento() {
             <>
               {creatore && (
                 <>
-                  <Link to={`/gestione/eventi/nuovo?da=${e.id}`} className="h-11 px-4 rounded-md border border-bordo-forte bg-superficie font-semibold text-sm inline-flex items-center gap-2 hover:bg-sfondo">
+                  <Link to={`/gestione/eventi/nuovo?da=${e.id}`} className="h-11 px-4 rounded-lg border border-bordo-forte bg-superficie font-semibold text-sm inline-flex items-center gap-2 hover:bg-sfondo">
                     <Copy className="size-4" aria-hidden /> Duplica
                   </Link>
                   <Pulsante variante="secondario" icona={<Ban className="size-4" aria-hidden />} onClick={annulla} disabled={aggiorna.isPending}>
@@ -141,7 +141,7 @@ function Riepilogo({ e }: { e: EventoGestioneCompleto }) {
         ))}
       </dl>
       {e.note_accesso && (
-        <div className="rounded-[10px] bg-avviso p-4">
+        <div className="rounded-xl bg-avviso p-4">
           <p className="text-sm font-semibold text-avviso-titolo">Accesso e scarico</p>
           <p className="text-sm text-avviso-testo mt-1 whitespace-pre-line">{e.note_accesso}</p>
         </div>
@@ -160,7 +160,7 @@ function Operatore({ e }: { e: EventoGestioneCompleto }) {
     <Card tono="scuro" className="p-5 flex flex-col gap-4">
       <TitoloSezione>Operatore</TitoloSezione>
       {e.operatore ? (
-        <div className="bg-scuro-2 rounded-[10px] p-3.5 flex items-center gap-3">
+        <div className="bg-superficie border border-evidenza-bordo rounded-xl p-3.5 flex items-center gap-3">
           <Link to={`/gestione/operatori/${e.operatore.id}`}><Avatar nome={nomeCompleto(e.operatore)} foto={e.operatore.foto} /></Link>
           <div className="flex-1 min-w-0">
             <Link to={`/gestione/operatori/${e.operatore.id}`} className="font-semibold truncate block hover:underline">{nomeCompleto(e.operatore)}</Link>
@@ -169,19 +169,19 @@ function Operatore({ e }: { e: EventoGestioneCompleto }) {
             </p>
           </div>
           {numero && (
-            <a href={`tel:${numero}`} aria-label="Chiama l'operatore" className="size-10 rounded-full bg-scuro-3 flex items-center justify-center">
+            <a href={`tel:${numero}`} aria-label="Chiama l'operatore" className="size-10 rounded-full bg-scuro-3 text-accento-scuro flex items-center justify-center">
               <Phone className="size-4" aria-hidden />
             </a>
           )}
         </div>
       ) : (
-        <div className="bg-scuro-2 rounded-[10px] p-3.5 flex items-center gap-3 text-su-scuro-tenue">
+        <div className="bg-superficie border border-evidenza-bordo rounded-xl p-3.5 flex items-center gap-3 text-tenue">
           <UserRound className="size-5" aria-hidden /> Nessun operatore assegnato
         </div>
       )}
       {puoAssegnare && (
         <button onClick={() => setScegli((s) => !s)} aria-expanded={scegli}
-          className="h-11 rounded-md bg-white text-inchiostro font-semibold text-sm cursor-pointer">
+          className="h-11 rounded-lg bg-accento text-white font-semibold text-sm cursor-pointer">
           {e.operatore ? 'Cambia operatore' : 'Scegli operatore'}
         </button>
       )}
@@ -231,7 +231,7 @@ function OreEvento({ e }: { e: EventoGestioneCompleto }) {
       <div className="flex flex-wrap justify-between items-center gap-3">
         <TitoloSezione>Ore e spese</TitoloSezione>
         {ore && (
-          <span className={cn('text-xs font-semibold px-2.5 py-1.5 rounded-[10px]',
+          <span className={cn('text-xs font-semibold px-2.5 py-1.5 rounded-xl',
             ore.stato === 'approvato' ? 'bg-accento-tenue text-accento-scuro' : ore.stato === 'respinto' ? 'bg-urgente-tenue text-urgente-testo' : 'bg-avviso text-avviso-testo')}>
             {ore.stato === 'approvato' ? 'Approvate' : ore.stato === 'respinto' ? 'Respinte' : 'Da approvare'}
           </span>
@@ -245,7 +245,7 @@ function OreEvento({ e }: { e: EventoGestioneCompleto }) {
             ['Fine lavoro', checkIn.fine_il, null, null],
             ['Rientro', checkIn.rientro_il, checkIn.rientro_lat, checkIn.rientro_lng],
           ] as const).map(([etichetta, quando, lat, lng]) => (
-            <div key={etichetta} className={cn('rounded-md p-2.5', quando ? 'bg-accento-tenue/50' : 'bg-sfondo')}>
+            <div key={etichetta} className={cn('rounded-lg p-2.5', quando ? 'bg-accento-tenue/50' : 'bg-sfondo')}>
               <p className="text-xs font-semibold text-tenue">{etichetta}</p>
               <p className="font-semibold">{quando ? ora(quando) : '—'}</p>
               {lat != null && <a className="text-xs underline text-accento-scuro" target="_blank" rel="noreferrer" href={`https://www.google.com/maps?q=${lat},${lng}`}>posizione</a>}
@@ -284,7 +284,7 @@ function OreEvento({ e }: { e: EventoGestioneCompleto }) {
 
 function Dato({ etichetta, valore, evidenza }: { etichetta: string; valore: string; evidenza?: boolean }) {
   return (
-    <div className={cn('rounded-[10px] p-3', evidenza ? 'bg-accento-tenue text-accento-scuro' : 'bg-sfondo')}>
+    <div className={cn('rounded-xl p-3', evidenza ? 'bg-accento-tenue text-accento-scuro' : 'bg-sfondo')}>
       <p className="text-xs font-semibold opacity-80">{etichetta}</p>
       <p className="text-lg font-semibold mt-0.5">{valore}</p>
     </div>

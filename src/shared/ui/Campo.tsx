@@ -3,7 +3,7 @@ import { cn } from '@/shared/lib/cn'
 // Campi del form con etichetta sempre visibile: più chiari dei placeholder.
 
 const stileInput =
-  'w-full rounded-md border border-bordo-forte bg-superficie px-3 text-[15px] text-inchiostro ' +
+  'w-full rounded-lg border border-bordo-forte bg-superficie px-3 text-[15px] text-inchiostro ' +
   'placeholder:text-tenue/70 focus:outline-none focus:border-accento focus:shadow-[inset_0_0_0_1px_var(--color-accento)]'
 
 type Base = { etichetta: string; errore?: string; className?: string }
@@ -48,8 +48,8 @@ export function Selezione({ etichetta, errore, className, children, ...resto }: 
 export function SiNo({ etichetta, valore, onChange }: { etichetta: string; valore: boolean; onChange: (v: boolean) => void }) {
   return (
     <div className="flex flex-col gap-1.5" role="group" aria-label={etichetta}>
-      <span className="text-[13px] font-semibold text-[#3F4047]">{etichetta}</span>
-      <div className="flex rounded-md bg-sfondo p-1">
+      <span className="text-[13px] font-semibold text-tenue">{etichetta}</span>
+      <div className="flex rounded-lg bg-sfondo p-1">
         {[true, false].map((v) => (
           <button
             key={String(v)}
@@ -57,7 +57,7 @@ export function SiNo({ etichetta, valore, onChange }: { etichetta: string; valor
             aria-pressed={valore === v}
             onClick={() => onChange(v)}
             className={cn(
-              'flex-1 h-10 rounded-[5px] font-semibold text-sm transition cursor-pointer',
+              'flex-1 h-10 rounded-md font-semibold text-sm transition cursor-pointer',
               valore === v ? 'bg-superficie text-inchiostro shadow-sm' : 'text-tenue hover:text-inchiostro',
             )}
           >

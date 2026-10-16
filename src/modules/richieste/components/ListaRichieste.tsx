@@ -83,7 +83,7 @@ function RigaRichiesta({ r }: { r: Richiesta }) {
       {chiudi && (
         <form className="flex flex-wrap gap-2 items-center" onSubmit={(e) => { e.preventDefault(); cambia('fatta', { nota_chiusura: nota.trim() || null }) }}>
           <input value={nota} onChange={(e) => setNota(e.target.value)} placeholder="Nota (facoltativa): es. spedita con corriere"
-            className="h-10 flex-1 min-w-56 rounded-md border border-bordo-forte bg-superficie px-3 text-sm" />
+            className="h-10 flex-1 min-w-56 rounded-lg border border-bordo-forte bg-superficie px-3 text-sm" />
           <Pulsante type="submit" caricamento={aggiorna.isPending}>Segna come fatta</Pulsante>
           {r.tipo === 'carta' && r.operatore_id && r.quantita ? <span className="w-full text-xs text-tenue">La ricarica di {r.quantita} stampe si registra da sola.</span> : null}
         </form>

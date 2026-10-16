@@ -47,10 +47,10 @@ export function Passato() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex rounded-md bg-superficie border border-bordo p-1 w-fit flex-wrap" role="tablist">
+      <div className="flex rounded-lg bg-superficie border border-bordo p-1 w-fit flex-wrap" role="tablist">
         {periodi.map((p) => (
           <button key={p.id} role="tab" aria-selected={periodo === p.id} onClick={() => setPeriodo(p.id)}
-            className={cn('h-9 px-4 rounded-[5px] text-sm font-semibold cursor-pointer', periodo === p.id ? 'bg-inchiostro text-white' : 'text-tenue')}>
+            className={cn('h-9 px-4 rounded-md text-sm font-semibold cursor-pointer', periodo === p.id ? 'bg-accento-tenue text-accento-scuro' : 'text-tenue')}>
             {p.etichetta}
           </button>
         ))}
@@ -143,14 +143,14 @@ export function Passato() {
                       })}
                     </Fragment>
                   ))}
-                  <tr className="border-t-2 border-inchiostro bg-inchiostro text-white font-semibold">
+                  <tr className="border-t-2 border-evidenza-bordo bg-evidenza text-inchiostro font-semibold">
                     <td className="px-4 py-3">Totale</td>
                     <td className="px-4 py-3 text-right">{totale.eventi}</td>
                     <td className="px-4 py-3 text-right">{euro(Math.round(totale.ricavi))}</td>
                     <td className="px-4 py-3 text-right">{euro(Math.round(totale.compensi))}</td>
                     <td className="px-4 py-3 text-right">{euro(Math.round(totale.altriCosti))}</td>
                     <td className="px-4 py-3 text-right">{euro(Math.round(totale.costiTotali))}</td>
-                    <td className={cn('px-4 py-3 text-right', totale.margine < 0 ? 'text-[#FF9C7A]' : 'text-accento-chiaro')}>{euro(Math.round(totale.margine))}</td>
+                    <td className={cn('px-4 py-3 text-right', totale.margine < 0 ? 'text-urgente-testo' : 'text-accento')}>{euro(Math.round(totale.margine))}</td>
                     <td className="px-4 py-3 text-right">{percentuale(totale.margine, totale.ricavi)}</td>
                   </tr>
                 </tbody>

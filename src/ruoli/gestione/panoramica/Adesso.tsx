@@ -10,7 +10,7 @@ function fase(e: EventoLista) {
   const t = e.ore?.[0]
   if (t?.rientro_il) return { testo: 'Rientrato', stile: 'bg-sfondo text-tenue' }
   if (t?.fine_il) return { testo: `Finito alle ${ora(t.fine_il)}, in rientro`, stile: 'bg-accento-tenue text-accento-scuro' }
-  if (t?.check_in_il) return { testo: `In location dalle ${ora(t.check_in_il)}`, stile: 'bg-inchiostro text-white' }
+  if (t?.check_in_il) return { testo: `In location dalle ${ora(t.check_in_il)}`, stile: 'bg-accento-tenue text-accento-scuro' }
   if (t?.partenza_il) return { testo: `In viaggio dalle ${ora(t.partenza_il)}`, stile: 'bg-avviso text-avviso-testo' }
   return { testo: `Parte alle ${ora(e.ritiro_magazzino_il ?? e.allestimento_il)}`, stile: 'bg-sfondo text-tenue' }
 }
@@ -37,7 +37,7 @@ export function Adesso({ eventi }: { eventi: EventoLista[] }) {
           {lista.map((e) => {
             const f = fase(e)
             return (
-              <Link key={e.id} to={`/gestione/eventi/${e.id}`} className="rounded-[10px] border border-bordo p-3 flex items-center gap-3 hover:border-bordo-forte transition">
+              <Link key={e.id} to={`/gestione/eventi/${e.id}`} className="rounded-xl border border-bordo p-3 flex items-center gap-3 hover:border-bordo-forte transition">
                 {e.operatore ? <Avatar nome={nomeCompleto(e.operatore)} foto={e.operatore.foto} /> : <span className="size-11 rounded-full bg-sfondo" />}
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm truncate">{e.operatore ? nomeCompleto(e.operatore) : 'Nessun operatore'}</p>

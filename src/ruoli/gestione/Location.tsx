@@ -71,7 +71,7 @@ function SchedaLocation({ l }: { l: Riga<'location'> }) {
   return (
     <Card className="p-5 flex flex-col gap-3">
       <div className="flex items-start gap-3">
-        <div className="size-11 rounded-md bg-accento-tenue text-accento flex items-center justify-center shrink-0"><MapPin className="size-5" aria-hidden /></div>
+        <div className="size-11 rounded-lg bg-accento-tenue text-accento flex items-center justify-center shrink-0"><MapPin className="size-5" aria-hidden /></div>
         <div className="min-w-0">
           <p className="font-semibold text-[16px]">{l.nome || l.indirizzo}</p>
           <p className="text-sm text-tenue">{l.nome ? `${l.indirizzo}, ` : ''}{l.citta}, {l.regione}</p>
@@ -81,7 +81,7 @@ function SchedaLocation({ l }: { l: Riga<'location'> }) {
         <span className="text-xs font-semibold bg-sfondo border border-bordo px-2.5 py-1 rounded-full">ZTL {l.ztl ? 'sì' : 'no'}</span>
         <span className="text-xs font-semibold bg-sfondo border border-bordo px-2.5 py-1 rounded-full">Wi‑Fi {l.wifi ? 'sì' : 'no'}</span>
       </div>
-      {l.note_accesso && <p className="text-sm text-avviso-testo bg-avviso rounded-md p-3 whitespace-pre-line">{l.note_accesso}</p>}
+      {l.note_accesso && <p className="text-sm text-avviso-testo bg-avviso rounded-lg p-3 whitespace-pre-line">{l.note_accesso}</p>}
       {elimina.error && <Errore errore={elimina.error} />}
       <div className="flex gap-2 mt-1">
         <Pulsante variante="secondario" icona={<Pencil className="size-4" aria-hidden />} onClick={() => setModifica(true)}>Modifica</Pulsante>

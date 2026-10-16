@@ -23,7 +23,7 @@ export function Vuoto({ titolo, testo, azione }: { titolo: string; testo?: strin
 export function Errore({ errore }: { errore: unknown }) {
   const msg = errore instanceof Error ? errore.message : 'Qualcosa è andato storto'
   return (
-    <div className="rounded-md border-l-4 border-urgente bg-urgente-tenue text-urgente-testo px-4 py-3 text-sm font-medium" role="alert">
+    <div className="rounded-lg border-l-4 border-urgente bg-urgente-tenue text-urgente-testo px-4 py-3 text-sm font-medium" role="alert">
       {msg}
     </div>
   )

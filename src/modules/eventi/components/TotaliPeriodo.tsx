@@ -22,10 +22,10 @@ export function TotaliPeriodo({ righe, titolo = 'Totali', senzaCompensi }: { rig
     <Card className="overflow-hidden">
       <div className="p-4 flex flex-wrap items-center justify-between gap-3 border-b border-bordo">
         <TitoloSezione className="text-[15px]">{titolo}</TitoloSezione>
-        <div className="flex rounded-md bg-sfondo p-1" role="tablist">
+        <div className="flex rounded-lg bg-sfondo p-1" role="tablist">
           {(['settimana', 'mese'] as const).map((k) => (
             <button key={k} role="tab" aria-selected={per === k} onClick={() => setPer(k)}
-              className={cn('h-8 px-3 rounded-[5px] text-xs font-semibold cursor-pointer capitalize', per === k ? 'bg-inchiostro text-white' : 'text-tenue')}>
+              className={cn('h-8 px-3 rounded-md text-xs font-semibold cursor-pointer capitalize', per === k ? 'bg-accento-tenue text-accento-scuro' : 'text-tenue')}>
               Per {k}
             </button>
           ))}

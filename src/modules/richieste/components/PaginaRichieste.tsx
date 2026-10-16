@@ -43,7 +43,7 @@ export function PaginaRichieste({ compatta }: { compatta?: boolean }) {
       </div>
 
       {nuova && (
-        <section className="rounded-[10px] border border-bordo bg-superficie p-4 md:p-5">
+        <section className="rounded-xl border border-bordo bg-superficie p-4 md:p-5">
           <NuovaRichiesta onFatto={() => setNuova(false)} />
         </section>
       )}

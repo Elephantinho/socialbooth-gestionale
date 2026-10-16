@@ -43,7 +43,7 @@ export function HomeOperatore() {
       </header>
 
       <AttivaNotifiche />
-      <Link to="/operatore/richieste" className="rounded-[10px] border border-bordo bg-superficie px-4 py-3 flex items-center gap-3">
+      <Link to="/operatore/richieste" className="rounded-xl border border-bordo bg-superficie px-4 py-3 flex items-center gap-3">
         <Inbox className="size-5 text-accento" aria-hidden />
         <span className="flex-1">
           <span className="block font-semibold">Chiedi qualcosa all'ufficio</span>
@@ -102,14 +102,14 @@ export function HomeOperatore() {
 function ProssimoEvento({ evento: e }: { evento: EventoDettaglio }) {
   return (
     <div>
-      <Card tono="scuro" className="rounded-3xl p-5 flex flex-col gap-4">
+      <Card tono="scuro" className="p-5 flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold tracking-wider text-accento-chiaro">Prossimo evento</span>
-          <span className="text-xs font-semibold bg-scuro-3 px-2.5 py-1.5 rounded-full">{traQuanto(e.allestimento_il)}</span>
+          <span className="text-sm font-semibold text-accento-scuro">Il tuo prossimo evento</span>
+          <span className="text-xs font-semibold bg-scuro-3 text-accento-scuro px-2.5 py-1.5 rounded-full">{traQuanto(e.allestimento_il)}</span>
         </div>
         <div>
           <p className="font-display text-[26px] font-semibold leading-tight">{e.tipo_booth?.nome ?? 'Evento'}</p>
-          <p className="text-[15px] text-[#C9CAD1] mt-1">{dataBreve(e.allestimento_il)}, {e.citta}</p>
+          <p className="text-[15px] text-tenue mt-1">{dataBreve(e.allestimento_il)}, {e.citta}</p>
         </div>
         <div className="grid grid-cols-3 gap-2">
           <Orario etichetta="Ritiro" valore={ora(e.ritiro_magazzino_il)} />
@@ -117,14 +117,14 @@ function ProssimoEvento({ evento: e }: { evento: EventoDettaglio }) {
           <Orario etichetta="Attivaz." valore={ora(e.inizio_attivazione)} />
         </div>
         {e.note_accesso && (
-          <p className="flex items-start gap-2 text-[13px] font-semibold text-avviso-icona">
+          <p className="flex items-start gap-2 text-[13px] font-medium text-avviso-testo">
             <AlertTriangle className="size-4 shrink-0 mt-0.5" aria-hidden />
             <span className="line-clamp-2">{e.note_accesso}</span>
           </p>
         )}
         <Link
           to={`/operatore/eventi/${e.id}`}
-          className="h-[50px] rounded-md bg-white text-inchiostro font-semibold text-[15px] flex items-center justify-center gap-2 active:scale-[0.98] transition"
+          className="h-[50px] rounded-lg bg-accento text-white font-semibold text-[15px] flex items-center justify-center gap-2 active:translate-y-px"
         >
           Apri scheda evento <ArrowRight className="size-[18px]" aria-hidden />
         </Link>
@@ -135,7 +135,7 @@ function ProssimoEvento({ evento: e }: { evento: EventoDettaglio }) {
 
 function Orario({ etichetta, valore }: { etichetta: string; valore: string }) {
   return (
-    <div className="bg-scuro-2 rounded-md px-3 py-2.5">
+    <div className="bg-superficie border border-evidenza-bordo rounded-lg px-3 py-2.5">
       <p className="text-[11px] font-semibold text-su-scuro-tenue">{etichetta}</p>
       <p className="text-lg font-semibold mt-0.5">{valore}</p>
     </div>
@@ -160,7 +160,7 @@ function PropostaCard({ proposta }: { proposta: Proposta }) {
             <p className="text-sm text-tenue">{ora(e.allestimento_il)} – {ora(e.smontaggio_il)}</p>
           </div>
           {oreAllaScadenza != null && (
-            <span className="shrink-0 text-xs font-semibold text-urgente-testo bg-urgente-tenue px-2.5 py-1.5 rounded-[10px]">
+            <span className="shrink-0 text-xs font-semibold text-urgente-testo bg-urgente-tenue px-2.5 py-1.5 rounded-xl">
               Scade tra {oreAllaScadenza} h
             </span>
           )}
@@ -183,7 +183,7 @@ function PropostaCard({ proposta }: { proposta: Proposta }) {
 
 function Statistica({ valore, etichetta, evidenza }: { valore: string; etichetta: string; evidenza?: boolean }) {
   return (
-    <Card tono={evidenza ? 'accento' : 'chiaro'} className="rounded-[10px] p-3">
+    <Card tono={evidenza ? 'accento' : 'chiaro'} className="rounded-xl p-3">
       <p className="font-display text-[22px] font-semibold leading-tight truncate">{valore}</p>
       <p className={evidenza ? 'text-xs font-semibold' : 'text-xs font-semibold text-tenue'}>{etichetta}</p>
     </Card>
@@ -196,7 +196,7 @@ function AvvisoCartaOperatore({ id }: { id: string }) {
   const { data } = useScortaOperatore(id)
   if (!data || data.livello === 'ok') return null
   return (
-    <Link to="/operatore/profilo" className="rounded-[10px] bg-[#C62828] text-white p-4 flex items-center gap-3 active:scale-[0.99] transition">
+    <Link to="/operatore/profilo" className="rounded-xl bg-urgente-tenue text-urgente-testo border border-[#F6C9C1] p-4 flex items-center gap-3">
       <Printer className="size-6 shrink-0" aria-hidden />
       <span className="flex-1">
         <strong className="block">{data.livello === 'finita' ? 'Carta finita' : 'Carta in esaurimento'}</strong>

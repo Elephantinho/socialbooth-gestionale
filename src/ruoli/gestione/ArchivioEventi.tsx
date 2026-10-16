@@ -58,9 +58,9 @@ export function ArchivioEventi() {
             <button key={f.id} role="tab" aria-selected={attivo.id === f.id}
               onClick={() => setParametri(f.id === visibili[0].id ? {} : { filtro: f.id }, { replace: true })}
               className={cn('h-10 px-4 rounded-full text-sm font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2',
-                attivo.id === f.id ? 'bg-inchiostro text-white' : 'bg-superficie border border-bordo text-[#3F4047] hover:border-bordo-forte')}>
+                attivo.id === f.id ? 'bg-accento-tenue text-accento-scuro' : 'bg-superficie border border-bordo text-tenue hover:border-bordo-forte')}>
               {f.etichetta}
-              <span className={cn('text-xs', attivo.id === f.id ? 'text-accento-chiaro' : 'text-tenue')}>{archivio.filter(f.passa).length}</span>
+              <span className={cn('text-xs', attivo.id === f.id ? 'text-accento' : 'text-tenue')}>{archivio.filter(f.passa).length}</span>
             </button>
           ))}
         </div>
@@ -68,7 +68,7 @@ export function ArchivioEventi() {
           <span className="sr-only">Cerca negli eventi passati</span>
           <Search className="size-4 text-tenue absolute left-3.5 top-1/2 -translate-y-1/2" aria-hidden />
           <input value={cerca} onChange={(e) => setCerca(e.target.value)} placeholder="Città, cliente, operatore…"
-            className="h-10 w-full rounded-md border border-bordo-forte bg-superficie pl-10 pr-3 text-sm" />
+            className="h-10 w-full rounded-lg border border-bordo-forte bg-superficie pl-10 pr-3 text-sm" />
         </label>
       </div>
 

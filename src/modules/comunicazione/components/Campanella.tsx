@@ -49,7 +49,7 @@ export function Campanella({ scura }: { scura?: boolean }) {
         {aperta && (
           <motion.div initial={{ opacity: 0, y: -6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 w-[min(360px,calc(100vw-32px))] max-h-[70vh] overflow-y-auto rounded-[10px] bg-superficie text-inchiostro border border-bordo shadow-[0_20px_50px_-20px_rgba(21,22,26,0.45)] z-50">
+            className="absolute right-0 mt-2 w-[min(360px,calc(100vw-32px))] max-h-[70vh] overflow-y-auto rounded-xl bg-superficie text-inchiostro border border-bordo shadow-[0_20px_50px_-20px_rgba(21,22,26,0.45)] z-50">
             <div className="flex items-center justify-between px-4 py-3 border-b border-bordo sticky top-0 bg-superficie">
               <p className="font-semibold">Notifiche</p>
               {nonLette > 0 && (
@@ -58,7 +58,7 @@ export function Campanella({ scura }: { scura?: boolean }) {
                 </button>
               )}
             </div>
-            <AttivaNotifiche modo="impostazione" className="m-3 rounded-md" />
+            <AttivaNotifiche modo="impostazione" className="m-3 rounded-lg" />
             {!data?.length ? (
               <p className="p-6 text-sm text-tenue text-center">Nessuna notifica per ora.</p>
             ) : data.map((n) => (

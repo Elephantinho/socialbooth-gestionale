@@ -30,7 +30,7 @@ export class ProtezioneErrori extends Component<{ children: ReactNode }, { error
           <p className="text-tenue">Ricarica la pagina. Se il problema continua, manda uno screenshot di questo messaggio.</p>
           <p className="text-xs text-tenue bg-sfondo rounded-lg px-3 py-2 break-all">{this.state.errore.message}</p>
           <button onClick={() => { sessionStorage.removeItem('ricaricata'); window.location.reload() }}
-            className="h-12 px-6 rounded-md bg-accento text-white font-semibold cursor-pointer">Ricarica</button>
+            className="h-12 px-6 rounded-lg bg-accento text-white font-semibold cursor-pointer">Ricarica</button>
         </div>
       </div>
     )

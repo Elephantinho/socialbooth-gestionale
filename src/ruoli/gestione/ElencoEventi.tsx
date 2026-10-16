@@ -48,12 +48,12 @@ export function ElencoEventi() {
       <Intestazione sopra="Lavoro" titolo="Eventi" descrizione="In programma e in corso, dal più vicino."
         azioni={
           <>
-            <Link to="/gestione/archivio" className="h-12 px-4 rounded-md border border-bordo-forte bg-superficie font-semibold text-sm flex items-center gap-2 hover:bg-sfondo">
+            <Link to="/gestione/archivio" className="h-12 px-4 rounded-lg border border-bordo-forte bg-superficie font-semibold text-sm flex items-center gap-2 hover:bg-sfondo">
               <Archive className="size-4" aria-hidden /> Archivio{archiviati ? `, ${archiviati}` : ''}
             </Link>
             {puo('eventi.crea') && (
               <Link to="/gestione/eventi/nuovo"
-                className="h-12 px-5 rounded-md bg-accento text-white font-semibold text-sm flex items-center gap-2 hover:bg-accento-scuro transition">
+                className="h-12 px-5 rounded-lg bg-accento text-white font-semibold text-sm flex items-center gap-2 hover:bg-accento-scuro transition">
                 <Plus className="size-[18px]" aria-hidden /> Nuovo evento
               </Link>
             )}
@@ -66,17 +66,17 @@ export function ElencoEventi() {
           <button key={f.id} role="tab" aria-selected={attivo.id === f.id} onClick={() => setFiltro(f.id)}
             className={cn(
               'h-10 px-4 rounded-full text-sm font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2',
-              attivo.id === f.id ? 'bg-inchiostro text-white' : 'bg-superficie border border-bordo text-[#3F4047] hover:border-bordo-forte',
+              attivo.id === f.id ? 'bg-accento-tenue text-accento-scuro' : 'bg-superficie border border-bordo text-tenue hover:border-bordo-forte',
             )}>
             {f.etichetta}
-            <span className={cn('text-xs', attivo.id === f.id ? 'text-accento-chiaro' : 'text-tenue')}>{inProgramma.filter(f.passa).length}</span>
+            <span className={cn('text-xs', attivo.id === f.id ? 'text-accento' : 'text-tenue')}>{inProgramma.filter(f.passa).length}</span>
           </button>
         ))}
       </div>
-      <div className="flex rounded-md bg-superficie border border-bordo p-1" role="group" aria-label="Vista">
+      <div className="flex rounded-lg bg-superficie border border-bordo p-1" role="group" aria-label="Vista">
         {([['elenco', 'Elenco', List], ['mappa', 'Mappa', MappaIcona]] as const).map(([v, t, I]) => (
           <button key={v} aria-pressed={(v === 'mappa') === mappa} onClick={() => imposta(attivo.id, v)}
-            className={cn('h-9 px-3 rounded-[5px] text-sm font-semibold cursor-pointer inline-flex items-center gap-1.5', (v === 'mappa') === mappa ? 'bg-inchiostro text-white' : 'text-tenue')}>
+            className={cn('h-9 px-3 rounded-md text-sm font-semibold cursor-pointer inline-flex items-center gap-1.5', (v === 'mappa') === mappa ? 'bg-accento-tenue text-accento-scuro' : 'text-tenue')}>
             <I className="size-4" aria-hidden /> {t}
           </button>
         ))}

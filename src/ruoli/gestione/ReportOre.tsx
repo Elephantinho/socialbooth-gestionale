@@ -59,10 +59,10 @@ export function ReportOre() {
           </p>
         </div>
         <div className="flex gap-2 flex-wrap items-end">
-          <label className="flex flex-col gap-1.5 text-[13px] font-semibold text-[#3F4047]">
+          <label className="flex flex-col gap-1.5 text-[13px] font-semibold text-tenue">
             Mese
             <input type="month" value={mese} onChange={(e) => setMese(e.target.value)}
-              className="h-12 rounded-md border border-bordo-forte bg-superficie px-3 text-[15px]" />
+              className="h-12 rounded-lg border border-bordo-forte bg-superficie px-3 text-[15px]" />
           </label>
           <Pulsante taglia="lg" variante="secondario" icona={<Download className="size-4" aria-hidden />} onClick={esportaCsv} disabled={!righe.length}>
             Esporta Excel (CSV)
@@ -98,14 +98,14 @@ function BloccoOperatore({ nome, righe }: { nome: string; righe: RigaReport[] })
 
   return (
     <Card className="overflow-hidden">
-      <div className="p-5 flex flex-wrap justify-between items-center gap-4 bg-inchiostro text-white">
+      <div className="p-5 flex flex-wrap justify-between items-center gap-4 bg-evidenza border-b border-evidenza-bordo">
         <TitoloSezione>{nome}</TitoloSezione>
         <div className="flex gap-5 flex-wrap text-sm">
           <span><span className="text-su-scuro-tenue">Eventi </span><strong>{valide.length}</strong></span>
           <span><span className="text-su-scuro-tenue">Ore </span><strong>{durata(minuti)}</strong></span>
           <span><span className="text-su-scuro-tenue">Compenso </span><strong>{euro(compenso)}</strong></span>
           <span><span className="text-su-scuro-tenue">Rimborsi </span><strong>{euro(spese)}</strong></span>
-          <span className="text-accento-chiaro"><span className="opacity-80">Totale </span><strong>{euro(compenso + spese)}</strong></span>
+          <span className="text-accento"><span className="opacity-80">Totale </span><strong>{euro(compenso + spese)}</strong></span>
         </div>
       </div>
       <div className="overflow-x-auto">

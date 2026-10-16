@@ -7,7 +7,7 @@ type Taglia = 'md' | 'lg' | 'xl'
 const varianti: Record<Variante, string> = {
   primario: 'bg-accento text-white hover:bg-accento-scuro',
   secondario: 'bg-superficie text-inchiostro border border-bordo-forte hover:border-inchiostro',
-  scuro: 'bg-inchiostro text-white hover:bg-black',
+  scuro: 'bg-accento-tenue text-accento-scuro hover:bg-scuro-3',
   chiaro: 'bg-white text-inchiostro hover:bg-sfondo',
   fantasma: 'bg-transparent text-accento hover:bg-accento-tenue',
 }
@@ -32,7 +32,7 @@ export function Pulsante({ variante = 'primario', taglia = 'md', caricamento, ic
     <button
       disabled={disabled || caricamento}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors cursor-pointer select-none active:translate-y-px',
+        'inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-colors cursor-pointer select-none active:translate-y-px',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         varianti[variante], taglie[taglia], pieno && 'w-full', className,
       )}

@@ -44,12 +44,12 @@ export function Squadra({ telefono }: { telefono?: boolean }) {
           <span className="sr-only">Cerca una persona</span>
           <Search className="size-4 text-tenue absolute left-3 top-1/2 -translate-y-1/2" aria-hidden />
           <input value={cerca} onChange={(e) => setCerca(e.target.value)} placeholder="Cerca per nome o regione"
-            className="h-10 w-full rounded-md border border-bordo-forte bg-superficie pl-9 pr-3 text-sm" />
+            className="h-10 w-full rounded-lg border border-bordo-forte bg-superficie pl-9 pr-3 text-sm" />
         </label>
       </div>
       <div className="overflow-y-auto flex-1">
         <RigaContatto attiva={scelta === 'squadra'} onClick={() => apri(CANALE_SQUADRA)} nonLetti={nonLettiDi(CANALE_SQUADRA)}
-          icona={<span className="size-10 rounded-full bg-inchiostro text-white flex items-center justify-center"><Users className="size-5" aria-hidden /></span>}
+          icona={<span className="size-10 rounded-full bg-accento-tenue text-accento flex items-center justify-center"><Users className="size-5" aria-hidden /></span>}
           titolo="Tutta la squadra" sotto={`${quantiOnline} online adesso`} />
         {persone.isPending ? <Caricamento className="py-6" /> : altri.map((p) => (
           <RigaContatto key={p.id} attiva={typeof scelta === 'object' && scelta?.id === p.id} onClick={() => apri(p.id)}
@@ -74,7 +74,7 @@ export function Squadra({ telefono }: { telefono?: boolean }) {
 
   if (telefono) return <div className="flex flex-col h-[calc(100dvh-4.5rem)] bg-superficie">{scelta ? conversazione : elenco}</div>
   return (
-    <div className="flex h-[calc(100dvh-7.5rem)] min-h-[480px] rounded-[10px] border border-bordo bg-superficie overflow-hidden">
+    <div className="flex h-[calc(100dvh-7.5rem)] min-h-[480px] rounded-xl border border-bordo bg-superficie overflow-hidden">
       {elenco}
       <section className="flex-1 min-w-0 flex flex-col">{conversazione}</section>
     </div>
@@ -137,7 +137,7 @@ function Conversazione({ chi, persone, online, onIndietro }: { chi: Persona | 's
       <header className="h-16 px-4 border-b border-bordo flex items-center gap-3 shrink-0">
         {onIndietro && <button onClick={onIndietro} aria-label="Torna all'elenco" className="size-9 -ml-1 flex items-center justify-center cursor-pointer"><ArrowLeft className="size-5" aria-hidden /></button>}
         {chi === 'squadra'
-          ? <span className="size-10 rounded-full bg-inchiostro text-white flex items-center justify-center"><Users className="size-5" aria-hidden /></span>
+          ? <span className="size-10 rounded-full bg-accento-tenue text-accento flex items-center justify-center"><Users className="size-5" aria-hidden /></span>
           : <AvatarPresenza p={chi} online={online} />}
         <div className="min-w-0">
           <p className="font-semibold truncate">{chi === 'squadra' ? 'Tutta la squadra' : nomeCompleto(chi)}</p>
@@ -176,10 +176,10 @@ function Conversazione({ chi, persone, online, onIndietro }: { chi: Persona | 's
           <textarea value={testo} onChange={(e) => setTesto(e.target.value)} rows={1}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !telefonoTouch()) { e.preventDefault(); manda() } }}
             placeholder="Scrivi un messaggio"
-            className="w-full max-h-32 min-h-11 rounded-md border border-bordo-forte bg-superficie px-3 py-2.5 text-[15px] resize-none" />
+            className="w-full max-h-32 min-h-11 rounded-lg border border-bordo-forte bg-superficie px-3 py-2.5 text-[15px] resize-none" />
         </label>
         <button type="submit" disabled={!testo.trim() || invia.isPending} aria-label="Invia"
-          className="size-11 rounded-md bg-accento text-white flex items-center justify-center cursor-pointer disabled:opacity-40">
+          className="size-11 rounded-lg bg-accento text-white flex items-center justify-center cursor-pointer disabled:opacity-40">
           <SendHorizontal className="size-5" aria-hidden />
         </button>
       </form>

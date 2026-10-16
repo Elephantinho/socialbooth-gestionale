@@ -93,12 +93,12 @@ export function DettaglioOperatore() {
         <div className="flex gap-2 flex-wrap">
           {numero && (
             <>
-              <a href={`tel:${numero}`} className="h-11 px-4 rounded-md border border-bordo-forte font-semibold text-sm inline-flex items-center gap-2 hover:bg-sfondo"><Phone className="size-4" aria-hidden />Chiama</a>
-              <a href={`https://wa.me/${numero.replace('+', '')}`} target="_blank" rel="noreferrer" className="h-11 px-4 rounded-md border border-bordo-forte font-semibold text-sm inline-flex items-center gap-2 hover:bg-sfondo"><MessageCircle className="size-4" aria-hidden />WhatsApp</a>
+              <a href={`tel:${numero}`} className="h-11 px-4 rounded-lg border border-bordo-forte font-semibold text-sm inline-flex items-center gap-2 hover:bg-sfondo"><Phone className="size-4" aria-hidden />Chiama</a>
+              <a href={`https://wa.me/${numero.replace('+', '')}`} target="_blank" rel="noreferrer" className="h-11 px-4 rounded-lg border border-bordo-forte font-semibold text-sm inline-flex items-center gap-2 hover:bg-sfondo"><MessageCircle className="size-4" aria-hidden />WhatsApp</a>
             </>
           )}
           {soldi && (
-            <Link to={`/riepilogo/${o.id}/${meseCorrente()}`} className="h-11 px-4 rounded-md border border-bordo-forte font-semibold text-sm inline-flex items-center gap-2 hover:bg-sfondo">
+            <Link to={`/riepilogo/${o.id}/${meseCorrente()}`} className="h-11 px-4 rounded-lg border border-bordo-forte font-semibold text-sm inline-flex items-center gap-2 hover:bg-sfondo">
               <FileDown className="size-4" aria-hidden /> Riepilogo PDF
             </Link>
           )}
@@ -132,10 +132,10 @@ export function DettaglioOperatore() {
       <Card className="overflow-hidden">
         <div className="p-5 flex flex-wrap items-center justify-between gap-3 border-b border-bordo">
           <TitoloSezione>Eventi</TitoloSezione>
-          <div className="flex rounded-md bg-sfondo p-1" role="tablist">
+          <div className="flex rounded-lg bg-sfondo p-1" role="tablist">
             {([['mese', `Questo mese, ${delMese.length}`], ['prossimi', `Prossimi, ${prossimi.length}`], ['archivio', `Archivio, ${archivio.length}`]] as const).map(([k, t]) => (
               <button key={k} role="tab" aria-selected={scheda === k} onClick={() => setScheda(k)}
-                className={cn('h-9 px-3.5 rounded-[5px] text-sm font-semibold cursor-pointer whitespace-nowrap transition', scheda === k ? 'bg-inchiostro text-white' : 'text-tenue hover:text-inchiostro')}>
+                className={cn('h-9 px-3.5 rounded-md text-sm font-semibold cursor-pointer whitespace-nowrap transition', scheda === k ? 'bg-accento-tenue text-accento-scuro' : 'text-tenue hover:text-inchiostro')}>
                 {t}
               </button>
             ))}

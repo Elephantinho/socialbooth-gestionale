@@ -43,7 +43,7 @@ export function Numero({ valore, etichetta, tono = 'chiaro', icona }: {
   const barra = { chiaro: 'border-l-bordo', scuro: 'border-l-inchiostro', accento: 'border-l-accento', urgente: 'border-l-urgente' }[tono]
   const colore = { chiaro: '', scuro: '', accento: 'text-accento-scuro', urgente: 'text-urgente-testo' }[tono]
   return (
-    <div className={`h-full rounded-[10px] bg-superficie border border-bordo border-l-4 ${barra} px-4 py-3.5 flex items-start gap-3`}>
+    <div className={`h-full rounded-xl bg-superficie border border-bordo border-l-4 ${barra} px-4 py-3.5 flex items-start gap-3`}>
       <div className="min-w-0 flex-1">
         <p className={`text-[26px] font-semibold leading-tight truncate tabular-nums ${colore}`}>{valore}</p>
         <p className="text-sm text-tenue mt-0.5">{etichetta}</p>

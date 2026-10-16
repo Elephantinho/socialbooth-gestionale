@@ -11,7 +11,7 @@ const coloriParcheggio: Record<Parcheggio['tipo'], { colore: string; etichetta: 
   strisce_bianche: { colore: '#2F9E5C', etichetta: 'Strisce bianche', stile: 'bg-[#E3F4EA] text-[#1E6B3E]' },
   gratuito: { colore: '#2F9E5C', etichetta: 'Gratuito', stile: 'bg-[#E3F4EA] text-[#1E6B3E]' },
   pagamento: { colore: '#2F6FD1', etichetta: 'A pagamento', stile: 'bg-[#E2EEF8] text-[#1F4E79]' },
-  da_verificare: { colore: '#8B8C94', etichetta: 'Da verificare', stile: 'bg-sfondo text-tenue' },
+  da_verificare: { colore: '#98A2B3', etichetta: 'Da verificare', stile: 'bg-sfondo text-tenue' },
 }
 
 const iconeServizio: Record<Servizio['categoria'], { Icona: typeof Fuel; etichetta: string }> = {
@@ -68,14 +68,14 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
             <p className="text-sm text-tenue">{citta}</p>
           </div>
           <a href={linkNavigatore(indirizzo, citta)} target="_blank" rel="noreferrer"
-            className="h-11 px-4 rounded-md bg-inchiostro text-white font-semibold text-sm inline-flex items-center gap-2">
+            className="h-11 px-4 rounded-lg bg-accento text-white font-semibold text-sm inline-flex items-center gap-2">
             <Car className="size-4" aria-hidden /> Naviga
           </a>
         </div>
 
         {/* ZTL e meteo */}
         <div className="grid gap-2.5 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
-          <div className={cn('rounded-[10px] p-3.5 flex gap-3',
+          <div className={cn('rounded-xl p-3.5 flex gap-3',
             ztl?.stato === 'dentro' || ztlDichiarata ? 'bg-urgente-tenue text-urgente-testo' : ztl?.stato === 'vicino' ? 'bg-avviso text-avviso-testo' : 'bg-sfondo')}>
             {dintorni.isPending && punto ? <Loader2 className="size-5 animate-spin shrink-0" aria-hidden />
               : ztl?.stato === 'non_rilevata' && !ztlDichiarata ? <CheckCircle2 className="size-5 shrink-0 text-accento" aria-hidden />
@@ -92,7 +92,7 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
             </div>
           </div>
 
-          <div className="rounded-[10px] p-3.5 bg-sfondo flex gap-3">
+          <div className="rounded-xl p-3.5 bg-sfondo flex gap-3">
             {meteo.data && typeof meteo.data === 'object' && meteo.data.pioggia >= 40
               ? <CloudRain className="size-5 shrink-0 text-[#2F6FD1]" aria-hidden />
               : <Sun className="size-5 shrink-0 text-avviso-icona" aria-hidden />}
@@ -114,15 +114,15 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
 
         {/* Mappa, parcheggi e servizi: chiusi finché non servono */}
         <button type="button" onClick={() => setAperto((a) => !a)} aria-expanded={aperto}
-          className="h-11 rounded-md border border-bordo-forte font-semibold text-sm inline-flex items-center justify-center gap-2 cursor-pointer hover:bg-sfondo">
+          className="h-11 rounded-lg border border-bordo-forte font-semibold text-sm inline-flex items-center justify-center gap-2 cursor-pointer hover:bg-sfondo">
           <ChevronDown className={cn('size-4 transition', aperto && 'rotate-180')} aria-hidden />
           {aperto ? 'Chiudi' : `Mappa, parcheggi${dintorni.data?.parcheggi.length ? ` (${dintorni.data.parcheggi.length})` : ''} e servizi vicini`}
         </button>
         {aperto && (<>
         {punto ? (
-          <Mappa punti={segnaposti} altezza={compatto ? 200 : 260} className="rounded-[10px] border border-bordo overflow-hidden" />
+          <Mappa punti={segnaposti} altezza={compatto ? 200 : 260} className="rounded-xl border border-bordo overflow-hidden" />
         ) : (
-          <div className="h-32 rounded-[10px] bg-[#E7EEEA] flex items-center justify-center text-sm text-tenue font-semibold">
+          <div className="h-32 rounded-xl bg-[#E7EEEA] flex items-center justify-center text-sm text-tenue font-semibold">
             {posizione.isFetching ? <Loader2 className="size-5 animate-spin" aria-hidden /> : 'Posizione non trovata'}
           </div>
         )}
@@ -137,13 +137,13 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
               return (
                 <a key={p.id} href={`https://www.google.com/maps/dir/?api=1&destination=${p.punto.lat},${p.punto.lng}`} target="_blank" rel="noreferrer"
                   onMouseEnter={() => setSelezionato(p.id)}
-                  className={cn('flex items-center gap-3 rounded-md border p-2.5 transition', selezionato === p.id ? 'border-accento bg-accento-tenue/40' : 'border-bordo hover:border-bordo-forte')}>
+                  className={cn('flex items-center gap-3 rounded-lg border p-2.5 transition', selezionato === p.id ? 'border-accento bg-accento-tenue/40' : 'border-bordo hover:border-bordo-forte')}>
                   <span className="size-3 rounded-full shrink-0" style={{ background: c.colore }} aria-hidden />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold truncate">{p.nome}</p>
                     {p.dettaglio && <p className="text-xs text-tenue truncate">{p.dettaglio}</p>}
                   </div>
-                  <span className={cn('text-[11px] font-semibold px-2 py-1 rounded-md whitespace-nowrap', c.stile)}>{c.etichetta}</span>
+                  <span className={cn('text-[11px] font-semibold px-2 py-1 rounded-lg whitespace-nowrap', c.stile)}>{c.etichetta}</span>
                   <span className="text-xs font-semibold w-14 text-right">{metri(p.distanza)}</span>
                 </a>
               )
@@ -159,7 +159,7 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
                 const { Icona, etichetta } = iconeServizio[cat as Servizio['categoria']]
                 return (
                   <a key={s.id} href={`https://www.google.com/maps/dir/?api=1&destination=${s.punto.lat},${s.punto.lng}`} target="_blank" rel="noreferrer"
-                    className="rounded-md bg-sfondo p-3 flex items-center gap-2.5 hover:bg-bordo/50 transition">
+                    className="rounded-lg bg-sfondo p-3 flex items-center gap-2.5 hover:bg-bordo/50 transition">
                     <Icona className="size-4 shrink-0 text-accento" aria-hidden />
                     <div className="min-w-0">
                       <p className="text-xs font-semibold text-tenue">{etichetta}, {metri(s.distanza)}</p>

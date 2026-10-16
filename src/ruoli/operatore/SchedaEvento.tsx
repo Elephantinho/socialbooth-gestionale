@@ -38,7 +38,7 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
       <div className="px-5 pt-4">
         <p className="text-[13px] font-semibold tracking-wider text-tenue">Evento #{String(e.codice).padStart(4, '0')}</p>
         <h1 className="font-display text-[34px] font-semibold tracking-tight leading-[1.05] mt-1">{e.tipo_booth?.nome ?? 'Evento'}</h1>
-        <p className="text-base font-medium text-[#3F4047] mt-1.5">{dataLunga(e.allestimento_il)}, {e.citta}</p>
+        <p className="text-base font-medium text-tenue mt-1.5">{dataLunga(e.allestimento_il)}, {e.citta}</p>
       </div>
 
       <div className="flex flex-col gap-3.5 p-5">
@@ -76,10 +76,10 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
             </div>
             {numero && (
               <div className="flex gap-2">
-                <a href={`tel:${numero}`} className="flex-1 h-11 rounded-md border border-bordo font-semibold text-sm flex items-center justify-center gap-2">
+                <a href={`tel:${numero}`} className="flex-1 h-11 rounded-lg border border-bordo font-semibold text-sm flex items-center justify-center gap-2">
                   <Phone className="size-4" aria-hidden /> Chiama
                 </a>
-                <a href={`https://wa.me/${numero.replace('+', '')}`} target="_blank" rel="noreferrer" className="flex-1 h-11 rounded-md border border-bordo font-semibold text-sm flex items-center justify-center gap-2">
+                <a href={`https://wa.me/${numero.replace('+', '')}`} target="_blank" rel="noreferrer" className="flex-1 h-11 rounded-lg border border-bordo font-semibold text-sm flex items-center justify-center gap-2">
                   <MessageCircle className="size-4" aria-hidden /> WhatsApp
                 </a>
               </div>
@@ -111,7 +111,7 @@ function Programma({ e }: { e: EventoDettaglio }) {
       stile: 'border-[3px] border-accento',
     },
     { ora: e.allestimento_il, titolo: 'Allestimento', stile: 'bg-accento' },
-    { ora: e.inizio_attivazione, titolo: 'Attivazione', nota: `fino alle ${ora(e.fine_attivazione)}`, stile: 'bg-inchiostro' },
+    { ora: e.inizio_attivazione, titolo: 'Attivazione', nota: `fino alle ${ora(e.fine_attivazione)}`, stile: 'bg-accento' },
     { ora: e.smontaggio_il, titolo: 'Smontaggio', stile: 'border-[3px] border-inchiostro' },
   ].filter(Boolean) as { ora: string; titolo: string; nota?: string; stile: string }[]
 
@@ -139,7 +139,7 @@ function Programma({ e }: { e: EventoDettaglio }) {
 
 function Info({ etichetta, valore, nota, piccolo }: { etichetta: string; valore: string; nota?: string; piccolo?: boolean }) {
   return (
-    <Card className="rounded-[10px] p-3.5">
+    <Card className="rounded-xl p-3.5">
       <p className="text-xs font-semibold text-tenue">{etichetta}</p>
       <p className={cn('font-semibold mt-1', piccolo ? 'text-[15px] leading-snug' : 'text-[17px]')}>{valore}</p>
       {nota && <p className="text-xs font-semibold text-urgente-testo mt-0.5">{nota}</p>}

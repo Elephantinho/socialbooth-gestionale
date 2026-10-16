@@ -46,7 +46,7 @@ export function Operatori() {
           <span className="sr-only">Cerca operatore</span>
           <Search className="size-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-tenue" aria-hidden />
           <input value={cerca} onChange={(e) => setCerca(e.target.value)} placeholder="Cerca per nome"
-            className="w-full h-12 rounded-md border border-bordo-forte bg-superficie pl-10 pr-3 text-[15px] focus:outline-none focus:border-accento focus:ring-3 focus:ring-accento/15" />
+            className="w-full h-12 rounded-lg border border-bordo-forte bg-superficie pl-10 pr-3 text-[15px] focus:outline-none focus:border-accento focus:ring-3 focus:ring-accento/15" />
         </label>
         <Selezione etichetta="" aria-label="Regione" value={regioneFiltro} onChange={(e) => setRegioneFiltro(e.target.value)} className="w-56">
           <option value="">Tutte le regioni</option>
@@ -71,7 +71,7 @@ export function Operatori() {
                 <span className="font-display text-xl font-semibold">{g.regione}</span>
                 <span className="text-sm font-semibold text-tenue">{g.operatori.length} {g.operatori.length === 1 ? 'operatore' : 'operatori'}</span>
                 {g.operatori.length === 1 && (
-                  <span className="text-[11px] font-semibold bg-accento-tenue text-accento-scuro px-2 py-1 rounded-md inline-flex items-center gap-1">
+                  <span className="text-[11px] font-semibold bg-accento-tenue text-accento-scuro px-2 py-1 rounded-lg inline-flex items-center gap-1">
                     <Sparkles className="size-3" aria-hidden /> assegnazione automatica
                   </span>
                 )}

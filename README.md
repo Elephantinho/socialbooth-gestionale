@@ -63,8 +63,8 @@ una richiesta di carta fatta registra da sola la ricarica dell'operatore.
 **Chat della squadra**: un canale per tutti e messaggi diretti, con chi è online e "visto X fa".
 I messaggi diretti arrivano anche come notifica sul telefono.
 
-**Aspetto**: un solo carattere (Schibsted Grotesk), fondo grigio freddo e fogli bianchi, blu stampa per le azioni,
-angoli 10px per i pannelli e 6px per i comandi, niente ombre né animazioni decorative. Tutto in `src/index.css`.
+**Aspetto**: chiaro e arioso. Un solo carattere (Schibsted Grotesk), fondo quasi bianco e fogli bianchi con bordi leggeri,
+un blu vivace per azioni e selezione, tinte pastello per gli stati, nessun riquadro scuro. Tutto in `src/index.css`.
 
 **Notifiche sul telefono**: funzionano su Android (Chrome) anche senza installare nulla; su iPhone dopo
 "Aggiungi a Home". Le manda la funzione `supabase/functions/invia-push` a ogni notifica nuova; le chiavi

@@ -51,7 +51,7 @@ export function ChecklistMontaggio({ eventoId, wifi }: { eventoId: string; wifi:
         <p className="text-xs text-tenue">Arriva subito al project: è la prova per il cliente che è tutto pronto.</p>
         {!!foto.data?.length && (
           <div className="flex gap-2 overflow-x-auto">
-            {foto.data.map((f) => f.url && <img key={f.id} src={f.url} alt={`Set montato alle ${ora(f.creato_il)}`} className="h-24 w-24 object-cover rounded-md border border-bordo shrink-0" />)}
+            {foto.data.map((f) => f.url && <img key={f.id} src={f.url} alt={`Set montato alle ${ora(f.creato_il)}`} className="h-24 w-24 object-cover rounded-lg border border-bordo shrink-0" />)}
           </div>
         )}
         <input ref={input} type="file" accept="image/*" capture="environment" className="hidden"
@@ -86,7 +86,7 @@ export function StatoMontaggio({ eventoId }: { eventoId: string }) {
         <div className="grid grid-cols-3 gap-2">
           {foto.data.map((f) => f.url && (
             <a key={f.id} href={f.url} target="_blank" rel="noreferrer">
-              <img src={f.url} alt={`Set montato alle ${ora(f.creato_il)}`} className="aspect-square w-full object-cover rounded-md border border-bordo" />
+              <img src={f.url} alt={`Set montato alle ${ora(f.creato_il)}`} className="aspect-square w-full object-cover rounded-lg border border-bordo" />
             </a>
           ))}
         </div>

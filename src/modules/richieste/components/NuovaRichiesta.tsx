@@ -57,8 +57,8 @@ export function NuovaRichiesta({ onFatto }: { onFatto?: () => void }) {
       <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Cosa ti serve">
         {modelli.map((m) => (
           <button key={m.id} type="button" role="radio" aria-checked={modello.id === m.id} onClick={() => setModello(m)}
-            className={cn('h-9 px-3 rounded-md border text-sm font-semibold cursor-pointer',
-              modello.id === m.id ? 'bg-inchiostro text-white border-inchiostro' : 'bg-superficie border-bordo-forte hover:border-inchiostro')}>
+            className={cn('h-9 px-3 rounded-lg border text-sm font-semibold cursor-pointer',
+              modello.id === m.id ? 'bg-accento-tenue text-accento-scuro border-accento' : 'bg-superficie border-bordo-forte hover:border-inchiostro')}>
             {m.etichetta}
           </button>
         ))}

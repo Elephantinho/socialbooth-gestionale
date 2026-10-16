@@ -81,7 +81,7 @@ export function GestioneLayout() {
           <Logo taglia="sm" />
           <div className="flex items-center gap-2">
             <Campanella />
-            <button onClick={() => setMenuAperto(true)} aria-label="Apri menu" className="size-10 rounded-md border border-bordo-forte flex items-center justify-center cursor-pointer">
+            <button onClick={() => setMenuAperto(true)} aria-label="Apri menu" className="size-10 rounded-lg border border-bordo-forte flex items-center justify-center cursor-pointer">
               <Menu className="size-5" aria-hidden />
             </button>
           </div>
@@ -135,7 +135,7 @@ function MenuLaterale({ onChiudi }: { onChiudi?: () => void }) {
       <div className="flex items-center justify-between px-2 pt-1">
         <Logo taglia="sm" sottotitolo="Gestionale" />
         {onChiudi && (
-          <button onClick={onChiudi} aria-label="Chiudi menu" className="size-9 rounded-md border border-bordo-forte flex items-center justify-center cursor-pointer">
+          <button onClick={onChiudi} aria-label="Chiudi menu" className="size-9 rounded-lg border border-bordo-forte flex items-center justify-center cursor-pointer">
             <X className="size-5" aria-hidden />
           </button>
         )}
@@ -148,7 +148,7 @@ function MenuLaterale({ onChiudi }: { onChiudi?: () => void }) {
             {g.voci.map(({ a, etichetta, Icona }) => (
               <NavLink key={a} to={a} end={a === '/gestione'}
                 className={({ isActive }) => cn(
-                  'flex items-center gap-2.5 h-9 px-2 rounded-md text-[14px] border-l-[3px]',
+                  'flex items-center gap-2.5 h-9 px-2 rounded-lg text-[14px] border-l-[3px]',
                   isActive ? 'border-accento bg-accento-tenue text-accento-scuro font-semibold rounded-l-none' : 'border-transparent text-inchiostro hover:bg-sfondo',
                 )}>
                 <Icona className="size-[17px] shrink-0" strokeWidth={1.75} aria-hidden />
@@ -166,7 +166,7 @@ function MenuLaterale({ onChiudi }: { onChiudi?: () => void }) {
           <p className="text-sm font-semibold truncate">{nomeCompleto(profilo)}</p>
           <p className="text-xs text-tenue">{etichettaRuolo(profilo.ruolo)}</p>
         </div>
-        <button onClick={esci} aria-label="Esci" className="size-9 rounded-md hover:bg-sfondo flex items-center justify-center cursor-pointer text-tenue">
+        <button onClick={esci} aria-label="Esci" className="size-9 rounded-lg hover:bg-sfondo flex items-center justify-center cursor-pointer text-tenue">
           <LogOut className="size-4" aria-hidden />
         </button>
       </div>

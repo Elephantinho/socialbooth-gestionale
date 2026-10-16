@@ -2,16 +2,17 @@ import { cn } from '@/shared/lib/cn'
 
 type Props = React.HTMLAttributes<HTMLDivElement> & { tono?: 'chiaro' | 'scuro' | 'avviso' | 'accento' }
 
-// Foglio bianco con bordo sottile; gli avvisi hanno una barra a sinistra invece del riempimento pieno.
+// Foglio bianco con bordo leggero; "scuro" ora è il riquadro in evidenza (tinta azzurra chiara).
+// Gli avvisi hanno una barra a sinistra invece del riempimento pieno.
 const toni = {
-  chiaro: 'bg-superficie border border-bordo',
-  scuro: 'bg-inchiostro text-white',
+  chiaro: 'bg-superficie border border-bordo shadow-[0_1px_2px_rgba(16,24,40,0.04)]',
+  scuro: 'bg-evidenza border border-evidenza-bordo text-inchiostro',
   avviso: 'bg-avviso text-avviso-testo border-l-4 border-avviso-icona',
   accento: 'bg-accento-tenue text-accento-scuro',
 }
 
 export function Card({ tono = 'chiaro', className, ...resto }: Props) {
-  return <div className={cn('rounded-[10px]', toni[tono], className)} {...resto} />
+  return <div className={cn('rounded-xl', toni[tono], className)} {...resto} />
 }
 
 export function TitoloSezione({ className, ...resto }: React.HTMLAttributes<HTMLHeadingElement>) {

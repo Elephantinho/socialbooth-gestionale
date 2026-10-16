@@ -192,7 +192,7 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante, idModulo
           </Sezione>
 
           <Sezione titolo="Location" extra={m.locationId ? (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-accento-scuro bg-accento-tenue px-2.5 py-1.5 rounded-[10px]">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-accento-scuro bg-accento-tenue px-2.5 py-1.5 rounded-xl">
               <Check className="size-3.5" aria-hidden /> Location salvata: dati compilati
             </span>
           ) : null}>
@@ -212,9 +212,9 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante, idModulo
             </Griglia>
             <AreaTesto etichetta="Accessibilità e scarico" rows={3} placeholder="Scarico, scale, sosta del mezzo…" {...testo('noteAccesso')} />
             {ztlRilevata && ztlRilevata.stato !== 'non_rilevata' && !m.ztl && (
-              <div className="rounded-[10px] bg-avviso p-3.5 flex flex-wrap items-center gap-3 text-sm text-avviso-testo">
+              <div className="rounded-xl bg-avviso p-3.5 flex flex-wrap items-center gap-3 text-sm text-avviso-testo">
                 <span className="flex-1 min-w-48"><strong className="text-avviso-titolo">{ztlRilevata.stato === 'dentro' ? 'Questo indirizzo sembra dentro una ZTL' : 'C\'è una ZTL vicino'}</strong>{ztlRilevata.dettaglio && `, ${ztlRilevata.dettaglio}`}</span>
-                <button type="button" onClick={() => imposta('ztl', true)} className="h-9 px-3 rounded-lg bg-inchiostro text-white font-semibold cursor-pointer">Imposta ZTL: Sì</button>
+                <button type="button" onClick={() => imposta('ztl', true)} className="h-9 px-3 rounded-lg bg-accento text-white font-semibold cursor-pointer">Imposta ZTL: Sì</button>
               </div>
             )}
             <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(140px,1fr))]">
@@ -257,7 +257,7 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante, idModulo
             <label className="flex flex-col gap-1.5 text-[13px] font-semibold text-su-scuro-tenue">
               Magazzino di partenza
               <select value={magazzinoScelto} onChange={(e) => imposta('magazzinoId', e.target.value)}
-                className="h-11 rounded-md bg-scuro-2 border border-scuro-3 px-3 text-white text-[15px] focus:outline-none focus:border-accento-chiaro">
+                className="h-11 rounded-lg bg-superficie border border-bordo-forte px-3 text-inchiostro text-[15px] focus:outline-none focus:border-accento-chiaro">
                 <option value="">— Nessuno —</option>
                 {(magazzini.data ?? []).map((g) => <option key={g.id} value={g.id}>{g.nome}, {g.citta}</option>)}
               </select>
@@ -269,16 +269,16 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante, idModulo
                 <input type="number" min={0} inputMode="numeric" aria-label="Minuti di viaggio"
                   value={m.viaggioManuale ? m.viaggioMinuti : String(minutiViaggio || '')}
                   onChange={(e) => setM((p) => ({ ...p, viaggioMinuti: e.target.value, viaggioManuale: true }))}
-                  className="h-11 flex-1 min-w-0 rounded-md bg-scuro-2 border border-scuro-3 px-3 text-white text-[15px] focus:outline-none focus:border-accento-chiaro" />
+                  className="h-11 flex-1 min-w-0 rounded-lg bg-superficie border border-bordo-forte px-3 text-inchiostro text-[15px] focus:outline-none focus:border-accento-chiaro" />
                 {m.viaggioManuale && (
                   <button type="button" onClick={() => imposta('viaggioManuale', false)} aria-label="Torna al calcolo automatico"
-                    className="h-11 px-3 rounded-md bg-scuro-3 text-accento-chiaro cursor-pointer">
+                    className="h-11 px-3 rounded-lg bg-scuro-3 text-accento-scuro cursor-pointer">
                     <RotateCcw className="size-4" aria-hidden />
                   </button>
                 )}
               </div>
               <p className={cn('text-xs font-semibold flex items-center gap-1.5',
-                viaggio.stato === 'fatto' && !m.viaggioManuale ? 'text-accento-chiaro' : 'text-su-scuro-tenue')}>
+                viaggio.stato === 'fatto' && !m.viaggioManuale ? 'text-accento' : 'text-su-scuro-tenue')}>
                 {viaggio.stato === 'calcolo' ? <Loader2 className="size-3.5 animate-spin" aria-hidden /> : <MapPin className="size-3.5" aria-hidden />}
                 {m.viaggioManuale ? 'Inserito a mano' : messaggioViaggio[viaggio.stato]}
               </p>
@@ -303,7 +303,7 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante, idModulo
           )}
 
           <button type="submit" disabled={invio || !calcolo}
-            className="h-14 rounded-[10px] bg-accento text-white font-semibold text-[17px] flex items-center justify-center gap-2 cursor-pointer hover:bg-accento-scuro disabled:opacity-50 transition">
+            className="h-14 rounded-xl bg-accento text-white font-semibold text-[17px] flex items-center justify-center gap-2 cursor-pointer hover:bg-accento-scuro disabled:opacity-50 transition">
             {invio && <Loader2 className="size-5 animate-spin" aria-hidden />}
             {testoPulsante}
           </button>
@@ -331,7 +331,7 @@ const Griglia = ({ children }: { children: React.ReactNode }) => (
 
 function Riquadro({ etichetta, valore }: { etichetta: string; valore: string }) {
   return (
-    <div className="bg-scuro-2 rounded-md p-3">
+    <div className="bg-superficie border border-evidenza-bordo rounded-lg p-3">
       <p className="text-xs font-semibold text-su-scuro-tenue">{etichetta}</p>
       <p className="text-xl font-semibold mt-0.5">{valore}</p>
     </div>

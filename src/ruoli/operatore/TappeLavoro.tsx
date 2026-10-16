@@ -91,7 +91,7 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
           <label className="text-sm font-semibold" htmlFor="stampe-fatte">Quante stampe hai fatto? <span className="text-tenue font-semibold">(dal contatore della stampante)</span></label>
           <div className="flex gap-2">
             <input id="stampe-fatte" type="number" min={0} inputMode="numeric" autoFocus value={stampe} onChange={(ev) => setStampe(ev.target.value)}
-              placeholder="Es. 350" className="h-14 flex-1 min-w-0 rounded-[10px] border border-bordo-forte bg-superficie px-4 text-lg font-semibold" />
+              placeholder="Es. 350" className="h-14 flex-1 min-w-0 rounded-xl border border-bordo-forte bg-superficie px-4 text-lg font-semibold" />
             <Pulsante type="submit" taglia="xl" variante="scuro" caricamento={registra.isPending}>Conferma</Pulsante>
           </div>
           <button type="button" onClick={() => { vai('fine'); setChiediStampe(false) }} className="text-sm font-semibold text-tenue py-1 cursor-pointer">Salta</button>
@@ -120,7 +120,7 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
       <Card className="p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <p className="font-semibold text-[15px]">Le tue tappe</p>
-          <span className="text-xs font-semibold text-accento bg-accento-tenue px-2 py-1 rounded-md">Ore calcolate in automatico</span>
+          <span className="text-xs font-semibold text-accento bg-accento-tenue px-2 py-1 rounded-lg">Ore calcolate in automatico</span>
         </div>
         <ol className="flex flex-col">
           {passi.map((p, i) => {
@@ -130,7 +130,7 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
               <li key={p.chiave} className="flex gap-3">
                 <span className="flex flex-col items-center" aria-hidden>
                   <span className={cn('size-8 rounded-full flex items-center justify-center',
-                    fatto ? 'bg-accento text-white' : prossimo ? 'bg-inchiostro text-white' : 'bg-sfondo text-tenue')}>
+                    fatto ? 'bg-accento text-white' : prossimo ? 'bg-accento-tenue text-accento-scuro' : 'bg-sfondo text-tenue')}>
                     {fatto ? <Check className="size-4" /> : <p.Icona className="size-4" />}
                   </span>
                   {i < passi.length - 1 && <span className={cn('w-0.5 flex-1 min-h-4', fatto ? 'bg-accento' : 'bg-bordo')} />}
@@ -151,7 +151,7 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
           </p>
         )}
         {chiuso && t && (
-          <div className="rounded-[10px] bg-accento-tenue text-accento-scuro p-3.5">
+          <div className="rounded-xl bg-accento-tenue text-accento-scuro p-3.5">
             <p className="font-semibold">Evento chiuso, {durata(t.minuti_totali)} totali</p>
             <p className="text-sm">{durata(t.minuti_in_location)} in location + {durata(t.minuti_viaggio)} di viaggio. Ore inviate al project.</p>
             {t.nota_operatore && <p className="text-xs mt-1 opacity-80">{t.nota_operatore}</p>}

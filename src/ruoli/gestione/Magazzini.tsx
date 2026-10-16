@@ -78,7 +78,7 @@ function SchedaMagazzino({ m, admin }: { m: Riga<'magazzini'>; admin: boolean })
   return (
     <Card className="p-5 flex flex-col gap-3">
       <div className="flex items-start gap-3">
-        <div className="size-11 rounded-md bg-inchiostro text-white flex items-center justify-center shrink-0"><Building2 className="size-5" aria-hidden /></div>
+        <div className="size-11 rounded-lg bg-accento-tenue text-accento flex items-center justify-center shrink-0"><Building2 className="size-5" aria-hidden /></div>
         <div className="min-w-0">
           <p className="font-semibold text-[16px]">{m.nome}</p>
           <p className="text-sm text-tenue">{m.indirizzo}, {m.citta}, {m.regione}</p>
@@ -91,7 +91,7 @@ function SchedaMagazzino({ m, admin }: { m: Riga<'magazzini'>; admin: boolean })
       {m.note && <p className="text-sm text-tenue">{m.note}</p>}
       {elimina.error && <Errore errore={new Error('Non si può eliminare: è usato da eventi o operatori')} />}
       <div className="flex gap-2 mt-1 flex-wrap">
-        <Link to={`/gestione/magazzini/${m.id}`} className="h-11 px-4 rounded-md bg-inchiostro text-white text-sm font-semibold inline-flex items-center gap-2">
+        <Link to={`/gestione/magazzini/${m.id}`} className="h-11 px-4 rounded-lg bg-accento text-white text-sm font-semibold inline-flex items-center gap-2">
           <Package className="size-4" aria-hidden /> Attrezzatura
         </Link>
       {admin && (

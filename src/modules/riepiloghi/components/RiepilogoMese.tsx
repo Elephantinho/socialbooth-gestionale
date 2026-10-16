@@ -25,12 +25,12 @@ export function RiepilogoMese() {
 
   return (
     <div className="min-h-dvh bg-sfondo print:bg-white">
-      <div className="print:hidden sticky top-0 z-10 bg-inchiostro text-white px-4 h-16 flex items-center justify-between gap-3">
+      <div className="print:hidden sticky top-0 z-10 bg-superficie border-b border-bordo px-4 h-16 flex items-center justify-between gap-3">
         <button onClick={() => naviga(-1)} className="inline-flex items-center gap-1.5 text-sm font-semibold cursor-pointer"><ArrowLeft className="size-4" aria-hidden /> Indietro</button>
-        <Pulsante variante="chiaro" icona={<Printer className="size-4" aria-hidden />} onClick={() => window.print()}>Scarica PDF</Pulsante>
+        <Pulsante icona={<Printer className="size-4" aria-hidden />} onClick={() => window.print()}>Scarica PDF</Pulsante>
       </div>
 
-      <article className="max-w-[800px] mx-auto bg-superficie my-6 print:my-0 p-8 md:p-12 print:p-0 rounded-[10px] print:rounded-none border border-bordo print:border-0 flex flex-col gap-8 text-[14px]">
+      <article className="max-w-[800px] mx-auto bg-superficie my-6 print:my-0 p-8 md:p-12 print:p-0 rounded-xl print:rounded-none border border-bordo print:border-0 flex flex-col gap-8 text-[14px]">
         <header className="flex flex-wrap justify-between gap-4 items-start border-b-2 border-inchiostro pb-6">
           <Logo sottotitolo="Riepilogo mensile" />
           <div className="text-right">
@@ -42,7 +42,7 @@ export function RiepilogoMese() {
 
         <section className="grid grid-cols-3 gap-4">
           {[['Eventi', String(ore.length)], ['Ore totali', durata(minuti)], ['Compensi', euro(compensi)]].map(([e, v]) => (
-            <div key={e} className="rounded-md bg-sfondo print:border print:border-bordo p-4">
+            <div key={e} className="rounded-lg bg-sfondo print:border print:border-bordo p-4">
               <p className="text-xs font-semibold text-tenue">{e}</p>
               <p className="font-display text-2xl font-semibold mt-1">{v}</p>
             </div>
@@ -93,7 +93,7 @@ export function RiepilogoMese() {
           </section>
         )}
 
-        <section className="rounded-md bg-inchiostro text-white print:bg-white print:text-inchiostro print:border-2 print:border-inchiostro p-5 flex justify-between items-center">
+        <section className="rounded-lg bg-evidenza border border-evidenza-bordo text-inchiostro print:bg-white print:text-inchiostro print:border-2 print:border-inchiostro p-5 flex justify-between items-center">
           <div>
             <p className="font-semibold">Totale del mese</p>
             <p className="text-sm opacity-80">Compensi {euro(compensi)}{totRimborsi ? ` + rimborsi ${euro(totRimborsi)}` : ''}</p>

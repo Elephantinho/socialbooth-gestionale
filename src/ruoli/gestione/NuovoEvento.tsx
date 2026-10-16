@@ -52,7 +52,7 @@ export function NuovoEvento() {
 function EventoCreato({ id, automatico, onAltro, onApri }: { id: string; automatico: boolean; onAltro: () => void; onApri: () => void }) {
   return (
     <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="max-w-xl mx-auto flex flex-col gap-5 py-6">
-      <div className="size-14 rounded-[10px] bg-accento text-white flex items-center justify-center">
+      <div className="size-14 rounded-xl bg-accento text-white flex items-center justify-center">
         {automatico ? <Sparkles className="size-7" aria-hidden /> : <Check className="size-7" aria-hidden />}
       </div>
       <div>

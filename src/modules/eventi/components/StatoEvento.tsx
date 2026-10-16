@@ -6,7 +6,7 @@ const stati: Record<Enum<'stato_evento'>, { etichetta: string; stile: string; pu
   da_assegnare: { etichetta: 'Da assegnare', stile: 'bg-urgente-tenue text-urgente-testo', punto: 'bg-urgente' },
   proposto:     { etichetta: 'In attesa',    stile: 'bg-avviso text-avviso-testo',         punto: 'bg-avviso-icona' },
   confermato:   { etichetta: 'Confermato',   stile: 'bg-accento-tenue text-accento-scuro', punto: 'bg-accento' },
-  in_corso:     { etichetta: 'In corso',     stile: 'bg-inchiostro text-white',            punto: 'bg-accento-chiaro' },
+  in_corso:     { etichetta: 'In corso',     stile: 'bg-ok-tenue text-ok', punto: 'bg-ok' },
   completato:   { etichetta: 'Completato',   stile: 'bg-sfondo text-inchiostro',           punto: 'bg-inchiostro' },
   annullato:    { etichetta: 'Annullato',    stile: 'bg-sfondo text-tenue line-through',   punto: 'bg-tenue' },
 }

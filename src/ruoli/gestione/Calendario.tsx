@@ -15,7 +15,7 @@ const coloreStato: Record<string, string> = {
   da_assegnare: 'bg-urgente-tenue text-urgente-testo border-urgente/30',
   proposto: 'bg-avviso text-avviso-testo border-avviso-icona/40',
   confermato: 'bg-accento-tenue text-accento-scuro border-accento/30',
-  in_corso: 'bg-inchiostro text-white border-inchiostro',
+  in_corso: 'bg-accento-tenue text-accento-scuro border-accento',
   completato: 'bg-superficie text-tenue border-bordo',
 }
 
@@ -54,15 +54,15 @@ export function Calendario() {
 
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex items-center gap-2">
-          <button onClick={() => sposta(-1)} aria-label="Mese precedente" className="size-11 rounded-md border border-bordo-forte bg-superficie flex items-center justify-center cursor-pointer hover:bg-sfondo">
+          <button onClick={() => sposta(-1)} aria-label="Mese precedente" className="size-11 rounded-lg border border-bordo-forte bg-superficie flex items-center justify-center cursor-pointer hover:bg-sfondo">
             <ChevronLeft className="size-5" aria-hidden />
           </button>
           <h2 className="font-display text-2xl font-semibold capitalize w-56 text-center">{titolo}</h2>
-          <button onClick={() => sposta(1)} aria-label="Mese successivo" className="size-11 rounded-md border border-bordo-forte bg-superficie flex items-center justify-center cursor-pointer hover:bg-sfondo">
+          <button onClick={() => sposta(1)} aria-label="Mese successivo" className="size-11 rounded-lg border border-bordo-forte bg-superficie flex items-center justify-center cursor-pointer hover:bg-sfondo">
             <ChevronRight className="size-5" aria-hidden />
           </button>
           <button onClick={() => { const d = new Date(); setMese(new Date(d.getFullYear(), d.getMonth(), 1)) }}
-            className="h-11 px-4 rounded-md text-sm font-semibold text-accento hover:bg-accento-tenue cursor-pointer">Oggi</button>
+            className="h-11 px-4 rounded-lg text-sm font-semibold text-accento hover:bg-accento-tenue cursor-pointer">Oggi</button>
         </div>
         <Selezione etichetta="" aria-label="Regione" value={regione} onChange={(e) => setRegione(e.target.value)} className="w-56">
           <option value="">Tutte le regioni</option>

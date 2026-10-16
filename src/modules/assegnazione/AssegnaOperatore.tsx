@@ -28,7 +28,7 @@ export function AssegnaOperatore({ eventoId, onFatto }: { eventoId: string; onFa
     <div className="flex flex-col gap-2">
       {proponi.error && <Errore errore={proponi.error} />}
       {disponibili.data.map((op) => (
-        <div key={op.id} className="flex items-center gap-3 rounded-[10px] border border-bordo bg-superficie p-3">
+        <div key={op.id} className="flex items-center gap-3 rounded-xl border border-bordo bg-superficie p-3">
           <Avatar nome={nomeCompleto(op)} foto={op.foto} />
           <div className="flex-1 min-w-0">
             <p className="font-semibold truncate">{nomeCompleto(op)}</p>
