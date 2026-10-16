@@ -1,3 +1,4 @@
+import { AttivaNotifiche } from '@/modules/comunicazione/components/AttivaNotifiche'
 import { Logo } from '@/shared/ui/Logo'
 import { BRAND } from '@/shared/brand'
 import { SchedaCarta } from '@/modules/carta/components/Carta'
@@ -49,6 +50,7 @@ export function ProfiloOperatore() {
         </div>
       </div>
 
+      <AttivaNotifiche modo="impostazione" />
       <SchedaCarta operatore={profilo.id} modo="operatore" />
 
       <Card className="p-4">

@@ -41,31 +41,24 @@ anche tra i *Redirect URLs*. Così il link di conferma email riporta all'app.
 ## Funzionalità
 
 **Operatore (telefono)**
-- Home: prossimo evento, incarichi da accettare, attività da fare, riepilogo del mese, notifiche
-- Scheda evento: programma, **mappa con parcheggi** (gratuiti, strisce bianche, a pagamento), **ZTL rilevata**, **meteo**,
-  servizi vicini (distributore, bar, ferramenta, supermercato), referente, checklist dell'attrezzatura assegnata,
-  documenti e foto del set, chat con il project
-- **Ore automatiche**: tasti "Parto dal magazzino → Arrivato → Finito → Rientrato" con ora e posizione;
-  arrivo e rientro riconosciuti anche dal GPS con l'app aperta; viaggio e ore in location calcolati da soli
-- Spese con foto dello scontrino, pagate con carta aziendale o anticipate; stampe effettuate
-- Calendario, giorni di indisponibilità, le mie ore con grafico, profilo con foto e regioni
+- Home: prossimo evento, incarichi da accettare, carta rimasta, invito ad attivare le **notifiche sul telefono**
+- Scheda evento: tappe con **ore automatiche**, programma, ZTL e meteo, mappa con parcheggi e servizi (si apre a richiesta),
+  referente, **montaggio**: checklist dell'attrezzatura salvata e **foto del set** che arriva subito al project
+- Spese con foto dello scontrino, stampe a fine evento, le mie ore con **riepilogo mensile in PDF**
+- Calendario, giorni di indisponibilità, profilo con foto, regioni e notifiche
 
-**Project / Admin (web)**
-- Panoramica: cose da fare subito, mappa di eventi e magazzini, ricavi/costi degli ultimi 6 mesi,
-  conti per regione, classifiche di operatori e clienti, zone scoperte
-- Eventi: elenco, calendario mensile, creazione con location salvate, **viaggio calcolato**, **ZTL suggerita**,
-  assegnazione automatica, modifica, annullamento, duplica, chat, documenti, attività, costi e margine
-- Attività in bacheca a colonne (trascinabili), anche legate agli eventi e assegnate agli operatori
-- Operatori per regione con scheda personale (eventi, archivio, compensi, margini); clienti con fatturato e insoluti
-- Magazzini per regione con import da Excel e inventario; location salvate; carte aziendali
-- Costi e compensi per regione e per operatore, approvazione (anche tutte insieme), export Excel
-- Utenti e ruoli, impostazioni (costo per stampa, ore per accettare un incarico)
-- Notifiche in-app in tempo reale
+**Ufficio (web, ogni ruolo vede solo il suo)**
+- Panoramica corta: cosa decidere, carta da mandare, chi lavora oggi, prossimi 7 giorni, conti del mese in breve
+- Eventi in programma (elenco o **mappa**), con **brief incollato che compila il modulo**; eventi passati in Archivio
+  con ricerca, da fatturare, da incassare ed **export per il commercialista**
+- Assegnazione automatica e **operatore di riserva**: se uno rifiuta o non risponde, si propone il più vicino libero
+- Operatori per regione, magazzini con attrezzatura che esce e rientra da sola, scorta di carta con avvisi
+- Costi e compensi (approvazione), **Andamento**: com'è andata (mese, regione, operatori, clienti) e cosa arriva (previsione)
+- Carte aziendali, clienti e location in Archivio, utenti e ruoli, impostazioni
 
-**Automatismi lato server (ogni 15 minuti)**
-- Proposte non accettate in tempo → evento di nuovo da assegnare (e riassegnato se c'è un solo operatore libero)
-- Promemoria all'operatore: il giorno prima, all'ora di partenza, e se non ha chiuso l'evento
-- Eventi dimenticati aperti → chiusi con orari stimati e operatore avvisato
+**Notifiche sul telefono**: funzionano su Android (Chrome) anche senza installare nulla; su iPhone dopo
+"Aggiungi a Home". Le manda la funzione `supabase/functions/invia-push` a ogni notifica nuova; le chiavi
+stanno nella tabella `segreti` del database, mai nel codice.
 
 ## Stack
 

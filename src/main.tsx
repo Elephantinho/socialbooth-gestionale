@@ -6,6 +6,9 @@ import { AuthProvider } from '@/modules/auth/AuthProvider'
 import { App } from './App'
 import { ProtezioneErrori } from '@/shared/ui/ProtezioneErrori'
 import './index.css'
+import { registraServiceWorker } from '@/modules/comunicazione/push'
+
+registraServiceWorker()
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, retry: 1, refetchOnWindowFocus: true } },

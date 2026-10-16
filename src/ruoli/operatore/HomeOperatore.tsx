@@ -1,3 +1,4 @@
+import { AttivaNotifiche } from '@/modules/comunicazione/components/AttivaNotifiche'
 import { Logo } from '@/shared/ui/Logo'
 import { useScortaOperatore } from '@/modules/carta/api'
 import { Link } from 'react-router-dom'
@@ -6,8 +7,6 @@ import { AlertTriangle, ArrowRight, Printer } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { Avatar } from '@/shared/ui/Avatar'
 import { Campanella } from '@/modules/comunicazione/components/Campanella'
-import { useAttivita } from '@/modules/attivita/api'
-import { SchedaAttivita } from '@/modules/attivita/components/SchedaAttivita'
 import { useEventiOperatore, useMeseOperatore, useProposteInAttesa, useRispondiProposta } from '@/modules/eventi/api'
 import type { EventoDettaglio, Proposta } from '@/modules/eventi/types'
 import { dataBreve, euro, nomeCompleto, ora, traQuanto } from '@/shared/lib/formato'
@@ -43,6 +42,7 @@ export function HomeOperatore() {
         </div>
       </header>
 
+      <AttivaNotifiche />
       <AvvisoCartaOperatore id={profilo.id} />
 
       {eventi.isPending ? <Caricamento /> : eventi.error ? <Errore errore={eventi.error} /> : prossimo ? (
@@ -61,7 +61,6 @@ export function HomeOperatore() {
         </section>
       )}
 
-      <MieAttivita operatoreId={profilo.id} />
 
       {altri.length > 0 && (
         <section className="flex flex-col gap-2.5">
@@ -183,21 +182,6 @@ function Statistica({ valore, etichetta, evidenza }: { valore: string; etichetta
   )
 }
 
-/** Attività assegnate all'operatore ancora da fare */
-function MieAttivita({ operatoreId }: { operatoreId: string }) {
-  const { data } = useAttivita({ assegnatoA: operatoreId })
-  const aperte = (data ?? []).filter((a) => a.stato !== 'fatto')
-  if (!aperte.length) return null
-  return (
-    <section className="flex flex-col gap-2.5">
-      <div className="flex items-center gap-2">
-        <TitoloSezione>Da fare</TitoloSezione>
-        <span className="rounded-full bg-inchiostro px-2 text-xs font-bold text-white">{aperte.length}</span>
-      </div>
-      {aperte.map((a) => <SchedaAttivita key={a.id} a={a} compatta />)}
-    </section>
-  )
-}
 
 /** Avviso rosso in home quando la carta sta finendo */
 function AvvisoCartaOperatore({ id }: { id: string }) {

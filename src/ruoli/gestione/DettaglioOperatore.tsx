@@ -2,7 +2,7 @@ import { usePuo } from '@/modules/auth/permessi'
 import { SchedaCarta } from '@/modules/carta/components/Carta'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Building2, CalendarCheck, Archive, Pencil, Phone, MessageCircle, TrendingUp, Wallet } from 'lucide-react'
+import { ArrowLeft, Building2, CalendarCheck, Archive, Pencil, Phone, MessageCircle, TrendingUp, Wallet, FileDown } from 'lucide-react'
 import { useEventiDiOperatore, useOperatore } from '@/modules/anagrafiche/api'
 import { FotoProfilo } from '@/modules/anagrafiche/components/FotoProfilo'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
@@ -96,6 +96,11 @@ export function DettaglioOperatore() {
               <a href={`tel:${numero}`} className="h-11 px-4 rounded-xl border border-bordo-forte font-bold text-sm inline-flex items-center gap-2 hover:bg-sfondo"><Phone className="size-4" aria-hidden />Chiama</a>
               <a href={`https://wa.me/${numero.replace('+', '')}`} target="_blank" rel="noreferrer" className="h-11 px-4 rounded-xl border border-bordo-forte font-bold text-sm inline-flex items-center gap-2 hover:bg-sfondo"><MessageCircle className="size-4" aria-hidden />WhatsApp</a>
             </>
+          )}
+          {soldi && (
+            <Link to={`/riepilogo/${o.id}/${meseCorrente()}`} className="h-11 px-4 rounded-xl border border-bordo-forte font-bold text-sm inline-flex items-center gap-2 hover:bg-sfondo">
+              <FileDown className="size-4" aria-hidden /> Riepilogo PDF
+            </Link>
           )}
           {modificabile && <Pulsante variante={modifica ? 'scuro' : 'primario'} icona={<Pencil className="size-4" aria-hidden />} onClick={() => setModifica((m) => !m)}>{modifica ? 'Chiudi' : 'Modifica'}</Pulsante>}
         </div>

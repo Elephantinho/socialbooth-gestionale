@@ -1,3 +1,4 @@
+import { AttivaNotifiche } from './AttivaNotifiche'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -57,6 +58,7 @@ export function Campanella({ scura }: { scura?: boolean }) {
                 </button>
               )}
             </div>
+            <AttivaNotifiche modo="impostazione" className="m-3 rounded-xl" />
             {!data?.length ? (
               <p className="p-6 text-sm text-tenue text-center">Nessuna notifica per ora.</p>
             ) : data.map((n) => (

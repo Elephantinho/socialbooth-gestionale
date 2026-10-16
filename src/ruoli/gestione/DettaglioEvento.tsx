@@ -1,3 +1,4 @@
+import { StatoMontaggio } from '@/modules/montaggio/components/Montaggio'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -13,8 +14,6 @@ import { AssegnaOperatore } from '@/modules/assegnazione/AssegnaOperatore'
 import { CostiEvento } from '@/modules/costi/components/CostiEvento'
 import { InfoLuogo } from '@/modules/luogo/components/InfoLuogo'
 import { AllegatiEvento } from '@/modules/comunicazione/components/AllegatiEvento'
-import { ChatEvento } from '@/modules/comunicazione/components/ChatEvento'
-import { AttivitaEvento } from '@/modules/attivita/components/AttivitaEvento'
 import { AttrezzaturaEvento } from '@/modules/attrezzatura/components/AttrezzaturaEvento'
 import { dataLunga, durata, euro, nomeCompleto, ora } from '@/shared/lib/formato'
 import { Avatar } from '@/shared/ui/Avatar'
@@ -103,14 +102,13 @@ export function DettaglioEvento() {
             <Riepilogo e={e} />
             <OreEvento e={e} />
             {puo('soldi') && <CostiEvento e={e} />}
-            <ChatEvento eventoId={e.id} />
           </div>
           <aside className="flex-[1_1_320px] min-w-0 flex flex-col gap-4">
             <Operatore e={e} />
             <InfoLuogo indirizzo={e.indirizzo} citta={e.citta} lat={e.lat} lng={e.lng} data={e.allestimento_il}
               magazzino={e.magazzino ? { nome: e.magazzino.nome, lat: e.magazzino.lat, lng: e.magazzino.lng } : null} ztlDichiarata={e.ztl} compatto />
+            <StatoMontaggio eventoId={e.id} />
             <AttrezzaturaEvento eventoId={e.id} magazzinoId={e.magazzino_id} modificabile={(puo('eventi.crea') || puo('magazzini')) && !annullato && !chiuso} />
-            <AttivitaEvento eventoId={e.id} />
             <AllegatiEvento eventoId={e.id} />
             <Storico e={e} />
           </aside>

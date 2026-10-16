@@ -36,36 +36,6 @@ export function useSegnaLette() {
   })
 }
 
-/* ---------------- Chat dell'evento ---------------- */
-
-export function useMessaggi(eventoId: string) {
-  const qc = useQueryClient()
-  const query = useQuery({
-    queryKey: ['messaggi', eventoId],
-    queryFn: async () =>
-      ok(await supabase.from('messaggi')
-        .select('*, autore:profili!messaggi_autore_id_fkey(nome, cognome, foto, ruolo)')
-        .eq('evento_id', eventoId).order('creato_il')),
-  })
-  useEffect(() => {
-    const canale = supabase.channel(`chat-${eventoId}-${crypto.randomUUID()}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messaggi', filter: `evento_id=eq.${eventoId}` },
-        () => qc.invalidateQueries({ queryKey: ['messaggi', eventoId] }))
-      .subscribe()
-    return () => { supabase.removeChannel(canale) }
-  }, [qc, eventoId])
-  return query
-}
-
-export function useInviaMessaggio() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (v: { eventoId: string; testo: string }) =>
-      ok(await supabase.from('messaggi').insert({ evento_id: v.eventoId, testo: v.testo.trim() })),
-    onSuccess: (_d, v) => qc.invalidateQueries({ queryKey: ['messaggi', v.eventoId] }),
-  })
-}
-
 /* ---------------- Allegati e foto (archivio privato) ---------------- */
 
 const pulisci = (nome: string) => nome.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\w.-]+/g, '_').slice(-80)

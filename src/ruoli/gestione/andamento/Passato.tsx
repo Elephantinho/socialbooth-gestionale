@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom'
 import { ChevronDown } from 'lucide-react'
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { useEconomiaPeriodo } from '@/modules/costi/api'
-import { contiEvento, contiPerRegione, totaleConti } from '@/modules/costi/logic/perRegione'
-import { COLORE_COSTI, COLORE_RICAVI } from '@/modules/costi/components/GraficoAndamento'
+import { contiEvento, contiPer, contiPerRegione, totaleConti } from '@/modules/costi/logic/perRegione'
+import { COLORE_COSTI, COLORE_RICAVI, GraficoAndamento } from '@/modules/costi/components/GraficoAndamento'
+import { chiaveMese } from '@/shared/lib/periodi'
+import { Classifiche } from './Classifiche'
 import { dataBreve, euro, nomeCompleto } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
-import { Intestazione, Numero } from '@/shared/ui/Intestazione'
+import { Numero } from '@/shared/ui/Intestazione'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 
 const periodi = [
@@ -20,8 +22,8 @@ const periodi = [
 
 const percentuale = (margine: number, ricavi: number) => (ricavi > 0 ? `${Math.round((margine / ricavi) * 100)}%` : '—')
 
-/** Quanto rende e quanto costa ogni regione, nel periodo scelto */
-export function Regioni() {
+/** Com'è andata: ricavi, costi e margini del periodo, per mese, regione, operatore e cliente */
+export function Passato() {
   const [periodo, setPeriodo] = useState<(typeof periodi)[number]['id']>('mese')
   const mesi = periodi.find((p) => p.id === periodo)!.mesi()
   const { data, isPending, error } = useEconomiaPeriodo(mesi)
@@ -29,13 +31,22 @@ export function Regioni() {
 
   const righe = useMemo(() => contiPerRegione(data ?? []), [data])
   const totale = totaleConti(righe)
+  const perMese = useMemo(() => {
+    const m = contiPer(data ?? [], (e) => chiaveMese(e.allestimento_il))
+    const oggi = new Date()
+    return Array.from({ length: mesi }, (_, i) => {
+      const d = new Date(oggi.getFullYear(), oggi.getMonth() - (mesi - 1) + i, 1)
+      const c = m.get(d.toLocaleDateString('sv-SE').slice(0, 7))
+      return {
+        mese: d.toLocaleDateString('it-IT', { month: 'short' }).replace('.', ''),
+        ricavi: Math.round(c?.ricavi ?? 0), costi: Math.round(c?.costiTotali ?? 0), margine: Math.round(c?.margine ?? 0),
+      }
+    })
+  }, [data, mesi])
   const grafico = righe.map((r) => ({ regione: r.regione, ricavi: Math.round(r.ricavi), costi: Math.round(r.costiTotali) }))
 
   return (
     <div className="flex flex-col gap-6">
-      <Intestazione sopra="Analisi" titolo="Regioni"
-        descrizione="Quanto ricavate da ogni regione e quanto vi costa: compensi degli operatori, noleggi, carta, carburante e tutte le altre spese." />
-
       <div className="flex rounded-xl bg-superficie border border-bordo p-1 w-fit flex-wrap" role="tablist">
         {periodi.map((p) => (
           <button key={p.id} role="tab" aria-selected={periodo === p.id} onClick={() => setPeriodo(p.id)}
@@ -55,6 +66,13 @@ export function Regioni() {
             <Numero valore={euro(Math.round(totale.altriCosti))} etichetta="altri costi" />
             <Numero valore={euro(Math.round(totale.margine))} etichetta={`margine · ${percentuale(totale.margine, totale.ricavi)}`} tono={totale.margine < 0 ? 'urgente' : 'scuro'} />
           </div>
+
+          {mesi > 1 && (
+            <Card className="p-5 flex flex-col gap-3">
+              <TitoloSezione>Mese per mese</TitoloSezione>
+              <GraficoAndamento dati={perMese} />
+            </Card>
+          )}
 
           <Card className="p-5 flex flex-col gap-3">
             <TitoloSezione>Ricavi e costi per regione</TitoloSezione>
@@ -139,6 +157,8 @@ export function Regioni() {
               </table>
             </div>
           </Card>
+
+          <Classifiche eventi={data ?? []} />
         </>
       )}
     </div>

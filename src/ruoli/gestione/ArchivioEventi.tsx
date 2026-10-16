@@ -1,3 +1,4 @@
+import { ExportCommercialista } from '@/modules/riepiloghi/components/ExportCommercialista'
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Search } from 'lucide-react'
@@ -48,7 +49,8 @@ export function ArchivioEventi() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Intestazione sopra="Archivio" titolo="Eventi passati" descrizione="Gli eventi chiusi e quelli annullati, dal più recente." />
+      <Intestazione sopra="Archivio" titolo="Eventi passati" descrizione="Gli eventi chiusi e quelli annullati, dal più recente."
+        azioni={puo('fatture') && <ExportCommercialista />} />
 
       <div className="flex flex-wrap gap-3 items-center">
         <div className="flex gap-2 overflow-x-auto pb-1" role="tablist">

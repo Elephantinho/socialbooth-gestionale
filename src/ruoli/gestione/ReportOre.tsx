@@ -1,3 +1,4 @@
+import { numeroCsv, scaricaCsv } from '@/shared/lib/csv'
 import { usePuo } from '@/modules/auth/permessi'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -10,7 +11,6 @@ import { cn } from '@/shared/lib/cn'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
-import { TabellaRegioni } from '@/modules/costi/components/TabellaRegioni'
 
 /** Spese anticipate dall'operatore su quell'evento: vanno rimborsate insieme al compenso */
 const speseApprovabili = (r: RigaReport) =>
@@ -37,21 +37,14 @@ export function ReportOre() {
   const approvaTutte = useApprovaOre()
 
   function esportaCsv() {
-    const intestazione = ['Operatore', 'Data', 'Evento', 'Città', 'Regione', 'Ore location', 'Ore viaggio', 'Ore totali', 'Tariffa', 'Compenso', 'Rimborsi', 'Stato']
-    const linee = righe.map((r) => [
-      r.operatore?.nome ?? '', r.evento ? new Date(r.evento.allestimento_il).toLocaleDateString('it-IT') : '',
-      r.evento?.tipo_booth?.nome ?? '', r.evento?.citta ?? '', r.evento?.regione ?? '',
-      (r.minuti_in_location / 60).toFixed(2).replace('.', ','), (r.minuti_viaggio / 60).toFixed(2).replace('.', ','),
-      ((r.minuti_totali ?? 0) / 60).toFixed(2).replace('.', ','), String(r.tariffa_oraria ?? '').replace('.', ','),
-      String(r.compenso ?? '').replace('.', ','), speseApprovabili(r).toFixed(2).replace('.', ','), r.stato,
-    ])
-    const csv = [intestazione, ...linee].map((l) => l.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(';')).join('\n')
-    const url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }))
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `ore-${mese}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+    scaricaCsv(`ore-${mese}.csv`,
+      ['Operatore', 'Data', 'Evento', 'Città', 'Regione', 'Ore location', 'Ore viaggio', 'Ore totali', 'Tariffa', 'Compenso', 'Rimborsi', 'Stato'],
+      righe.map((r) => [
+        r.operatore?.nome ?? '', r.evento ? new Date(r.evento.allestimento_il).toLocaleDateString('it-IT') : '',
+        r.evento?.tipo_booth?.nome ?? '', r.evento?.citta ?? '', r.evento?.regione ?? '',
+        numeroCsv(r.minuti_in_location / 60), numeroCsv(r.minuti_viaggio / 60), numeroCsv((r.minuti_totali ?? 0) / 60),
+        numeroCsv(r.tariffa_oraria), numeroCsv(r.compenso), numeroCsv(speseApprovabili(r)), r.stato,
+      ]))
   }
 
   const tutti = usePuo()('eventi.tutti')
@@ -62,7 +55,7 @@ export function ReportOre() {
           <p className="text-sm font-semibold text-tenue">Conti</p>
           <h1 className="font-display text-4xl font-bold tracking-tight mt-1">Ore, costi e compensi</h1>
           <p className="text-tenue mt-2">
-            {tutti ? 'Conti del mese per regione' : 'I conti dei tuoi eventi'}, poi le ore di ogni operatore (location + viaggio × tariffa).
+            {tutti ? 'Le chiusure da approvare e le ore di ogni operatore' : 'Le chiusure dei tuoi eventi'} (location + viaggio × tariffa). I conti per regione sono in Andamento.
           </p>
         </div>
         <div className="flex gap-2 flex-wrap items-end">
@@ -77,7 +70,6 @@ export function ReportOre() {
         </div>
       </div>
 
-      <TabellaRegioni mese={mese} />
 
       {daApprovare > 0 && (
         <Card tono="avviso" className="p-4 flex flex-wrap items-center justify-between gap-3">

@@ -1,11 +1,9 @@
-import { useState } from 'react'
+import { ChecklistMontaggio } from '@/modules/montaggio/components/Montaggio'
 import { Link, useParams } from 'react-router-dom'
 import { AlertTriangle, ArrowLeft, MessageCircle, Phone } from 'lucide-react'
 import { TappeLavoro } from './TappeLavoro'
 import { InfoLuogo } from '@/modules/luogo/components/InfoLuogo'
 import { AllegatiEvento } from '@/modules/comunicazione/components/AllegatiEvento'
-import { ChatEvento } from '@/modules/comunicazione/components/ChatEvento'
-import { useAttrezzaturaEvento } from '@/modules/attrezzatura/api'
 import { useEvento } from '@/modules/eventi/api'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
 import type { EventoDettaglio } from '@/modules/eventi/types'
@@ -96,9 +94,8 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
           </Card>
         )}
 
-        <Checklist eventoId={e.id} wifi={e.wifi} />
+        <ChecklistMontaggio eventoId={e.id} wifi={e.wifi} />
         <AllegatiEvento eventoId={e.id} fotoSet={e.stato === 'in_corso' || e.stato === 'confermato'} />
-        <ChatEvento eventoId={e.id} />
       </div>
 
 
@@ -150,34 +147,3 @@ function Info({ etichetta, valore, nota, piccolo }: { etichetta: string; valore:
   )
 }
 
-/**
- * Checklist attrezzatura: quella assegnata dal project in magazzino,
- * altrimenti una lista base. Le spunte restano sul telefono durante l'uso.
- */
-function Checklist({ eventoId, wifi }: { eventoId: string; wifi: boolean }) {
-  const assegnata = useAttrezzaturaEvento(eventoId).data ?? []
-  const base = assegnata.length
-    ? assegnata.map((a) => `${a.quantita > 1 ? `${a.quantita}× ` : ''}${a.articolo?.nome ?? 'Articolo'}${a.articolo?.codice ? ` (${a.articolo.codice})` : ''}`)
-    : ['Booth e cavalletto', 'Stampante e carta', 'Props e fondale']
-  const voci = [...base, ...(wifi ? [] : ['Hotspot carico'])]
-  const [fatte, setFatte] = useState<string[]>([])
-  return (
-    <Card className="p-4 flex flex-col gap-1">
-      <div className="flex justify-between items-center mb-1">
-        <TitoloSezione className="text-[15px]">Checklist attrezzatura</TitoloSezione>
-        <span className="text-xs font-bold text-tenue">{fatte.length}/{voci.length}</span>
-      </div>
-      {voci.map((v) => (
-        <label key={v} className="flex items-center gap-3 text-[15px] min-h-11 cursor-pointer">
-          <input
-            type="checkbox"
-            className="size-[22px] accent-accento"
-            checked={fatte.includes(v)}
-            onChange={(ev) => setFatte((f) => (ev.target.checked ? [...f, v] : f.filter((x) => x !== v)))}
-          />
-          <span className={cn(fatte.includes(v) && 'text-tenue line-through')}>{v}</span>
-        </label>
-      ))}
-    </Card>
-  )
-}

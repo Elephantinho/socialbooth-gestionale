@@ -15,6 +15,7 @@ const etichette: Record<string, { titolo: string; unita: string; passo: string }
   stampe_per_confezione: { titolo: 'Stampe per confezione', unita: 'stampe', passo: '1' },
   costo_stampa: { titolo: 'Costo di una stampa (manuale)', unita: '€', passo: '0.0001' },
   soglia_carta: { titolo: 'Carta rossa sotto le', unita: 'stampe', passo: '1' },
+  riserva_automatica: { titolo: 'Operatore di riserva automatico (1 = sì, 0 = no)', unita: '', passo: '1' },
   ore_scadenza_proposta: { titolo: 'Ore per accettare un incarico', unita: 'ore', passo: '1' },
 }
 
@@ -25,7 +26,7 @@ export function Impostazioni() {
   const statistiche = useStatisticheStampe()
   const costo = typeof statistiche.data?.costo === 'number' && statistiche.data.costo > 0 ? statistiche.data.costo : null
   const media = typeof statistiche.data?.media === 'number' && statistiche.data.media > 0 ? statistiche.data.media : null
-  const ordine = ['costo_confezione_carta', 'stampe_per_confezione', 'soglia_carta', 'ore_scadenza_proposta', 'costo_stampa']
+  const ordine = ['costo_confezione_carta', 'stampe_per_confezione', 'soglia_carta', 'ore_scadenza_proposta', 'riserva_automatica', 'costo_stampa']
   return (
     <div className="flex flex-col gap-6">
       <Intestazione sopra="Amministrazione" titolo="Impostazioni" descrizione="I valori che l'app usa per i calcoli automatici." />

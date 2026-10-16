@@ -103,25 +103,6 @@ export function useMovimentiCarte(mese: string) {
   })
 }
 
-/** Eventi del mese con costi, ore e ricavo: per i conti economici divisi per regione */
-export function useEconomiaMese(mese: string) {
-  return useQuery({
-    queryKey: ['eventi', 'economia', mese],
-    queryFn: async () => {
-      const inizio = new Date(`${mese}-01T00:00:00`)
-      const fine = new Date(inizio); fine.setMonth(fine.getMonth() + 1)
-      return ok(await supabase.from('eventi')
-        .select(`id, regione, stato, allestimento_il, smontaggio_il, viaggio_minuti, prezzo_cliente, fattura_importo,
-          operatore:profili!eventi_operatore_id_fkey(tariffa_oraria),
-          ore:ore_lavorate(compenso, stato, check_out_il),
-          costi:costi_evento(fase, categoria, importo, stato, pagato_con)`)
-        .neq('stato', 'annullato')
-        .gte('allestimento_il', inizio.toISOString())
-        .lt('allestimento_il', fine.toISOString()))
-    },
-  })
-}
-
 /** Eventi degli ultimi N mesi (incluso il corrente) con tutto il necessario per l'analitica */
 export function useEconomiaPeriodo(mesi = 6) {
   return useQuery({

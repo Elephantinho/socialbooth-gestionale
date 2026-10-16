@@ -6,13 +6,13 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { useEconomiaFutura } from '@/modules/costi/api'
 import { previsioneEvento, previsionePer, totalePrevisione } from '@/modules/costi/logic/previsione'
 import { COLORE_COSTI, COLORE_RICAVI } from '@/modules/costi/components/GraficoAndamento'
-import { useScorteCarta } from '@/modules/carta/api'
+import { useScorteVisibili } from '@/modules/carta/api'
 import { confezioniPer } from '@/modules/carta/logic/scorta'
 import { chiaveMese, etichettaMese } from '@/shared/lib/periodi'
 import { dataBreve, euro, nomeCompleto } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
-import { Intestazione, Numero } from '@/shared/ui/Intestazione'
+import { Numero } from '@/shared/ui/Intestazione'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 
 const periodi = [
@@ -25,12 +25,12 @@ const periodi = [
 const percentuale = (margine: number, ricavi: number) => (ricavi > 0 ? `${Math.round((margine / ricavi) * 100)}%` : '—')
 const tondo = (n: number) => euro(Math.round(n))
 
-/** Quanto spenderete e guadagnerete con gli eventi già inseriti in piattaforma */
-export function Previsione() {
+/** Cosa arriva: costi e ricavi previsti degli eventi già inseriti */
+export function Futuro() {
   const [mesi, setMesi] = useState<number>(3)
   const [vista, setVista] = useState<'mese' | 'regione' | 'evento'>('mese')
   const { data, isPending, error } = useEconomiaFutura(mesi)
-  const carta = useScorteCarta()
+  const carta = useScorteVisibili()
   const puo = usePuo()
 
   const parametri = data && { tariffaMedia: data.tariffaMedia, costoStampa: data.costoStampa, mediaStampe: data.mediaStampe }
@@ -45,9 +45,6 @@ export function Previsione() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Intestazione sopra="Analisi" titolo="Previsione costi"
-        descrizione="Calcolata dagli eventi già inseriti: si aggiorna da sola ogni volta che aggiungete, modificate o annullate un evento." />
-
       <div className="flex rounded-xl bg-superficie border border-bordo p-1 w-fit flex-wrap" role="tablist">
         {periodi.map((p) => (
           <button key={p.mesi} role="tab" aria-selected={mesi === p.mesi} onClick={() => setMesi(p.mesi)}

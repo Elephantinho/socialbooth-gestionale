@@ -1,3 +1,4 @@
+import { AttivaNotifiche } from '@/modules/comunicazione/components/AttivaNotifiche'
 import { useMemo } from 'react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { usePuo } from '@/modules/auth/permessi'
@@ -6,9 +7,8 @@ import { AvvisiCarta } from '@/modules/carta/components/Carta'
 import { Intestazione } from '@/shared/ui/Intestazione'
 import { Caricamento, Errore } from '@/shared/ui/Stati'
 import { Adesso } from './Adesso'
-import { ContiDelMese } from './ContiDelMese'
+import { ContiInBreve } from './ContiInBreve'
 import { DaFare } from './DaFare'
-import { MappaEventi } from './MappaEventi'
 import { ProssimiGiorni } from './ProssimiGiorni'
 import { ZoneScoperte } from './ZoneScoperte'
 
@@ -21,10 +21,9 @@ const sottotitolo = {
 } as const
 
 /**
- * Prima pagina dell'ufficio, dall'urgente al riepilogo.
- * Le sezioni compaiono solo a chi servono:
- * - squadra (assegnare, carta, chi lavora oggi, mappa): project, gestore operatori, admin
- * - conti (ricavi, costi, regioni, classifiche): project, amministrazione, admin
+ * Prima pagina dell'ufficio: solo quello che serve oggi, dall'urgente al riepilogo.
+ * Cosa decidere → carta da mandare → chi lavora oggi → prossimi giorni → conti in breve.
+ * Ogni sezione compare solo a chi serve; grafici e classifiche stanno in Andamento, la mappa in Eventi.
  */
 export function Panoramica() {
   const profilo = useProfilo()
@@ -43,13 +42,12 @@ export function Panoramica() {
     <div className="flex flex-col gap-6">
       <Intestazione sopra={oggi.replace(/^./, (c) => c.toUpperCase())} titolo={`Ciao, ${profilo.nome || 'benvenuto'}`} descrizione={sottotitolo[profilo.ruolo]} />
       <DaFare futuri={futuri} tutti={tutti} />
+      <AttivaNotifiche />
       {puo('carta.ricarica') && <AvvisiCarta />}
       {squadra && <Adesso eventi={tutti} />}
       {puo('operatori.gestisci') && <ZoneScoperte futuri={futuri} />}
-      {squadra && <MappaEventi futuri={futuri} tutti={tutti} />}
-      {puo('soldi')
-        ? <ContiDelMese miei={!puo('eventi.tutti')} affianco={<ProssimiGiorni futuri={futuri} className="flex-[1_1_300px]" />} />
-        : <ProssimiGiorni futuri={futuri} />}
+      <ProssimiGiorni futuri={futuri} />
+      {puo('soldi') && <ContiInBreve miei={!puo('eventi.tutti')} />}
     </div>
   )
 }

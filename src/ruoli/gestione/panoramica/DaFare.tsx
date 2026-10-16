@@ -1,11 +1,10 @@
 import { Link } from 'react-router-dom'
-import { CalendarCheck, FileText, Hourglass, ListChecks, Printer, UserCheck, UserX, Wallet } from 'lucide-react'
+import { CalendarCheck, FileText, Hourglass, Printer, UserCheck, UserX, Wallet } from 'lucide-react'
 import { usePuo, type Permesso } from '@/modules/auth/permessi'
 import { useReportOre } from '@/modules/eventi/api'
-import { useAttivita } from '@/modules/attivita/api'
 import { useOperatori } from '@/modules/anagrafiche/api'
 import { useScorteVisibili } from '@/modules/carta/api'
-import { euro, meseCorrente, perCampoData } from '@/shared/lib/formato'
+import { euro, meseCorrente } from '@/shared/lib/formato'
 import { Numero } from '@/shared/ui/Intestazione'
 import type { EventoLista } from './tipi'
 
@@ -25,7 +24,6 @@ type Riquadro = {
 export function DaFare({ futuri, tutti }: { futuri: EventoLista[]; tutti: EventoLista[] }) {
   const puo = usePuo()
   const ore = useReportOre(meseCorrente(), { enabled: puo('ore.approva') })
-  const attivita = useAttivita()
   const operatori = useOperatori()
   const carta = useScorteVisibili()
 
@@ -37,9 +35,6 @@ export function DaFare({ futuri, tutti }: { futuri: EventoLista[]; tutti: Evento
   const completati = tutti.filter((e) => e.stato === 'completato')
   const daFatturare = completati.filter((e) => !e.fattura_numero).length
   const daIncassare = completati.filter((e) => e.fattura_importo != null && !e.fattura_pagata).reduce((s, e) => s + Number(e.fattura_importo), 0)
-  const aperte = (attivita.data ?? []).filter((a) => a.stato !== 'fatto')
-  const oggi = perCampoData(new Date().toISOString())
-  const scadute = aperte.filter((a) => a.scadenza && a.scadenza < oggi).length
 
   const riquadri: Riquadro[] = [
     { permesso: 'eventi.assegna', a: '/gestione?filtro=assegnare', valore: daAssegnare, etichetta: 'eventi da assegnare', urgente: daAssegnare > 0, Icona: UserX },
@@ -49,7 +44,6 @@ export function DaFare({ futuri, tutti }: { futuri: EventoLista[]; tutti: Evento
     { permesso: 'ore.approva', a: '/gestione/report', valore: daApprovare, etichetta: 'chiusure da approvare', urgente: daApprovare > 0, Icona: CalendarCheck },
     { permesso: 'fatture', a: '/gestione/archivio?filtro=fatturare', valore: daFatturare, etichetta: 'eventi da fatturare', urgente: daFatturare > 0, Icona: FileText },
     { permesso: 'fatture', a: '/gestione/archivio?filtro=incassare', valore: euro(Math.round(daIncassare)), etichetta: 'da incassare', urgente: false, Icona: Wallet },
-    { permesso: [], a: '/gestione/attivita', valore: aperte.length, etichetta: scadute ? `attività aperte · ${scadute} scadute` : 'attività aperte', urgente: scadute > 0, Icona: ListChecks },
   ]
   const visibili = riquadri.filter((r) => {
     const p = Array.isArray(r.permesso) ? r.permesso : [r.permesso]

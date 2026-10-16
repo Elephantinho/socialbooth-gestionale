@@ -1,3 +1,6 @@
+import { Link } from 'react-router-dom'
+import { FileDown } from 'lucide-react'
+import { chiaveMese, etichettaMese } from '@/shared/lib/periodi'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { useMieOre } from '@/modules/eventi/api'
 import type { RigaOre } from '@/modules/eventi/types'
@@ -15,11 +18,10 @@ export function OreOperatore() {
 
   // Raggruppa per mese dell'evento
   const mesi = Object.entries((data ?? []).reduce<Record<string, RigaOre[]>>((acc, r) => {
-    const d = r.evento ? new Date(r.evento.allestimento_il) : new Date(r.creato_il)
-    const k = d.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })
+    const k = chiaveMese(r.evento?.allestimento_il ?? r.creato_il)
     ;(acc[k] ??= []).push(r)
     return acc
-  }, {}))
+  }, {})).sort(([a], [b]) => b.localeCompare(a))
 
   return (
     <div className="flex flex-col gap-5 px-5 pt-sicura pb-6">
@@ -45,12 +47,17 @@ export function OreOperatore() {
         const compenso = valide.reduce((s, r) => s + (r.compenso ?? 0), 0)
         return (
           <section key={mese} className="flex flex-col gap-2">
-            <Card tono="scuro" className="p-4 flex justify-between items-center">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-accento-chiaro">{mese}</p>
-                <p className="font-bold mt-0.5">{valide.length} eventi · {durata(minuti)}</p>
+            <Card tono="scuro" className="p-4 flex flex-col gap-3">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-accento-chiaro">{etichettaMese(mese)}</p>
+                  <p className="font-bold mt-0.5">{valide.length} eventi · {durata(minuti)}</p>
+                </div>
+                <p className="font-display text-2xl font-bold">{euro(compenso)}</p>
               </div>
-              <p className="font-display text-2xl font-bold">{euro(compenso)}</p>
+              <Link to={`/riepilogo/${profilo.id}/${mese}`} className="h-10 rounded-xl bg-scuro-2 text-sm font-bold inline-flex items-center justify-center gap-2">
+                <FileDown className="size-4" aria-hidden /> Riepilogo del mese in PDF
+              </Link>
             </Card>
             {righe.map((r) => (
               <Card key={r.id} className="p-4 flex items-center gap-3">

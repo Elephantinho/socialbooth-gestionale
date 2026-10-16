@@ -5,6 +5,8 @@ import { useClienti, useCreaCliente, useLocation, useMagazzini, useSalvaLocation
 import { useViaggio, messaggioViaggio } from '@/modules/viaggio/useViaggio'
 import { useDintorni } from '@/modules/luogo/api'
 import { costruisciOrari, minutiInLocationPrevisti, orarioRitiro } from '../logic/orari'
+import type { BriefLetto } from '../logic/brief'
+import { IncollaBrief } from './IncollaBrief'
 import type { EventoGestioneCompleto } from '../types'
 import { combinaDataOra, durata, ora, perCampoData } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
@@ -99,6 +101,34 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante, idModulo
     }))
   }
 
+  /** Riempie il modulo con quello che è stato letto dal brief (senza cancellare il resto) */
+  function daBrief(b: BriefLetto) {
+    const salvata = b.indirizzo ? locations.data?.find((l) => l.indirizzo.toLowerCase() === b.indirizzo!.toLowerCase()) : undefined
+    setM((p) => ({
+      ...p,
+      ...(b.tipoBoothId && { tipoBoothId: b.tipoBoothId }),
+      ...(b.clienteId && { clienteId: b.clienteId }),
+      ...(b.nuovoCliente && { clienteId: 'nuovo', nuovoCliente: b.nuovoCliente }),
+      ...(b.data && { data: b.data }),
+      ...(b.allestimento && { allestimento: b.allestimento }),
+      ...(b.inizio && { inizio: b.inizio }),
+      ...(b.fine && { fine: b.fine }),
+      ...(b.smontaggio && { smontaggio: b.smontaggio }),
+      ...(b.indirizzo && { indirizzo: b.indirizzo, locationId: '' }),
+      ...(b.citta && { citta: b.citta }),
+      ...(b.regione && { regione: b.regione }),
+      ...(b.referenteNome && { referenteNome: b.referenteNome }),
+      ...(b.referenteTelefono && { referenteTelefono: b.referenteTelefono }),
+      ...(b.hostess != null && { hostess: b.hostess }),
+      ...(b.wifi != null && { wifi: b.wifi }),
+      ...(b.ztl != null && { ztl: b.ztl }),
+      ...(b.outfit && { outfit: b.outfit }),
+      ...(b.noteAccesso && { noteAccesso: b.noteAccesso }),
+      ...(b.note && { note: [p.note, b.note].filter(Boolean).join('\n') }),
+    }))
+    if (salvata) scegliLocation(salvata.id)
+  }
+
   async function invia(e: React.FormEvent) {
     e.preventDefault()
     if (!calcolo) return
@@ -141,6 +171,7 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante, idModulo
 
       <div className="flex flex-wrap gap-6 items-start">
         <div className="flex-[999_1_520px] min-w-0 flex flex-col gap-4">
+          {!evento && <IncollaBrief tipi={tipi.data ?? []} clienti={clienti.data ?? []} onCompila={daBrief} />}
           <Sezione titolo="Cliente e servizio">
             <Griglia>
               <Selezione etichetta="Azienda cliente" {...testo('clienteId')}>

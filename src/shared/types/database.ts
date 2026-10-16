@@ -26,38 +26,23 @@ export type Database = {
           { foreignKeyName: 'movimenti_carta_evento_id_fkey'; columns: ['evento_id']; isOneToOne: false; referencedRelation: 'eventi'; referencedColumns: ['id'] },
         ]
       }
+      dispositivi_push: {
+        Row: { id: string; utente_id: string; endpoint: string; p256dh: string; auth: string; descrizione: string | null; creato_il: string }
+        Insert: { id?: string; utente_id?: string; endpoint: string; p256dh: string; auth: string; descrizione?: string | null; creato_il?: string }
+        Update: Partial<Database['public']['Tables']['dispositivi_push']['Insert']>
+        Relationships: []
+      }
+      montaggio: {
+        Row: { evento_id: string; voci_fatte: string[]; completato_il: string | null; aggiornato_il: string }
+        Insert: { evento_id: string; voci_fatte?: string[]; completato_il?: string | null; aggiornato_il?: string }
+        Update: Partial<Database['public']['Tables']['montaggio']['Insert']>
+        Relationships: []
+      }
       notifiche: {
         Row: { id: string; utente_id: string; titolo: string; testo: string | null; link: string | null; letta: boolean; creata_il: string }
         Insert: { id?: string; utente_id: string; titolo: string; testo?: string | null; link?: string | null; letta?: boolean; creata_il?: string }
         Update: Partial<Database['public']['Tables']['notifiche']['Insert']>
         Relationships: []
-      }
-      messaggi: {
-        Row: { id: string; evento_id: string; autore_id: string; testo: string; creato_il: string }
-        Insert: { id?: string; evento_id: string; autore_id?: string; testo: string; creato_il?: string }
-        Update: Partial<Database['public']['Tables']['messaggi']['Insert']>
-        Relationships: [
-          { foreignKeyName: 'messaggi_autore_id_fkey'; columns: ['autore_id']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
-          { foreignKeyName: 'messaggi_evento_id_fkey'; columns: ['evento_id']; isOneToOne: false; referencedRelation: 'eventi'; referencedColumns: ['id'] },
-        ]
-      }
-      attivita: {
-        Row: {
-          id: string; titolo: string; descrizione: string | null; evento_id: string | null; assegnato_a: string | null; scadenza: string | null
-          stato: Database['public']['Enums']['stato_attivita']; priorita: Database['public']['Enums']['priorita']
-          creato_da: string | null; creato_il: string; completata_il: string | null
-        }
-        Insert: {
-          id?: string; titolo: string; descrizione?: string | null; evento_id?: string | null; assegnato_a?: string | null; scadenza?: string | null
-          stato?: Database['public']['Enums']['stato_attivita']; priorita?: Database['public']['Enums']['priorita']
-          creato_da?: string | null; creato_il?: string; completata_il?: string | null
-        }
-        Update: Partial<Database['public']['Tables']['attivita']['Insert']>
-        Relationships: [
-          { foreignKeyName: 'attivita_assegnato_a_fkey'; columns: ['assegnato_a']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
-          { foreignKeyName: 'attivita_creato_da_fkey'; columns: ['creato_da']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
-          { foreignKeyName: 'attivita_evento_id_fkey'; columns: ['evento_id']; isOneToOne: false; referencedRelation: 'eventi'; referencedColumns: ['id'] },
-        ]
       }
       allegati: {
         Row: { id: string; evento_id: string; nome: string; percorso: string; tipo: string | null; dimensione: number | null; caricato_da: string | null; creato_il: string }
@@ -252,21 +237,6 @@ export type Database = {
           { foreignKeyName: 'proposte_operatore_id_fkey'; columns: ['operatore_id']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
         ]
       }
-      spese: {
-        Row: {
-          creato_il: string; descrizione: string | null; evento_id: string; id: string; importo: number; operatore_id: string
-          scontrino: string | null; stato: Database['public']['Enums']['stato_approvazione']; tipo: string
-        }
-        Insert: {
-          creato_il?: string; descrizione?: string | null; evento_id: string; id?: string; importo: number; operatore_id: string
-          scontrino?: string | null; stato?: Database['public']['Enums']['stato_approvazione']; tipo: string
-        }
-        Update: Partial<Database['public']['Tables']['spese']['Insert']>
-        Relationships: [
-          { foreignKeyName: 'spese_evento_id_fkey'; columns: ['evento_id']; isOneToOne: false; referencedRelation: 'eventi'; referencedColumns: ['id'] },
-          { foreignKeyName: 'spese_operatore_id_fkey'; columns: ['operatore_id']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
-        ]
-      }
       tipi_booth: {
         Row: { id: string; nome: string; linea: string; ordine: number }
         Insert: { id?: string; nome: string; linea?: string; ordine?: number }
@@ -307,6 +277,7 @@ export type Database = {
       media_stampe_per_evento: { Args: never; Returns: number }
       invia_ricarica_carta: { Args: { p_operatore: string; p_stampe: number; p_note?: string }; Returns: undefined }
       segna_attrezzatura: { Args: { p_evento: string; p_azione: 'prelievo' | 'rientro' }; Returns: undefined }
+      chiave_push: { Args: never; Returns: string | null }
       segnala_carta: { Args: { p_stampe: number; p_operatore?: string }; Returns: undefined }
       registra_tappa: { Args: { p_evento: string; p_tappa: string; p_lat?: number; p_lng?: number }; Returns: undefined }
       lavoro_evento: { Args: { p_evento: string }; Returns: boolean }

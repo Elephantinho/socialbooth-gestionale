@@ -37,11 +37,14 @@ export function CostiEvento({ e }: { e: EventoGestioneCompleto }) {
   return (
     <Card className="p-5 md:p-6 flex flex-col gap-5">
       <div className="flex flex-wrap justify-between items-center gap-3">
-        <TitoloSezione>Costi e margine</TitoloSezione>
-        {!aggiungi && <Pulsante variante="secondario" icona={<Plus className="size-4" aria-hidden />} onClick={() => setAggiungi(true)}>Aggiungi costo</Pulsante>}
+        <div>
+          <TitoloSezione>Costi e margine</TitoloSezione>
+          <p className="text-sm text-tenue mt-0.5">Compenso dell'operatore e carta si calcolano da soli. Aggiungi solo gli extra.</p>
+        </div>
+        {!aggiungi && <Pulsante variante="secondario" icona={<Plus className="size-4" aria-hidden />} onClick={() => setAggiungi(true)}>Aggiungi extra</Pulsante>}
       </div>
 
-      {aggiungi && <NuovoCosto eventoId={e.id} onFatto={() => setAggiungi(false)} />}
+      {aggiungi && <NuovoCosto eventoId={e.id} fase={['in_corso', 'completato'].includes(e.stato) ? 'finale' : 'previsto'} onFatto={() => setAggiungi(false)} />}
 
       {/* Tabella previsto / finale */}
       <div className="overflow-x-auto rounded-2xl border border-bordo">
@@ -75,10 +78,10 @@ export function CostiEvento({ e }: { e: EventoGestioneCompleto }) {
       </div>
 
       {costi.data.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-bold">Dettaglio voci</p>
-          {costi.data.map((c) => <VoceCosto key={c.id} c={c} />)}
-        </div>
+        <details className="group flex flex-col gap-2" open={costi.data.some((c) => c.stato === 'inviato' || Number(c.costo_unitario) === 0)}>
+          <summary className="text-sm font-bold cursor-pointer select-none mb-2">Dettaglio voci · {costi.data.length}</summary>
+          <div className="flex flex-col gap-2">{costi.data.map((c) => <VoceCosto key={c.id} c={c} />)}</div>
+        </details>
       )}
 
       <RicavoFattura e={e} />
@@ -136,10 +139,10 @@ function VoceCosto({ c }: { c: Voce }) {
   )
 }
 
-function NuovoCosto({ eventoId, onFatto }: { eventoId: string; onFatto: () => void }) {
+/** Un costo extra: previsto prima dell'evento, finale da quando è iniziato */
+function NuovoCosto({ eventoId, fase, onFatto }: { eventoId: string; fase: Enum<'fase_costo'>; onFatto: () => void }) {
   const aggiungi = useAggiungiCosto()
   const carte = useCarte()
-  const [fase, setFase] = useState<Enum<'fase_costo'>>('previsto')
   const [categoria, setCategoria] = useState<Enum<'categoria_costo'>>('noleggio_veicolo')
   const [descrizione, setDescrizione] = useState('')
   const [quantita, setQuantita] = useState('1')
@@ -160,17 +163,10 @@ function NuovoCosto({ eventoId, onFatto }: { eventoId: string; onFatto: () => vo
         stato: 'approvato',
       }, { onSuccess: onFatto })
     }}>
-      <div className="flex rounded-xl bg-superficie p-1 max-w-xs" role="group" aria-label="Fase">
-        {(['previsto', 'finale'] as const).map((f) => (
-          <button key={f} type="button" aria-pressed={fase === f} onClick={() => setFase(f)}
-            className={cn('flex-1 h-9 rounded-[9px] text-sm font-bold capitalize cursor-pointer', fase === f ? 'bg-inchiostro text-white' : 'text-tenue')}>
-            {f}
-          </button>
-        ))}
-      </div>
+      <p className="text-sm text-tenue">{fase === 'previsto' ? 'Costo previsto: entra nella previsione.' : 'Costo reale: entra nel consuntivo.'}</p>
       <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(170px,1fr))]">
         <Selezione etichetta="Categoria" value={categoria} onChange={(ev) => setCategoria(ev.target.value as Enum<'categoria_costo'>)}>
-          {CATEGORIE_COSTO.map((c) => <option key={c.id} value={c.id}>{c.etichetta}</option>)}
+          {CATEGORIE_COSTO.filter((c) => c.id !== 'carta_stampe').map((c) => <option key={c.id} value={c.id}>{c.etichetta}</option>)}
         </Selezione>
         <Campo etichetta="Descrizione" placeholder="Es. Furgone Hertz" value={descrizione} onChange={(ev) => setDescrizione(ev.target.value)} />
         <Campo etichetta={`Quantità${unita ? ` (${unita})` : ''}`} inputMode="decimal" value={quantita} onChange={(ev) => setQuantita(ev.target.value)} />

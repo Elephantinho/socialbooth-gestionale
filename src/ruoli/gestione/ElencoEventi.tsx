@@ -1,8 +1,9 @@
 import { Link, useSearchParams } from 'react-router-dom'
-import { Archive, Plus } from 'lucide-react'
+import { Archive, List, Map as MappaIcona, Plus } from 'lucide-react'
 import { usePuo, type Permesso } from '@/modules/auth/permessi'
 import { useEventiGestione } from '@/modules/eventi/api'
 import { RigaEvento } from '@/modules/eventi/components/RigaEvento'
+import { MappaEventi } from '@/modules/eventi/components/MappaEventi'
 import { inArchivio } from '@/modules/eventi/logic/archivio'
 import type { EventoGestione } from '@/modules/eventi/types'
 import { cn } from '@/shared/lib/cn'
@@ -29,7 +30,14 @@ export function ElencoEventi() {
   const [parametri, setParametri] = useSearchParams()
   const visibili = filtri.filter((f) => !f.permesso || puo(f.permesso))
   const attivo = visibili.find((f) => f.id === parametri.get('filtro')) ?? visibili[0]
-  const setFiltro = (id: string) => setParametri(id === 'tutti' ? {} : { filtro: id }, { replace: true })
+  const mappa = parametri.get('vista') === 'mappa'
+  const imposta = (filtro: string, vista: 'elenco' | 'mappa') => {
+    const p: Record<string, string> = {}
+    if (filtro !== 'tutti') p.filtro = filtro
+    if (vista === 'mappa') p.vista = 'mappa'
+    setParametri(p, { replace: true })
+  }
+  const setFiltro = (id: string) => imposta(id, mappa ? 'mappa' : 'elenco')
 
   const inProgramma = (data ?? []).filter((e) => !inArchivio(e))
   const eventi = inProgramma.filter(attivo.passa)
@@ -52,7 +60,8 @@ export function ElencoEventi() {
           </>
         } />
 
-      <div className="flex gap-2 overflow-x-auto pb-1" role="tablist">
+      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex gap-2 overflow-x-auto pb-1 flex-1 min-w-0" role="tablist">
         {visibili.map((f) => (
           <button key={f.id} role="tab" aria-selected={attivo.id === f.id} onClick={() => setFiltro(f.id)}
             className={cn(
@@ -64,8 +73,17 @@ export function ElencoEventi() {
           </button>
         ))}
       </div>
+      <div className="flex rounded-xl bg-superficie border border-bordo p-1" role="group" aria-label="Vista">
+        {([['elenco', 'Elenco', List], ['mappa', 'Mappa', MappaIcona]] as const).map(([v, t, I]) => (
+          <button key={v} aria-pressed={(v === 'mappa') === mappa} onClick={() => imposta(attivo.id, v)}
+            className={cn('h-9 px-3 rounded-[9px] text-sm font-bold cursor-pointer inline-flex items-center gap-1.5', (v === 'mappa') === mappa ? 'bg-inchiostro text-white' : 'text-tenue')}>
+            <I className="size-4" aria-hidden /> {t}
+          </button>
+        ))}
+      </div>
+      </div>
 
-      {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : eventi.length === 0 ? (
+      {mappa && !isPending && !error ? <MappaEventi eventi={eventi} /> : isPending ? <Caricamento /> : error ? <Errore errore={error} /> : eventi.length === 0 ? (
         <Card>
           <Vuoto titolo="Nessun evento qui"
             testo={puo('eventi.crea') ? "Crea un evento: se in zona c'è un solo operatore, gli verrà proposto in automatico." : 'Quando ci saranno eventi in programma li trovi qui.'} />

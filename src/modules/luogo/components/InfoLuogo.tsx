@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { AlertTriangle, Car, CheckCircle2, CloudRain, Coffee, Fuel, Loader2, ShoppingCart, Sun, Wind, Wrench } from 'lucide-react'
+import { AlertTriangle, Car, CheckCircle2, CloudRain, Coffee, Fuel, Loader2, ShoppingCart, Sun, Wind, Wrench, ChevronDown } from 'lucide-react'
 import { descriviMeteo, useDintorni, useMeteo, usePosizione, type Parcheggio, type Servizio } from '../api'
 import { linkNavigatore } from '@/modules/viaggio/api'
 import { perCampoData } from '@/shared/lib/formato'
@@ -42,6 +42,7 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
   const dintorni = useDintorni(punto)
   const meteo = useMeteo(punto, perCampoData(data))
   const [selezionato, setSelezionato] = useState<string>()
+  const [aperto, setAperto] = useState(false)
 
   const segnaposti = useMemo<Segnaposto[]>(() => {
     if (!punto) return []
@@ -60,14 +61,6 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
 
   return (
     <Card className="overflow-hidden">
-      {punto ? (
-        <Mappa punti={segnaposti} altezza={compatto ? 200 : 260} className="border-b border-bordo" />
-      ) : (
-        <div className="h-40 bg-[#E7EEEA] flex items-center justify-center text-sm text-tenue font-semibold">
-          {posizione.isFetching ? <Loader2 className="size-5 animate-spin" aria-hidden /> : 'Posizione non trovata'}
-        </div>
-      )}
-
       <div className="p-4 md:p-5 flex flex-col gap-4">
         <div className="flex flex-wrap justify-between gap-3 items-start">
           <div>
@@ -119,6 +112,20 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
           </div>
         </div>
 
+        {/* Mappa, parcheggi e servizi: chiusi finché non servono */}
+        <button type="button" onClick={() => setAperto((a) => !a)} aria-expanded={aperto}
+          className="h-11 rounded-xl border border-bordo-forte font-bold text-sm inline-flex items-center justify-center gap-2 cursor-pointer hover:bg-sfondo">
+          <ChevronDown className={cn('size-4 transition', aperto && 'rotate-180')} aria-hidden />
+          {aperto ? 'Chiudi' : `Mappa, parcheggi${dintorni.data?.parcheggi.length ? ` (${dintorni.data.parcheggi.length})` : ''} e servizi vicini`}
+        </button>
+        {aperto && (<>
+        {punto ? (
+          <Mappa punti={segnaposti} altezza={compatto ? 200 : 260} className="rounded-2xl border border-bordo overflow-hidden" />
+        ) : (
+          <div className="h-32 rounded-2xl bg-[#E7EEEA] flex items-center justify-center text-sm text-tenue font-semibold">
+            {posizione.isFetching ? <Loader2 className="size-5 animate-spin" aria-hidden /> : 'Posizione non trovata'}
+          </div>
+        )}
         {/* Parcheggi */}
         <div className="flex flex-col gap-2">
           <TitoloSezione className="text-[15px]">Parcheggi vicini</TitoloSezione>
@@ -164,6 +171,8 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
             </div>
           </div>
         )}
+
+        </>)}
 
         {magazzino && magazzino.lat == null && (
           <p className="text-xs text-tenue">Il magazzino {magazzino.nome} non ha una posizione: aggiornala per calcolare i viaggi.</p>

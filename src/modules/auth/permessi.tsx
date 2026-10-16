@@ -17,9 +17,8 @@ export type Permesso =
   | 'magazzini'            // magazzini e inventario
   | 'location'             // location salvate
   | 'clienti'              // clienti
-  | 'soldi'                // costi, ricavi e margini degli eventi che vede
+  | 'soldi'                // costi, ricavi e margini degli eventi che vede (e la pagina Andamento)
   | 'ore.approva'          // pagina Costi e compensi: approvare chiusure e spese
-  | 'analisi'              // analisi di tutta l'azienda: Previsione e Regioni
   | 'fatture'              // eventi da fatturare e da incassare
   | 'tariffe'              // tariffa oraria degli operatori
   | 'carte'                // carte aziendali
@@ -28,7 +27,7 @@ export type Permesso =
 
 const TUTTI: Permesso[] = [
   'eventi.crea', 'eventi.modifica', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'carta.ricarica', 'magazzini',
-  'location', 'clienti', 'soldi', 'ore.approva', 'analisi', 'fatture', 'tariffe', 'carte', 'utenti', 'impostazioni',
+  'location', 'clienti', 'soldi', 'ore.approva', 'fatture', 'tariffe', 'carte', 'utenti', 'impostazioni',
 ]
 
 /** Ogni ruolo ha solo quello che gli serve; l'admin ha tutto */
@@ -39,7 +38,7 @@ const PERMESSI: Record<Ruolo, Permesso[]> = {
   // Tutta l'operatività: eventi di tutti, operatori, assegnazioni, carta, magazzini, location. Niente soldi.
   gestore_operatori: ['eventi.tutti', 'eventi.modifica', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'carta.ricarica', 'magazzini', 'location'],
   // Conti dell'azienda: costi, compensi, fatture, tariffe, carte
-  amministrazione: ['eventi.tutti', 'operatori.vedi', 'clienti', 'soldi', 'ore.approva', 'analisi', 'fatture', 'tariffe', 'carte'],
+  amministrazione: ['eventi.tutti', 'operatori.vedi', 'clienti', 'soldi', 'ore.approva', 'fatture', 'tariffe', 'carte'],
   operatore: [],
 }
 
