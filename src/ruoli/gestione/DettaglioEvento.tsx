@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, Ban, Check, Copy, Pencil, Phone, RotateCcw, UserRound, X } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { usePuo } from '@/modules/auth/permessi'
-import { inArchivio } from '@/modules/eventi/logic/archivio'
+import { giaPassato, inArchivio } from '@/modules/eventi/logic/archivio'
 import { useAggiornaEvento, useApprovaOre, useEventoGestione } from '@/modules/eventi/api'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
 import { ModuloEvento } from '@/modules/eventi/components/ModuloEvento'
@@ -153,7 +153,7 @@ function Riepilogo({ e }: { e: EventoGestioneCompleto }) {
 
 function Operatore({ e }: { e: EventoGestioneCompleto }) {
   const [scegli, setScegli] = useState(false)
-  const puoAssegnare = usePuo()('eventi.assegna') && ['da_assegnare', 'proposto', 'confermato'].includes(e.stato)
+  const puoAssegnare = usePuo()('eventi.assegna') && ['da_assegnare', 'proposto', 'confermato'].includes(e.stato) && !giaPassato(e)
   const numero = e.operatore?.telefono?.replace(/[^\d+]/g, '')
 
   return (

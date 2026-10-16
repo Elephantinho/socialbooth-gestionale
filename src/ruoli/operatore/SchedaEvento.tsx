@@ -95,7 +95,7 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
         )}
 
         <ChecklistMontaggio eventoId={e.id} wifi={e.wifi} />
-        <AllegatiEvento eventoId={e.id} fotoSet={e.stato === 'in_corso' || e.stato === 'confermato'} />
+        <AllegatiEvento eventoId={e.id} />
       </div>
 
 

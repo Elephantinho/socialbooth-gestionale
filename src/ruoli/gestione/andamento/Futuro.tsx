@@ -33,10 +33,10 @@ export function Futuro() {
   const carta = useScorteVisibili()
   const puo = usePuo()
 
-  const parametri = data && { tariffaMedia: data.tariffaMedia, costoStampa: data.costoStampa, mediaStampe: data.mediaStampe }
-  const perMese = useMemo(() => (data && parametri ? previsionePer(data.eventi, parametri, (e) => chiaveMese(e.allestimento_il)) : []), [data])
+  const parametri = useMemo(() => data && { tariffaMedia: data.tariffaMedia, costoStampa: data.costoStampa, mediaStampe: data.mediaStampe }, [data])
+  const perMese = useMemo(() => (data && parametri ? previsionePer(data.eventi, parametri, (e) => chiaveMese(e.allestimento_il)) : []), [data, parametri])
   const perRegione = useMemo(() => (data && parametri
-    ? previsionePer(data.eventi, parametri, (e) => e.regione).sort((a, b) => b.costiTotali - a.costiTotali) : []), [data])
+    ? previsionePer(data.eventi, parametri, (e) => e.regione).sort((a, b) => b.costiTotali - a.costiTotali) : []), [data, parametri])
   const totale = totalePrevisione(perMese)
 
   const stampeNecessarie = Math.round(totale.stampe)

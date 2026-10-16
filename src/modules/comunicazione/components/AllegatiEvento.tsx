@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Camera, FileText, Image as Immagine, Paperclip, Trash2, Upload } from 'lucide-react'
+import { FileText, Image as Immagine, Paperclip, Trash2, Upload } from 'lucide-react'
 import { apriFile, useAllegati, useCaricaAllegato, useEliminaAllegato } from '../api'
 import { nomeCompleto } from '@/shared/lib/formato'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
@@ -8,7 +8,7 @@ import { Caricamento, Errore } from '@/shared/ui/Stati'
 const dimensione = (b: number | null) => (b == null ? '' : b < 1_000_000 ? `${Math.round(b / 1000)} KB` : `${(b / 1_000_000).toFixed(1).replace('.', ',')} MB`)
 
 /** Brief, grafiche, planimetrie e foto dell'evento. L'operatore può aggiungere la foto del set. */
-export function AllegatiEvento({ eventoId, fotoSet }: { eventoId: string; fotoSet?: boolean }) {
+export function AllegatiEvento({ eventoId }: { eventoId: string }) {
   const { data, isPending } = useAllegati(eventoId)
   const carica = useCaricaAllegato()
   const elimina = useEliminaAllegato()
@@ -26,12 +26,6 @@ export function AllegatiEvento({ eventoId, fotoSet }: { eventoId: string; fotoSe
       <div className="flex items-center justify-between gap-2">
         <TitoloSezione className="text-[15px] flex items-center gap-2"><Paperclip className="size-4" aria-hidden /> Documenti e foto</TitoloSezione>
         <div className="flex gap-1.5">
-          {fotoSet && (
-            <label className="h-9 px-3 rounded-lg bg-accento text-white text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer">
-              <Camera className="size-3.5" aria-hidden /> Foto del set
-              <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(e) => scegli(e.target.files, 'Foto del set', 'foto')} />
-            </label>
-          )}
           <label className="h-9 px-3 rounded-lg border border-bordo-forte text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer hover:bg-sfondo">
             <Upload className="size-3.5" aria-hidden /> Carica
             <input type="file" multiple className="sr-only" onChange={(e) => scegli(e.target.files)} />

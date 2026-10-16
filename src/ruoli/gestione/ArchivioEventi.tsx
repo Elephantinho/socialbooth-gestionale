@@ -5,7 +5,7 @@ import { Search } from 'lucide-react'
 import { usePuo, type Permesso } from '@/modules/auth/permessi'
 import { useEventiGestione } from '@/modules/eventi/api'
 import { RigaEvento } from '@/modules/eventi/components/RigaEvento'
-import { daFatturare, daIncassare, inArchivio } from '@/modules/eventi/logic/archivio'
+import { daFatturare, daIncassare, inArchivio, nonSvolto } from '@/modules/eventi/logic/archivio'
 import type { EventoGestione } from '@/modules/eventi/types'
 import { chiaveMese, etichettaMese } from '@/shared/lib/periodi'
 import { cn } from '@/shared/lib/cn'
@@ -19,6 +19,7 @@ const filtri: Filtro[] = [
   { id: 'completati', etichetta: 'Completati', passa: (e) => e.stato === 'completato' },
   { id: 'fatturare', etichetta: 'Da fatturare', passa: daFatturare, permesso: 'fatture' },
   { id: 'incassare', etichetta: 'Da incassare', passa: daIncassare, permesso: 'fatture' },
+  { id: 'nonsvolti', etichetta: 'Mai svolti', passa: (e) => nonSvolto(e) },
   { id: 'annullati', etichetta: 'Annullati', passa: (e) => e.stato === 'annullato' },
 ]
 
@@ -49,7 +50,7 @@ export function ArchivioEventi() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Intestazione sopra="Archivio" titolo="Eventi passati" descrizione="Gli eventi chiusi e quelli annullati, dal più recente."
+      <Intestazione sopra="Archivio" titolo="Eventi passati" descrizione="Gli eventi chiusi, quelli annullati e quelli mai svolti (data passata senza operatore), dal più recente."
         azioni={puo('fatture') && <ExportCommercialista />} />
 
       <div className="flex flex-wrap gap-3 items-center">

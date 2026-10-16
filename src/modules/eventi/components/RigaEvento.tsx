@@ -9,11 +9,12 @@ import { Avatar } from '@/shared/ui/Avatar'
 import { Card } from '@/shared/ui/Card'
 import { StatoEvento } from './StatoEvento'
 import type { EventoGestione } from '../types'
+import { giaPassato } from '../logic/archivio'
 
 /** Una riga dell'elenco eventi: data, cosa, dove, operatore, stato. "extra" aggiunge un'etichetta a destra. */
 export function RigaEvento({ e, assegna = false, extra }: { e: EventoGestione; assegna?: boolean; extra?: React.ReactNode }) {
   const [aperto, setAperto] = useState(false)
-  const assegnabile = assegna && e.stato === 'da_assegnare'
+  const assegnabile = assegna && e.stato === 'da_assegnare' && !giaPassato(e)
 
   return (
     <Card className="overflow-hidden">

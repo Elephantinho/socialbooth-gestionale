@@ -132,6 +132,10 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante, idModulo
   async function invia(e: React.FormEvent) {
     e.preventDefault()
     if (!calcolo) return
+    if (!evento && new Date(calcolo.allestimento).getTime() < Date.now()) {
+      setErrore(new Error("La data dell'allestimento è già passata: controlla giorno e orari."))
+      return
+    }
     setInvio(true)
     setErrore(undefined)
     try {

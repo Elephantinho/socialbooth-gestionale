@@ -24,14 +24,14 @@ export function Squadra({ telefono }: { telefono?: boolean }) {
   const [cerca, setCerca] = useState('')
 
   const nonLettiDi = (canale: string) => Number(nonLetti.data?.find((x) => x.canale === canale)?.non_letti ?? 0)
-  const ultimoDi = (canale: string) => nonLetti.data?.find((x) => x.canale === canale)?.ultimo ?? ''
 
-  const altri = useMemo(() => (persone.data ?? []).filter((p) => p.id !== io.id)
-    .filter((p) => `${p.nome} ${p.cognome} ${p.regioni.join(' ')}`.toLowerCase().includes(cerca.toLowerCase()))
-    .sort((a, b) => Number(online.has(b.id)) - Number(online.has(a.id))
-      || ultimoDi(canaleDiretto(io.id, b.id)).localeCompare(ultimoDi(canaleDiretto(io.id, a.id)))
-      || a.nome.localeCompare(b.nome)),
-  [persone.data, online, cerca, nonLetti.data, io.id])
+  // Prima chi è online, poi chi ha scritto per ultimo, poi in ordine di nome
+  const altri = useMemo(() => {
+    const ultimo = (id: string) => nonLetti.data?.find((x) => x.canale === canaleDiretto(io.id, id))?.ultimo ?? ''
+    return (persone.data ?? []).filter((p) => p.id !== io.id)
+      .filter((p) => `${p.nome} ${p.cognome} ${p.regioni.join(' ')}`.toLowerCase().includes(cerca.toLowerCase()))
+      .sort((a, b) => Number(online.has(b.id)) - Number(online.has(a.id)) || ultimo(b.id).localeCompare(ultimo(a.id)) || a.nome.localeCompare(b.nome))
+  }, [persone.data, online, cerca, nonLetti.data, io.id])
 
   const scelta = con === CANALE_SQUADRA ? 'squadra' : (persone.data ?? []).find((p) => p.id === con)
   const apri = (id: string | null) => setParametri(id ? { con: id } : {}, { replace: false })
@@ -116,7 +116,7 @@ function Conversazione({ chi, persone, online, onIndietro }: { chi: Persona | 's
   const canale = chi === 'squadra' ? CANALE_SQUADRA : canaleDiretto(io.id, chi.id)
   const messaggi = useMessaggi(canale)
   const invia = useInviaMessaggio()
-  const segna = useSegnaLetto()
+  const { mutate: segnaLetto } = useSegnaLetto()
   const [testo, setTesto] = useState('')
   const fondo = useRef<HTMLDivElement>(null)
   const nomeDi = (id: string) => nomeCompleto(persone.find((p) => p.id === id)) || 'Qualcuno'
@@ -124,8 +124,8 @@ function Conversazione({ chi, persone, online, onIndietro }: { chi: Persona | 's
   const ultimo = messaggi.data?.at(-1)?.id
   useEffect(() => {
     fondo.current?.scrollIntoView({ block: 'end' })
-    segna.mutate(canale)
-  }, [ultimo, canale])
+    segnaLetto(canale)
+  }, [ultimo, canale, segnaLetto])
 
   function manda() {
     if (!testo.trim()) return
