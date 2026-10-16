@@ -1,0 +1,15 @@
+# Pubblicazione su Netlify: collega il repo e il resto è automatico.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Chiavi pubbliche (publishable) di Supabase: sicure da tenere qui.
+[build.environment]
+  VITE_SUPABASE_URL = "https://ltfzqnljmnbiqmbmvvfk.supabase.co"
+  VITE_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_pGhtggDpRqaeZ9dItRJehA_jCzDiOZw"
+
+# App a pagina singola: ogni indirizzo apre index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
