@@ -30,7 +30,7 @@ export function Panoramica() {
   return (
     <div className="flex flex-col gap-5 max-w-3xl">
       <Intestazione titolo="Panoramica" />
-      <DaFare futuri={futuri} tutti={tutti} />
+      <DaFare tutti={tutti} />
       {puo('carta.ricarica') && <AvvisiCarta />}
       <AttivaNotifiche />
       {puo('eventi.assegna') && <Adesso eventi={tutti} />}

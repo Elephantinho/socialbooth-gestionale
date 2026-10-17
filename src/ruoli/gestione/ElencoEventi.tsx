@@ -1,3 +1,4 @@
+import { useOperatori } from '@/modules/anagrafiche/api'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Archive, List, Map as MappaIcona, Plus } from 'lucide-react'
 import { usePuo, type Permesso } from '@/modules/auth/permessi'
@@ -83,6 +84,8 @@ export function ElencoEventi() {
       </div>
       </div>
 
+      {puo('eventi.assegna') && <ZoneScoperte eventi={inProgramma} />}
+
       {mappa && !isPending && !error ? <MappaEventi eventi={eventi} /> : isPending ? <Caricamento /> : error ? <Errore errore={error} /> : eventi.length === 0 ? (
         <Card>
           <Vuoto titolo="Nessun evento qui"
@@ -94,5 +97,19 @@ export function ElencoEventi() {
         </div>
       )}
     </div>
+  )
+}
+
+/** Regioni con eventi in programma ma nessun operatore attivo che ci lavori */
+function ZoneScoperte({ eventi }: { eventi: { regione: string }[] }) {
+  const operatori = useOperatori()
+  if (!operatori.data) return null
+  const coperte = new Set(operatori.data.filter((o) => o.attivo).flatMap((o) => o.zone.map((z) => z.regione as string)))
+  const scoperte = [...new Set(eventi.map((e) => e.regione))].filter((r) => !coperte.has(r))
+  if (!scoperte.length) return null
+  return (
+    <p className="rounded-lg border border-avviso-icona/40 bg-avviso text-avviso-testo px-4 py-3 text-sm">
+      Nessun operatore attivo in {scoperte.join(', ')}: gli eventi lì vanno assegnati a mano.
+    </p>
   )
 }

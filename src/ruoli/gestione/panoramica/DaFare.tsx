@@ -22,7 +22,7 @@ type Voce = {
  * Compaiono solo le voci che hanno qualcosa dentro e che spettano al ruolo:
  * se non c'è niente, una riga sola "Niente da fare".
  */
-export function DaFare({ futuri, tutti }: { futuri: EventoLista[]; tutti: EventoLista[] }) {
+export function DaFare({ tutti }: { tutti: EventoLista[] }) {
   const puo = usePuo()
   const io = useProfilo()
   const ore = useOreDaApprovare({ enabled: puo('ore.approva') })
@@ -30,11 +30,8 @@ export function DaFare({ futuri, tutti }: { futuri: EventoLista[]; tutti: Evento
   const richieste = useRichieste()
 
   const richiestePerMe = (richieste.data ?? []).filter((r) => (r.stato === 'aperta' || r.stato === 'in_corso') && perMe(r, io)).length
-  const daAssegnare = futuri.filter((e) => e.stato === 'da_assegnare').length
   const meseDaApprovare = (ore.data ?? []).map((o) => o.evento!.allestimento_il.slice(0, 7)).sort()[0]
   const nuoviOperatori = (operatori.data ?? []).filter((o) => !o.attivo).length
-  const coperte = new Set((operatori.data ?? []).filter((o) => o.attivo).flatMap((o) => o.zone.map((z) => z.regione as string)))
-  const scoperte = operatori.data ? [...new Set(futuri.map((e) => e.regione))].filter((r) => !coperte.has(r)) : []
   const completati = tutti.filter((e) => e.stato === 'completato')
   const daFatturare = completati.filter((e) => !e.fattura_numero).length
   const nonPagati = completati.filter((e) => e.fattura_importo != null && !e.fattura_pagata)
@@ -42,9 +39,7 @@ export function DaFare({ futuri, tutti }: { futuri: EventoLista[]; tutti: Evento
 
   const voci: Voce[] = [
     { quanti: richiestePerMe, testo: richiestePerMe === 1 ? 'richiesta per te' : 'richieste per te', a: '/gestione/richieste' },
-    { permesso: 'eventi.assegna', quanti: daAssegnare, testo: daAssegnare === 1 ? 'evento senza operatore' : 'eventi senza operatore', a: '/gestione?filtro=assegnare' },
     { permesso: 'operatori.gestisci', quanti: nuoviOperatori, testo: nuoviOperatori === 1 ? 'nuovo operatore da attivare' : 'nuovi operatori da attivare', a: '/gestione/operatori' },
-    { permesso: 'operatori.gestisci', quanti: scoperte.length, testo: `${scoperte.length === 1 ? 'regione' : 'regioni'} con eventi e nessun operatore (${scoperte.join(', ')})`, a: '/gestione/operatori' },
     { permesso: 'ore.approva', quanti: ore.data?.length ?? 0, testo: 'chiusure da approvare (ore e spese)', a: meseDaApprovare ? `/gestione/report?mese=${meseDaApprovare}` : '/gestione/report' },
     { permesso: 'fatture', quanti: daFatturare, testo: daFatturare === 1 ? 'evento da fatturare' : 'eventi da fatturare', a: '/gestione/archivio?filtro=fatturare' },
     { permesso: 'fatture', quanti: nonPagati.length, testo: `fatture da incassare (${euro(Math.round(daIncassare))})`, a: '/gestione/archivio?filtro=incassare' },
