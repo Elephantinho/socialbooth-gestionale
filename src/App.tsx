@@ -21,6 +21,7 @@ const Operatori = lazy(() => import('@/ruoli/gestione/Operatori').then((m) => ({
 const DettaglioOperatore = lazy(() => import('@/ruoli/gestione/DettaglioOperatore').then((m) => ({ default: m.DettaglioOperatore })))
 const Utenti = lazy(() => import('@/ruoli/gestione/Utenti').then((m) => ({ default: m.Utenti })))
 const Carte = lazy(() => import('@/ruoli/gestione/Carte').then((m) => ({ default: m.Carte })))
+const Panoramica = lazy(() => import('@/ruoli/gestione/Panoramica').then((m) => ({ default: m.Panoramica })))
 const Conti = lazy(() => import('@/ruoli/gestione/Conti').then((m) => ({ default: m.Conti })))
 
 // /operatore/* → app sul telefono, /gestione/* → pannello web
@@ -41,6 +42,7 @@ export function App() {
 
         <Route path="/gestione" element={<Protetto ruoli={RUOLI_GESTIONE}><GestioneLayout /></Protetto>}>
           <Route index element={<ElencoEventi />} />
+          <Route path="panoramica" element={<Panoramica />} />
           <Route path="eventi/nuovo" element={<Solo permesso="eventi.crea"><NuovoEvento /></Solo>} />
           <Route path="eventi/:id" element={<DettaglioEvento />} />
           <Route path="calendario" element={<Calendario />} />
@@ -49,7 +51,7 @@ export function App() {
           <Route path="carte" element={<Solo permesso="carte"><Carte /></Solo>} />
           <Route path="conti" element={<Solo permesso="soldi"><Conti /></Solo>} />
           <Route path="utenti" element={<Solo permesso="utenti"><Utenti /></Solo>} />
-          <Route path="*" element={<Navigate to="/gestione" replace />} />
+          <Route path="*" element={<Navigate to="/gestione/panoramica" replace />} />
         </Route>
 
         <Route path="*" element={<Inizio />} />

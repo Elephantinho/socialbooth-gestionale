@@ -51,5 +51,5 @@ export function usePuo() {
 
 /** Pagina riservata: chi non ha il permesso torna alla Panoramica */
 export function RichiedePermesso({ permesso, children }: { permesso: Permesso; children: React.ReactNode }) {
-  return usePuo()(permesso) ? <>{children}</> : <Navigate to="/gestione" replace />
+  return usePuo()(permesso) ? <>{children}</> : <Navigate to="/gestione/panoramica" replace />
 }
