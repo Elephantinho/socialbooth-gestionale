@@ -139,8 +139,9 @@ function Riepilogo({ e }: { e: EventoGestioneCompleto }) {
 }
 
 function Operatore({ e }: { e: EventoGestioneCompleto }) {
-  const [scegli, setScegli] = useState(false)
   const puoAssegnare = usePuo()('eventi.assegna') && ['da_assegnare', 'proposto', 'confermato'].includes(e.stato) && !giaPassato(e)
+  // Senza operatore l'elenco dei liberi è già aperto: è la prossima cosa da fare
+  const [scegli, setScegli] = useState(puoAssegnare && !e.operatore)
   const numero = e.operatore?.telefono?.replace(/[^\d+]/g, '')
 
   return (

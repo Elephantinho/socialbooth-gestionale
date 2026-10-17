@@ -5,11 +5,12 @@ import { usePuo } from '@/modules/auth/permessi'
 import { useEventiGestione } from '@/modules/eventi/api'
 import { BoxEvento } from '@/modules/eventi/components/BoxEvento'
 import { passato } from '@/modules/eventi/logic/archivio'
+import type { EventoGestione } from '@/modules/eventi/types'
 import { Card } from '@/shared/ui/Card'
 import { Intestazione } from '@/shared/ui/Intestazione'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 
-/** Eventi in programma, dal più vicino. I passati stanno nell'archivio (il cassetto in alto). */
+/** Eventi in programma, divisi per mese. I passati stanno nell'archivio (il cassetto in alto). */
 export function ElencoEventi() {
   const { data, isPending, error } = useEventiGestione()
   const puo = usePuo()
@@ -46,6 +47,7 @@ export function ElencoEventi() {
           } />
       )}
 
+      {!archivio && eventi.length > 0 && <Avanzamento eventi={eventi} />}
       {puo('eventi.assegna') && !archivio && <ZoneScoperte eventi={eventi} />}
 
       {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : eventi.length === 0 ? (
@@ -53,11 +55,51 @@ export function ElencoEventi() {
           <Vuoto titolo="Nessun evento" testo={archivio ? 'Gli eventi conclusi compariranno qui.' : 'Crea un evento per vederlo qui.'} />
         </Card>
       ) : (
-        <div className="grid gap-3.5 grid-cols-[repeat(auto-fill,minmax(280px,1fr))] items-start">
-          {eventi.map((e) => <BoxEvento key={e.id} e={e} assegna={puo('eventi.assegna') && !archivio} />)}
-        </div>
+        perMese(eventi).map(([mese, lista]) => (
+          <section key={mese} className="flex flex-col gap-2.5">
+            <h2 className="text-sm font-semibold text-tenue capitalize">{mese}<span className="font-medium ml-2 text-tenue/70">{lista.length}</span></h2>
+            <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(210px,1fr))]">
+              {lista.map((e) => <BoxEvento key={e.id} e={e} />)}
+            </div>
+          </section>
+        ))
       )}
     </div>
+  )
+}
+
+function perMese(eventi: EventoGestione[]) {
+  const gruppi = new Map<string, EventoGestione[]>()
+  for (const e of eventi) {
+    const mese = new Date(e.allestimento_il).toLocaleDateString('it-IT', { month: 'long', year: 'numeric', timeZone: 'Europe/Rome' })
+    gruppi.set(mese, [...(gruppi.get(mese) ?? []), e])
+  }
+  return [...gruppi]
+}
+
+/** Quanti eventi in programma sono già coperti: la barra verde cresce man mano che si conferma. */
+function Avanzamento({ eventi }: { eventi: EventoGestione[] }) {
+  const coperti = eventi.filter((e) => e.stato === 'confermato' || e.stato === 'in_corso').length
+  const attesa = eventi.filter((e) => e.stato === 'proposto').length
+  const scoperti = eventi.length - coperti - attesa
+  const tutti = coperti === eventi.length
+  const pct = (n: number) => `${(n / eventi.length) * 100}%`
+  return (
+    <Card className="p-4 flex flex-col gap-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <p className="font-semibold">
+          {tutti ? 'Tutti gli eventi sono coperti' : <><span className="text-ok">{coperti} su {eventi.length}</span> eventi già coperti</>}
+        </p>
+        <p className="text-sm text-tenue flex gap-4">
+          {attesa > 0 && <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-avviso-icona" />{attesa} in attesa</span>}
+          {scoperti > 0 && <span className="flex items-center gap-1.5"><span className="size-2 rounded-full bg-urgente" />{scoperti} da assegnare</span>}
+        </p>
+      </div>
+      <div className="h-2 rounded-full bg-sfondo overflow-hidden flex" aria-hidden>
+        <span className="bg-ok h-full" style={{ width: pct(coperti) }} />
+        <span className="bg-avviso-icona h-full" style={{ width: pct(attesa) }} />
+      </div>
+    </Card>
   )
 }
 

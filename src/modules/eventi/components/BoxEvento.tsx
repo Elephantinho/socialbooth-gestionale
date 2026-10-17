@@ -1,76 +1,55 @@
-import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronDown } from 'lucide-react'
-import { AssegnaOperatore } from '@/modules/assegnazione/AssegnaOperatore'
+import { Check, Clock, UserPlus } from 'lucide-react'
 import { nomeCompleto, ora } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
 import { Avatar } from '@/shared/ui/Avatar'
-import { Card } from '@/shared/ui/Card'
-import { StatoEvento } from './StatoEvento'
 import type { EventoGestione } from '../types'
-import { giaPassato } from '../logic/archivio'
-import { nomeEvento } from '@/modules/eventi/logic/nome'
+import { nomeEvento } from '../logic/nome'
 
 const fuso = { timeZone: 'Europe/Rome' } as const
 
-/** Un evento come box: data, servizio, luogo, operatore. L'etichetta compare solo se c'è qualcosa da fare. */
-export function BoxEvento({ e, assegna = false }: { e: EventoGestione; assegna?: boolean }) {
-  const [aperto, setAperto] = useState(false)
-  const scoperto = e.stato === 'da_assegnare' || e.stato === 'bozza'
-  const assegnabile = assegna && e.stato === 'da_assegnare' && !giaPassato(e)
+/** Colore e segno di ogni stato: verde = a posto, arancione = si aspetta, rosso = da fare. */
+const aspetto: Partial<Record<EventoGestione['stato'], { barra: string; segno: React.ReactNode }>> = {
+  confermato:   { barra: 'bg-ok',           segno: <span title="Confermato" className="size-5 rounded-full bg-ok text-white flex items-center justify-center"><Check className="size-3.5" strokeWidth={3} aria-label="Confermato" /></span> },
+  completato:   { barra: 'bg-ok',           segno: <span title="Completato" className="size-5 rounded-full bg-ok text-white flex items-center justify-center"><Check className="size-3.5" strokeWidth={3} aria-label="Completato" /></span> },
+  in_corso:     { barra: 'bg-ok',           segno: <span className="text-[11px] font-semibold text-ok bg-ok-tenue rounded-full px-2 py-0.5">In corso</span> },
+  proposto:     { barra: 'bg-avviso-icona', segno: <span title="In attesa di risposta" className="text-avviso-icona"><Clock className="size-[18px]" aria-label="In attesa di risposta" /></span> },
+  da_assegnare: { barra: 'bg-urgente',      segno: null },
+  bozza:        { barra: 'bg-urgente',      segno: null },
+}
+
+/** Un evento in un box compatto: data, nome, servizio e città, operatore. */
+export function BoxEvento({ e }: { e: EventoGestione }) {
+  const a = aspetto[e.stato] ?? { barra: 'bg-bordo-forte', segno: null }
   const data = new Date(e.allestimento_il)
 
   return (
-    <Card className={cn('overflow-hidden flex flex-col', scoperto && 'border-urgente/50')}>
-      <Link to={`/gestione/eventi/${e.id}`} className="p-4 flex flex-col gap-3 flex-1 hover:bg-sfondo/50">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-[13px] font-semibold text-tenue capitalize">
-              {data.toLocaleDateString('it-IT', { weekday: 'long', ...fuso })}
-            </p>
-            <p className="font-display text-xl font-semibold leading-tight">
-              {data.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', ...fuso })}
-              <span className="text-tenue font-medium text-base">, {ora(e.allestimento_il)}</span>
-            </p>
-          </div>
-          <StatoEvento stato={e.stato} />
-        </div>
+    <Link to={`/gestione/eventi/${e.id}`}
+      className="relative bg-superficie border border-bordo rounded-xl pl-4 pr-3 py-3 flex flex-col gap-2 hover:border-bordo-forte hover:shadow-sm transition overflow-hidden">
+      <span className={cn('absolute left-0 inset-y-0 w-1', a.barra)} aria-hidden />
 
-        <div className="min-w-0">
-          <p className="font-semibold truncate">{nomeEvento(e)}</p>
-          {e.nome && e.tipo_booth && <p className="text-sm font-medium truncate">{e.tipo_booth.nome}</p>}
-          <p className="text-sm text-tenue truncate">{e.indirizzo}, {e.citta}</p>
-        </div>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold text-tenue capitalize">
+          {data.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short', ...fuso }).replace('.', '')}, {ora(e.allestimento_il)}
+        </p>
+        {a.segno}
+      </div>
 
-        <div className="mt-auto pt-3 border-t border-bordo flex items-center gap-2.5 text-sm min-w-0">
-          {e.operatore ? (
-            <>
-              <Avatar nome={nomeCompleto(e.operatore)} foto={e.operatore.foto} taglia="sm" />
-              <span className="font-semibold truncate">{nomeCompleto(e.operatore)}</span>
-            </>
-          ) : <span className="text-urgente-testo font-semibold">Nessun operatore</span>}
-        </div>
-      </Link>
+      <div className="min-w-0">
+        <p className="font-semibold text-[15px] leading-snug truncate">{nomeEvento(e)}</p>
+        <p className="text-xs text-tenue truncate">{e.nome && e.tipo_booth ? `${e.tipo_booth.nome}, ` : ''}{e.citta}</p>
+      </div>
 
-      {assegnabile && (
-        <button onClick={() => setAperto((a) => !a)} aria-expanded={aperto}
-          className="h-11 mx-4 mb-4 rounded-lg bg-accento text-su-accento text-sm font-semibold flex items-center justify-center gap-1.5 cursor-pointer hover:bg-accento-hover">
-          Assegna <ChevronDown className={cn('size-4 transition', aperto && 'rotate-180')} aria-hidden />
-        </button>
+      {e.operatore ? (
+        <div className="flex items-center gap-2 min-w-0">
+          <Avatar nome={nomeCompleto(e.operatore)} foto={e.operatore.foto} taglia="xs" />
+          <span className="text-xs font-medium truncate">{nomeCompleto(e.operatore)}</span>
+        </div>
+      ) : (
+        <span className="text-xs font-semibold text-urgente-testo flex items-center gap-1.5">
+          <UserPlus className="size-4" aria-hidden /> Da assegnare
+        </span>
       )}
-
-      <AnimatePresence initial={false}>
-        {aperto && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-            className="border-t border-bordo bg-sfondo/60">
-            <div className="p-4">
-              <p className="text-sm font-semibold mb-3">Operatori liberi in {e.regione}</p>
-              <AssegnaOperatore eventoId={e.id} onFatto={() => setAperto(false)} />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </Card>
+    </Link>
   )
 }

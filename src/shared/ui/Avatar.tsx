@@ -12,6 +12,7 @@ const tinte = [
 ]
 
 const taglie = {
+  xs: 'size-6 text-[10px]',
   sm: 'size-9 text-xs',
   md: 'size-11 text-sm',
   lg: 'size-16 text-xl',
