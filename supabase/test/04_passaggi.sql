@@ -34,7 +34,9 @@ begin
   perform segna_passaggio(e1, 'check_in');
   reset role;
   t := t + 1; select stato || '/' || ultimo_passaggio into s from eventi where id = e1; if s <> 'in_corso/check_in' then f := f || '3: dopo check-in ' || s || '; '; end if;
-  t := t + 1; select count(*) into n from notifiche where titolo = 'O1 Uno ha fatto il check-in' and utente_id in (pa, ad, go); if n <> 3 then f := f || '3: avvisati ' || n || ' invece di 3; '; end if;
+  -- con tanti eventi al giorno i passaggi normali avvisano solo il project dell'evento
+  t := t + 1; select count(*) into n from notifiche where titolo = 'O1 Uno ha fatto il check-in' and utente_id = pa; if n <> 1 then f := f || '3: project non avvisato; '; end if;
+  t := t + 1; select count(*) into n from notifiche where titolo = 'O1 Uno ha fatto il check-in' and utente_id in (ad, go); if n <> 0 then f := f || '3: admin e gestore avvisati dei passaggi normali; '; end if;
   t := t + 1; select count(*) into n from notifiche where titolo like 'O1 Uno%' and utente_id in (pb, o2, o1); if n <> 0 then f := f || '3: avvisato chi non c''entra; '; end if;
   set local role authenticated;
   t := t + 1; begin perform segna_passaggio(e1, 'check_in'); f := f || '3: doppio check-in; '; exception when others then null; end;

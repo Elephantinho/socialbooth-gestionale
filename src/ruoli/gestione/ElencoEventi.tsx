@@ -2,24 +2,28 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Archive, Plus } from 'lucide-react'
 import { useOperatori } from '@/modules/anagrafiche/api'
 import { usePuo } from '@/modules/auth/permessi'
-import { useEventiGestione } from '@/modules/eventi/api'
+import { useArchivio, useEventiInProgramma } from '@/modules/eventi/api'
 import { BoxEvento } from '@/modules/eventi/components/BoxEvento'
 import { passato } from '@/modules/eventi/logic/archivio'
-import { filtra, type Filtri } from '@/modules/eventi/logic/filtri'
+import { filtra, giornoRoma, type Filtri } from '@/modules/eventi/logic/filtri'
 import { FiltriEventi } from './FiltriEventi'
 import type { EventoGestione } from '@/modules/eventi/types'
 import { Card } from '@/shared/ui/Card'
+import { cn } from '@/shared/lib/cn'
 import { Intestazione } from '@/shared/ui/Intestazione'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 
-/** Eventi in programma, divisi per mese. I passati stanno nell'archivio (il cassetto in alto). */
+/** Eventi in programma, divisi per giorno. I passati stanno nell'archivio (il cassetto in alto). */
 export function ElencoEventi() {
-  const { data, isPending, error } = useEventiGestione()
   const puo = usePuo()
   const [parametri, setParametri] = useSearchParams()
   const archivio = parametri.has('archivio')
+  const programma = useEventiInProgramma()
+  // L'archivio si legge a parte, un mese per volta (o gli ultimi 500)
+  const vecchi = useArchivio(archivio ? parametri.get('mese') ?? undefined : undefined)
+  const { data, isPending, error } = archivio ? vecchi : programma
   const tutti = data ?? []
-  const base = archivio ? tutti.filter(passato).reverse() : tutti.filter((e) => !passato(e))
+  const base = archivio ? tutti.filter((e) => passato(e)) : tutti.filter((e) => !passato(e))
   const filtri: Filtri = {
     mese: parametri.get('mese') ?? undefined,
     giorno: parametri.get('giorno') ?? undefined,
@@ -69,7 +73,7 @@ export function ElencoEventi() {
           } />
       )}
 
-      <FiltriEventi eventi={base} filtri={filtri} imposta={imposta} azzera={filtrato ? azzera : undefined} archivio={archivio} />
+      <FiltriEventi eventi={base} filtri={filtri} mesi={archivio ? ultimiMesi(24) : undefined} imposta={imposta} azzera={filtrato ? azzera : undefined} archivio={archivio} />
       {!archivio && !filtri.stato && eventi.length > 0 && <Avanzamento eventi={eventi} />}
       {puo('eventi.assegna') && !archivio && <ZoneScoperte eventi={eventi} />}
 
@@ -78,9 +82,12 @@ export function ElencoEventi() {
           <Vuoto titolo="Nessun evento" testo={filtrato ? 'Nessun evento con questi filtri.' : archivio ? 'Gli eventi conclusi compariranno qui.' : 'Crea un evento per vederlo qui.'} />
         </Card>
       ) : (
-        perMese(eventi).map(([mese, lista]) => (
-          <section key={mese} className="flex flex-col gap-2.5">
-            <h2 className="text-sm font-semibold text-tenue capitalize">{mese}<span className="font-medium ml-2 text-tenue/70">{lista.length}</span></h2>
+        perGiorno(eventi, archivio).map(([giorno, lista]) => (
+          <section key={giorno} className="flex flex-col gap-2.5">
+            <h2 className="text-sm font-semibold text-tenue flex items-baseline gap-2">
+              <span className={cn(giorno === giornoRoma(new Date().toISOString()) && 'text-inchiostro')}>{titoloGiorno(giorno)}</span>
+              <span className="font-medium text-tenue/70">{lista.length === 1 ? '1 evento' : `${lista.length} eventi`}</span>
+            </h2>
             <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(210px,1fr))]">
               {lista.map((e) => <BoxEvento key={e.id} e={e} />)}
             </div>
@@ -91,13 +98,37 @@ export function ElencoEventi() {
   )
 }
 
-function perMese(eventi: EventoGestione[]) {
+function perGiorno(eventi: EventoGestione[], recenti = false) {
   const gruppi = new Map<string, EventoGestione[]>()
   for (const e of eventi) {
-    const mese = new Date(e.allestimento_il).toLocaleDateString('it-IT', { month: 'long', year: 'numeric', timeZone: 'Europe/Rome' })
-    gruppi.set(mese, [...(gruppi.get(mese) ?? []), e])
+    const g = giornoRoma(e.allestimento_il)
+    const lista = gruppi.get(g)
+    if (lista) lista.push(e); else gruppi.set(g, [e])
   }
-  return [...gruppi]
+  // In ordine di data; nell'archivio dal più recente
+  return [...gruppi].sort(([a], [b]) => (recenti ? b.localeCompare(a) : a.localeCompare(b)))
+}
+
+/** "Oggi, sabato 17 ottobre", "Domani, …", "Lunedì 19 ottobre" (anno solo se diverso) */
+function titoloGiorno(g: string) {
+  const d = new Date(`${g}T12:00:00Z`)
+  const testo = d.toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', ...(d.getUTCFullYear() !== new Date().getFullYear() && { year: 'numeric' }) })
+  const oggi = giornoRoma(new Date().toISOString())
+  const domani = giornoRoma(new Date(Date.now() + 86_400_000).toISOString())
+  const ieri = giornoRoma(new Date(Date.now() - 86_400_000).toISOString())
+  if (g === oggi) return `Oggi, ${testo}`
+  if (g === domani) return `Domani, ${testo}`
+  if (g === ieri) return `Ieri, ${testo}`
+  return testo[0].toUpperCase() + testo.slice(1)
+}
+
+/** "2026-10", "2026-09", … gli ultimi n mesi, per scegliere nell'archivio */
+function ultimiMesi(n: number) {
+  const d = new Date()
+  return Array.from({ length: n }, (_, i) => {
+    const m = new Date(d.getFullYear(), d.getMonth() - i, 1)
+    return `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(2, '0')}`
+  })
 }
 
 /** Quanti eventi in programma sono già coperti: la barra verde cresce man mano che si conferma. */

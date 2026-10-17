@@ -6,6 +6,7 @@ import { Avatar } from '@/shared/ui/Avatar'
 import type { EventoGestione } from '../types'
 import { nomeEvento } from '../logic/nome'
 import { PASSAGGI, passaggiFatti, type Passaggio } from '@/modules/passaggi/passaggi'
+import { ritardo } from '@/modules/passaggi/ritardi'
 
 const fuso = { timeZone: 'Europe/Rome' } as const
 
@@ -20,9 +21,12 @@ const aspetto: Partial<Record<EventoGestione['stato'], { barra: string; segno: R
 
 /** Un evento in un box compatto: data, nome, servizio e città, operatore. */
 export function BoxEvento({ e }: { e: EventoGestione }) {
-  const a = e.stato === 'in_corso'
-    ? { barra: 'bg-ok', segno: <InCorso ultimo={e.ultimo_passaggio} /> }
-    : aspetto[e.stato] ?? { barra: 'bg-bordo-forte', segno: null }
+  const manca = ritardo(e)
+  const a = manca
+    ? { barra: 'bg-urgente', segno: <span className="text-[11px] font-semibold text-white bg-urgente rounded-full px-2 py-0.5 whitespace-nowrap">{manca}</span> }
+    : e.stato === 'in_corso'
+      ? { barra: 'bg-ok', segno: <InCorso ultimo={e.ultimo_passaggio} /> }
+      : aspetto[e.stato] ?? { barra: 'bg-bordo-forte', segno: null }
   const data = new Date(e.allestimento_il)
 
   return (
@@ -31,7 +35,7 @@ export function BoxEvento({ e }: { e: EventoGestione }) {
       <span className={cn('absolute left-0 inset-y-0 w-1', a.barra)} aria-hidden />
 
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-semibold text-tenue capitalize">
+        <p className="text-xs font-semibold text-tenue capitalize truncate min-w-0">
           {data.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short', ...fuso }).replace('.', '')}, {ora(e.allestimento_il)}
         </p>
         {a.segno}

@@ -1,6 +1,6 @@
 import { cn } from '@/shared/lib/cn'
 
-type Props = React.HTMLAttributes<HTMLDivElement> & { tono?: 'chiaro' | 'scuro' | 'avviso' | 'accento' }
+type Props = React.HTMLAttributes<HTMLDivElement> & { tono?: 'chiaro' | 'scuro' | 'avviso' | 'urgente' | 'accento' }
 
 // Foglio bianco con bordo leggero; "scuro" ora è il riquadro in evidenza (tinta azzurra chiara).
 // Gli avvisi hanno una barra a sinistra invece del riempimento pieno.
@@ -8,6 +8,7 @@ const toni = {
   chiaro: 'bg-superficie border border-bordo shadow-[0_1px_2px_rgba(16,24,40,0.04)]',
   scuro: 'bg-evidenza border border-evidenza-bordo text-inchiostro',
   avviso: 'bg-avviso text-avviso-testo border-l-4 border-avviso-icona',
+  urgente: 'bg-urgente-tenue text-inchiostro border-l-4 border-urgente',
   accento: 'bg-accento-tenue text-accento-scuro',
 }
 

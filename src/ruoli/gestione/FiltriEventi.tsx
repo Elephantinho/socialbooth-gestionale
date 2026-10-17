@@ -8,6 +8,8 @@ type Props = {
   eventi: EventoGestione[]
   filtri: Filtri
   archivio: boolean
+  /** Mesi da proporre (archivio); se manca, quelli degli eventi caricati */
+  mesi?: string[]
   imposta: (modifiche: Partial<Record<keyof Filtri, string | undefined>>) => void
   azzera?: () => void
 }
@@ -18,7 +20,7 @@ const nomeGiorno = (g: string) => maiuscola(new Date(`${g}T12:00:00Z`).toLocaleD
 const conta = <T,>(lista: T[], chiave: (x: T) => string) => lista.reduce((m, x) => m.set(chiave(x), (m.get(chiave(x)) ?? 0) + 1), new Map<string, number>())
 
 /** Barra dei filtri: stato a sinistra (con i numeri), quando e regione a destra. */
-export function FiltriEventi({ eventi, filtri, archivio, imposta, azzera }: Props) {
+export function FiltriEventi({ eventi, filtri, archivio, imposta, azzera, mesi: mesiFissi }: Props) {
   // I numeri di ogni scelta tengono conto degli altri filtri già attivi
   const perStato = filtra(eventi, { ...filtri, stato: undefined })
   const perQuando = filtra(eventi, { ...filtri, mese: undefined, giorno: undefined })
@@ -28,8 +30,10 @@ export function FiltriEventi({ eventi, filtri, archivio, imposta, azzera }: Prop
     { id: undefined, testo: 'Tutti', n: perStato.length, punto: null },
     { id: 'da_assegnare' as const, testo: 'Da assegnare', n: filtra(perStato, { stato: 'da_assegnare' }).length, punto: 'bg-urgente' },
     { id: 'proposto' as const, testo: 'In attesa', n: filtra(perStato, { stato: 'proposto' }).length, punto: 'bg-avviso-icona' },
-  ]
-  const mesi = conta(perQuando, (e) => giornoRoma(e.allestimento_il).slice(0, 7))
+    { id: 'ritardo' as const, testo: 'In ritardo', n: filtra(perStato, { stato: 'ritardo' }).length, punto: 'bg-urgente' },
+  ].filter((s) => s.id !== 'ritardo' || s.n > 0 || filtri.stato === 'ritardo')
+  const conteggi = conta(perQuando, (e) => giornoRoma(e.allestimento_il).slice(0, 7))
+  const mesi: [string, number | undefined][] = mesiFissi ? mesiFissi.map((m) => [m, undefined]) : [...conteggi]
   const regioni = conta(perRegione, (e) => e.regione)
   const oggi = giornoRoma(new Date().toISOString())
   const domani = giornoRoma(new Date(Date.now() + 86_400_000).toISOString())
@@ -65,8 +69,8 @@ export function FiltriEventi({ eventi, filtri, archivio, imposta, azzera }: Prop
                   <Voce scelta={filtri.giorno === domani} onClick={() => { imposta({ giorno: domani }); chiudi() }}>Domani</Voce>
                 </>
               )}
-              {mesi.size > 0 && <Titoletto>Mese</Titoletto>}
-              {[...mesi].map(([m, n]) => (
+              {mesi.length > 0 && <Titoletto>Mese</Titoletto>}
+              {mesi.map(([m, n]) => (
                 <Voce key={m} scelta={filtri.mese === m} n={n} onClick={() => { imposta({ mese: m }); chiudi() }}>{nomeMese(m)}</Voce>
               ))}
               <Titoletto>Un giorno preciso</Titoletto>

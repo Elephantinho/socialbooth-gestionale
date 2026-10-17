@@ -159,7 +159,7 @@ export type Database = {
       }
       eventi: {
         Row: {
-          aggiornato_il: string; allestimento_il: string; citta: string; cliente_id: string | null; codice: number; creato_il: string; nome: string | null; ultimo_passaggio: Database['public']['Enums']['passaggio'] | null
+          aggiornato_il: string; allestimento_il: string; citta: string; cliente_id: string | null; codice: number; creato_il: string; nome: string | null; avvisi_ritardo: string[]; ultimo_passaggio: Database['public']['Enums']['passaggio'] | null
           fine_attivazione: string; hostess: boolean; id: string; indirizzo: string; inizio_attivazione: string; location_id: string | null
           magazzino_id: string | null; note: string | null; note_accesso: string | null; operatore_id: string | null; outfit: string | null
           project_id: string; referente_nome: string | null; referente_telefono: string | null; regione: Regione
@@ -316,6 +316,7 @@ export type Database = {
       }
       segna_passaggio: { Args: { p_evento: string; p_passaggio: Database['public']['Enums']['passaggio'] }; Returns: undefined }
       annulla_passaggio: { Args: { p_evento: string }; Returns: undefined }
+      concludi_evento: { Args: { p_evento: string }; Returns: undefined }
       proponi_operatore: { Args: { p_evento: string; p_operatore: string }; Returns: undefined }
       rispondi_proposta: { Args: { p_accetta: boolean; p_proposta: string }; Returns: undefined }
       gestisco_evento: { Args: { p_evento: string }; Returns: boolean }

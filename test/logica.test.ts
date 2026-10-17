@@ -59,8 +59,11 @@ describe('eventi passati', () => {
   const adesso = new Date('2026-10-20T12:00:00Z').getTime()
   const ieri = '2026-10-19T23:00:00Z'
   const domani = '2026-10-21T23:00:00Z'
-  it('un evento con la data trascorsa è passato, qualunque sia lo stato', () => {
-    for (const stato of ['da_assegnare', 'proposto', 'confermato']) expect(passato({ stato, smontaggio_il: ieri }, adesso)).toBe(true)
+  it('un evento con la data trascorsa è passato se nessuno ci lavorava', () => {
+    for (const stato of ['da_assegnare', 'proposto', 'bozza']) expect(passato({ stato, smontaggio_il: ieri }, adesso)).toBe(true)
+  })
+  it('confermato o in corso con la data trascorsa resta in programma finché non si chiude', () => {
+    for (const stato of ['confermato', 'in_corso']) expect(passato({ stato, smontaggio_il: ieri }, adesso)).toBe(false)
   })
   it('annullati e completati sono passati anche se la data è futura', () => {
     expect(passato({ stato: 'annullato', smontaggio_il: domani }, adesso)).toBe(true)
@@ -105,11 +108,12 @@ describe('passaggi', () => {
 
 import { filtra, giornoRoma } from '../src/modules/eventi/logic/filtri'
 describe('filtri eventi', () => {
+  const orari = { inizio_attivazione: '2030-01-01T00:00:00Z', smontaggio_il: '2030-01-01T00:00:00Z', ultimo_passaggio: null }
   const ev = [
-    { id: 1, allestimento_il: '2026-10-18T16:00:00Z', regione: 'Toscana', stato: 'da_assegnare' },
-    { id: 2, allestimento_il: '2026-10-31T23:30:00Z', regione: 'Lombardia', stato: 'confermato' }, // 1 novembre a Roma
-    { id: 3, allestimento_il: '2026-11-05T17:00:00Z', regione: 'Toscana', stato: 'proposto' },
-    { id: 4, allestimento_il: '2026-10-20T17:00:00Z', regione: 'Toscana', stato: 'bozza' },
+    { id: 1, allestimento_il: '2026-10-18T16:00:00Z', regione: 'Toscana', stato: 'da_assegnare', ...orari },
+    { id: 2, allestimento_il: '2026-10-31T23:30:00Z', regione: 'Lombardia', stato: 'confermato', ...orari }, // 1 novembre a Roma
+    { id: 3, allestimento_il: '2026-11-05T17:00:00Z', regione: 'Toscana', stato: 'proposto', ...orari },
+    { id: 4, allestimento_il: '2026-10-20T17:00:00Z', regione: 'Toscana', stato: 'bozza', ...orari },
   ]
   const id = (l: { id: number }[]) => l.map((e) => e.id)
   it('nessun filtro: tutti', () => expect(id(filtra(ev, {}))).toEqual([1, 2, 3, 4]))
@@ -120,4 +124,24 @@ describe('filtri eventi', () => {
   it('da assegnare comprende le bozze', () => expect(id(filtra(ev, { stato: 'da_assegnare' }))).toEqual([1, 4]))
   it('in attesa', () => expect(id(filtra(ev, { stato: 'proposto' }))).toEqual([3]))
   it('filtri insieme', () => expect(id(filtra(ev, { mese: '2026-10', regione: 'Toscana', stato: 'da_assegnare' }))).toEqual([1, 4]))
+})
+
+import { ritardo } from '../src/modules/passaggi/ritardi'
+describe('ritardi', () => {
+  const h = 3_600_000
+  const t0 = Date.UTC(2026, 9, 18, 16)
+  const ev = (stato: string, ultimo: Parameters<typeof ritardo>[0]['ultimo_passaggio']) => ({
+    stato, ultimo_passaggio: ultimo,
+    allestimento_il: new Date(t0).toISOString(), inizio_attivazione: new Date(t0 + 2 * h).toISOString(), smontaggio_il: new Date(t0 + 7 * h).toISOString(),
+  })
+  it('prima dell\'allestimento nessun ritardo', () => expect(ritardo(ev('confermato', null), t0 - 1)).toBeNull())
+  it('allestimento passato senza check-in', () => expect(ritardo(ev('confermato', null), t0 + 1)).toBe('Check-in mancante'))
+  it('check-in fatto: in regola fino all\'attivazione', () => expect(ritardo(ev('in_corso', 'check_in'), t0 + h)).toBeNull())
+  it('attivazione iniziata e non montato', () => expect(ritardo(ev('in_corso', 'attrezzatura'), t0 + 2 * h)).toBe('Non ancora montato'))
+  it('montato: in regola', () => expect(ritardo(ev('in_corso', 'montato'), t0 + 5 * h)).toBeNull())
+  it('4 ore dopo lo smontaggio senza check-out', () => expect(ritardo(ev('in_corso', 'smontato'), t0 + 11 * h)).toBe('Check-out mancante'))
+  it('completato o da assegnare: mai in ritardo', () => {
+    expect(ritardo(ev('completato', 'check_out'), t0 + 20 * h)).toBeNull()
+    expect(ritardo(ev('da_assegnare', null), t0 + 20 * h)).toBeNull()
+  })
 })

@@ -74,14 +74,67 @@ export function useRispondiProposta() {
 
 /* ---------------- Lato gestione (project / admin) ---------------- */
 
-/** Eventi visibili a chi guarda: il database filtra quelli di ciascun ruolo. */
-export function useEventiGestione() {
+const campiGestione = '*, tipo_booth:tipi_booth(nome), operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto)'
+const BLOCCO = 1000 // il database ne restituisce al massimo 1000 per volta
+
+/** Legge a blocchi finché ce ne sono: con tanti eventi non se ne perde nessuno. */
+async function aBlocchi<T>(pagina: (da: number, a: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>): Promise<T[]> {
+  const tutti: T[] = []
+  for (let da = 0; ; da += BLOCCO) {
+    const parte = ok(await pagina(da, da + BLOCCO - 1)) as T[]
+    tutti.push(...parte)
+    if (parte.length < BLOCCO) return tutti
+  }
+}
+
+/**
+ * Eventi in programma (il database filtra quelli di ciascun ruolo): da ieri in avanti,
+ * più quelli confermati o in corso rimasti aperti, che vanno chiusi.
+ */
+export function useEventiInProgramma() {
   return useQuery({
-    queryKey: ['eventi', 'gestione'],
-    queryFn: async () =>
-      ok(await supabase.from('eventi')
-        .select('*, tipo_booth:tipi_booth(nome), operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto)')
-        .order('allestimento_il')),
+    queryKey: ['eventi', 'gestione', 'programma'],
+    queryFn: () => {
+      const da = new Date(Date.now() - 2 * 86_400_000).toISOString()
+      return aBlocchi((x, y) => supabase.from('eventi').select(campiGestione)
+        .or(`smontaggio_il.gte.${da},stato.in.(confermato,in_corso)`)
+        .order('allestimento_il').order('id').range(x, y))
+    },
+  })
+}
+
+/** Archivio: un mese intero se scelto, altrimenti gli ultimi 500 eventi conclusi. */
+export function useArchivio(mese?: string) {
+  return useQuery({
+    queryKey: ['eventi', 'gestione', 'archivio', mese ?? ''],
+    queryFn: async () => {
+      let q = supabase.from('eventi').select(campiGestione)
+        .or(`smontaggio_il.lt.${new Date().toISOString()},stato.in.(completato,annullato)`)
+      if (mese) {
+        const [a, m] = mese.split('-').map(Number)
+        q = q.gte('allestimento_il', new Date(a, m - 1, 1).toISOString()).lt('allestimento_il', new Date(a, m, 1).toISOString())
+        return aBlocchi((x, y) => q.order('allestimento_il', { ascending: false }).order('id').range(x, y))
+      }
+      return ok(await q.order('allestimento_il', { ascending: false }).limit(500))
+    },
+  })
+}
+
+/** Eventi che cadono tra due date (calendario) */
+export function useEventiPeriodo(dal: Date, al: Date) {
+  return useQuery({
+    queryKey: ['eventi', 'gestione', 'periodo', dal.toISOString(), al.toISOString()],
+    queryFn: () => aBlocchi((x, y) => supabase.from('eventi').select(campiGestione)
+      .gte('allestimento_il', dal.toISOString()).lt('allestimento_il', al.toISOString())
+      .order('allestimento_il').order('id').range(x, y)),
+  })
+}
+
+export function useConcludiEvento() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: string) => ok(await supabase.rpc('concludi_evento', { p_evento: id })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: chiavi.tutti }),
   })
 }
 

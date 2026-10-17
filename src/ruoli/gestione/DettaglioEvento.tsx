@@ -4,7 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, Phone, UserRound } from 'lucide-react'
 import { usePuo } from '@/modules/auth/permessi'
 import { giaPassato } from '@/modules/eventi/logic/archivio'
-import { useAggiornaEvento, useEventoGestione } from '@/modules/eventi/api'
+import { useAggiornaEvento, useConcludiEvento, useEventoGestione } from '@/modules/eventi/api'
+import { ritardo } from '@/modules/passaggi/ritardi'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
 import { ModuloEvento } from '@/modules/eventi/components/ModuloEvento'
 import type { EventoGestioneCompleto } from '@/modules/eventi/types'
@@ -79,6 +80,7 @@ export function DettaglioEvento() {
       </div>
 
       {aggiorna.error && <Errore errore={aggiorna.error} />}
+      <DaChiudere e={e} />
 
       {modifica ? (
         <ModuloEvento
@@ -206,6 +208,32 @@ function Storico({ e }: { e: EventoGestioneCompleto }) {
           </span>
         </div>
       ))}
+    </Card>
+  )
+}
+
+/** Evento iniziato che ha un passaggio in ritardo o è finito senza check-out: si può chiudere a mano */
+function DaChiudere({ e }: { e: EventoGestioneCompleto }) {
+  const concludi = useConcludiEvento()
+  const puo = usePuo()('eventi.modifica')
+  if (e.stato !== 'confermato' && e.stato !== 'in_corso') return null
+  const manca = ritardo(e)
+  const finito = giaPassato(e)
+  if (!manca && !finito) return null
+  const iniziato = new Date(e.allestimento_il).getTime() <= Date.now()
+  return (
+    <Card tono="urgente" className="p-4 flex flex-wrap items-center gap-3 justify-between -mt-2">
+      <div>
+        <p className="font-semibold text-urgente-testo">{manca ?? 'Evento finito ma non chiuso'}</p>
+        <p className="text-sm mt-0.5">Senti l'operatore. Se l'evento è concluso e manca solo il check-out, puoi chiuderlo tu.</p>
+      </div>
+      {puo && iniziato && (
+        <Pulsante variante="secondario" caricamento={concludi.isPending}
+          onClick={() => { if (confirm("Chiudere l'evento come completato?")) concludi.mutate(e.id) }}>
+          Chiudi evento
+        </Pulsante>
+      )}
+      {concludi.error && <Errore errore={concludi.error} />}
     </Card>
   )
 }
