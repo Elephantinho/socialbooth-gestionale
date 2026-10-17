@@ -71,12 +71,12 @@ describe('eventi passati', () => {
 })
 
 describe('permessi', () => {
-  const tutti: Permesso[] = ['eventi.crea', 'eventi.modifica', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'utenti', 'impostazioni']
+  const tutti: Permesso[] = ['eventi.crea', 'eventi.modifica', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'utenti']
   it('l\'admin ha tutto, l\'operatore niente', () => {
     tutti.forEach((p) => { expect(puo('admin', p)).toBe(true); expect(puo('operatore', p)).toBe(false) })
   })
-  it('solo l\'admin cambia ruoli e impostazioni', () => {
-    for (const r of RUOLI.map((x) => x.id)) { expect(puo(r, 'utenti')).toBe(r === 'admin'); expect(puo(r, 'impostazioni')).toBe(r === 'admin') }
+  it('solo l\'admin cambia utenti e ruoli', () => {
+    for (const r of RUOLI.map((x) => x.id)) { expect(puo(r, 'utenti')).toBe(r === 'admin') }
   })
   it('il project crea e assegna i suoi eventi ma non vede quelli degli altri', () => {
     expect(puo('project', 'eventi.crea')).toBe(true); expect(puo('project', 'eventi.assegna')).toBe(true)

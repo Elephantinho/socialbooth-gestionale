@@ -14,9 +14,8 @@ export type Permesso =
   | 'operatori.vedi'       // pagina Operatori
   | 'operatori.gestisci'   // attivare operatori e cambiarne le regioni
   | 'utenti'               // cambiare i ruoli
-  | 'impostazioni'         // regole dell'assegnazione
 
-const TUTTI: Permesso[] = ['eventi.crea', 'eventi.modifica', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'utenti', 'impostazioni']
+const TUTTI: Permesso[] = ['eventi.crea', 'eventi.modifica', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'utenti']
 
 /** Ogni ruolo ha solo quello che gli serve; l'admin ha tutto */
 const PERMESSI: Record<Ruolo, Permesso[]> = {
@@ -28,7 +27,7 @@ const PERMESSI: Record<Ruolo, Permesso[]> = {
 }
 
 export const RUOLI: { id: Ruolo; etichetta: string; descrizione: string }[] = [
-  { id: 'admin', etichetta: 'Admin', descrizione: 'Tutto, compresi ruoli e impostazioni' },
+  { id: 'admin', etichetta: 'Admin', descrizione: 'Tutto, compresi utenti e ruoli' },
   { id: 'project', etichetta: 'Project', descrizione: 'Crea i propri eventi e li assegna' },
   { id: 'gestore_operatori', etichetta: 'Gestore operatori', descrizione: 'Tutti gli eventi e gli operatori' },
   { id: 'amministrazione', etichetta: 'Amministrazione', descrizione: 'Vede eventi e operatori' },

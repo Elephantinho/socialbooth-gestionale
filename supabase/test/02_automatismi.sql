@@ -24,13 +24,12 @@ begin
   insert into articoli (magazzino_id, nome, categoria, quantita) values (mf, 'Booth', 'Booth', 2) returning id into booth;
   insert into articoli (magazzino_id, nome, categoria, quantita) values (mf, 'Rotolo carta', 'Consumabili', 10) returning id into carta;
   update impostazioni set valore = 200 where chiave = 'soglia_carta';
-  update impostazioni set valore = 1 where chiave = 'riserva_automatica';
   update impostazioni set valore = 24 where chiave = 'ore_scadenza_proposta';
   perform set_config('app.carta', 'si', true);
   update profili set carta_disponibile = 500, carta_aggiornata_il = now() where id in (o1, o2);
   perform set_config('app.carta', 'no', true);
 
-  /* ===== 1. Nuovo evento in Toscana: due operatori liberi, nessuno ha rifiutato → nessuna scelta automatica ===== */
+  /* ===== 1. Nuovo evento in Toscana: resta da assegnare, nessuna proposta automatica ===== */
   perform set_config('request.jwt.claims', json_build_object('sub', pa, 'role', 'authenticated')::text, true);
   set local role authenticated;
   insert into eventi (project_id, indirizzo, citta, regione, lat, lng, allestimento_il, inizio_attivazione, fine_attivazione, smontaggio_il, stato, prezzo_cliente, viaggio_minuti)
@@ -39,7 +38,7 @@ begin
   reset role; perform set_config('request.jwt.claims', '', true);
   t := t + 1; select stato into s from eventi where id = e1; if s <> 'da_assegnare' then f := f || '1: con due liberi lo assegna da solo (' || s || '); '; end if;
 
-  /* ===== 2. Il project propone O1; O1 rifiuta → il sistema propone la riserva più vicina (O2, unico rimasto) ===== */
+  /* ===== 2. Il project propone O1; O1 rifiuta → l'evento torna da assegnare, nessuna riserva automatica ===== */
   perform set_config('request.jwt.claims', json_build_object('sub', pa, 'role', 'authenticated')::text, true);
   set local role authenticated;
   perform proponi_operatore(e1, o1);
@@ -50,9 +49,9 @@ begin
   set local role authenticated;
   perform rispondi_proposta(pr, false);
   reset role; perform set_config('request.jwt.claims', '', true);
-  t := t + 1; select operatore_id::text into s from eventi where id = e1; if s is distinct from o2::text then f := f || '2: dopo il rifiuto non propone O2; '; end if;
+  t := t + 1; select operatore_id::text into s from eventi where id = e1; if s is not null then f := f || '2: dopo il rifiuto qualcuno viene proposto da solo; '; end if;
   t := t + 1; select count(*) into n from notifiche where utente_id = pa and titolo = 'Incarico rifiutato'; if n <> 1 then f := f || '2: project non avvisato del rifiuto; '; end if;
-  t := t + 1; select count(*) into n from notifiche where utente_id = pa and titolo = 'Proposto un operatore di riserva'; if n <> 1 then f := f || '2: project non avvisato della riserva; '; end if;
+  t := t + 1; select count(*) into n from notifiche where utente_id = pa and titolo = 'Proposto un operatore di riserva'; if n <> 0 then f := f || '2: riserva automatica ancora attiva; '; end if;
   t := t + 1; select count(*) into n from notifiche where utente_id = o1 and titolo = 'Non sei più assegnato'; if n <> 0 then f := f || '2: O1 avvisato di essere tolto dopo aver rifiutato lui; '; end if;
   t := t + 1; begin
     perform set_config('request.jwt.claims', json_build_object('sub', o1, 'role', 'authenticated')::text, true);
@@ -60,23 +59,31 @@ begin
   exception when others then null; end;
   perform set_config('request.jwt.claims', '', true);
 
-  /* ===== 3. Anche O2 rifiuta → nessuno libero: avviso al project, evento da assegnare ===== */
+  /* ===== 3. Il project propone O2, anche O2 rifiuta → evento da assegnare ===== */
+  perform set_config('request.jwt.claims', json_build_object('sub', pa, 'role', 'authenticated')::text, true);
+  set local role authenticated;
+  perform proponi_operatore(e1, o2);
+  reset role;
   select id into pr from proposte where evento_id = e1 and operatore_id = o2 and stato = 'in_attesa';
   perform set_config('request.jwt.claims', json_build_object('sub', o2, 'role', 'authenticated')::text, true);
   set local role authenticated;
   perform rispondi_proposta(pr, false);
   reset role; perform set_config('request.jwt.claims', '', true);
   t := t + 1; select stato || coalesce(operatore_id::text, '') into s from eventi where id = e1; if s <> 'da_assegnare' then f := f || '3: stato dopo due rifiuti: ' || s || '; '; end if;
-  t := t + 1; select count(*) into n from notifiche where utente_id = pa and titolo = 'Nessun operatore libero'; if n <> 1 then f := f || '3: niente avviso "nessun operatore libero"; '; end if;
+  t := t + 1; select count(*) into n from notifiche where utente_id = pa and titolo = 'Incarico rifiutato'; if n <> 2 then f := f || '3: project non avvisato del secondo rifiuto; '; end if;
 
-  /* ===== 4. Evento con un solo operatore libero → proposto da solo; accetta; il project lo toglie → non viene riproposto ===== */
+  /* ===== 4. Un solo operatore libero → NON proposto da solo; il project lo propone, accetta, poi lo toglie ===== */
   perform set_config('request.jwt.claims', json_build_object('sub', pa, 'role', 'authenticated')::text, true);
   set local role authenticated;
   insert into eventi (project_id, indirizzo, citta, regione, allestimento_il, inizio_attivazione, fine_attivazione, smontaggio_il, stato, prezzo_cliente)
     values (pa, 'Via 2', 'Genova', 'Liguria', now() + interval '3 days', now() + interval '3 days 1 hour', now() + interval '3 days 5 hours', now() + interval '3 days 6 hours', 'da_assegnare', 900)
     returning id into e2;
   reset role; perform set_config('request.jwt.claims', '', true);
-  t := t + 1; select stato || ':' || coalesce(operatore_id::text, '') into s from eventi where id = e2; if s <> 'proposto:' || o3 then f := f || '4: unico libero non proposto (' || s || '); '; end if;
+  t := t + 1; select stato || ':' || coalesce(operatore_id::text, '') into s from eventi where id = e2; if s <> 'da_assegnare:' then f := f || '4: unico libero proposto da solo (' || s || '); '; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', pa, 'role', 'authenticated')::text, true);
+  set local role authenticated;
+  perform proponi_operatore(e2, o3);
+  reset role; perform set_config('request.jwt.claims', '', true);
   select id into pr from proposte where evento_id = e2 and operatore_id = o3 and stato = 'in_attesa';
   perform set_config('request.jwt.claims', json_build_object('sub', o3, 'role', 'authenticated')::text, true);
   set local role authenticated;
@@ -109,7 +116,7 @@ begin
   perform set_config('request.jwt.claims', '', true);
   t := t + 1; select operatore_id::text into s from eventi where id = e3; if s <> o2::text then f := f || '5: operatore sbagliato dopo il cambio; '; end if;
 
-  /* ===== 6. Proposta scaduta: niente risposta fuori tempo; il controllo la chiude e passa alla riserva ===== */
+  /* ===== 6. Proposta scaduta: niente risposta fuori tempo; il controllo la chiude e l'evento torna da assegnare ===== */
   select id into pr from proposte where evento_id = e3 and operatore_id = o2 and stato = 'in_attesa';
   update proposte set scade_il = now() - interval '1 minute' where id = pr;
   t := t + 1; begin
@@ -155,7 +162,7 @@ begin
                     fine_attivazione = date_trunc('day', now()) + interval '8 days 17 hours', smontaggio_il = date_trunc('day', now()) + interval '8 days 18 hours' where id = e5;
   t := t + 1; select count(*) into n from _operatori_disponibili(e5) where id = o1; if n <> 1 then f := f || '8: evento annullato occupa ancora O1; '; end if;
 
-  /* ===== 9. Evento già passato: niente assegnazione automatica; proposte vecchie scadono ===== */
+  /* ===== 9. Evento già passato: resta da assegnare ===== */
   insert into eventi (project_id, indirizzo, citta, regione, allestimento_il, inizio_attivazione, fine_attivazione, smontaggio_il, stato)
     values (pa, 'Via 6', 'Genova', 'Liguria', now() - interval '2 days', now() - interval '2 days' + interval '1 hour', now() - interval '2 days' + interval '5 hours', now() - interval '2 days' + interval '6 hours', 'da_assegnare')
     returning id into e6;

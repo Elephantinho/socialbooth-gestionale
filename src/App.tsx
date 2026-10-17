@@ -20,7 +20,6 @@ const Calendario = lazy(() => import('@/ruoli/gestione/Calendario').then((m) => 
 const Operatori = lazy(() => import('@/ruoli/gestione/Operatori').then((m) => ({ default: m.Operatori })))
 const DettaglioOperatore = lazy(() => import('@/ruoli/gestione/DettaglioOperatore').then((m) => ({ default: m.DettaglioOperatore })))
 const Utenti = lazy(() => import('@/ruoli/gestione/Utenti').then((m) => ({ default: m.Utenti })))
-const Impostazioni = lazy(() => import('@/ruoli/gestione/Impostazioni').then((m) => ({ default: m.Impostazioni })))
 
 // /operatore/* → app sul telefono, /gestione/* → pannello web
 export function App() {
@@ -46,7 +45,6 @@ export function App() {
           <Route path="operatori" element={<Solo permesso="operatori.vedi"><Operatori /></Solo>} />
           <Route path="operatori/:id" element={<Solo permesso="operatori.vedi"><DettaglioOperatore /></Solo>} />
           <Route path="utenti" element={<Solo permesso="utenti"><Utenti /></Solo>} />
-          <Route path="impostazioni" element={<Solo permesso="impostazioni"><Impostazioni /></Solo>} />
           <Route path="*" element={<Navigate to="/gestione" replace />} />
         </Route>
 

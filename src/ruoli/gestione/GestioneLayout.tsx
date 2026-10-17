@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { CalendarDays, CalendarRange, LogOut, Menu, Settings, ShieldCheck, Users, X } from 'lucide-react'
+import { CalendarDays, CalendarRange, LogOut, Menu, ShieldCheck, Users, X } from 'lucide-react'
 import { useAuth, useProfilo } from '@/modules/auth/AuthProvider'
 import { etichettaRuolo, usePuo, type Permesso } from '@/modules/auth/permessi'
 import { useTempoReale } from '@/modules/eventi/api'
@@ -13,7 +13,7 @@ import { Logo } from '@/shared/ui/Logo'
 import { Campanella } from '@/modules/comunicazione/components/Campanella'
 
 // Pannello web dell'ufficio (admin, project, gestore operatori, amministrazione).
-type Voce = { a: string; etichetta: string; Icona: typeof Settings; permesso?: Permesso }
+type Voce = { a: string; etichetta: string; Icona: typeof Users; permesso?: Permesso }
 
 // Il menu è uno solo: ogni ruolo vede solo le voci per cui ha il permesso (vedi permessi.tsx)
 const gruppi: { titolo: string; voci: Voce[] }[] = [
@@ -29,7 +29,6 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
     titolo: 'Sistema',
     voci: [
       { a: '/gestione/utenti', etichetta: 'Utenti e ruoli', Icona: ShieldCheck, permesso: 'utenti' },
-      { a: '/gestione/impostazioni', etichetta: 'Impostazioni', Icona: Settings, permesso: 'impostazioni' },
     ],
   },
 ]

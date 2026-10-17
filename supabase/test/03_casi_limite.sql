@@ -1,4 +1,4 @@
--- Casi limite: riserva più vicina, riserva spenta, attrezzatura, operatori disattivati, carta, montaggio.
+-- Casi limite: nessuna riserva automatica, attrezzatura, operatori disattivati, carta, montaggio.
 do $$
 declare
   pa uuid := gen_random_uuid(); go uuid := gen_random_uuid();
@@ -17,9 +17,8 @@ begin
   -- solo questi tre in Toscana per i test: gli operatori veri restano fuori perché non hanno zona "Molise"
   insert into zone_operatore (operatore_id, regione) values (o1, 'Molise'), (o2, 'Molise'), (o4, 'Molise');
   insert into articoli (magazzino_id, nome, categoria, quantita) values (mf, 'Booth', 'Booth', 2) returning id into booth;
-  update impostazioni set valore = 1 where chiave = 'riserva_automatica';
 
-  /* 1. Riserva: dopo il rifiuto di O1 restano O2 (Pisa) e O4 (Firenze): per un evento a Firenze sceglie O4 */
+  /* 1. Dopo il rifiuto di O1 nessuno viene proposto da solo, anche se O2 e O4 sono liberi */
   insert into eventi (project_id, indirizzo, citta, regione, lat, lng, allestimento_il, inizio_attivazione, fine_attivazione, smontaggio_il, stato)
     values (pa, 'x', 'Campobasso', 'Molise', 43.78, 11.26, now() + interval '3 days', now() + interval '3 days 1 hour', now() + interval '3 days 4 hours', now() + interval '3 days 5 hours', 'bozza')
     returning id into e1;
@@ -29,10 +28,10 @@ begin
   perform set_config('request.jwt.claims', json_build_object('sub', o1, 'role', 'authenticated')::text, true);
   perform rispondi_proposta(pr, false);
   perform set_config('request.jwt.claims', '', true);
-  t := t + 1; select operatore_id::text into s from eventi where id = e1; if s is distinct from o4::text then f := f || '1: la riserva non è la più vicina; '; end if;
+  t := t + 1; select operatore_id::text into s from eventi where id = e1; if s is not null then f := f || '1: dopo il rifiuto propone da solo; '; end if;
 
-  /* 2. Riserva spenta: dopo il rifiuto l'evento resta da assegnare */
-  update impostazioni set valore = 0 where chiave = 'riserva_automatica';
+  /* 2. Anche il vecchio interruttore della riserva acceso non cambia niente */
+  update impostazioni set valore = 1 where chiave = 'riserva_automatica';
   insert into eventi (project_id, indirizzo, citta, regione, lat, lng, allestimento_il, inizio_attivazione, fine_attivazione, smontaggio_il, stato)
     values (pa, 'x', 'Campobasso', 'Molise', 43.78, 11.26, now() + interval '6 days', now() + interval '6 days 1 hour', now() + interval '6 days 4 hours', now() + interval '6 days 5 hours', 'bozza')
     returning id into e2;
@@ -42,8 +41,7 @@ begin
   perform set_config('request.jwt.claims', json_build_object('sub', o1, 'role', 'authenticated')::text, true);
   perform rispondi_proposta(pr, false);
   perform set_config('request.jwt.claims', '', true);
-  t := t + 1; select stato || coalesce(operatore_id::text, '') into s from eventi where id = e2; if s <> 'da_assegnare' then f := f || '2: riserva spenta ma propone lo stesso; '; end if;
-  update impostazioni set valore = 1 where chiave = 'riserva_automatica';
+  t := t + 1; select stato || coalesce(operatore_id::text, '') into s from eventi where id = e2; if s <> 'da_assegnare' then f := f || '2: con l''interruttore acceso propone lo stesso; '; end if;
 
   /* 3. Attrezzatura: non più di quanta ne esiste; un pezzo fuori non si toglie dalla lista */
   perform set_config('request.jwt.claims', json_build_object('sub', pa, 'role', 'authenticated')::text, true);
@@ -64,7 +62,7 @@ begin
   t := t + 1; begin delete from attrezzatura_evento where evento_id = e1; exception when others then f := f || '3: non si toglie un pezzo rientrato: ' || sqlerrm || '; '; end;
   reset role;
 
-  /* 4. Operatore disattivato con un evento confermato: l'evento torna libero e va alla riserva */
+  /* 4. Operatore disattivato con un evento confermato: l'evento torna da assegnare, nessuna riserva */
   insert into eventi (project_id, indirizzo, citta, regione, lat, lng, allestimento_il, inizio_attivazione, fine_attivazione, smontaggio_il, stato)
     values (pa, 'x', 'Campobasso', 'Molise', 43.78, 11.26, now() + interval '9 days', now() + interval '9 days 1 hour', now() + interval '9 days 4 hours', now() + interval '9 days 5 hours', 'bozza')
     returning id into e3;
@@ -79,7 +77,7 @@ begin
   reset role; perform set_config('request.jwt.claims', '', true);
   t := t + 1; select coalesce(operatore_id::text, 'nessuno') into s from eventi where id = e3; if s = o2::text then f := f || '4: evento ancora a un operatore disattivato; '; end if;
   t := t + 1; select count(*) into n from notifiche where utente_id = pa and titolo = 'Evento da riassegnare'; if n <> 1 then f := f || '4: project non avvisato; '; end if;
-  t := t + 1; select count(*) into n from proposte where evento_id = e3 and stato = 'in_attesa' and operatore_id in (o1, o4); if n <> 1 then f := f || '4: nessuna riserva proposta (' || n || '); '; end if;
+  t := t + 1; select count(*) into n from proposte where evento_id = e3 and stato = 'in_attesa' and operatore_id in (o1, o4); if n <> 0 then f := f || '4: riserva proposta da sola (' || n || '); '; end if;
 
   /* 5. Carta: conteggio negativo = 0, ricarica a chi non è operatore rifiutata */
   perform set_config('request.jwt.claims', json_build_object('sub', o1, 'role', 'authenticated')::text, true);

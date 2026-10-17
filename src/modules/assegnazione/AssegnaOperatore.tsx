@@ -7,7 +7,7 @@ import { Caricamento, Errore } from '@/shared/ui/Stati'
 
 /**
  * Elenco degli operatori liberi per un evento, con il pulsante per proporlo.
- * Usato quando l'assegnazione automatica non basta (più operatori in zona, o nessuno).
+ * L'operatore si sceglie sempre a mano: nessuna proposta automatica.
  */
 export function AssegnaOperatore({ eventoId, onFatto }: { eventoId: string; onFatto?: () => void }) {
   const disponibili = useOperatoriDisponibili(eventoId)

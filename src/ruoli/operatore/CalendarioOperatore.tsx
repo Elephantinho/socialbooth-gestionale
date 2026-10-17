@@ -69,7 +69,7 @@ export function CalendarioOperatore() {
   )
 }
 
-/** Giorni in cui l'operatore non è disponibile: l'assegnazione automatica li salta. */
+/** Giorni in cui l'operatore non è disponibile: in quei giorni non ti possono proporre eventi. */
 function Indisponibilita() {
   const profilo = useProfilo()
   const { data } = useIndisponibilita(profilo.id)

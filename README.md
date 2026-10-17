@@ -18,7 +18,7 @@ npm run dev            # apre su http://localhost:5173
 
 | Ruolo | Cosa fa |
 |---|---|
-| **Admin** | Tutto, compresi ruoli e impostazioni |
+| **Admin** | Tutto, compresi utenti e ruoli |
 | **Project** | Crea i propri eventi e li assegna |
 | **Gestore operatori** | Vede tutti gli eventi, gestisce operatori e assegnazioni |
 | **Amministrazione** | Vede eventi e operatori |
@@ -43,8 +43,8 @@ Versione minima, da far crescere un pezzo alla volta. La versione completa prece
 **Ufficio (web)**
 - Eventi in programma divisi per stato, e passati; creazione, modifica, duplica, annullamento
 - Calendario del mese
-- Assegnazione: se in zona c'è un solo operatore libero l'evento gli viene proposto, altrimenti si sceglie;
-  se rifiuta o non risponde, si propone il più vicino libero (si può spegnere in Impostazioni)
+- Assegnazione sempre manuale: si sceglie tra gli operatori liberi in zona. L'operatore ha 24 ore per accettare;
+  se rifiuta o non risponde, l'evento torna da assegnare e il project riceve una notifica
 - Operatori per regione, attivazione dei nuovi, utenti e ruoli
 
 **Operatore (telefono)**
@@ -71,7 +71,7 @@ src/
     auth/               login, sessione, permessi per ruolo
     eventi/             api.ts (letture/scritture), logic/ (regole pure), components/
     assegnazione/       scelta dell'operatore
-    anagrafiche/        tipi di booth, operatori, indisponibilità, utenti, impostazioni
+    anagrafiche/        tipi di booth, operatori, indisponibilità, utenti
     comunicazione/      notifiche in app e sul telefono
   ruoli/                ← solo le schermate, che usano i moduli
     operatore/          app telefono
@@ -84,7 +84,7 @@ Regola: le pagine non chiamano mai Supabase direttamente, passano dagli hook in 
 
 ## Regole principali del database
 
-- **Assegnazione automatica**: quando un evento passa a *da assegnare*, se nella sua regione c'è un solo operatore libero (zona giusta, non indisponibile, senza eventi sovrapposti) gli viene proposto. Altrimenti si sceglie dal pannello. Se l'operatore rifiuta o non risponde in tempo, viene escluso e si propone il più vicino libero.
+- **Assegnazione**: sempre manuale. Chi crea l'evento sceglie l'operatore tra quelli liberi (zona giusta, non indisponibile, senza eventi sovrapposti). Se l'operatore rifiuta o non risponde in tempo, l'evento torna *da assegnare* e il project riceve una notifica.
 - **Stati**: proposto e confermato li mettono solo le funzioni (`proponi_operatore`, `rispondi_proposta`), non si forzano dall'app.
 - **Sicurezza**: ogni ruolo vede solo i propri dati (Row Level Security); chi si registra resta non attivo finché non viene attivato.
 
@@ -93,5 +93,5 @@ Regola: le pagine non chiamano mai Supabase direttamente, passano dagli hook in 
 - `npm test`: controlla i tipi e lancia i test delle regole pure (orari, fuso orario, eventi passati, permessi).
 - `supabase/test/*.sql`: test del database da incollare nel SQL editor di Supabase. Creano utenti finti, provano tutto e annullano ogni modifica alla fine (l'ultima riga solleva apposta un errore con il risultato: `RISULTATO N test, 0 falliti`).
   - `01_permessi.sql`: chi vede e chi può cambiare cosa, ruolo per ruolo (111 controlli)
-  - `02_automatismi.sql`: proposte, rifiuti, riserva, scadenze, ferie, tappe, chiusure, carta, magazzino, richieste, chat (58 controlli; tappe, carta, magazzino e richieste riguardano funzioni ora spente nell'app ma ancora nel database)
-  - `03_casi_limite.sql`: riserva più vicina, riserva spenta, attrezzatura, operatori disattivati, carta (17 controlli)
+  - `02_automatismi.sql`: proposte, rifiuti, scadenze, ferie, tappe, chiusure, carta, magazzino, richieste, chat (58 controlli; tappe, carta, magazzino e richieste riguardano funzioni ora spente nell'app ma ancora nel database)
+  - `03_casi_limite.sql`: nessuna riserva automatica, attrezzatura, operatori disattivati, carta (17 controlli)

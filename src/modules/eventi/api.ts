@@ -111,11 +111,8 @@ export function useOperatoriDisponibili(eventoId: string | undefined) {
 export function useCreaEvento() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (evento: Inserimento<'eventi'>) => {
-      const { id } = ok(await supabase.from('eventi').insert(evento).select('id').single())
-      // Riletto dopo l'inserimento: l'assegnazione automatica avviene nel database subito dopo
-      return ok(await supabase.from('eventi').select('id, stato, operatore_id').eq('id', id).single())
-    },
+    mutationFn: async (evento: Inserimento<'eventi'>) =>
+      ok(await supabase.from('eventi').insert(evento).select('id').single()),
     onSuccess: () => qc.invalidateQueries({ queryKey: chiavi.tutti }),
   })
 }

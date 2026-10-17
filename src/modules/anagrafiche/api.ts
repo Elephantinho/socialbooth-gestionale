@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase, ok } from '@/shared/lib/supabase'
 import type { Database, Enum, Inserimento } from '@/shared/types/database'
 
-// Dati di base: tipi di booth, operatori, utenti e impostazioni.
+// Dati di base: tipi di booth, operatori, utenti.
 
 type Tabelle = Database['public']['Tables']
 
@@ -163,21 +163,3 @@ export function useCambiaRuolo() {
     },
   })
 }
-
-/* ---------- Impostazioni ---------- */
-export function useImpostazioni() {
-  return useQuery({
-    queryKey: ['impostazioni'],
-    queryFn: async () => ok(await supabase.from('impostazioni').select('*').order('chiave')),
-  })
-}
-
-export function useSalvaImpostazione() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (v: { chiave: string; valore: number | null }) =>
-      ok(await supabase.from('impostazioni').update({ valore: v.valore }).eq('chiave', v.chiave)),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['impostazioni'] }),
-  })
-}
-

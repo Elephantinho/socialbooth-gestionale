@@ -12,7 +12,7 @@ export function NuovoEvento() {
   const profilo = useProfilo()
   const naviga = useNavigate()
   const creaEvento = useCreaEvento()
-  const [creato, setCreato] = useState<{ id: string; automatico: boolean }>()
+  const [creato, setCreato] = useState<{ id: string }>()
   const [chiave, setChiave] = useState(0) // per svuotare il modulo
   const [parametri] = useSearchParams()
   const daCopiare = parametri.get('da')
@@ -41,25 +41,21 @@ export function NuovoEvento() {
         testoPulsante="Crea e assegna"
         onSalva={async (dati) => {
           const r = await creaEvento.mutateAsync({ ...dati, project_id: profilo.id, stato: 'da_assegnare' })
-          setCreato({ id: r.id, automatico: !!r.operatore_id })
+          setCreato({ id: r.id })
         }}
       />}
     </div>
   )
 }
 
-function EventoCreato({ id, automatico, onAltro, onApri }: { id: string; automatico: boolean; onAltro: () => void; onApri: () => void }) {
+function EventoCreato({ id, onAltro, onApri }: { id: string; onAltro: () => void; onApri: () => void }) {
   return (
     <div className="max-w-xl flex flex-col gap-5 py-2">
       <div>
         <h1 className="font-display text-[26px] font-semibold leading-tight">Evento creato</h1>
-        <p className="text-tenue mt-2">
-          {automatico
-            ? "Proposto all'unico operatore libero in zona. Lo trova tra le proposte da accettare."
-            : "Scegli a chi proporlo."}
-        </p>
+        <p className="text-tenue mt-2">Scegli a chi proporlo.</p>
       </div>
-      {!automatico && <AssegnaOperatore eventoId={id} onFatto={onApri} />}
+      <AssegnaOperatore eventoId={id} onFatto={onApri} />
       <div className="flex gap-2 flex-wrap">
         <Pulsante variante="secondario" onClick={onAltro}>Crea un altro evento</Pulsante>
         <Pulsante variante="scuro" onClick={onApri}>Apri l'evento</Pulsante>
