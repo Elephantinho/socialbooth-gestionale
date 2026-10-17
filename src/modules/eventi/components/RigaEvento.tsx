@@ -30,7 +30,7 @@ export function RigaEvento({ e, assegna = false, extra }: { e: EventoGestione; a
             <p className="text-[11px] text-tenue leading-none pb-1.5">{ora(e.allestimento_il)}</p>
           </div>
           <div className="min-w-0">
-            <p className="font-semibold truncate">{e.tipo_booth?.nome ?? 'Evento'}{e.cliente?.nome && <span className="font-medium text-tenue">, {e.cliente.nome}</span>}</p>
+            <p className="font-semibold truncate">{e.tipo_booth?.nome ?? 'Evento'}</p>
             <p className="text-sm text-tenue truncate">{e.indirizzo}, {e.citta}</p>
           </div>
           <div className="text-sm max-md:hidden min-w-0 flex items-center gap-2.5">

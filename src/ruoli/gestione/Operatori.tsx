@@ -1,12 +1,10 @@
 import { useState } from 'react'
-import { useScorteCarta } from '@/modules/carta/api'
-import { BadgeCarta } from '@/modules/carta/components/Carta'
 import { Link } from 'react-router-dom'
-import { Building2, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { usePuo } from '@/modules/auth/permessi'
-import { useAggiornaProfilo, useMagazzini, useOperatori } from '@/modules/anagrafiche/api'
+import { useAggiornaProfilo, useOperatori } from '@/modules/anagrafiche/api'
 import { SceltaRegioni } from '@/modules/auth/SceltaRegioni'
-import { euro, nomeCompleto } from '@/shared/lib/formato'
+import { nomeCompleto } from '@/shared/lib/formato'
 import { REGIONI, type Enum } from '@/shared/types/database'
 import { Avatar } from '@/shared/ui/Avatar'
 import { Card } from '@/shared/ui/Card'
@@ -90,9 +88,6 @@ const Griglia = ({ children }: { children: React.ReactNode }) => (
 )
 
 function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
-  const puo = usePuo()
-  const soldi = puo('tariffe')
-  const carta = puo('carta.ricarica')
   const aggiorna = useAggiornaProfilo()
   const nome = nomeCompleto(o)
   return (
@@ -102,13 +97,9 @@ function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
           <Avatar nome={nome} foto={o.foto} taglia="lg" />
           <div className="min-w-0">
             <p className="font-semibold text-[16px] truncate">{nome}</p>
-            {soldi && <p className="text-sm text-tenue">{o.tariffa_oraria != null ? `${euro(o.tariffa_oraria)}/ora` : 'tariffa da impostare'}</p>}
+            {o.telefono && <p className="text-sm text-tenue">{o.telefono}</p>}
           </div>
         </Link>
-        <p className={o.magazzino ? 'text-sm font-semibold inline-flex items-center gap-1.5' : 'text-sm font-semibold text-urgente-testo inline-flex items-center gap-1.5'}>
-          <Building2 className="size-4 shrink-0" aria-hidden /> <span className="truncate">{o.magazzino?.nome ?? 'Nessun magazzino'}</span>
-        </p>
-        {o.attivo && carta && <CartaOperatore id={o.id} />}
         <div className="flex flex-wrap gap-1.5">
           {o.zone.map((z) => <span key={z.regione} className="text-[11px] font-semibold bg-sfondo border border-bordo px-2 py-0.5 rounded-full">{z.regione}</span>)}
         </div>
@@ -123,27 +114,17 @@ function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
   )
 }
 
-/** Badge carta: rossa se sta finendo (i dati arrivano da una sola richiesta condivisa) */
-function CartaOperatore({ id }: { id: string }) {
-  const scorta = useScorteCarta().data?.find((s) => s.id === id)
-  return scorta ? <div><BadgeCarta stato={scorta} /></div> : null
-}
-
 /**
  * Modifica dei dati di un operatore.
- * Gestore operatori: anagrafica, regioni, magazzino, stato. Amministrazione: tariffa. Admin: tutto.
+ * Admin e gestore operatori: anagrafica, regioni e stato.
  */
 export function ModificaOperatore({ o, onFatto }: { o: Operatore | (Operatore & Record<string, unknown>); onFatto: () => void }) {
   const puo = usePuo()
   const gestisce = puo('operatori.gestisci')
-  const tariffe = puo('tariffe')
-  const magazzini = useMagazzini()
   const aggiorna = useAggiornaProfilo()
   const [nome, setNome] = useState(o.nome)
   const [cognome, setCognome] = useState(o.cognome)
   const [telefono, setTelefono] = useState(o.telefono ?? '')
-  const [tariffa, setTariffa] = useState(o.tariffa_oraria != null ? String(o.tariffa_oraria) : '')
-  const [magazzinoId, setMagazzinoId] = useState(o.magazzino_id ?? '')
   const [regioni, setRegioni] = useState<Enum<'regione'>[]>(o.zone.map((z) => z.regione))
   const [attivo, setAttivo] = useState(o.attivo)
 
@@ -153,8 +134,7 @@ export function ModificaOperatore({ o, onFatto }: { o: Operatore | (Operatore & 
       aggiorna.mutate({
         id: o.id,
         modifiche: {
-          ...(gestisce ? { nome, cognome, telefono: telefono || null, magazzino_id: magazzinoId || null, attivo } : {}),
-          ...(tariffe ? { tariffa_oraria: tariffa ? Number(tariffa) : null } : {}),
+          ...(gestisce ? { nome, cognome, telefono: telefono || null, attivo } : {}),
         },
         regioni: gestisce ? regioni : undefined,
       }, { onSuccess: onFatto })
@@ -163,11 +143,6 @@ export function ModificaOperatore({ o, onFatto }: { o: Operatore | (Operatore & 
         <Campo etichetta="Nome" required disabled={!gestisce} value={nome} onChange={(e) => setNome(e.target.value)} />
         <Campo etichetta="Cognome" disabled={!gestisce} value={cognome} onChange={(e) => setCognome(e.target.value)} />
         <Campo etichetta="Telefono" type="tel" disabled={!gestisce} value={telefono} onChange={(e) => setTelefono(e.target.value)} />
-        {tariffe && <Campo etichetta="Tariffa oraria (€)" type="number" min={0} step="0.5" value={tariffa} onChange={(e) => setTariffa(e.target.value)} />}
-        <Selezione etichetta="Magazzino di riferimento" disabled={!gestisce} value={magazzinoId} onChange={(e) => setMagazzinoId(e.target.value)}>
-          <option value="">— Nessuno —</option>
-          {magazzini.data?.map((m) => <option key={m.id} value={m.id}>{m.nome}, {m.citta}</option>)}
-        </Selezione>
         <Selezione etichetta="Stato" disabled={!gestisce} value={attivo ? 'si' : 'no'} onChange={(e) => setAttivo(e.target.value === 'si')}>
           <option value="si">Attivo (riceve eventi)</option>
           <option value="no">Non attivo</option>

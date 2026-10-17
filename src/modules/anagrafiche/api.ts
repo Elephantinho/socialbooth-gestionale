@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase, ok } from '@/shared/lib/supabase'
 import type { Database, Enum, Inserimento } from '@/shared/types/database'
 
-// Dati di base: tipi di booth, clienti, magazzini, location salvate, operatori.
+// Dati di base: tipi di booth, operatori, utenti e impostazioni.
 
 type Tabelle = Database['public']['Tables']
 
@@ -20,83 +20,13 @@ export function useTipiBooth() {
   })
 }
 
-/* ---------- Clienti ---------- */
-export function useClienti() {
-  return useQuery({
-    queryKey: ['clienti'],
-    queryFn: async () => ok(await supabase.from('clienti').select('id, nome, email, telefono').order('nome')),
-  })
-}
-
-export function useCreaCliente() {
-  const invalida = useInvalida('clienti')
-  return useMutation({
-    mutationFn: async (c: Inserimento<'clienti'>) => ok(await supabase.from('clienti').insert(c).select('id, nome').single()),
-    onSuccess: invalida,
-  })
-}
-
-/* ---------- Magazzini ---------- */
-export function useMagazzini() {
-  return useQuery({
-    queryKey: ['magazzini'],
-    queryFn: async () => ok(await supabase.from('magazzini').select('*').order('nome')),
-  })
-}
-
-export function useSalvaMagazzino() {
-  const invalida = useInvalida('magazzini')
-  return useMutation({
-    mutationFn: async (m: Inserimento<'magazzini'>) =>
-      m.id
-        ? ok(await supabase.from('magazzini').update(m).eq('id', m.id).select('id').single())
-        : ok(await supabase.from('magazzini').insert(m).select('id').single()),
-    onSuccess: invalida,
-  })
-}
-
-export function useEliminaMagazzino() {
-  const invalida = useInvalida('magazzini')
-  return useMutation({
-    mutationFn: async (id: string) => ok(await supabase.from('magazzini').delete().eq('id', id)),
-    onSuccess: invalida,
-  })
-}
-
-/* ---------- Location salvate ---------- */
-export function useLocation() {
-  return useQuery({
-    queryKey: ['location'],
-    queryFn: async () => ok(await supabase.from('location').select('*').order('creato_il', { ascending: false })),
-  })
-}
-
-export function useSalvaLocation() {
-  const invalida = useInvalida('location')
-  return useMutation({
-    mutationFn: async (l: Inserimento<'location'>) =>
-      l.id
-        ? ok(await supabase.from('location').update(l).eq('id', l.id).select('id').single())
-        : ok(await supabase.from('location').insert(l).select('id').single()),
-    onSuccess: invalida,
-  })
-}
-
-export function useEliminaLocation() {
-  const invalida = useInvalida('location')
-  return useMutation({
-    mutationFn: async (id: string) => ok(await supabase.from('location').delete().eq('id', id)),
-    onSuccess: invalida,
-  })
-}
-
 /* ---------- Operatori ---------- */
 export function useOperatori() {
   return useQuery({
     queryKey: ['operatori'],
     queryFn: async () =>
       ok(await supabase.from('profili')
-        .select('*, zone:zone_operatore(regione), magazzino:magazzini(nome)')
+        .select('*, zone:zone_operatore(regione)')
         .eq('ruolo', 'operatore')
         .order('attivo', { ascending: true })
         .order('nome')),
@@ -190,27 +120,24 @@ export function useCaricaFoto() {
   })
 }
 
-/** Un operatore con zone, magazzino e numeri per la sua scheda */
+/** Un operatore con le sue regioni */
 export function useOperatore(id: string) {
   return useQuery({
     queryKey: ['operatori', id],
     queryFn: async () =>
       ok(await supabase.from('profili')
-        .select('*, zone:zone_operatore(regione), magazzino:magazzini(nome, citta)')
+        .select('*, zone:zone_operatore(regione)')
         .eq('id', id).single()),
   })
 }
 
-/** Tutti gli eventi di un operatore con ore, costi e ricavo, per i numeri e i margini */
+/** Tutti gli eventi di un operatore, dal più recente */
 export function useEventiDiOperatore(id: string) {
   return useQuery({
     queryKey: ['eventi', 'di-operatore', id],
     queryFn: async () =>
       ok(await supabase.from('eventi')
-        .select(`id, stato, allestimento_il, smontaggio_il, citta, regione, viaggio_minuti, prezzo_cliente, fattura_importo,
-          tipo_booth:tipi_booth(nome), cliente:clienti(nome),
-          ore:ore_lavorate(compenso, minuti_totali, minuti_in_location, minuti_viaggio, stato, check_out_il, operatore_id),
-          costi:costi_evento(fase, categoria, importo, stato)`)
+        .select('id, stato, allestimento_il, smontaggio_il, citta, regione, tipo_booth:tipi_booth(nome)')
         .eq('operatore_id', id)
         .neq('stato', 'annullato')
         .order('allestimento_il', { ascending: false })),
@@ -237,34 +164,6 @@ export function useCambiaRuolo() {
   })
 }
 
-/* ---------- Clienti con i loro numeri ---------- */
-export function useClientiConEventi() {
-  return useQuery({
-    queryKey: ['clienti', 'completo'],
-    queryFn: async () =>
-      ok(await supabase.from('clienti')
-        .select('*, eventi(id, stato, allestimento_il, prezzo_cliente, fattura_importo, fattura_pagata)')
-        .order('nome')),
-  })
-}
-
-export function useSalvaCliente() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (c: Inserimento<'clienti'>) =>
-      c.id ? ok(await supabase.from('clienti').update(c).eq('id', c.id)) : ok(await supabase.from('clienti').insert(c)),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['clienti'] }),
-  })
-}
-
-export function useEliminaCliente() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (id: string) => ok(await supabase.from('clienti').delete().eq('id', id)),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['clienti'] }),
-  })
-}
-
 /* ---------- Impostazioni ---------- */
 export function useImpostazioni() {
   return useQuery({
@@ -282,13 +181,3 @@ export function useSalvaImpostazione() {
   })
 }
 
-/** Costo per stampa calcolato e media di stampe per evento */
-export function useStatisticheStampe() {
-  return useQuery({
-    queryKey: ['impostazioni', 'stampe'],
-    queryFn: async () => ({
-      costo: ok(await supabase.rpc('costo_per_stampa')) as number | null,
-      media: ok(await supabase.rpc('media_stampe_per_evento')) as number | null,
-    }),
-  })
-}

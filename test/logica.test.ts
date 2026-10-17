@@ -1,102 +1,89 @@
 // Test delle regole pure (niente database, niente rete): npm test
 import { describe, expect, it } from 'vitest'
-import { costruisciOrari, minutiInLocationPrevisti, minutiViaggioPagati, orarioRitiro } from '@/modules/eventi/logic/orari'
-import { inArchivio, nonSvolto, daFatturare, daIncassare } from '@/modules/eventi/logic/archivio'
-import { leggiBrief } from '@/modules/eventi/logic/brief'
-import { statoCarta, confezioniPer } from '@/modules/carta/logic/scorta'
-import { regioneDiCitta, trovaCitta } from '@/shared/lib/citta'
-
-const combina = (d: string, o: string) => `${d}T${o}`
+import { costruisciOrari } from '@/modules/eventi/logic/orari'
+import { giaPassato, passato } from '@/modules/eventi/logic/archivio'
+import { combinaDataOra, dataBreve, iniziali, nomeCompleto, ora, perCampoData, traQuanto } from '@/shared/lib/formato'
+import { puo, RUOLI, RUOLI_GESTIONE, type Permesso } from '@/modules/auth/permessi'
 
 describe('orari', () => {
+  const c = (d: string, o: string) => `${d}T${o}`
   it('passa al giorno dopo quando si supera la mezzanotte', () => {
-    expect(costruisciOrari('2026-10-28', ['20:00', '21:00', '23:30', '00:30'], combina))
+    expect(costruisciOrari('2026-10-28', ['20:00', '21:00', '23:30', '00:30'], c))
       .toEqual(['2026-10-28T20:00', '2026-10-28T21:00', '2026-10-28T23:30', '2026-10-29T00:30'])
   })
-  it('ritiro = allestimento − viaggio − 20 minuti', () => {
-    expect(orarioRitiro('2026-10-28T18:00:00Z', 40)).toBe('2026-10-28T17:00:00.000Z')
+  it('orari uguali restano lo stesso giorno', () => {
+    expect(costruisciOrari('2026-10-28', ['18:00', '18:00'], c)).toEqual(['2026-10-28T18:00', '2026-10-28T18:00'])
   })
-  it('conta i minuti in location e il viaggio andata e ritorno', () => {
-    expect(minutiInLocationPrevisti('2026-10-28T18:00:00Z', '2026-10-28T23:30:00Z')).toBe(330)
-    expect(minutiViaggioPagati(25)).toBe(50)
-    expect(minutiViaggioPagati(null)).toBe(0)
+  it('fine mese, fine anno, anno bisestile', () => {
+    expect(costruisciOrari('2026-10-31', ['22:00', '01:00'], c)[1]).toBe('2026-11-01T01:00')
+    expect(costruisciOrari('2026-12-31', ['22:00', '01:00'], c)[1]).toBe('2027-01-01T01:00')
+    expect(costruisciOrari('2028-02-28', ['22:00', '01:00'], c)[1]).toBe('2028-02-29T01:00')
+  })
+  it('nessun orario', () => expect(costruisciOrari('2026-10-28', [], c)).toEqual([]))
+})
+
+describe('fuso orario italiano', () => {
+  it('ora solare e ora legale', () => {
+    expect(combinaDataOra('2026-12-10', '18:00')).toBe('2026-12-10T17:00:00.000Z')
+    expect(combinaDataOra('2026-07-10', '18:00')).toBe('2026-07-10T16:00:00.000Z')
+  })
+  it('giorni del cambio d\'ora', () => {
+    expect(combinaDataOra('2026-10-25', '20:00')).toBe('2026-10-25T19:00:00.000Z')
+    expect(combinaDataOra('2026-03-29', '20:00')).toBe('2026-03-29T18:00:00.000Z')
+  })
+  it('data e ora ricombinate tornano uguali', () => {
+    for (const [d, o] of [['2026-01-01', '00:15'], ['2026-06-30', '23:45'], ['2026-10-25', '12:00']]) {
+      const iso = combinaDataOra(d, o)
+      expect(perCampoData(iso)).toBe(d)
+      expect(ora(iso)).toBe(o)
+    }
+  })
+  it('il giorno è quello italiano, non quello UTC', () => expect(perCampoData('2026-10-28T23:30:00Z')).toBe('2026-10-29'))
+  it('formati', () => {
+    expect(ora(null)).toBe('—')
+    expect(dataBreve('2026-10-28T10:00:00Z')).toBe('Mer 28 ottobre')
+    expect(traQuanto(new Date().toISOString())).toBe('oggi')
   })
 })
 
-describe('archivio', () => {
+describe('nomi', () => {
+  it('nome completo e iniziali', () => {
+    expect(nomeCompleto(null)).toBe('Senza nome')
+    expect(nomeCompleto({ nome: 'Mario', cognome: 'Rossi' })).toBe('Mario Rossi')
+    expect(iniziali('altea mascolo')).toBe('AM')
+    expect(iniziali('')).toBe('?')
+  })
+})
+
+describe('eventi passati', () => {
   const adesso = new Date('2026-10-20T12:00:00Z').getTime()
   const ieri = '2026-10-19T23:00:00Z'
   const domani = '2026-10-21T23:00:00Z'
-  it('un evento da assegnare con la data passata è "mai svolto" e va in archivio', () => {
-    expect(nonSvolto({ stato: 'da_assegnare', smontaggio_il: ieri }, adesso)).toBe(true)
-    expect(inArchivio({ stato: 'da_assegnare', smontaggio_il: ieri }, adesso)).toBe(true)
+  it('un evento con la data trascorsa è passato, qualunque sia lo stato', () => {
+    for (const stato of ['da_assegnare', 'proposto', 'confermato']) expect(passato({ stato, smontaggio_il: ieri }, adesso)).toBe(true)
   })
-  it('un evento confermato con la data passata resta in vista finché non si chiude', () => {
-    expect(inArchivio({ stato: 'confermato', smontaggio_il: ieri }, adesso)).toBe(false)
+  it('annullati e completati sono passati anche se la data è futura', () => {
+    expect(passato({ stato: 'annullato', smontaggio_il: domani }, adesso)).toBe(true)
+    expect(passato({ stato: 'completato', smontaggio_il: domani }, adesso)).toBe(true)
   })
-  it('gli eventi futuri non sono in archivio', () => {
-    expect(inArchivio({ stato: 'da_assegnare', smontaggio_il: domani }, adesso)).toBe(false)
-  })
-  it('fatture', () => {
-    expect(daFatturare({ stato: 'completato', fattura_numero: null })).toBe(true)
-    expect(daIncassare({ fattura_importo: 500, fattura_pagata: false })).toBe(true)
-    expect(daIncassare({ fattura_importo: 500, fattura_pagata: true })).toBe(false)
-  })
+  it('un evento futuro non è passato', () => expect(passato({ stato: 'confermato', smontaggio_il: domani }, adesso)).toBe(false))
+  it('esattamente adesso non è ancora passato', () => expect(giaPassato({ smontaggio_il: new Date(adesso).toISOString() }, adesso)).toBe(false))
 })
 
-describe('brief incollato', () => {
-  const tipi = [{ id: 'p', nome: 'Photobooth' }, { id: 'v', nome: 'Videobooth 360' }, { id: 'm', nome: 'Social Mirror' }]
-  const clienti = [{ id: 'c', nome: 'Gucci' }]
-  const oggi = new Date('2026-10-16T10:00:00Z')
-
-  it('legge un brief tipico', () => {
-    const { dati } = leggiBrief(`PHOTOBOOTH 28/10 Firenze
-Via Gusciana 27, Firenze
-Allestimento ore 17:30
-Evento 19:00 - 23:00
-Smontaggio 23:30
-Referente: Marco Rossi 333 1234567
-Hostess: no
-Dress code: total black`, { tipi, clienti, oggi })
-    expect(dati).toMatchObject({
-      tipoBoothId: 'p', data: '2026-10-28', indirizzo: 'Via Gusciana 27', citta: 'Firenze', regione: 'Toscana',
-      allestimento: '17:30', inizio: '19:00', fine: '23:00', smontaggio: '23:30',
-      referenteNome: 'Marco Rossi', referenteTelefono: '3331234567', hostess: false, outfit: 'total black',
-    })
+describe('permessi', () => {
+  const tutti: Permesso[] = ['eventi.crea', 'eventi.modifica', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'utenti', 'impostazioni']
+  it('l\'admin ha tutto, l\'operatore niente', () => {
+    tutti.forEach((p) => { expect(puo('admin', p)).toBe(true); expect(puo('operatore', p)).toBe(false) })
   })
-  it('capisce orari misti sulla stessa riga, il 360 e il cliente', () => {
-    const { dati } = leggiBrief(`360 sabato 7 novembre - Gucci
-Piazza della Signoria 5, Firenze (ZTL)
-arrivo alle 15, attivazione dalle 18 alle 22`, { tipi, clienti, oggi })
-    expect(dati).toMatchObject({ tipoBoothId: 'v', clienteId: 'c', data: '2026-11-07', allestimento: '15:00', inizio: '18:00', fine: '22:00', ztl: true })
+  it('solo l\'admin cambia ruoli e impostazioni', () => {
+    for (const r of RUOLI.map((x) => x.id)) { expect(puo(r, 'utenti')).toBe(r === 'admin'); expect(puo(r, 'impostazioni')).toBe(r === 'admin') }
   })
-  it('stacca la città attaccata all\'indirizzo e porta la data all\'anno dopo se è già passata', () => {
-    const { dati } = leggiBrief('Social mirror\nViale Monza 120 Milano\n3/2 dalle 10.00 alle 18.00', { tipi, clienti, oggi })
-    expect(dati).toMatchObject({ tipoBoothId: 'm', indirizzo: 'Viale Monza 120', citta: 'Milano', regione: 'Lombardia', data: '2027-02-03' })
+  it('il project crea e assegna i suoi eventi ma non vede quelli degli altri', () => {
+    expect(puo('project', 'eventi.crea')).toBe(true); expect(puo('project', 'eventi.assegna')).toBe(true)
+    expect(puo('project', 'eventi.tutti')).toBe(false); expect(puo('project', 'operatori.gestisci')).toBe(false)
   })
-})
-
-describe('carta', () => {
-  it('rossa sotto soglia, rossa piena se finita, ok altrimenti', () => {
-    expect(statoCarta(0, 200, 0, 300).livello).toBe('finita')
-    expect(statoCarta(150, 200, 0, 300).livello).toBe('bassa')
-    expect(statoCarta(500, 200, 0, 300).livello).toBe('ok')
+  it('chi gestisce gli operatori li vede anche', () => {
+    for (const r of RUOLI.map((x) => x.id)) if (puo(r, 'operatori.gestisci')) expect(puo(r, 'operatori.vedi')).toBe(true)
   })
-  it('rossa anche se non basta per gli eventi già assegnati', () => {
-    expect(statoCarta(500, 200, 2, 300).livello).toBe('bassa')
-  })
-  it('operatore nuovo senza scorta registrata: "da impostare", non rosso', () => {
-    expect(statoCarta(0, 200, 1, 300, false).livello).toBe('da_impostare')
-  })
-  it('arrotonda alle confezioni intere', () => {
-    expect(confezioniPer(701, 700)).toBe(2)
-    expect(confezioniPer(10, 700)).toBe(1)
-  })
-})
-
-describe('città', () => {
-  it('trova la regione', () => {
-    expect(regioneDiCitta('reggio emilia')).toBe('Emilia-Romagna')
-    expect(trovaCitta('evento a Forte dei Marmi')?.regione).toBe('Toscana')
-  })
+  it('ogni ruolo del pannello ha almeno un permesso', () => RUOLI_GESTIONE.forEach((r) => expect(tutti.some((p) => puo(r, p))).toBe(true)))
 })

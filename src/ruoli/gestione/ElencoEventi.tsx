@@ -1,11 +1,10 @@
 import { useOperatori } from '@/modules/anagrafiche/api'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Archive, List, Map as MappaIcona, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { usePuo, type Permesso } from '@/modules/auth/permessi'
 import { useEventiGestione } from '@/modules/eventi/api'
 import { RigaEvento } from '@/modules/eventi/components/RigaEvento'
-import { MappaEventi } from '@/modules/eventi/components/MappaEventi'
-import { inArchivio } from '@/modules/eventi/logic/archivio'
+import { passato } from '@/modules/eventi/logic/archivio'
 import type { EventoGestione } from '@/modules/eventi/types'
 import { cn } from '@/shared/lib/cn'
 import { Card } from '@/shared/ui/Card'
@@ -17,79 +16,54 @@ type Filtro = { id: string; etichetta: string; passa: (e: EventoGestione) => boo
 const tra = (...stati: string[]) => (e: EventoGestione) => stati.includes(e.stato)
 
 const filtri: Filtro[] = [
-  { id: 'tutti', etichetta: 'Tutti', passa: () => true },
-  { id: 'assegnare', etichetta: 'Da assegnare', passa: tra('da_assegnare', 'bozza'), permesso: 'eventi.assegna' },
-  { id: 'attesa', etichetta: 'In attesa', passa: tra('proposto'), permesso: 'eventi.assegna' },
-  { id: 'confermati', etichetta: 'Confermati', passa: tra('confermato') },
-  { id: 'corso', etichetta: 'In corso', passa: tra('in_corso') },
+  { id: 'tutti', etichetta: 'In programma', passa: (e) => !passato(e) },
+  { id: 'assegnare', etichetta: 'Da assegnare', passa: (e) => !passato(e) && tra('da_assegnare', 'bozza')(e), permesso: 'eventi.assegna' },
+  { id: 'attesa', etichetta: 'In attesa', passa: (e) => !passato(e) && tra('proposto')(e), permesso: 'eventi.assegna' },
+  { id: 'confermati', etichetta: 'Confermati', passa: (e) => !passato(e) && tra('confermato', 'in_corso')(e) },
+  { id: 'passati', etichetta: 'Passati', passa: (e) => passato(e) },
 ]
 
-/** Eventi in programma e in corso. Quelli finiti o annullati stanno in Archivio. */
+/** Elenco eventi: quelli in programma divisi per stato, e i passati. */
 export function ElencoEventi() {
   const { data, isPending, error } = useEventiGestione()
   const puo = usePuo()
   const [parametri, setParametri] = useSearchParams()
   const visibili = filtri.filter((f) => !f.permesso || puo(f.permesso))
   const attivo = visibili.find((f) => f.id === parametri.get('filtro')) ?? visibili[0]
-  const mappa = parametri.get('vista') === 'mappa'
-  const imposta = (filtro: string, vista: 'elenco' | 'mappa') => {
-    const p: Record<string, string> = {}
-    if (filtro !== 'tutti') p.filtro = filtro
-    if (vista === 'mappa') p.vista = 'mappa'
-    setParametri(p, { replace: true })
-  }
-  const setFiltro = (id: string) => imposta(id, mappa ? 'mappa' : 'elenco')
-
-  const inProgramma = (data ?? []).filter((e) => !inArchivio(e))
-  const eventi = inProgramma.filter(attivo.passa)
-  const archiviati = (data ?? []).length - inProgramma.length
+  const setFiltro = (id: string) => setParametri(id === 'tutti' ? {} : { filtro: id }, { replace: true })
+  const tutti = data ?? []
+  // I passati dal più recente, quelli in programma dal più vicino
+  const eventi = tutti.filter(attivo.passa)
+  if (attivo.id === 'passati') eventi.reverse()
 
   return (
     <div className="flex flex-col gap-6">
       <Intestazione titolo="Eventi"
-        azioni={
-          <>
-            <Link to="/gestione/archivio" className="h-12 px-4 rounded-lg border border-bordo-forte bg-superficie font-semibold text-sm flex items-center gap-2 hover:bg-sfondo">
-              <Archive className="size-4" aria-hidden /> Archivio{archiviati ? `, ${archiviati}` : ''}
-            </Link>
-            {puo('eventi.crea') && (
-              <Link to="/gestione/eventi/nuovo"
-                className="h-12 px-5 rounded-lg bg-accento text-su-accento font-semibold text-sm flex items-center gap-2 hover:bg-accento-hover transition">
-                <Plus className="size-[18px]" aria-hidden /> Nuovo evento
-              </Link>
-            )}
-          </>
-        } />
+        azioni={puo('eventi.crea') && (
+          <Link to="/gestione/eventi/nuovo"
+            className="h-11 px-5 rounded-lg bg-accento text-su-accento font-semibold text-sm flex items-center gap-2 hover:bg-accento-hover">
+            <Plus className="size-[18px]" aria-hidden /> Nuovo evento
+          </Link>
+        )} />
 
-      <div className="flex flex-wrap items-center gap-3">
-      <div className="flex gap-2 overflow-x-auto pb-1 flex-1 min-w-0" role="tablist">
+      <div className="flex gap-2 overflow-x-auto pb-1" role="tablist">
         {visibili.map((f) => (
           <button key={f.id} role="tab" aria-selected={attivo.id === f.id} onClick={() => setFiltro(f.id)}
             className={cn(
-              'h-10 px-4 rounded-full text-sm font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2',
-              attivo.id === f.id ? 'bg-accento-tenue text-accento-scuro' : 'bg-superficie border border-bordo text-tenue hover:border-bordo-forte',
+              'h-10 px-4 rounded-full text-sm font-semibold whitespace-nowrap cursor-pointer flex items-center gap-2',
+              attivo.id === f.id ? 'bg-inchiostro text-white' : 'bg-superficie border border-bordo text-tenue hover:border-bordo-forte',
             )}>
             {f.etichetta}
-            <span className={cn('text-xs', attivo.id === f.id ? 'text-accento-scuro' : 'text-tenue')}>{inProgramma.filter(f.passa).length}</span>
+            {f.id !== 'passati' && <span className={cn('text-xs', attivo.id === f.id ? 'text-white/70' : 'text-tenue')}>{tutti.filter(f.passa).length}</span>}
           </button>
         ))}
       </div>
-      <div className="flex rounded-lg bg-superficie border border-bordo p-1" role="group" aria-label="Vista">
-        {([['elenco', 'Elenco', List], ['mappa', 'Mappa', MappaIcona]] as const).map(([v, t, I]) => (
-          <button key={v} aria-pressed={(v === 'mappa') === mappa} onClick={() => imposta(attivo.id, v)}
-            className={cn('h-9 px-3 rounded-md text-sm font-semibold cursor-pointer inline-flex items-center gap-1.5', (v === 'mappa') === mappa ? 'bg-accento-tenue text-accento-scuro' : 'text-tenue')}>
-            <I className="size-4" aria-hidden /> {t}
-          </button>
-        ))}
-      </div>
-      </div>
 
-      {puo('eventi.assegna') && <ZoneScoperte eventi={inProgramma} />}
+      {puo('eventi.assegna') && attivo.id !== 'passati' && <ZoneScoperte eventi={tutti.filter((e) => !passato(e))} />}
 
-      {mappa && !isPending && !error ? <MappaEventi eventi={eventi} /> : isPending ? <Caricamento /> : error ? <Errore errore={error} /> : eventi.length === 0 ? (
+      {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : eventi.length === 0 ? (
         <Card>
-          <Vuoto titolo="Nessun evento qui"
-            testo={puo('eventi.crea') ? "Nessun evento in programma." : 'Quando ci saranno eventi in programma li trovi qui.'} />
+          <Vuoto titolo="Nessun evento" testo={attivo.id === 'passati' ? 'Gli eventi conclusi compariranno qui.' : 'Nessun evento in questo elenco.'} />
         </Card>
       ) : (
         <div className="flex flex-col gap-2.5">

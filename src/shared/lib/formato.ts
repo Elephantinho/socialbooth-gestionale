@@ -27,17 +27,6 @@ export const traQuanto = (iso: string) => {
   return `tra ${giorni} giorni`
 }
 
-/** 315 → "5 h 15 min" */
-export const durata = (minuti: number | null | undefined) => {
-  if (!minuti) return '0 min'
-  const h = Math.floor(minuti / 60)
-  const m = minuti % 60
-  return [h ? `${h} h` : '', m ? `${m} min` : ''].filter(Boolean).join(' ')
-}
-
-export const euro = (n: number | null | undefined) =>
-  n == null ? '—' : n.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })
-
 /** "Mario" + "Rossi" → "Mario Rossi" */
 export const nomeCompleto = (p: { nome?: string | null; cognome?: string | null } | null | undefined) =>
   [p?.nome, p?.cognome].filter(Boolean).join(' ').trim() || 'Senza nome'
@@ -48,9 +37,6 @@ export const iniziali = (nome: string | null | undefined) =>
 
 /** ISO → "yyyy-mm-dd" (giorno italiano), per i campi data */
 export const perCampoData = (iso: string) => new Date(iso).toLocaleDateString('sv-SE', { timeZone: fuso })
-
-/** "yyyy-mm" del mese corrente */
-export const meseCorrente = () => new Date().toLocaleDateString('sv-SE', { timeZone: fuso }).slice(0, 7)
 
 /** Unisce data (yyyy-mm-dd) e ora (hh:mm) in un ISO con il fuso italiano corretto. */
 export function combinaDataOra(data: string, orario: string): string {

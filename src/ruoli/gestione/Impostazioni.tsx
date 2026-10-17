@@ -1,50 +1,35 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-
 import { usePuo } from '@/modules/auth/permessi'
-import { useImpostazioni, useSalvaImpostazione, useStatisticheStampe } from '@/modules/anagrafiche/api'
-import { euro } from '@/shared/lib/formato'
+import { useImpostazioni, useSalvaImpostazione } from '@/modules/anagrafiche/api'
 import { Card } from '@/shared/ui/Card'
 import { Campo } from '@/shared/ui/Campo'
-import { Intestazione, Numero } from '@/shared/ui/Intestazione'
+import { Intestazione } from '@/shared/ui/Intestazione'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore } from '@/shared/ui/Stati'
 
 const etichette: Record<string, { titolo: string; unita: string; passo: string }> = {
-  costo_confezione_carta: { titolo: 'Costo di una confezione di carta', unita: '€', passo: '0.01' },
-  stampe_per_confezione: { titolo: 'Stampe per confezione', unita: 'stampe', passo: '1' },
-  costo_stampa: { titolo: 'Costo di una stampa (manuale)', unita: '€', passo: '0.0001' },
-  soglia_carta: { titolo: 'Carta rossa sotto le', unita: 'stampe', passo: '1' },
-  riserva_automatica: { titolo: 'Operatore di riserva automatico (1 = sì, 0 = no)', unita: '', passo: '1' },
   ore_scadenza_proposta: { titolo: 'Ore per accettare un incarico', unita: 'ore', passo: '1' },
+  riserva_automatica: { titolo: 'Se l\'operatore rifiuta, proponi il più vicino libero (1 = sì, 0 = no)', unita: '', passo: '1' },
 }
 
-/** Valori usati dai calcoli automatici */
+/** Regole dell'assegnazione degli operatori */
 export function Impostazioni() {
   const { data, isPending, error } = useImpostazioni()
   const admin = usePuo()('impostazioni')
-  const statistiche = useStatisticheStampe()
-  const costo = typeof statistiche.data?.costo === 'number' && statistiche.data.costo > 0 ? statistiche.data.costo : null
-  const media = typeof statistiche.data?.media === 'number' && statistiche.data.media > 0 ? statistiche.data.media : null
-  const ordine = ['costo_confezione_carta', 'stampe_per_confezione', 'soglia_carta', 'ore_scadenza_proposta', 'riserva_automatica', 'costo_stampa']
   return (
     <div className="flex flex-col gap-6">
       <Intestazione titolo="Impostazioni" />
-      <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
-        <Numero valore={costo ? `${costo.toLocaleString('it-IT', { maximumFractionDigits: 3 })} €` : '—'} etichetta="costo di una stampa (calcolato)" tono="accento" />
-        <Numero valore={media ?? '—'} etichetta="stampe in media per evento" />
-        <Numero valore={costo && media ? euro(costo * media) : '—'} etichetta="costo carta medio per evento" tono="scuro" />
-      </div>
       {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : (
-        <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
-          {[...data].sort((a, b) => ordine.indexOf(a.chiave) - ordine.indexOf(b.chiave)).map((i) => <Voce key={i.chiave} chiave={i.chiave} valore={i.valore} descrizione={i.descrizione} modificabile={admin} />)}
+        <div className="grid gap-3 grid-cols-[repeat(auto-fill,minmax(300px,1fr))] max-w-3xl">
+          {data.filter((i) => i.chiave in etichette).map((i) => <Voce key={i.chiave} chiave={i.chiave} valore={i.valore} modificabile={admin} />)}
         </div>
       )}
     </div>
   )
 }
 
-function Voce({ chiave, valore, descrizione, modificabile }: { chiave: string; valore: number | null; descrizione: string | null; modificabile: boolean }) {
+function Voce({ chiave, valore, modificabile }: { chiave: string; valore: number | null; modificabile: boolean }) {
   const salva = useSalvaImpostazione()
   const qc = useQueryClient()
   const [v, setV] = useState(valore != null ? String(valore) : '')
@@ -58,7 +43,6 @@ function Voce({ chiave, valore, descrizione, modificabile }: { chiave: string; v
         salva.mutate({ chiave, valore: v === '' ? null : Number(v.replace(',', '.')) }, { onSuccess: () => { setOk(true); qc.invalidateQueries({ queryKey: ['impostazioni'] }) } })
       }}>
         <p className="font-semibold">{e.titolo}</p>
-        {descrizione && <p className="text-sm text-tenue -mt-2">{descrizione}</p>}
         <div className="flex gap-2 items-end">
           <Campo etichetta={e.unita} type="number" step={e.passo} min={0} value={v} disabled={!modificabile} onChange={(ev) => setV(ev.target.value)} className="flex-1" />
           {modificabile && <Pulsante type="submit" taglia="lg" caricamento={salva.isPending}>{ok ? 'Salvato' : 'Salva'}</Pulsante>}

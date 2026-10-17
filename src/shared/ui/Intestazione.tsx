@@ -25,18 +25,3 @@ export function Intestazione({ titolo, indietro, azioni, extra }: {
     </header>
   )
 }
-
-/** Un numero con la sua etichetta; in rosso quando chiede attenzione. */
-export function Numero({ valore, etichetta, tono = 'chiaro' }: {
-  valore: React.ReactNode
-  etichetta: string
-  tono?: 'chiaro' | 'scuro' | 'accento' | 'urgente'
-}) {
-  const colore = { chiaro: '', scuro: '', accento: '', urgente: 'text-urgente-testo' }[tono]
-  return (
-    <div className="h-full rounded-lg bg-superficie border border-bordo px-4 py-3">
-      <p className={`text-[22px] font-semibold leading-tight truncate tabular-nums ${colore}`}>{valore}</p>
-      <p className="text-sm text-tenue mt-0.5">{etichetta}</p>
-    </div>
-  )
-}

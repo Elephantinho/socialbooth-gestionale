@@ -1,15 +1,14 @@
 import { AttivaNotifiche } from '@/modules/comunicazione/components/AttivaNotifiche'
 import { Logo } from '@/shared/ui/Logo'
-import { useScortaOperatore } from '@/modules/carta/api'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { AlertTriangle, ChevronRight, Printer, Inbox } from 'lucide-react'
+import { AlertTriangle, ChevronRight } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { Avatar } from '@/shared/ui/Avatar'
 import { Campanella } from '@/modules/comunicazione/components/Campanella'
-import { useEventiOperatore, useMeseOperatore, useProposteInAttesa, useRispondiProposta } from '@/modules/eventi/api'
+import { useEventiOperatore, useProposteInAttesa, useRispondiProposta } from '@/modules/eventi/api'
 import type { EventoDettaglio, Proposta } from '@/modules/eventi/types'
-import { dataBreve, euro, nomeCompleto, ora, traQuanto } from '@/shared/lib/formato'
+import { dataBreve, nomeCompleto, ora, traQuanto } from '@/shared/lib/formato'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
@@ -18,11 +17,9 @@ export function HomeOperatore() {
   const profilo = useProfilo()
   const eventi = useEventiOperatore(profilo.id)
   const proposte = useProposteInAttesa(profilo.id)
-  const mese = useMeseOperatore(profilo.id)
 
   const oggi = new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })
   const [prossimo, ...altri] = eventi.data ?? []
-  const nomeMese = new Date().toLocaleDateString('it-IT', { month: 'long' })
 
   return (
     <div className="flex flex-col gap-6 px-5 pt-sicura pb-6">
@@ -40,18 +37,6 @@ export function HomeOperatore() {
       </header>
 
       <AttivaNotifiche />
-      <Link to="/operatore/richieste" className="rounded-xl border border-bordo bg-superficie px-4 py-3 flex items-center gap-3">
-        <Inbox className="size-5 text-accento-scuro" aria-hidden />
-        <span className="flex-1 font-semibold">Richieste all'ufficio</span>
-        <ChevronRight className="size-4 text-tenue" aria-hidden />
-      </Link>
-      <AvvisoCartaOperatore id={profilo.id} />
-
-      {eventi.isPending ? <Caricamento /> : eventi.error ? <Errore errore={eventi.error} /> : prossimo ? (
-        <ProssimoEvento evento={prossimo} />
-      ) : (
-        <Card><Vuoto titolo="Nessun evento in programma" testo="Quando ti assegnano un evento lo trovi qui." /></Card>
-      )}
 
       {!!proposte.data?.length && (
         <section className="flex flex-col gap-2.5">
@@ -62,6 +47,13 @@ export function HomeOperatore() {
           {proposte.data.map((p) => <PropostaCard key={p.id} proposta={p} />)}
         </section>
       )}
+
+      {eventi.isPending ? <Caricamento /> : eventi.error ? <Errore errore={eventi.error} /> : prossimo ? (
+        <ProssimoEvento evento={prossimo} />
+      ) : (
+        <Card><Vuoto titolo="Nessun evento in programma" testo="Quando ti assegnano un evento lo trovi qui." /></Card>
+      )}
+
 
 
       {altri.length > 0 && (
@@ -81,14 +73,6 @@ export function HomeOperatore() {
         </section>
       )}
 
-      <section className="flex flex-col gap-2.5">
-        <TitoloSezione className="first-letter:">{nomeMese}</TitoloSezione>
-        <div className="grid grid-cols-3 gap-2">
-          <Statistica valore={String(mese.data?.eventi ?? '—')} etichetta="eventi" />
-          <Statistica valore={mese.data ? `${Math.round(mese.data.minuti / 60)} h` : '—'} etichetta="lavorate" />
-          <Statistica valore={mese.data ? euro(Math.round(mese.data.compenso)).replace(',00', '') : '—'} etichetta="compenso" evidenza />
-        </div>
-      </section>
     </div>
   )
 }
@@ -106,9 +90,9 @@ function ProssimoEvento({ evento: e }: { evento: EventoDettaglio }) {
           <p className="text-[15px] text-tenue mt-1">{dataBreve(e.allestimento_il)}, {e.citta}</p>
         </div>
         <div className="grid grid-cols-3 gap-2">
-          <Orario etichetta="Ritiro" valore={ora(e.ritiro_magazzino_il)} />
-          <Orario etichetta="Allestim." valore={ora(e.allestimento_il)} />
-          <Orario etichetta="Attivaz." valore={ora(e.inizio_attivazione)} />
+          <Orario etichetta="Allestimento" valore={ora(e.allestimento_il)} />
+          <Orario etichetta="Inizio" valore={ora(e.inizio_attivazione)} />
+          <Orario etichetta="Smontaggio" valore={ora(e.smontaggio_il)} />
         </div>
         {e.note_accesso && (
           <p className="flex items-start gap-2 text-[13px] font-medium text-avviso-testo">
@@ -172,30 +156,5 @@ function PropostaCard({ proposta }: { proposta: Proposta }) {
         </div>
       </Card>
     </motion.div>
-  )
-}
-
-function Statistica({ valore, etichetta, evidenza }: { valore: string; etichetta: string; evidenza?: boolean }) {
-  return (
-    <Card tono={evidenza ? 'accento' : 'chiaro'} className="rounded-xl p-3">
-      <p className="font-display text-[22px] font-semibold leading-tight truncate">{valore}</p>
-      <p className={evidenza ? 'text-xs font-semibold' : 'text-xs font-semibold text-tenue'}>{etichetta}</p>
-    </Card>
-  )
-}
-
-
-/** Avviso rosso in home quando la carta sta finendo */
-function AvvisoCartaOperatore({ id }: { id: string }) {
-  const { data } = useScortaOperatore(id)
-  if (!data || (data.livello !== 'bassa' && data.livello !== 'finita')) return null
-  return (
-    <Link to="/operatore/profilo" className="rounded-xl bg-urgente-tenue text-urgente-testo border border-[#F6C9C1] p-4 flex items-center gap-3">
-      <Printer className="size-6 shrink-0" aria-hidden />
-      <span className="flex-1">
-        <strong className="block">{data.livello === 'finita' ? 'Carta finita' : 'Carta in esaurimento'}</strong>
-        <span className="text-sm opacity-90">Ti restano {data.disponibili} stampe. Il project è già stato avvisato.</span>
-      </span>
-    </Link>
   )
 }

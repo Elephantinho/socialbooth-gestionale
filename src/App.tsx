@@ -1,92 +1,57 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AccediPage } from '@/modules/auth/AccediPage'
+import { RegistratiPage } from '@/modules/auth/RegistratiPage'
 import { Protetto, homePerRuolo } from '@/modules/auth/Protetto'
 import { RichiedePermesso as Solo, RUOLI_GESTIONE } from '@/modules/auth/permessi'
-import { RimandoRichiesta, RimandoSquadra } from '@/ruoli/condivise/Rimandi'
 import { useAuth } from '@/modules/auth/AuthProvider'
 import { Caricamento } from '@/shared/ui/Stati'
 import { OperatoreLayout } from '@/ruoli/operatore/OperatoreLayout'
 import { HomeOperatore } from '@/ruoli/operatore/HomeOperatore'
-const SchedaEvento = lazy(() => import('@/ruoli/operatore/SchedaEvento').then((m) => ({ default: m.SchedaEvento })))
 import { GestioneLayout } from '@/ruoli/gestione/GestioneLayout'
+
+const SchedaEvento = lazy(() => import('@/ruoli/operatore/SchedaEvento').then((m) => ({ default: m.SchedaEvento })))
+const CalendarioOperatore = lazy(() => import('@/ruoli/operatore/CalendarioOperatore').then((m) => ({ default: m.CalendarioOperatore })))
+const ProfiloOperatore = lazy(() => import('@/ruoli/operatore/ProfiloOperatore').then((m) => ({ default: m.ProfiloOperatore })))
 const ElencoEventi = lazy(() => import('@/ruoli/gestione/ElencoEventi').then((m) => ({ default: m.ElencoEventi })))
 const NuovoEvento = lazy(() => import('@/ruoli/gestione/NuovoEvento').then((m) => ({ default: m.NuovoEvento })))
 const DettaglioEvento = lazy(() => import('@/ruoli/gestione/DettaglioEvento').then((m) => ({ default: m.DettaglioEvento })))
-const Panoramica = lazy(() => import('@/ruoli/gestione/panoramica/Panoramica').then((m) => ({ default: m.Panoramica })))
-const Operatori = lazy(() => import('@/ruoli/gestione/Operatori').then((m) => ({ default: m.Operatori })))
-const Magazzini = lazy(() => import('@/ruoli/gestione/Magazzini').then((m) => ({ default: m.Magazzini })))
-const Location = lazy(() => import('@/ruoli/gestione/Location').then((m) => ({ default: m.Location })))
-const ReportOre = lazy(() => import('@/ruoli/gestione/ReportOre').then((m) => ({ default: m.ReportOre })))
-const CalendarioOperatore = lazy(() => import('@/ruoli/operatore/CalendarioOperatore').then((m) => ({ default: m.CalendarioOperatore })))
-const OreOperatore = lazy(() => import('@/ruoli/operatore/OreOperatore').then((m) => ({ default: m.OreOperatore })))
-const ProfiloOperatore = lazy(() => import('@/ruoli/operatore/ProfiloOperatore').then((m) => ({ default: m.ProfiloOperatore })))
-import { RegistratiPage } from '@/modules/auth/RegistratiPage'
-const InventarioMagazzino = lazy(() => import('@/ruoli/gestione/InventarioMagazzino').then((m) => ({ default: m.InventarioMagazzino })))
-const CarteAziendali = lazy(() => import('@/ruoli/gestione/CarteAziendali').then((m) => ({ default: m.CarteAziendali })))
-const DettaglioOperatore = lazy(() => import('@/ruoli/gestione/DettaglioOperatore').then((m) => ({ default: m.DettaglioOperatore })))
 const Calendario = lazy(() => import('@/ruoli/gestione/Calendario').then((m) => ({ default: m.Calendario })))
-const Clienti = lazy(() => import('@/ruoli/gestione/Clienti').then((m) => ({ default: m.Clienti })))
+const Operatori = lazy(() => import('@/ruoli/gestione/Operatori').then((m) => ({ default: m.Operatori })))
+const DettaglioOperatore = lazy(() => import('@/ruoli/gestione/DettaglioOperatore').then((m) => ({ default: m.DettaglioOperatore })))
 const Utenti = lazy(() => import('@/ruoli/gestione/Utenti').then((m) => ({ default: m.Utenti })))
-const ArchivioEventi = lazy(() => import('@/ruoli/gestione/ArchivioEventi').then((m) => ({ default: m.ArchivioEventi })))
-const RiepilogoMese = lazy(() => import('@/modules/riepiloghi/components/RiepilogoMese').then((m) => ({ default: m.RiepilogoMese })))
-const PaginaRichieste = lazy(() => import('@/modules/richieste/components/PaginaRichieste').then((m) => ({ default: m.PaginaRichieste })))
-const Squadra = lazy(() => import('@/modules/squadra/components/Squadra').then((m) => ({ default: m.Squadra })))
-const RichiesteOperatore = lazy(() => import('@/ruoli/operatore/PagineSquadra').then((m) => ({ default: m.RichiesteOperatore })))
-const SquadraOperatore = lazy(() => import('@/ruoli/operatore/PagineSquadra').then((m) => ({ default: m.SquadraOperatore })))
-const Andamento = lazy(() => import('@/ruoli/gestione/andamento/Andamento').then((m) => ({ default: m.Andamento })))
 const Impostazioni = lazy(() => import('@/ruoli/gestione/Impostazioni').then((m) => ({ default: m.Impostazioni })))
 
-// Mappa delle pagine.
-// /operatore/*  → app telefono (operatore)
-// /gestione/*   → pannello web (project e admin; l'admin vede tutto grazie al database)
+// /operatore/* → app sul telefono, /gestione/* → pannello web
 export function App() {
   return (
     <Suspense fallback={<Caricamento className="min-h-dvh items-center" />}>
-    <Routes>
-      <Route path="/accedi" element={<AccediPage />} />
-      <Route path="/registrati" element={<RegistratiPage />} />
+      <Routes>
+        <Route path="/accedi" element={<AccediPage />} />
+        <Route path="/registrati" element={<RegistratiPage />} />
 
-      <Route path="/operatore" element={<Protetto ruoli={['operatore']}><OperatoreLayout /></Protetto>}>
-        <Route index element={<HomeOperatore />} />
-        <Route path="eventi/:id" element={<SchedaEvento />} />
-        <Route path="calendario" element={<CalendarioOperatore />} />
-        <Route path="ore" element={<OreOperatore />} />
-        <Route path="profilo" element={<ProfiloOperatore />} />
-        <Route path="richieste" element={<RichiesteOperatore />} />
-        <Route path="squadra" element={<SquadraOperatore />} />
-      </Route>
+        <Route path="/operatore" element={<Protetto ruoli={['operatore']}><OperatoreLayout /></Protetto>}>
+          <Route index element={<HomeOperatore />} />
+          <Route path="eventi/:id" element={<SchedaEvento />} />
+          <Route path="calendario" element={<CalendarioOperatore />} />
+          <Route path="profilo" element={<ProfiloOperatore />} />
+          <Route path="*" element={<Navigate to="/operatore" replace />} />
+        </Route>
 
-      <Route path="/richieste/:id" element={<RimandoRichiesta />} />
-      <Route path="/squadra" element={<RimandoSquadra />} />
-      <Route path="/riepilogo/:operatoreId/:mese" element={<Protetto ruoli={[...RUOLI_GESTIONE, 'operatore']}><RiepilogoMese /></Protetto>} />
+        <Route path="/gestione" element={<Protetto ruoli={RUOLI_GESTIONE}><GestioneLayout /></Protetto>}>
+          <Route index element={<ElencoEventi />} />
+          <Route path="eventi/nuovo" element={<Solo permesso="eventi.crea"><NuovoEvento /></Solo>} />
+          <Route path="eventi/:id" element={<DettaglioEvento />} />
+          <Route path="calendario" element={<Calendario />} />
+          <Route path="operatori" element={<Solo permesso="operatori.vedi"><Operatori /></Solo>} />
+          <Route path="operatori/:id" element={<Solo permesso="operatori.vedi"><DettaglioOperatore /></Solo>} />
+          <Route path="utenti" element={<Solo permesso="utenti"><Utenti /></Solo>} />
+          <Route path="impostazioni" element={<Solo permesso="impostazioni"><Impostazioni /></Solo>} />
+          <Route path="*" element={<Navigate to="/gestione" replace />} />
+        </Route>
 
-      <Route path="/gestione" element={<Protetto ruoli={RUOLI_GESTIONE}><GestioneLayout /></Protetto>}>
-        <Route index element={<ElencoEventi />} />
-        <Route path="eventi/nuovo" element={<Solo permesso="eventi.crea"><NuovoEvento /></Solo>} />
-        <Route path="eventi/:id" element={<DettaglioEvento />} />
-        <Route path="panoramica" element={<Panoramica />} />
-        <Route path="operatori" element={<Solo permesso="operatori.vedi"><Operatori /></Solo>} />
-        <Route path="operatori/:id" element={<DettaglioOperatore />} />
-        <Route path="location" element={<Solo permesso="location"><Location /></Solo>} />
-        <Route path="magazzini" element={<Solo permesso="magazzini"><Magazzini /></Solo>} />
-        <Route path="magazzini/:id" element={<Solo permesso="magazzini"><InventarioMagazzino /></Solo>} />
-        <Route path="carte" element={<Solo permesso="carte"><CarteAziendali /></Solo>} />
-        <Route path="calendario" element={<Calendario />} />
-        <Route path="clienti" element={<Solo permesso="clienti"><Clienti /></Solo>} />
-        <Route path="utenti" element={<Solo permesso="utenti"><Utenti /></Solo>} />
-        <Route path="impostazioni" element={<Solo permesso="impostazioni"><Impostazioni /></Solo>} />
-        <Route path="richieste" element={<PaginaRichieste />} />
-        <Route path="squadra" element={<Squadra />} />
-        <Route path="andamento" element={<Solo permesso="soldi"><Andamento /></Solo>} />
-        <Route path="regioni" element={<Navigate to="/gestione/andamento" replace />} />
-        <Route path="archivio" element={<ArchivioEventi />} />
-        <Route path="previsione" element={<Navigate to="/gestione/andamento?vista=futuro" replace />} />
-        <Route path="report" element={<Solo permesso="ore.approva"><ReportOre /></Solo>} />
-      </Route>
-
-      <Route path="*" element={<Inizio />} />
-    </Routes>
+        <Route path="*" element={<Inizio />} />
+      </Routes>
     </Suspense>
   )
 }

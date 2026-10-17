@@ -239,17 +239,6 @@ begin
   perform set_config('request.jwt.claims', '', true);
   t := t + 1; select compenso into x from ore_lavorate where evento_id = e7; if x is distinct from 100.00 then f := f || '11: compenso ' || coalesce(x::text, 'nullo') || ' invece di 100; '; end if;
 
-  /* ===== 12. Chiusura automatica di chi si dimentica il rientro ===== */
-  update ore_lavorate set stato = 'approvato' where evento_id = e7;
-  insert into eventi (project_id, indirizzo, citta, regione, allestimento_il, inizio_attivazione, fine_attivazione, smontaggio_il, stato, operatore_id, viaggio_minuti)
-    values (pa, 'Via 8', 'Firenze', 'Toscana', now() - interval '10 hours', now() - interval '9 hours', now() - interval '6 hours', now() - interval '5 hours', 'in_corso', o3, 30)
-    returning id into e6;
-  insert into ore_lavorate (evento_id, operatore_id, partenza_il, check_in_il, fine_il) values (e6, o3, now() - interval '11 hours', now() - interval '10 hours', now() - interval '5 hours');
-  perform controlla_scadenze();
-  t := t + 1; select e.stato || '/' || o.minuti_in_location || '/' || o.minuti_viaggio into s from eventi e join ore_lavorate o on o.evento_id = e.id where e.id = e6;
-    if s <> 'completato/300/90' then f := f || '12: chiusura automatica: ' || s || ' (attesi completato/300/90); '; end if;
-  t := t + 1; select count(*) into n from notifiche where utente_id = o3 and titolo = 'Ore calcolate in automatico'; if n <> 1 then f := f || '12: operatore non avvisato; '; end if;
-
   /* ===== 13. Richieste: carta per O1 chiesta dal project, fatta dal gestore, una volta sola ===== */
   perform set_config('request.jwt.claims', json_build_object('sub', pa, 'role', 'authenticated')::text, true);
   set local role authenticated;

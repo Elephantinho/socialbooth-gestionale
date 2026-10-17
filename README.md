@@ -4,7 +4,7 @@ Gestionale per eventi social booth / photobooth, con tre lati:
 
 - **Admin** – vede e controlla tutto (web, `/gestione`)
 - **Project** – crea gli eventi e li assegna agli operatori (web, `/gestione`)
-- **Operatore** – riceve gli incarichi, fa check-in e registra le ore (app telefono, `/operatore`)
+- **Operatore** – riceve gli incarichi e li accetta o rifiuta (app telefono, `/operatore`)
 
 ## Avvio in locale
 
@@ -16,16 +16,13 @@ npm run dev            # apre su http://localhost:5173
 
 ### Utenti e ruoli
 
-| Ruolo | Vede | Panoramica |
-|---|---|---|
-| **Admin** | Tutto | Tutto |
-| **Project** | Solo i suoi eventi: calendario, attività, operatori, ricavi e costi dei suoi eventi. Archivio: eventi passati, clienti, location | Da assegnare, carta dei suoi operatori, chi lavora oggi, i conti dei suoi eventi |
-| **Gestore operatori** | Tutta l'operatività: tutti gli eventi (modifica orari, luogo, magazzino), operatori, magazzini, location, carta. Niente soldi | Da assegnare, operatori da approvare, carta, zone scoperte, mappa |
-| **Amministrazione** | Conti: costi e compensi, previsione, regioni, carte, tariffe, fatture. Eventi in lettura (cambia solo prezzo e fattura) | Chiusure da approvare, da fatturare, da incassare, conti |
-| **Operatore** | App sul telefono (a chiamata: pagato a ore per evento) | — |
-
-Menu: **Lavoro** (Panoramica, Eventi in programma, Calendario, Attività) · **Squadra** · **Conti** ·
-**Archivio** (Eventi passati, Clienti, Location) · **Sistema**. Ognuno vede solo le voci del suo ruolo.
+| Ruolo | Cosa fa |
+|---|---|
+| **Admin** | Tutto, compresi ruoli e impostazioni |
+| **Project** | Crea i propri eventi e li assegna |
+| **Gestore operatori** | Vede tutti gli eventi, gestisce operatori e assegnazioni |
+| **Amministrazione** | Vede eventi e operatori |
+| **Operatore** | App sul telefono |
 
 I permessi stanno in un posto solo per lato: `src/modules/auth/permessi.tsx` (menu e pulsanti) e
 le funzioni `e_gestione()`, `vede_tutti_eventi()`, `gestisce_operatori()`, `amministra()` nel database (migrazione 0015).
@@ -40,31 +37,19 @@ anche tra i *Redirect URLs*. Così il link di conferma email riporta all'app.
 
 ## Funzionalità
 
+Versione minima, da far crescere un pezzo alla volta. La versione completa precedente
+(costi, magazzini, carta, richieste, chat, andamento…) è nel ramo `versione-completa`.
+
+**Ufficio (web)**
+- Eventi in programma divisi per stato, e passati; creazione, modifica, duplica, annullamento
+- Calendario del mese
+- Assegnazione: se in zona c'è un solo operatore libero l'evento gli viene proposto, altrimenti si sceglie;
+  se rifiuta o non risponde, si propone il più vicino libero (si può spegnere in Impostazioni)
+- Operatori per regione, attivazione dei nuovi, utenti e ruoli
+
 **Operatore (telefono)**
-- Home: prossimo evento, incarichi da accettare, carta rimasta, invito ad attivare le **notifiche sul telefono**
-- Scheda evento: tappe con **ore automatiche**, programma, ZTL e meteo, mappa con parcheggi e servizi (si apre a richiesta),
-  referente, **montaggio**: checklist dell'attrezzatura salvata e **foto del set** che arriva subito al project
-- Spese con foto dello scontrino, stampe a fine evento, le mie ore con **riepilogo mensile in PDF**
-- Calendario, giorni di indisponibilità, profilo con foto, regioni e notifiche
-
-**Ufficio (web, ogni ruolo vede solo il suo)**
-- Panoramica corta: cosa decidere, carta da mandare, chi lavora oggi, prossimi 7 giorni, conti del mese in breve
-- Eventi in programma (elenco o **mappa**), con **brief incollato che compila il modulo**; eventi passati in Archivio
-  con ricerca, da fatturare, da incassare ed **export per il commercialista**
-- Assegnazione automatica e **operatore di riserva**: se uno rifiuta o non risponde, si propone il più vicino libero
-- Operatori per regione, magazzini con attrezzatura che esce e rientra da sola, scorta di carta con avvisi
-- Costi e compensi (approvazione), **Andamento**: com'è andata (mese, regione, operatori, clienti) e cosa arriva (previsione)
-- Carte aziendali, clienti e location in Archivio, utenti e ruoli, impostazioni
-
-**Richieste**: chiunque chiede qualcosa a un ruolo o a una persona (carta a un operatore o a un magazzino,
-attrezzatura da portare, trasferimenti tra magazzini, guasti). Chi la riceve la prende in carico e la segna fatta;
-una richiesta di carta fatta registra da sola la ricarica dell'operatore.
-
-**Chat della squadra**: un canale per tutti e messaggi diretti, con chi è online e "visto X fa".
-I messaggi diretti arrivano anche come notifica sul telefono.
-
-**Aspetto**: chiaro e arioso. Un solo carattere (Schibsted Grotesk), fondo quasi bianco e fogli bianchi con bordi leggeri,
-un verde petrolio per azioni e selezione, menu laterale scuro, tinte pastello per gli stati, nessun riquadro scuro. Tutto in `src/index.css`.
+- Incarichi da accettare o rifiutare, prossimo evento con programma, indirizzo, referente e note
+- Calendario con i giorni di indisponibilità, profilo con regioni e notifiche
 
 **Notifiche sul telefono**: funzionano su Android (Chrome) anche senza installare nulla; su iPhone dopo
 "Aggiungi a Home". Le manda la funzione `supabase/functions/invia-push` a ogni notifica nuova; le chiavi
@@ -75,9 +60,7 @@ stanno nella tabella `segreti` del database, mai nel codice.
 - React + TypeScript + Vite
 - Tailwind CSS (tema in `src/index.css`), Framer Motion, icone Lucide
 - TanStack Query per i dati, React Router per le pagine
-- Supabase: database Postgres, login, sicurezza per ruolo
-- OpenStreetMap: Nominatim (indirizzi), OSRM (tempi di viaggio), Overpass (ZTL, parcheggi, servizi), mappe Leaflet
-- Open-Meteo per il meteo, Recharts per i grafici
+- Supabase: database Postgres, login, sicurezza per ruolo, notifiche sul telefono
 - Capacitor per l'app Android (prossima fase)
 
 ## Struttura del codice
@@ -85,44 +68,30 @@ stanno nella tabella `segreti` del database, mai nel codice.
 ```
 src/
   modules/              ← la logica, divisa per funzionalità
-    auth/               login, sessione, protezione delle pagine per ruolo
+    auth/               login, sessione, permessi per ruolo
     eventi/             api.ts (letture/scritture), logic/ (regole pure), components/
     assegnazione/       scelta dell'operatore
-    anagrafiche/        clienti, tipi di booth, magazzini, location, operatori, indisponibilità
-    viaggio/            indirizzo → coordinate, tempi di percorrenza (OpenStreetMap)
-    costi/              costi previsti/finali, carte aziendali, calcolo del margine (logic/riepilogo.ts)
-    attrezzatura/       inventario dei magazzini e attrezzatura degli eventi (esce/rientra con le tappe)
-    carta/              scorta di carta degli operatori, ricariche, avvisi
-    luogo/              ZTL, parcheggi, servizi vicini, meteo
-    comunicazione/      notifiche, chat dell'evento, documenti e foto
-    attivita/           to-do e bacheca
+    anagrafiche/        tipi di booth, operatori, indisponibilità, utenti, impostazioni
+    comunicazione/      notifiche in app e sul telefono
   ruoli/                ← solo le schermate, che usano i moduli
     operatore/          app telefono
-    gestione/           pannello web (admin, project, gestore operatori, amministrazione)
-      panoramica/       la prima pagina, divisa in sezioni (DaFare, Adesso, MappaEventi, ContiDelMese…)
-  shared/               ← pezzi comuni
-    ui/                 Pulsante, Card, Campo, stati di caricamento/vuoto/errore
-    lib/                client Supabase, formattazione date e importi
-    types/database.ts   tipi del database (generati da Supabase)
+    gestione/           pannello web
+  shared/               ← pezzi comuni: ui/, lib/, types/database.ts
 supabase/migrations/    ← schema del database, in ordine numerico
 ```
 
-Regola: le pagine non chiamano mai Supabase direttamente, passano sempre dagli hook in `modules/*/api.ts`.
-Le regole di calcolo (orari, ritiro dal magazzino, ore) stanno in `modules/*/logic/` e non dipendono da React.
+Regola: le pagine non chiamano mai Supabase direttamente, passano dagli hook in `modules/*/api.ts`.
 
 ## Regole principali del database
 
-- **Assegnazione automatica**: quando un evento passa a *da assegnare*, se nella sua regione c'è un solo operatore libero (zona giusta, non indisponibile, senza eventi sovrapposti) gli viene proposto in automatico. Altrimenti sceglie il project. Se l'operatore rifiuta, l'evento torna da assegnare e lui viene escluso.
-- **Compenso a ore**: (minuti in location + minuti di viaggio andata e ritorno) × tariffa oraria. La tariffa viene fotografata al momento della chiusura dell'evento.
-- **Sicurezza**: ogni ruolo vede solo i propri dati (Row Level Security). L'operatore modifica gli eventi solo tramite le funzioni `rispondi_proposta`, `check_in`, `chiudi_evento`.
-- **Magazzino automatico**: quando l'operatore registra "Parto dal magazzino" l'attrezzatura dell'evento risulta fuori (i consumabili si scalano), con "Rientrato" torna disponibile.
-- **Carta**: le stampe dichiarate a fine evento scalano la scorta dell'operatore; sotto soglia (Impostazioni) o se non basta per i prossimi eventi diventa rossa e admin, gestori e project ricevono una notifica.
-- **Previsione costi**: ogni nuovo evento riceve il costo previsto della carta (media stampe × costo per stampa); la pagina Previsione somma compensi, carta e costi previsti degli eventi futuri.
+- **Assegnazione automatica**: quando un evento passa a *da assegnare*, se nella sua regione c'è un solo operatore libero (zona giusta, non indisponibile, senza eventi sovrapposti) gli viene proposto. Altrimenti si sceglie dal pannello. Se l'operatore rifiuta o non risponde in tempo, viene escluso e si propone il più vicino libero.
+- **Stati**: proposto e confermato li mettono solo le funzioni (`proponi_operatore`, `rispondi_proposta`), non si forzano dall'app.
+- **Sicurezza**: ogni ruolo vede solo i propri dati (Row Level Security); chi si registra resta non attivo finché non viene attivato.
 
 ## Test
 
-- `npm test`: controlla i tipi e lancia i test delle regole pure (orari, fuso orario, brief, carta, conti, previsione, permessi, CSV): oltre 130 casi, anche quelli limite.
+- `npm test`: controlla i tipi e lancia i test delle regole pure (orari, fuso orario, eventi passati, permessi).
 - `supabase/test/*.sql`: test del database da incollare nel SQL editor di Supabase. Creano utenti finti, provano tutto e annullano ogni modifica alla fine (l'ultima riga solleva apposta un errore con il risultato: `RISULTATO N test, 0 falliti`).
   - `01_permessi.sql`: chi vede e chi può cambiare cosa, ruolo per ruolo (111 controlli)
-  - `02_automatismi.sql`: proposte, rifiuti, riserva, scadenze, ferie, tappe, chiusure, carta, magazzino, richieste, chat (60 controlli)
+  - `02_automatismi.sql`: proposte, rifiuti, riserva, scadenze, ferie, tappe, chiusure, carta, magazzino, richieste, chat (58 controlli; tappe, carta, magazzino e richieste riguardano funzioni ora spente nell'app ma ancora nel database)
   - `03_casi_limite.sql`: riserva più vicina, riserva spenta, attrezzatura, operatori disattivati, carta (17 controlli)

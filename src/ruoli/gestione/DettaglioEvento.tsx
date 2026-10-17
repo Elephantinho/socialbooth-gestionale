@@ -1,21 +1,15 @@
-import { StatoMontaggio } from '@/modules/montaggio/components/Montaggio'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, Phone, UserRound } from 'lucide-react'
-import { useProfilo } from '@/modules/auth/AuthProvider'
 import { usePuo } from '@/modules/auth/permessi'
-import { giaPassato, inArchivio } from '@/modules/eventi/logic/archivio'
-import { useAggiornaEvento, useApprovaOre, useEventoGestione } from '@/modules/eventi/api'
+import { giaPassato } from '@/modules/eventi/logic/archivio'
+import { useAggiornaEvento, useEventoGestione } from '@/modules/eventi/api'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
 import { ModuloEvento } from '@/modules/eventi/components/ModuloEvento'
 import type { EventoGestioneCompleto } from '@/modules/eventi/types'
 import { AssegnaOperatore } from '@/modules/assegnazione/AssegnaOperatore'
-import { CostiEvento } from '@/modules/costi/components/CostiEvento'
-import { InfoLuogo } from '@/modules/luogo/components/InfoLuogo'
-import { AllegatiEvento } from '@/modules/comunicazione/components/AllegatiEvento'
-import { AttrezzaturaEvento } from '@/modules/attrezzatura/components/AttrezzaturaEvento'
-import { dataLunga, durata, euro, nomeCompleto, ora } from '@/shared/lib/formato'
+import { dataLunga, nomeCompleto, ora } from '@/shared/lib/formato'
 import { Avatar } from '@/shared/ui/Avatar'
 import { cn } from '@/shared/lib/cn'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
@@ -47,15 +41,15 @@ export function DettaglioEvento() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap gap-4 justify-between items-end">
         <div>
-          <Link to={inArchivio(e) ? '/gestione/archivio' : '/gestione'} className="text-sm font-semibold text-tenue inline-flex items-center gap-1 hover:text-inchiostro">
-            <ArrowLeft className="size-4" aria-hidden /> {inArchivio(e) ? 'Eventi passati' : 'Eventi'}
+          <Link to="/gestione" className="text-sm font-semibold text-tenue inline-flex items-center gap-1 hover:text-inchiostro">
+            <ArrowLeft className="size-4" aria-hidden /> Eventi
           </Link>
           <div className="flex flex-wrap items-center gap-3 mt-1">
             <h1 className="font-display text-[26px] font-semibold leading-tight">{e.tipo_booth?.nome ?? 'Evento'}</h1>
             <StatoEvento stato={e.stato} />
           </div>
           <p className="text-tenue font-medium mt-1">
-            #{String(e.codice).padStart(4, '0')}, {dataLunga(e.allestimento_il)}, {e.citta}{e.cliente?.nome && `, ${e.cliente.nome}`}
+            #{String(e.codice).padStart(4, '0')}, {dataLunga(e.allestimento_il)}, {e.citta}
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -100,16 +94,9 @@ export function DettaglioEvento() {
         <div className="flex flex-wrap gap-6 items-start">
           <div className="flex-[999_1_520px] min-w-0 flex flex-col gap-4">
             <Riepilogo e={e} />
-            <OreEvento e={e} />
-            {puo('soldi') && <CostiEvento e={e} />}
           </div>
           <aside className="flex-[1_1_320px] min-w-0 flex flex-col gap-4">
             <Operatore e={e} />
-            <InfoLuogo indirizzo={e.indirizzo} citta={e.citta} lat={e.lat} lng={e.lng} data={e.allestimento_il}
-              magazzino={e.magazzino ? { nome: e.magazzino.nome, lat: e.magazzino.lat, lng: e.magazzino.lng } : null} ztlDichiarata={e.ztl} compatto />
-            <StatoMontaggio eventoId={e.id} />
-            <AttrezzaturaEvento eventoId={e.id} magazzinoId={e.magazzino_id} modificabile={(puo('eventi.crea') || puo('magazzini')) && !annullato && !chiuso} />
-            <AllegatiEvento eventoId={e.id} />
             <Storico e={e} />
           </aside>
         </div>
@@ -121,7 +108,6 @@ export function DettaglioEvento() {
 function Riepilogo({ e }: { e: EventoGestioneCompleto }) {
   const righe: [string, string][] = [
     ['Indirizzo', `${e.indirizzo}, ${e.citta} (${e.regione})`],
-    ['Ritiro magazzino', e.ritiro_magazzino_il ? `${ora(e.ritiro_magazzino_il)}, ${e.magazzino?.nome ?? ''}, ${e.viaggio_minuti ?? '?'} min di viaggio` : '—'],
     ['Allestimento', ora(e.allestimento_il)],
     ['Attivazione', `${ora(e.inizio_attivazione)} – ${ora(e.fine_attivazione)}`],
     ['Smontaggio', ora(e.smontaggio_il)],
@@ -157,7 +143,7 @@ function Operatore({ e }: { e: EventoGestioneCompleto }) {
   const numero = e.operatore?.telefono?.replace(/[^\d+]/g, '')
 
   return (
-    <Card tono="scuro" className="p-5 flex flex-col gap-4">
+    <Card className="p-5 flex flex-col gap-4">
       <TitoloSezione>Operatore</TitoloSezione>
       {e.operatore ? (
         <div className="bg-superficie border border-evidenza-bordo rounded-xl p-3.5 flex items-center gap-3">
@@ -165,11 +151,11 @@ function Operatore({ e }: { e: EventoGestioneCompleto }) {
           <div className="flex-1 min-w-0">
             <Link to={`/gestione/operatori/${e.operatore.id}`} className="font-semibold truncate block hover:underline">{nomeCompleto(e.operatore)}</Link>
             <p className="text-xs text-su-scuro-tenue">
-              {e.stato === 'proposto' ? 'Deve ancora accettare' : e.stato === 'confermato' ? 'Ha confermato' : e.stato === 'in_corso' ? 'Check-in fatto' : 'Assegnato'}
+              {e.stato === 'proposto' ? 'Deve ancora accettare' : e.stato === 'confermato' ? 'Ha confermato' : 'Assegnato'}
             </p>
           </div>
           {numero && (
-            <a href={`tel:${numero}`} aria-label="Chiama l'operatore" className="size-10 rounded-full bg-scuro-3 text-accento-scuro flex items-center justify-center">
+            <a href={`tel:${numero}`} aria-label="Chiama l'operatore" className="size-10 rounded-full border border-bordo-forte flex items-center justify-center">
               <Phone className="size-4" aria-hidden />
             </a>
           )}
@@ -215,77 +201,5 @@ function Storico({ e }: { e: EventoGestioneCompleto }) {
         </div>
       ))}
     </Card>
-  )
-}
-
-function OreEvento({ e }: { e: EventoGestioneCompleto }) {
-  const profilo = useProfilo()
-  const approva = useApprovaOre()
-  const ore = e.ore.find((o) => o.check_out_il)
-  const checkIn = e.ore.find((o) => o.partenza_il || o.check_in_il)
-
-  if (!ore && !checkIn) return null
-
-  return (
-    <Card className="p-5 md:p-6 flex flex-col gap-4">
-      <div className="flex flex-wrap justify-between items-center gap-3">
-        <TitoloSezione>Ore e spese</TitoloSezione>
-        {ore && (
-          <span className={cn('text-xs font-semibold px-2.5 py-1.5 rounded-xl',
-            ore.stato === 'approvato' ? 'bg-accento-tenue text-accento-scuro' : ore.stato === 'respinto' ? 'bg-urgente-tenue text-urgente-testo' : 'bg-avviso text-avviso-testo')}>
-            {ore.stato === 'approvato' ? 'Approvate' : ore.stato === 'respinto' ? 'Respinte' : 'Da approvare'}
-          </span>
-        )}
-      </div>
-      {checkIn && (
-        <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(120px,1fr))]">
-          {([
-            ['Partenza', checkIn.partenza_il, checkIn.partenza_lat, checkIn.partenza_lng],
-            ['Arrivo', checkIn.check_in_il, checkIn.check_in_lat, checkIn.check_in_lng],
-            ['Fine lavoro', checkIn.fine_il, null, null],
-            ['Rientro', checkIn.rientro_il, checkIn.rientro_lat, checkIn.rientro_lng],
-          ] as const).map(([etichetta, quando, lat, lng]) => (
-            <div key={etichetta} className={cn('rounded-lg p-2.5', quando ? 'bg-accento-tenue/50' : 'bg-sfondo')}>
-              <p className="text-xs font-semibold text-tenue">{etichetta}</p>
-              <p className="font-semibold">{quando ? ora(quando) : '—'}</p>
-              {lat != null && <a className="text-xs underline text-accento-scuro" target="_blank" rel="noreferrer" href={`https://www.google.com/maps?q=${lat},${lng}`}>posizione</a>}
-            </div>
-          ))}
-        </div>
-      )}
-      {ore && (
-        <>
-          <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(130px,1fr))]">
-            <Dato etichetta="In location" valore={durata(ore.minuti_in_location)} />
-            <Dato etichetta="Viaggio (a/r)" valore={durata(ore.minuti_viaggio)} />
-            <Dato etichetta="Totale ore" valore={durata(ore.minuti_totali)} />
-            <Dato etichetta="Compenso" valore={euro(ore.compenso)} evidenza />
-          </div>
-          {ore.nota_operatore && <p className="text-sm"><span className="font-semibold">Nota operatore: </span>{ore.nota_operatore}</p>}
-          {approva.error && <Errore errore={approva.error} />}
-          {ore.stato === 'inviato' && (
-            <div className="flex gap-2 flex-wrap">
-              <Pulsante variante="secondario" disabled={approva.isPending}
-                onClick={() => approva.mutate({ oreId: ore.id, eventoId: e.id, approva: false, approvatoDa: profilo.id })}>
-                Respingi
-              </Pulsante>
-              <Pulsante caricamento={approva.isPending}
-                onClick={() => approva.mutate({ oreId: ore.id, eventoId: e.id, approva: true, approvatoDa: profilo.id })}>
-                Approva ore e spese dell'operatore
-              </Pulsante>
-            </div>
-          )}
-        </>
-      )}
-    </Card>
-  )
-}
-
-function Dato({ etichetta, valore, evidenza }: { etichetta: string; valore: string; evidenza?: boolean }) {
-  return (
-    <div className={cn('rounded-xl p-3', evidenza ? 'bg-accento-tenue text-accento-scuro' : 'bg-sfondo')}>
-      <p className="text-xs font-semibold opacity-80">{etichetta}</p>
-      <p className="text-lg font-semibold mt-0.5">{valore}</p>
-    </div>
   )
 }

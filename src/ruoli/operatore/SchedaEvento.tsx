@@ -1,10 +1,8 @@
-import { ChecklistMontaggio } from '@/modules/montaggio/components/Montaggio'
 import { Link, useParams } from 'react-router-dom'
-import { AlertTriangle, ArrowLeft, MessageCircle, Phone } from 'lucide-react'
-import { TappeLavoro } from './TappeLavoro'
-import { InfoLuogo } from '@/modules/luogo/components/InfoLuogo'
-import { AllegatiEvento } from '@/modules/comunicazione/components/AllegatiEvento'
-import { useEvento } from '@/modules/eventi/api'
+import { AlertTriangle, ArrowLeft, MessageCircle, Navigation, Phone } from 'lucide-react'
+import { useEvento, useProposteInAttesa, useRispondiProposta } from '@/modules/eventi/api'
+import { useProfilo } from '@/modules/auth/AuthProvider'
+import { Pulsante } from '@/shared/ui/Pulsante'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
 import type { EventoDettaglio } from '@/modules/eventi/types'
 import { dataLunga, ora, iniziali } from '@/shared/lib/formato'
@@ -37,16 +35,24 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
     <>
       <div className="px-5 pt-4">
         <p className="text-[13px] font-semibold tracking-wider text-tenue">Evento #{String(e.codice).padStart(4, '0')}</p>
-        <h1 className="font-display text-[34px] font-semibold tracking-tight leading-[1.05] mt-1">{e.tipo_booth?.nome ?? 'Evento'}</h1>
+        <h1 className="font-display text-[28px] font-semibold leading-tight mt-1">{e.tipo_booth?.nome ?? 'Evento'}</h1>
         <p className="text-base font-medium text-tenue mt-1.5">{dataLunga(e.allestimento_il)}, {e.citta}</p>
       </div>
 
       <div className="flex flex-col gap-3.5 p-5">
-        {['confermato', 'in_corso', 'completato'].includes(e.stato) && <TappeLavoro e={e} />}
+        {e.stato === 'proposto' && <Risposta eventoId={e.id} />}
         <Programma e={e} />
 
-        <InfoLuogo indirizzo={e.indirizzo} citta={e.citta} lat={e.lat} lng={e.lng} data={e.allestimento_il}
-          magazzino={e.magazzino} ztlDichiarata={e.ztl} compatto />
+        <Card className="p-4 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="font-semibold text-[16px]">{e.indirizzo}</p>
+            <p className="text-sm text-tenue">{e.citta}</p>
+          </div>
+          <a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${e.indirizzo}, ${e.citta}`)}`} target="_blank" rel="noreferrer"
+            className="h-11 px-4 rounded-lg bg-inchiostro text-white font-semibold text-sm inline-flex items-center gap-2 shrink-0">
+            <Navigation className="size-4" aria-hidden /> Naviga
+          </a>
+        </Card>
 
         {e.note_accesso && (
           <Card tono="avviso" className="p-4 flex gap-3">
@@ -93,27 +99,17 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
             <p className="text-[15px] whitespace-pre-line">{e.note}</p>
           </Card>
         )}
-
-        <ChecklistMontaggio eventoId={e.id} wifi={e.wifi} />
-        <AllegatiEvento eventoId={e.id} />
       </div>
-
-
     </>
   )
 }
 
 function Programma({ e }: { e: EventoDettaglio }) {
   const passi = [
-    e.ritiro_magazzino_il && {
-      ora: e.ritiro_magazzino_il, titolo: 'Ritiro al magazzino',
-      nota: [e.magazzino?.nome, e.viaggio_minuti && `~${e.viaggio_minuti} min di viaggio`].filter(Boolean).join(', '),
-      stile: 'border-[3px] border-accento',
-    },
-    { ora: e.allestimento_il, titolo: 'Allestimento', stile: 'bg-accento' },
-    { ora: e.inizio_attivazione, titolo: 'Attivazione', nota: `fino alle ${ora(e.fine_attivazione)}`, stile: 'bg-accento' },
+    { ora: e.allestimento_il, titolo: 'Allestimento', stile: 'border-[3px] border-inchiostro' },
+    { ora: e.inizio_attivazione, titolo: 'Attivazione', nota: `fino alle ${ora(e.fine_attivazione)}`, stile: 'bg-inchiostro' },
     { ora: e.smontaggio_il, titolo: 'Smontaggio', stile: 'border-[3px] border-inchiostro' },
-  ].filter(Boolean) as { ora: string; titolo: string; nota?: string; stile: string }[]
+  ]
 
   return (
     <Card className="p-4">
@@ -147,3 +143,23 @@ function Info({ etichetta, valore, nota, piccolo }: { etichetta: string; valore:
   )
 }
 
+
+/** Accetta o rifiuta l'evento proposto */
+function Risposta({ eventoId }: { eventoId: string }) {
+  const profilo = useProfilo()
+  const proposta = useProposteInAttesa(profilo.id).data?.find((p) => p.evento?.id === eventoId)
+  const rispondi = useRispondiProposta()
+  if (!proposta) return null
+  return (
+    <Card className="p-4 flex flex-col gap-3">
+      <p className="font-semibold">Ti è stato proposto questo evento</p>
+      {rispondi.error && <Errore errore={rispondi.error} />}
+      <div className="flex gap-2">
+        <Pulsante variante="secondario" className="flex-1" disabled={rispondi.isPending}
+          onClick={() => rispondi.mutate({ propostaId: proposta.id, accetta: false })}>Rifiuta</Pulsante>
+        <Pulsante className="flex-[2]" caricamento={rispondi.isPending && rispondi.variables?.accetta}
+          onClick={() => rispondi.mutate({ propostaId: proposta.id, accetta: true })}>Accetta</Pulsante>
+      </div>
+    </Card>
+  )
+}

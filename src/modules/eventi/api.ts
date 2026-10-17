@@ -10,10 +10,9 @@ type AggiornamentoEvento = Database['public']['Tables']['eventi']['Update']
 
 const chiavi = {
   tutti: ['eventi'] as const,
-  ore: ['ore'] as const,
 }
 
-const campiEvento = '*, tipo_booth:tipi_booth(nome), magazzino:magazzini(nome, indirizzo, citta, lat, lng)'
+const campiEvento = '*, tipo_booth:tipi_booth(nome)'
 
 /* ---------------- Lato operatore ---------------- */
 
@@ -73,116 +72,15 @@ export function useRispondiProposta() {
   })
 }
 
-export function useCheckIn() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (v: { eventoId: string; lat: number; lng: number }) =>
-      ok(await supabase.rpc('check_in', { p_evento: v.eventoId, p_lat: v.lat, p_lng: v.lng })),
-    onSuccess: () => qc.invalidateQueries({ queryKey: chiavi.tutti }),
-  })
-}
-
-export type SpesaOperatore = {
-  categoria: Database['public']['Enums']['categoria_costo']
-  quantita: number
-  costo_unitario: number
-  pagato_con: Database['public']['Enums']['pagamento']
-  carta_id: string | null
-  descrizione?: string
-  scontrino?: string | null
-}
-
-export function useChiudiEvento() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (v: { eventoId: string; minutiLocation: number; minutiViaggio: number; nota?: string; spese: SpesaOperatore[]; operatoreId: string; soloSpese?: boolean }) => {
-      if (!v.soloSpese) {
-        ok(await supabase.rpc('chiudi_evento', {
-          p_evento: v.eventoId, p_minuti_location: v.minutiLocation, p_minuti_viaggio: v.minutiViaggio, p_nota: v.nota || undefined,
-        }))
-      }
-      if (v.spese.length) {
-        ok(await supabase.from('costi_evento').insert(v.spese.map((s) => ({
-          ...s, evento_id: v.eventoId, operatore_id: v.operatoreId, fase: 'finale' as const,
-        }))))
-      }
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: chiavi.tutti })
-      qc.invalidateQueries({ queryKey: chiavi.ore })
-    },
-  })
-}
-
-/** Le tappe registrate dall'operatore per un evento (partenza, arrivo, fine, rientro) */
-export function useTappe(eventoId: string, operatoreId: string) {
-  return useQuery({
-    queryKey: ['eventi', 'tappe', eventoId],
-    queryFn: async () =>
-      (ok(await supabase.from('ore_lavorate').select('*').eq('evento_id', eventoId).eq('operatore_id', operatoreId).limit(1)))[0] ?? null,
-  })
-}
-
-export type Tappa = 'partenza' | 'arrivo' | 'fine' | 'rientro' | 'chiudi'
-
-/** Registra una tappa con ora e posizione (la posizione è facoltativa: se il GPS non risponde si salva solo l'ora) */
-export function useRegistraTappa() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (v: { eventoId: string; tappa: Tappa }) => {
-      const pos = await new Promise<GeolocationPosition | null>((risolvi) => {
-        if (!navigator.geolocation) return risolvi(null)
-        navigator.geolocation.getCurrentPosition(risolvi, () => risolvi(null), { enableHighAccuracy: true, timeout: 8000, maximumAge: 60_000 })
-      })
-      ok(await supabase.rpc('registra_tappa', {
-        p_evento: v.eventoId, p_tappa: v.tappa, p_lat: pos?.coords.latitude, p_lng: pos?.coords.longitude,
-      }))
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: chiavi.tutti })
-      qc.invalidateQueries({ queryKey: chiavi.ore })
-    },
-  })
-}
-
-/** Ore inviate dall'operatore (per il riepilogo). */
-export function useMieOre(operatoreId: string) {
-  return useQuery({
-    queryKey: ['ore', 'operatore', operatoreId],
-    queryFn: async () =>
-      ok(await supabase.from('ore_lavorate')
-        .select('*, evento:eventi(allestimento_il, citta, tipo_booth:tipi_booth(nome))')
-        .eq('operatore_id', operatoreId)
-        .not('check_out_il', 'is', null)
-        .order('creato_il', { ascending: false })),
-  })
-}
-
-/** Ore e compenso dell'operatore nel mese corrente (anche in attesa di approvazione). */
-export function useMeseOperatore(operatoreId: string) {
-  const ore = useMieOre(operatoreId)
-  const inizio = new Date()
-  inizio.setDate(1); inizio.setHours(0, 0, 0, 0)
-  const righe = (ore.data ?? []).filter((r) => r.evento && new Date(r.evento.allestimento_il) >= inizio && r.stato !== 'respinto')
-  return {
-    ...ore,
-    data: ore.data && {
-      eventi: righe.length,
-      minuti: righe.reduce((s, r) => s + (r.minuti_totali ?? 0), 0),
-      compenso: righe.reduce((s, r) => s + (r.compenso ?? 0), 0),
-    },
-  }
-}
-
 /* ---------------- Lato gestione (project / admin) ---------------- */
 
-/** Elenco per project e admin (la sicurezza del database filtra cosa vede ciascuno). */
+/** Eventi visibili a chi guarda: il database filtra quelli di ciascun ruolo. */
 export function useEventiGestione() {
   return useQuery({
     queryKey: ['eventi', 'gestione'],
     queryFn: async () =>
       ok(await supabase.from('eventi')
-        .select('*, tipo_booth:tipi_booth(nome), cliente:clienti(nome), operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto), ore:ore_lavorate(partenza_il, check_in_il, fine_il, rientro_il)')
+        .select('*, tipo_booth:tipi_booth(nome), operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto)')
         .order('allestimento_il')),
   })
 }
@@ -194,10 +92,9 @@ export function useEventoGestione(id: string) {
     enabled: !!id,
     queryFn: async () =>
       ok(await supabase.from('eventi')
-        .select(`*, tipo_booth:tipi_booth(nome), cliente:clienti(nome), magazzino:magazzini(nome, lat, lng),
-          operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto, telefono, tariffa_oraria),
-          proposte(id, stato, automatica, creato_il, risposta_il, operatore:profili(nome)),
-          ore:ore_lavorate(*)`)
+        .select(`*, tipo_booth:tipi_booth(nome),
+          operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto, telefono),
+          proposte(id, stato, automatica, creato_il, risposta_il, operatore:profili(nome))`)
         .eq('id', id)
         .single()),
   })
@@ -241,71 +138,15 @@ export function useProponiOperatore() {
   })
 }
 
-/** Approva o respinge ore e spese di un evento. */
-export function useApprovaOre() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (v: { oreId: string; eventoId: string; approva: boolean; approvatoDa: string }) => {
-      const stato = v.approva ? 'approvato' : 'respinto'
-      ok(await supabase.from('ore_lavorate')
-        .update({ stato, approvato_da: v.approvatoDa, approvato_il: new Date().toISOString() })
-        .eq('id', v.oreId))
-      // Insieme alle ore si approvano le spese finali inviate dall'operatore
-      ok(await supabase.from('costi_evento').update({ stato })
-        .eq('evento_id', v.eventoId).eq('fase', 'finale').eq('stato', 'inviato').not('operatore_id', 'is', null))
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: chiavi.tutti })
-      qc.invalidateQueries({ queryKey: chiavi.ore })
-    },
-  })
-}
-
-/** Chiusure ancora da approvare, di qualsiasi mese (non solo quello corrente) */
-export function useOreDaApprovare(opzioni: { enabled?: boolean } = {}) {
-  return useQuery({
-    queryKey: ['ore', 'da-approvare'],
-    enabled: opzioni.enabled ?? true,
-    queryFn: async () => ok(await supabase.from('ore_lavorate')
-      .select('id, evento:eventi!inner(allestimento_il)')
-      .eq('stato', 'inviato').not('check_out_il', 'is', null)),
-  })
-}
-
-/** Tutte le ore del mese per il report (project vede i suoi eventi, admin tutti). */
-export function useReportOre(mese: string /* yyyy-mm */, opzioni: { enabled?: boolean } = {}) {
-  return useQuery({
-    queryKey: ['ore', 'report', mese],
-    enabled: opzioni.enabled ?? true,
-    queryFn: async () => {
-      const inizio = new Date(`${mese}-01T00:00:00`)
-      const fine = new Date(inizio); fine.setMonth(fine.getMonth() + 1)
-      return ok(await supabase.from('ore_lavorate')
-        .select(`*, operatore:profili!ore_lavorate_operatore_id_fkey(nome),
-          evento:eventi!inner(id, allestimento_il, citta, regione, tipo_booth:tipi_booth(nome), costi:costi_evento(importo, stato, pagato_con, fase, operatore_id))`)
-        .gte('evento.allestimento_il', inizio.toISOString())
-        .lt('evento.allestimento_il', fine.toISOString())
-        .not('check_out_il', 'is', null)
-        .order('creato_il'))
-    },
-  })
-}
-
 /* ---------------- Tempo reale ---------------- */
 
-/** Aggiorna da solo le schermate quando cambiano eventi, proposte o ore. */
+/** Aggiorna le schermate quando cambiano eventi o proposte. */
 export function useTempoReale() {
   const qc = useQueryClient()
   useEffect(() => {
     const canale = supabase.channel(`modifiche-${crypto.randomUUID()}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'eventi' }, () => qc.invalidateQueries({ queryKey: chiavi.tutti }))
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'richieste' }, () => qc.invalidateQueries({ queryKey: ['richieste'] }))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'proposte' }, () => qc.invalidateQueries({ queryKey: chiavi.tutti }))
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'ore_lavorate' }, () => qc.invalidateQueries({ queryKey: chiavi.ore }))
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'costi_evento' }, () => {
-        qc.invalidateQueries({ queryKey: chiavi.tutti })
-        qc.invalidateQueries({ queryKey: ['carta'] })   // le stampe dichiarate scalano la scorta
-      })
       .subscribe()
     return () => { supabase.removeChannel(canale) }
   }, [qc])
