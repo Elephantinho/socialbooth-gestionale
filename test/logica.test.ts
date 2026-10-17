@@ -102,3 +102,22 @@ describe('passaggi', () => {
   it('dopo il montaggio: 3 fatti, poi smontato', () => { expect(passaggiFatti('montato')).toBe(3); expect(prossimoPassaggio('montato')?.id).toBe('smontato') })
   it('dopo il check-out non c\'è altro', () => { expect(passaggiFatti('check_out')).toBe(6); expect(prossimoPassaggio('check_out')).toBeNull() })
 })
+
+import { filtra, giornoRoma } from '../src/modules/eventi/logic/filtri'
+describe('filtri eventi', () => {
+  const ev = [
+    { id: 1, allestimento_il: '2026-10-18T16:00:00Z', regione: 'Toscana', stato: 'da_assegnare' },
+    { id: 2, allestimento_il: '2026-10-31T23:30:00Z', regione: 'Lombardia', stato: 'confermato' }, // 1 novembre a Roma
+    { id: 3, allestimento_il: '2026-11-05T17:00:00Z', regione: 'Toscana', stato: 'proposto' },
+    { id: 4, allestimento_il: '2026-10-20T17:00:00Z', regione: 'Toscana', stato: 'bozza' },
+  ]
+  const id = (l: { id: number }[]) => l.map((e) => e.id)
+  it('nessun filtro: tutti', () => expect(id(filtra(ev, {}))).toEqual([1, 2, 3, 4]))
+  it('il giorno si legge all\'ora di Roma', () => expect(giornoRoma('2026-10-31T23:30:00Z')).toBe('2026-11-01'))
+  it('per mese', () => expect(id(filtra(ev, { mese: '2026-11' }))).toEqual([2, 3]))
+  it('per giorno', () => expect(id(filtra(ev, { giorno: '2026-10-18' }))).toEqual([1]))
+  it('per regione', () => expect(id(filtra(ev, { regione: 'Toscana' }))).toEqual([1, 3, 4]))
+  it('da assegnare comprende le bozze', () => expect(id(filtra(ev, { stato: 'da_assegnare' }))).toEqual([1, 4]))
+  it('in attesa', () => expect(id(filtra(ev, { stato: 'proposto' }))).toEqual([3]))
+  it('filtri insieme', () => expect(id(filtra(ev, { mese: '2026-10', regione: 'Toscana', stato: 'da_assegnare' }))).toEqual([1, 4]))
+})

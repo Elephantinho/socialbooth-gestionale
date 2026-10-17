@@ -64,9 +64,6 @@ export function DettaglioEvento() {
             <>
               {creatore && (
                 <>
-                  <Link to={`/gestione/eventi/nuovo?da=${e.id}`} className="h-11 px-4 rounded-lg border border-bordo-forte bg-superficie font-semibold text-sm inline-flex items-center gap-2 hover:bg-sfondo">
-                    Duplica
-                  </Link>
                   <Pulsante variante="secondario" onClick={annulla} disabled={aggiorna.isPending}>
                     Annulla evento
                   </Pulsante>

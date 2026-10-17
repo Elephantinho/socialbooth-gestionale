@@ -1,10 +1,12 @@
 import { Link, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, Archive, Plus } from 'lucide-react'
+import { ArrowLeft, Archive, Plus, X } from 'lucide-react'
 import { useOperatori } from '@/modules/anagrafiche/api'
 import { usePuo } from '@/modules/auth/permessi'
 import { useEventiGestione } from '@/modules/eventi/api'
 import { BoxEvento } from '@/modules/eventi/components/BoxEvento'
 import { passato } from '@/modules/eventi/logic/archivio'
+import { filtra, giornoRoma, type Filtri } from '@/modules/eventi/logic/filtri'
+import { cn } from '@/shared/lib/cn'
 import type { EventoGestione } from '@/modules/eventi/types'
 import { Card } from '@/shared/ui/Card'
 import { Intestazione } from '@/shared/ui/Intestazione'
@@ -17,7 +19,24 @@ export function ElencoEventi() {
   const [parametri, setParametri] = useSearchParams()
   const archivio = parametri.has('archivio')
   const tutti = data ?? []
-  const eventi = archivio ? tutti.filter(passato).reverse() : tutti.filter((e) => !passato(e))
+  const base = archivio ? tutti.filter(passato).reverse() : tutti.filter((e) => !passato(e))
+  const filtri: Filtri = {
+    mese: parametri.get('mese') ?? undefined,
+    giorno: parametri.get('giorno') ?? undefined,
+    regione: parametri.get('regione') ?? undefined,
+    stato: (parametri.get('stato') as Filtri['stato']) ?? undefined,
+  }
+  const eventi = filtra(base, filtri)
+  const filtrato = Object.values(filtri).some(Boolean)
+  /** Cambia un filtro tenendo gli altri (e l'archivio) */
+  const imposta = (k: keyof Filtri, v: string | undefined) => {
+    const p = new URLSearchParams(parametri)
+    if (v) p.set(k, v); else p.delete(k)
+    if (k === 'giorno' && v) p.delete('mese')
+    if (k === 'mese' && v) p.delete('giorno')
+    setParametri(p, { replace: true })
+  }
+  const azzera = () => setParametri(archivio ? { archivio: '' } : {}, { replace: true })
 
   return (
     <div className="flex flex-col gap-6">
@@ -47,12 +66,13 @@ export function ElencoEventi() {
           } />
       )}
 
-      {!archivio && eventi.length > 0 && <Avanzamento eventi={eventi} />}
+      <BarraFiltri eventi={base} filtri={filtri} imposta={imposta} azzera={filtrato ? azzera : undefined} archivio={archivio} />
+      {!archivio && !filtri.stato && eventi.length > 0 && <Avanzamento eventi={eventi} />}
       {puo('eventi.assegna') && !archivio && <ZoneScoperte eventi={eventi} />}
 
       {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : eventi.length === 0 ? (
         <Card>
-          <Vuoto titolo="Nessun evento" testo={archivio ? 'Gli eventi conclusi compariranno qui.' : 'Crea un evento per vederlo qui.'} />
+          <Vuoto titolo="Nessun evento" testo={filtrato ? 'Nessun evento con questi filtri.' : archivio ? 'Gli eventi conclusi compariranno qui.' : 'Crea un evento per vederlo qui.'} />
         </Card>
       ) : (
         perMese(eventi).map(([mese, lista]) => (
@@ -63,6 +83,45 @@ export function ElencoEventi() {
             </div>
           </section>
         ))
+      )}
+    </div>
+  )
+}
+
+const selezione = 'h-10 rounded-lg border bg-superficie px-3 text-sm font-semibold cursor-pointer'
+
+function BarraFiltri({ eventi, filtri, imposta, azzera, archivio }: {
+  eventi: EventoGestione[]; filtri: Filtri; archivio: boolean
+  imposta: (k: keyof Filtri, v: string | undefined) => void; azzera?: () => void
+}) {
+  const mesi = [...new Set(eventi.map((e) => giornoRoma(e.allestimento_il).slice(0, 7)))]
+  const regioni = [...new Set(eventi.map((e) => e.regione))].sort()
+  const nomeMese = (m: string) => { const t = new Date(`${m}-15T12:00:00Z`).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' }); return t[0].toUpperCase() + t.slice(1) }
+  const attivo = (v?: string) => (v ? 'border-inchiostro text-inchiostro' : 'border-bordo text-tenue')
+  const stati = [['da_assegnare', 'Da assegnare', 'bg-urgente'], ['proposto', 'In attesa', 'bg-avviso-icona']] as const
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 -mt-2">
+      <select aria-label="Mese" value={filtri.mese ?? ''} onChange={(e) => imposta('mese', e.target.value || undefined)} className={cn(selezione, attivo(filtri.mese))}>
+        <option value="">Tutti i mesi</option>
+        {mesi.map((m) => <option key={m} value={m}>{nomeMese(m)}</option>)}
+      </select>
+      <input type="date" aria-label="Giorno" value={filtri.giorno ?? ''} onChange={(e) => imposta('giorno', e.target.value || undefined)} className={cn(selezione, attivo(filtri.giorno))} />
+      <select aria-label="Regione" value={filtri.regione ?? ''} onChange={(e) => imposta('regione', e.target.value || undefined)} className={cn(selezione, attivo(filtri.regione))}>
+        <option value="">Tutte le regioni</option>
+        {regioni.map((r) => <option key={r}>{r}</option>)}
+      </select>
+      {!archivio && stati.map(([id, testo, punto]) => (
+        <button key={id} onClick={() => imposta('stato', filtri.stato === id ? undefined : id)} aria-pressed={filtri.stato === id}
+          className={cn('h-10 px-3.5 rounded-full border text-sm font-semibold flex items-center gap-2 cursor-pointer',
+            filtri.stato === id ? 'bg-inchiostro border-inchiostro text-white' : 'bg-superficie border-bordo text-tenue hover:border-bordo-forte')}>
+          <span className={cn('size-2 rounded-full', punto)} aria-hidden />{testo}
+        </button>
+      ))}
+      {azzera && (
+        <button onClick={azzera} className="h-10 px-3 text-sm font-semibold text-tenue hover:text-inchiostro flex items-center gap-1 cursor-pointer">
+          <X className="size-4" aria-hidden /> Azzera
+        </button>
       )}
     </div>
   )
