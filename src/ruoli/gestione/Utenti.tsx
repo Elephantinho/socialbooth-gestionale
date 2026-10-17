@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { ShieldCheck } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { RUOLI, etichettaRuolo, type Ruolo } from '@/modules/auth/permessi'
 import { useCambiaRuolo, useUtenti } from '@/modules/anagrafiche/api'
@@ -21,19 +20,21 @@ export function Utenti() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Intestazione sopra="Amministrazione" titolo="Utenti e ruoli"
-        descrizione="Chiunque si registra dall'app nasce operatore. Per dare un altro ruolo, fagli registrare un account e poi cambialo qui." />
+      <Intestazione titolo="Utenti e ruoli" />
 
-      {/* Cosa può fare ogni ruolo */}
-      <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
-        {RUOLI.map((r) => (
-          <Card key={r.id} className="p-4 flex flex-col">
-            <p className="font-semibold inline-flex items-center gap-2"><ShieldCheck className="size-4 text-accento" aria-hidden />{r.etichetta}</p>
-            <p className="text-sm text-tenue mt-1 flex-1">{r.descrizione}</p>
-            <p className="font-display text-2xl font-semibold mt-2">{(data ?? []).filter((u) => u.ruolo === r.id).length}</p>
-          </Card>
-        ))}
-      </div>
+      <Card className="overflow-hidden">
+        <table className="w-full text-sm">
+          <tbody className="divide-y divide-bordo">
+            {RUOLI.map((r) => (
+              <tr key={r.id}>
+                <th scope="row" className="text-left font-semibold px-4 py-2.5 w-44 align-top">{r.etichetta}</th>
+                <td className="px-4 py-2.5 text-tenue">{r.descrizione}</td>
+                <td className="px-4 py-2.5 text-right font-semibold w-16">{(data ?? []).filter((u) => u.ruolo === r.id).length}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </Card>
 
       {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : (
         <Card className="divide-y divide-bordo">

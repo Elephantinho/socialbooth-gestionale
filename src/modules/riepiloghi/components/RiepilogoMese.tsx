@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, Printer } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { useRiepilogoOperatore } from '../api'
 import { BRAND } from '@/shared/brand'
 import { dataBreve, durata, euro, nomeCompleto } from '@/shared/lib/formato'
@@ -27,7 +27,7 @@ export function RiepilogoMese() {
     <div className="min-h-dvh bg-sfondo print:bg-white">
       <div className="print:hidden sticky top-0 z-10 bg-superficie border-b border-bordo px-4 h-16 flex items-center justify-between gap-3">
         <button onClick={() => naviga(-1)} className="inline-flex items-center gap-1.5 text-sm font-semibold cursor-pointer"><ArrowLeft className="size-4" aria-hidden /> Indietro</button>
-        <Pulsante icona={<Printer className="size-4" aria-hidden />} onClick={() => window.print()}>Scarica PDF</Pulsante>
+        <Pulsante onClick={() => window.print()}>Scarica PDF</Pulsante>
       </div>
 
       <article className="max-w-[800px] mx-auto bg-superficie my-6 print:my-0 p-8 md:p-12 print:p-0 rounded-xl print:rounded-none border border-bordo print:border-0 flex flex-col gap-8 text-[14px]">

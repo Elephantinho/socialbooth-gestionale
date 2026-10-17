@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, CalendarOff, Plus, Trash2 } from 'lucide-react'
+import { ChevronRight, Plus, Trash2 } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { useCalendarioOperatore } from '@/modules/eventi/api'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
@@ -57,7 +57,7 @@ export function CalendarioOperatore() {
                   <p className="font-semibold truncate">{e.tipo_booth?.nome ?? 'Evento'}, {e.citta}</p>
                   <p className="text-sm text-tenue">{ora(e.allestimento_il)} – {ora(e.smontaggio_il)}</p>
                 </div>
-                {e.stato === 'completato' ? <StatoEvento stato={e.stato} /> : <ArrowRight className="size-5 text-tenue" aria-hidden />}
+                {e.stato === 'completato' ? <StatoEvento stato={e.stato} /> : <ChevronRight className="size-5 text-tenue" aria-hidden />}
               </Card>
             </Link>
           ))}
@@ -83,7 +83,7 @@ function Indisponibilita() {
   return (
     <Card className="p-4 flex flex-col gap-3 mt-2">
       <div className="flex items-center justify-between">
-        <TitoloSezione className="text-[15px] flex items-center gap-2"><CalendarOff className="size-4" aria-hidden /> Giorni non disponibile</TitoloSezione>
+        <TitoloSezione className="text-[15px]">Giorni non disponibile</TitoloSezione>
         {!aperto && (
           <button onClick={() => setAperto(true)} className="text-sm font-semibold text-accento inline-flex items-center gap-1 cursor-pointer">
             <Plus className="size-4" aria-hidden /> Aggiungi

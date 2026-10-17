@@ -242,7 +242,6 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante, idModulo
               <Campo etichetta="Fine attivazione" type="time" required {...testo('fine')} />
               <Campo etichetta="Smontaggio" type="time" required {...testo('smontaggio')} />
             </div>
-            <p className="text-xs text-tenue">Se un orario è dopo mezzanotte (es. smontaggio 00:30) viene considerato il giorno dopo.</p>
           </Sezione>
 
           <Sezione titolo="Referente e dress code">
@@ -292,19 +291,7 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante, idModulo
               <Riquadro etichetta="Ritiro suggerito" valore={calcolo?.ritiro ? ora(calcolo.ritiro) : '—'} />
               <Riquadro etichetta="Ore in location" valore={calcolo ? durata(calcolo.minuti) : '—'} />
             </div>
-            <p className="text-xs text-su-scuro-tenue leading-relaxed">
-              Il ritiro lascia 20 minuti di margine prima dell'allestimento. Il viaggio (andata e ritorno) viene pagato all'operatore.
-            </p>
           </Card>
-
-          {(!m.wifi || m.ztl || m.noteAccesso) && (
-            <Card tono="avviso" className="p-4 flex flex-col gap-2">
-              <TitoloSezione className="text-[15px] text-avviso-titolo">Avvisi per l'operatore</TitoloSezione>
-              {!m.wifi && <p className="text-sm">· Nessun Wi‑Fi: "hotspot" aggiunto alla sua checklist</p>}
-              {m.ztl && <p className="text-sm">· ZTL: gli ricordiamo di verificare il permesso</p>}
-              {m.noteAccesso && <p className="text-sm">· Note di accesso evidenziate nella scheda</p>}
-            </Card>
-          )}
 
           <button type="submit" disabled={invio || !calcolo}
             className="h-14 rounded-xl bg-accento text-white font-semibold text-[17px] flex items-center justify-center gap-2 cursor-pointer hover:bg-accento-scuro disabled:opacity-50 transition">

@@ -3,7 +3,7 @@ import { Logo } from '@/shared/ui/Logo'
 import { useScortaOperatore } from '@/modules/carta/api'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { AlertTriangle, ArrowRight, Printer, Inbox } from 'lucide-react'
+import { AlertTriangle, ChevronRight, Printer, Inbox } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { Avatar } from '@/shared/ui/Avatar'
 import { Campanella } from '@/modules/comunicazione/components/Campanella'
@@ -29,10 +29,7 @@ export function HomeOperatore() {
       <header className="flex items-start justify-between pt-2">
         <div>
           <Logo taglia="sm" className="mb-3" />
-          <p className="text-[13px] font-semibold text-tenue first-letter:">{oggi}</p>
-          <h1 className="font-display text-[30px] font-semibold tracking-tight leading-tight">
-            Ciao, {profilo.nome.split(' ')[0] || 'operatore'}
-          </h1>
+          <h1 className="font-display text-[26px] font-semibold leading-tight first-letter:uppercase">{oggi}</h1>
         </div>
         <div className="flex items-center gap-2">
         <Campanella />
@@ -45,11 +42,8 @@ export function HomeOperatore() {
       <AttivaNotifiche />
       <Link to="/operatore/richieste" className="rounded-xl border border-bordo bg-superficie px-4 py-3 flex items-center gap-3">
         <Inbox className="size-5 text-accento" aria-hidden />
-        <span className="flex-1">
-          <span className="block font-semibold">Chiedi qualcosa all'ufficio</span>
-          <span className="block text-sm text-tenue">Carta, attrezzatura che manca, un guasto</span>
-        </span>
-        <ArrowRight className="size-4 text-tenue" aria-hidden />
+        <span className="flex-1 font-semibold">Richieste all'ufficio</span>
+        <ChevronRight className="size-4 text-tenue" aria-hidden />
       </Link>
       <AvvisoCartaOperatore id={profilo.id} />
 
@@ -80,7 +74,7 @@ export function HomeOperatore() {
                   <p className="font-semibold">{e.tipo_booth?.nome ?? 'Evento'}</p>
                   <p className="text-sm text-tenue">{dataBreve(e.allestimento_il)}, {e.citta}</p>
                 </div>
-                <ArrowRight className="size-5 text-tenue" aria-hidden />
+                <ChevronRight className="size-5 text-tenue" aria-hidden />
               </Card>
             </Link>
           ))}
@@ -126,7 +120,7 @@ function ProssimoEvento({ evento: e }: { evento: EventoDettaglio }) {
           to={`/operatore/eventi/${e.id}`}
           className="h-[50px] rounded-lg bg-accento text-white font-semibold text-[15px] flex items-center justify-center gap-2 active:translate-y-px"
         >
-          Apri scheda evento <ArrowRight className="size-[18px]" aria-hidden />
+          Apri la scheda
         </Link>
       </Card>
     </div>

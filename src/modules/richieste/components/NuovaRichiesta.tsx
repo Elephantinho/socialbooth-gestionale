@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Send } from 'lucide-react'
+
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { RUOLI, type Ruolo } from '@/modules/auth/permessi'
 import { useMagazzini, useOperatori, useUtenti } from '@/modules/anagrafiche/api'
@@ -108,7 +108,7 @@ export function NuovaRichiesta({ onFatto }: { onFatto?: () => void }) {
       )}
       {crea.error && <Errore errore={crea.error} />}
       <div className="flex items-center gap-3">
-        <Pulsante type="submit" icona={<Send className="size-4" aria-hidden />} caricamento={crea.isPending}>Invia richiesta</Pulsante>
+        <Pulsante type="submit" caricamento={crea.isPending}>Invia richiesta</Pulsante>
         <span className="text-sm text-tenue">
           Arriva a {ha('destinatario') ? 'chi scegli' : RUOLI.find((r) => r.id === modello.per)?.etichetta.toLowerCase()} con una notifica.
         </span>

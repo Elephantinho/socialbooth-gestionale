@@ -50,7 +50,7 @@ export function Calendario() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Intestazione sopra="Gestione" titolo="Calendario" descrizione="Tutti gli eventi del mese a colpo d'occhio. Il colore indica lo stato." />
+      <Intestazione titolo="Calendario" />
 
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex items-center gap-2">

@@ -107,7 +107,6 @@ export function GestioneLayout() {
 
         <main className={cn('flex-1 min-w-0', chat ? 'px-4 py-4 md:px-6' : 'px-4 py-6 md:px-10 md:py-8')}>
           <div className={cn('mx-auto', chat ? 'max-w-[1300px]' : 'max-w-[1160px]')}>
-            <div className="hidden lg:flex justify-end mb-2 relative z-20"><Campanella /></div>
             <Suspense fallback={<Caricamento />}>
               <Outlet />
             </Suspense>
@@ -134,6 +133,7 @@ function MenuLaterale({ onChiudi }: { onChiudi?: () => void }) {
     <div className="h-full w-full bg-menu text-white p-4 flex flex-col gap-6 overflow-y-auto">
       <div className="flex items-center justify-between px-2 pt-1">
         <Logo chiaro taglia="sm" sottotitolo="Gestionale" />
+        {!onChiudi && <Campanella nelMenu />}
         {onChiudi && (
           <button onClick={onChiudi} aria-label="Chiudi menu" className="size-9 rounded-lg bg-menu-2 flex items-center justify-center cursor-pointer">
             <X className="size-5" aria-hidden />

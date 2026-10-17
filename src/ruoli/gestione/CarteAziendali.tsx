@@ -23,7 +23,7 @@ export function CarteAziendali() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap gap-4 justify-between items-end">
         <div>
-          <h1 className="font-display text-[30px] md:text-[34px] font-semibold leading-tight">Carte aziendali</h1>
+          <h1 className="font-display text-[26px] font-semibold leading-tight">Carte aziendali</h1>
           <p className="text-tenue mt-2 max-w-2xl">
             Assegna una carta a ogni operatore: quando registra una spesa sceglie "carta aziendale" e la trovi qui sotto, pronta da confrontare con l'estratto conto.
           </p>

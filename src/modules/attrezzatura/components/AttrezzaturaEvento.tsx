@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowDownToLine, ArrowUpFromLine, Package, Pencil } from 'lucide-react'
+import { Pencil } from 'lucide-react'
 import { useArticoli, useAttrezzaturaEvento, useImpostaAttrezzatura, useSegnaAttrezzatura } from '../api'
 import { ETICHETTE_STATO, statoAttrezzatura } from '../logic/stato'
 import { ora, dataBreve } from '@/shared/lib/formato'
@@ -23,7 +23,7 @@ export function AttrezzaturaEvento({ eventoId, magazzinoId, modificabile }: { ev
     <Card className="p-5 flex flex-col gap-3">
       <div className="flex justify-between items-center gap-2">
         <TitoloSezione className="text-[15px] flex items-center gap-2">
-          <Package className="size-4" aria-hidden /> Attrezzatura
+          Attrezzatura
           {stato !== 'vuota' && <span className={cn('text-[11px] font-semibold px-2 py-0.5 rounded-full', ETICHETTE_STATO[stato].stile)}>{ETICHETTE_STATO[stato].testo}</span>}
         </TitoloSezione>
         {modificabile && magazzinoId && !modifica && (
@@ -58,11 +58,11 @@ export function AttrezzaturaEvento({ eventoId, magazzinoId, modificabile }: { ev
           {(stato === 'in_magazzino' || stato === 'parziale' || stato === 'fuori') && (
             <div className="flex flex-wrap gap-2 pt-1">
               {stato !== 'fuori' && (
-                <Pulsante variante="secondario" icona={<ArrowUpFromLine className="size-4" aria-hidden />} caricamento={segna.isPending && segna.variables?.azione === 'prelievo'}
+                <Pulsante variante="secondario" caricamento={segna.isPending && segna.variables?.azione === 'prelievo'}
                   onClick={() => segna.mutate({ eventoId, azione: 'prelievo' })}>Segna uscita</Pulsante>
               )}
               {stato !== 'in_magazzino' && (
-                <Pulsante variante="secondario" icona={<ArrowDownToLine className="size-4" aria-hidden />} caricamento={segna.isPending && segna.variables?.azione === 'rientro'}
+                <Pulsante variante="secondario" caricamento={segna.isPending && segna.variables?.azione === 'rientro'}
                   onClick={() => segna.mutate({ eventoId, azione: 'rientro' })}>Segna rientro</Pulsante>
               )}
             </div>
@@ -96,7 +96,7 @@ function Scelta({ eventoId, magazzinoId, attuale, onFatto }: {
           <div key={a.id} className="flex items-center gap-2 text-sm">
             <input type="checkbox" className="size-5 accent-accento" aria-label={a.nome} checked={q > 0}
               onChange={(ev) => setScelte((s) => ({ ...s, [a.id]: ev.target.checked ? 1 : 0 }))} />
-            <span className="flex-1 min-w-0 truncate font-semibold">{a.nome} <span className="text-tenue font-medium">· {a.categoria}</span></span>
+            <span className="flex-1 min-w-0 truncate font-semibold">{a.nome} <span className="text-tenue font-medium">{a.categoria}</span></span>
             {q > 0 && (
               <input type="number" min={1} max={a.quantita} value={q} aria-label={`Quantità ${a.nome}`}
                 onChange={(ev) => setScelte((s) => ({ ...s, [a.id]: Math.max(1, Math.min(a.quantita, Number(ev.target.value) || 1)) }))}

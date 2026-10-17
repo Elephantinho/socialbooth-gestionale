@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Check, Minus, PackagePlus, Plus, Printer } from 'lucide-react'
+import { Minus, PackagePlus, Plus, Printer } from 'lucide-react'
 import { useInviaRicarica, useScortaOperatore, useScorteVisibili, useSegnalaCarta } from '../api'
 import { confezioniPer, daRicaricare, type LivelloCarta, type StatoCarta } from '../logic/scorta'
 import { dataBreve, nomeCompleto } from '@/shared/lib/formato'
@@ -88,9 +88,7 @@ export function AvvisiCarta() {
   return (
     <Card className={cn('p-5 flex flex-col gap-4', 'border-[#F2B8AE] border-2')}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <TitoloSezione className="flex items-center gap-2">
-          <Printer className={cn('size-5', critici.length ? 'text-urgente' : 'text-accento')} aria-hidden />
-          Carta degli operatori
+        <TitoloSezione>Carta degli operatori
         </TitoloSezione>
         <span className={cn('text-sm font-semibold', critici.length ? 'text-urgente-testo' : 'text-accento-scuro')}>
           {critici.length} da ricaricare
@@ -152,7 +150,7 @@ export function SchedaCarta({ operatore, modo }: { operatore: string; modo: 'ges
     <Card className={cn('p-5 flex flex-col gap-4', rossa && 'border border-[#F2B8AE]')}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <TitoloSezione className="flex items-center gap-2"><Printer className="size-5" aria-hidden /> Carta</TitoloSezione>
+          <TitoloSezione>Carta</TitoloSezione>
           <p className={cn('font-display text-3xl font-semibold mt-1', rossa ? 'text-urgente' : '')}>{stampe(data.disponibili)}</p>
           <p className="text-sm text-tenue">
             {data.prossimiEventi > 0
@@ -196,7 +194,7 @@ export function SchedaCarta({ operatore, modo }: { operatore: string; modo: 'ges
         }}>
           <Campo className="flex-1 min-w-40" etichetta="Stampe che restano davvero" type="number" inputMode="numeric" min={0} required
             value={contate} onChange={(e) => setContate(e.target.value)} />
-          <Pulsante type="submit" icona={<Check className="size-4" />} caricamento={segnala.isPending}>Salva</Pulsante>
+          <Pulsante type="submit" caricamento={segnala.isPending}>Salva</Pulsante>
           {segnala.error && <p className="w-full text-sm text-urgente-testo font-semibold">{segnala.error.message}</p>}
         </form>
       )}

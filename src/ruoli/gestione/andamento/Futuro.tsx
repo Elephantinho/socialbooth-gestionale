@@ -92,7 +92,7 @@ export function Futuro() {
                 {mancanti > 0 && carta.parametri && ((n) => ` Da comprare: ${n} confezion${n === 1 ? 'e' : 'i'}.`)(confezioniPer(mancanti, carta.parametri.perConfezione))}
               </p>
             </div>
-            {puo('carta.ricarica') && <Link to="/gestione/panoramica" className="text-sm font-semibold text-accento hover:underline">Carta per operatore →</Link>}
+            {puo('carta.ricarica') && <Link to="/gestione/panoramica" className="text-sm font-semibold text-accento hover:underline">Carta per operatore</Link>}
           </Card>
 
           <Card className="p-5 flex flex-col gap-3">

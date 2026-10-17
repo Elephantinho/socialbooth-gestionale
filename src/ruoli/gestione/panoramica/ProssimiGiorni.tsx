@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
 import { dataBreve, ora } from '@/shared/lib/formato'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
@@ -12,7 +11,7 @@ export function ProssimiGiorni({ futuri, className }: { futuri: EventoLista[]; c
     <Card className={`min-w-0 p-5 flex flex-col gap-3 ${className ?? ''}`}>
       <div className="flex justify-between items-center">
         <TitoloSezione>Prossimi 7 giorni</TitoloSezione>
-        <Link to="/gestione/calendario" className="text-sm font-semibold text-accento inline-flex items-center gap-1">Calendario <ArrowRight className="size-4" aria-hidden /></Link>
+        <Link to="/gestione/calendario" className="text-sm font-semibold text-accento inline-flex items-center gap-1">Apri il calendario</Link>
       </div>
       {lista.length === 0 ? <p className="text-sm text-tenue py-4">Nessun evento nei prossimi 7 giorni.</p> : lista.map((e) => (
         <Link key={e.id} to={`/gestione/eventi/${e.id}`} className="flex items-center gap-3 py-2 border-b border-bordo last:border-0 hover:opacity-80">

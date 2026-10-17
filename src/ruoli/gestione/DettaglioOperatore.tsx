@@ -2,7 +2,7 @@ import { usePuo } from '@/modules/auth/permessi'
 import { SchedaCarta } from '@/modules/carta/components/Carta'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Building2, CalendarCheck, Archive, Pencil, Phone, MessageCircle, TrendingUp, Wallet, FileDown } from 'lucide-react'
+import { ArrowLeft, Building2, Phone, MessageCircle, FileDown } from 'lucide-react'
 import { useEventiDiOperatore, useOperatore } from '@/modules/anagrafiche/api'
 import { FotoProfilo } from '@/modules/anagrafiche/components/FotoProfilo'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
@@ -102,7 +102,7 @@ export function DettaglioOperatore() {
               <FileDown className="size-4" aria-hidden /> Riepilogo PDF
             </Link>
           )}
-          {modificabile && <Pulsante variante={modifica ? 'scuro' : 'primario'} icona={<Pencil className="size-4" aria-hidden />} onClick={() => setModifica((m) => !m)}>{modifica ? 'Chiudi' : 'Modifica'}</Pulsante>}
+          {modificabile && <Pulsante variante={modifica ? 'scuro' : 'primario'} onClick={() => setModifica((m) => !m)}>{modifica ? 'Chiudi' : 'Modifica'}</Pulsante>}
         </div>
       </Card>
 
@@ -110,13 +110,13 @@ export function DettaglioOperatore() {
 
       {/* Numeri */}
       <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(170px,1fr))]">
-        <Numero valore={delMese.length} etichetta="eventi questo mese" icona={<CalendarCheck className="size-5" aria-hidden />} />
-        <Numero valore={archivio.length} etichetta="eventi archiviati" icona={<Archive className="size-5" aria-hidden />} />
+        <Numero valore={delMese.length} etichetta="eventi questo mese" />
+        <Numero valore={archivio.length} etichetta="eventi archiviati" />
         {soldi && (
           <>
-            <Numero valore={euro(compensoMese)} etichetta="compensi del mese" tono="accento" icona={<Wallet className="size-5" aria-hidden />} />
-            <Numero valore={euro(compensoTotale)} etichetta="compensi totali" tono="scuro" icona={<Wallet className="size-5" aria-hidden />} />
-            <Numero valore={euro(margineTotale)} etichetta="margine generato" tono={margineTotale < 0 ? 'urgente' : 'chiaro'} icona={<TrendingUp className="size-5" aria-hidden />} />
+            <Numero valore={euro(compensoMese)} etichetta="compensi del mese" tono="accento" />
+            <Numero valore={euro(compensoTotale)} etichetta="compensi totali" tono="scuro" />
+            <Numero valore={euro(margineTotale)} etichetta="margine generato" tono={margineTotale < 0 ? 'urgente' : 'chiaro'} />
           </>
         )}
       </div>

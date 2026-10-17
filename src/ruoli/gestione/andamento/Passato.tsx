@@ -96,7 +96,6 @@ export function Passato() {
           <Card className="overflow-hidden">
             <div className="p-5 border-b border-bordo">
               <TitoloSezione>Dettaglio</TitoloSezione>
-              <p className="text-sm text-tenue mt-1">Clicca una regione per vedere i suoi eventi. Eventi chiusi con i valori finali, gli altri con quelli previsti.</p>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">

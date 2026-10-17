@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { Check } from 'lucide-react'
+
 import { usePuo } from '@/modules/auth/permessi'
 import { useImpostazioni, useSalvaImpostazione, useStatisticheStampe } from '@/modules/anagrafiche/api'
 import { euro } from '@/shared/lib/formato'
@@ -29,7 +29,7 @@ export function Impostazioni() {
   const ordine = ['costo_confezione_carta', 'stampe_per_confezione', 'soglia_carta', 'ore_scadenza_proposta', 'riserva_automatica', 'costo_stampa']
   return (
     <div className="flex flex-col gap-6">
-      <Intestazione sopra="Amministrazione" titolo="Impostazioni" descrizione="I valori che l'app usa per i calcoli automatici." />
+      <Intestazione titolo="Impostazioni" />
       <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(220px,1fr))]">
         <Numero valore={costo ? `${costo.toLocaleString('it-IT', { maximumFractionDigits: 3 })} €` : '—'} etichetta="costo di una stampa (calcolato)" tono="accento" />
         <Numero valore={media ?? '—'} etichetta="stampe in media per evento" />
@@ -61,7 +61,7 @@ function Voce({ chiave, valore, descrizione, modificabile }: { chiave: string; v
         {descrizione && <p className="text-sm text-tenue -mt-2">{descrizione}</p>}
         <div className="flex gap-2 items-end">
           <Campo etichetta={e.unita} type="number" step={e.passo} min={0} value={v} disabled={!modificabile} onChange={(ev) => setV(ev.target.value)} className="flex-1" />
-          {modificabile && <Pulsante type="submit" taglia="lg" caricamento={salva.isPending} icona={ok ? <Check className="size-4" aria-hidden /> : undefined}>Salva</Pulsante>}
+          {modificabile && <Pulsante type="submit" taglia="lg" caricamento={salva.isPending}>{ok ? 'Salvato' : 'Salva'}</Pulsante>}
         </div>
         {salva.error && <Errore errore={salva.error} />}
       </form>

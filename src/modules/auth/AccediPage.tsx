@@ -27,10 +27,7 @@ export function AccediPage() {
 
   return (
     <PaginaAccesso>
-      <div>
-        <h1 className="font-display text-[34px] font-semibold tracking-tight leading-none">Bentornato</h1>
-        <p className="text-tenue mt-2 font-medium">Accedi per vedere i tuoi eventi.</p>
-      </div>
+      <h1 className="font-display text-[26px] font-semibold leading-tight">Accedi</h1>
 
       <form onSubmit={accedi} className="flex flex-col gap-4">
         <Campo etichetta="Email" type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />

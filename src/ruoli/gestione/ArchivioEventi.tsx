@@ -50,7 +50,7 @@ export function ArchivioEventi() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Intestazione sopra="Archivio" titolo="Eventi passati" descrizione="Gli eventi chiusi, quelli annullati e quelli mai svolti (data passata senza operatore), dal più recente."
+      <Intestazione titolo="Eventi passati"
         azioni={puo('fatture') && <ExportCommercialista />} />
 
       <div className="flex flex-wrap gap-3 items-center">

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { MapPin, Pencil, Trash2 } from 'lucide-react'
+import { MapPin } from 'lucide-react'
 import { useEliminaLocation, useLocation, useSalvaLocation } from '@/modules/anagrafiche/api'
 import type { Riga } from '@/shared/types/database'
 import { Card } from '@/shared/ui/Card'
@@ -16,10 +16,7 @@ export function Location() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-[30px] md:text-[34px] font-semibold leading-tight">Location salvate</h1>
-        <p className="text-tenue mt-2 max-w-2xl">
-          Ogni nuovo indirizzo viene salvato con accessi, ZTL e Wi‑Fi: la volta dopo si compila tutto da solo.
-        </p>
+        <h1 className="font-display text-[26px] font-semibold leading-tight">Location salvate</h1>
       </div>
       <Campo etichetta="Cerca" placeholder="Nome, indirizzo o città" value={cerca} onChange={(e) => setCerca(e.target.value)} className="max-w-md" />
       {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : !filtrate.length ? (
@@ -83,8 +80,8 @@ function SchedaLocation({ l }: { l: Riga<'location'> }) {
       {l.note_accesso && <p className="text-sm text-avviso-testo bg-avviso rounded-lg p-3 whitespace-pre-line">{l.note_accesso}</p>}
       {elimina.error && <Errore errore={elimina.error} />}
       <div className="flex gap-2 mt-1">
-        <Pulsante variante="secondario" icona={<Pencil className="size-4" aria-hidden />} onClick={() => setModifica(true)}>Modifica</Pulsante>
-        <Pulsante variante="fantasma" icona={<Trash2 className="size-4" aria-hidden />} caricamento={elimina.isPending}
+        <Pulsante variante="secondario" onClick={() => setModifica(true)}>Modifica</Pulsante>
+        <Pulsante variante="fantasma" caricamento={elimina.isPending}
           onClick={() => confirm('Eliminare questa location? Gli eventi passati restano.') && elimina.mutate(l.id)}>
           Elimina
         </Pulsante>

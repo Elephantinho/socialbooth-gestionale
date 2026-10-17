@@ -2,7 +2,7 @@ import { StatoMontaggio } from '@/modules/montaggio/components/Montaggio'
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, Ban, Check, Copy, Pencil, Phone, RotateCcw, UserRound, X } from 'lucide-react'
+import { ArrowLeft, Phone, UserRound } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { usePuo } from '@/modules/auth/permessi'
 import { giaPassato, inArchivio } from '@/modules/eventi/logic/archivio'
@@ -51,7 +51,7 @@ export function DettaglioEvento() {
             <ArrowLeft className="size-4" aria-hidden /> {inArchivio(e) ? 'Eventi passati' : 'Eventi'}
           </Link>
           <div className="flex flex-wrap items-center gap-3 mt-1">
-            <h1 className="font-display text-4xl font-semibold tracking-tight">{e.tipo_booth?.nome ?? 'Evento'}</h1>
+            <h1 className="font-display text-[26px] font-semibold leading-tight">{e.tipo_booth?.nome ?? 'Evento'}</h1>
             <StatoEvento stato={e.stato} />
           </div>
           <p className="text-tenue font-medium mt-1">
@@ -60,7 +60,7 @@ export function DettaglioEvento() {
         </div>
         <div className="flex gap-2 flex-wrap">
           {!modificabile ? null : annullato ? creatore && (
-            <Pulsante variante="secondario" icona={<RotateCcw className="size-4" aria-hidden />} caricamento={aggiorna.isPending}
+            <Pulsante variante="secondario" caricamento={aggiorna.isPending}
               onClick={() => aggiorna.mutate({ id: e.id, modifiche: { stato: 'da_assegnare', operatore_id: null } })}>
               Riapri evento
             </Pulsante>
@@ -69,14 +69,14 @@ export function DettaglioEvento() {
               {creatore && (
                 <>
                   <Link to={`/gestione/eventi/nuovo?da=${e.id}`} className="h-11 px-4 rounded-lg border border-bordo-forte bg-superficie font-semibold text-sm inline-flex items-center gap-2 hover:bg-sfondo">
-                    <Copy className="size-4" aria-hidden /> Duplica
+                    Duplica
                   </Link>
-                  <Pulsante variante="secondario" icona={<Ban className="size-4" aria-hidden />} onClick={annulla} disabled={aggiorna.isPending}>
+                  <Pulsante variante="secondario" onClick={annulla} disabled={aggiorna.isPending}>
                     Annulla evento
                   </Pulsante>
                 </>
               )}
-              <Pulsante variante={modifica ? 'scuro' : 'primario'} icona={modifica ? <X className="size-4" aria-hidden /> : <Pencil className="size-4" aria-hidden />}
+              <Pulsante variante={modifica ? 'scuro' : 'primario'}
                 onClick={() => setModifica((v) => !v)}>
                 {modifica ? 'Chiudi modifica' : 'Modifica'}
               </Pulsante>
@@ -253,7 +253,6 @@ function OreEvento({ e }: { e: EventoGestioneCompleto }) {
           ))}
         </div>
       )}
-      {ore?.calcolo_automatico && <p className="text-xs font-semibold text-accento">Ore calcolate in automatico dalle tappe registrate dall'operatore</p>}
       {ore && (
         <>
           <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(130px,1fr))]">
@@ -270,7 +269,7 @@ function OreEvento({ e }: { e: EventoGestioneCompleto }) {
                 onClick={() => approva.mutate({ oreId: ore.id, eventoId: e.id, approva: false, approvatoDa: profilo.id })}>
                 Respingi
               </Pulsante>
-              <Pulsante icona={<Check className="size-4" aria-hidden />} caricamento={approva.isPending}
+              <Pulsante caricamento={approva.isPending}
                 onClick={() => approva.mutate({ oreId: ore.id, eventoId: e.id, approva: true, approvatoDa: profilo.id })}>
                 Approva ore e spese dell'operatore
               </Pulsante>

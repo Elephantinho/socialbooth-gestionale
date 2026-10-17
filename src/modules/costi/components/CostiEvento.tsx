@@ -39,7 +39,6 @@ export function CostiEvento({ e }: { e: EventoGestioneCompleto }) {
       <div className="flex flex-wrap justify-between items-center gap-3">
         <div>
           <TitoloSezione>Costi e margine</TitoloSezione>
-          <p className="text-sm text-tenue mt-0.5">Compenso dell'operatore e carta si calcolano da soli. Aggiungi solo gli extra.</p>
         </div>
         {!aggiungi && <Pulsante variante="secondario" icona={<Plus className="size-4" aria-hidden />} onClick={() => setAggiungi(true)}>Aggiungi extra</Pulsante>}
       </div>
@@ -228,7 +227,6 @@ function RicavoFattura({ e }: { e: EventoGestioneCompleto }) {
         <Pulsante type="submit" variante="scuro" caricamento={aggiorna.isPending}>Salva ricavo</Pulsante>
         {salvato && <span className="text-sm font-semibold text-accento" role="status">Salvato</span>}
       </div>
-      <p className="text-xs text-tenue">Il margine usa l'importo della fattura se c'è, altrimenti il prezzo concordato.</p>
     </form>
   )
 }

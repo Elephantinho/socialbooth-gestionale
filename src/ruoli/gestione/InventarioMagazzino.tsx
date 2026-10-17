@@ -37,9 +37,8 @@ export function InventarioMagazzino() {
           <Link to="/gestione/magazzini" className="text-sm font-semibold text-tenue inline-flex items-center gap-1 hover:text-inchiostro">
             <ArrowLeft className="size-4" aria-hidden /> Magazzini
           </Link>
-          <h1 className="font-display text-[30px] md:text-[34px] font-semibold leading-tight">{magazzino?.nome ?? 'Magazzino'}</h1>
+          <h1 className="font-display text-[26px] font-semibold leading-tight">{magazzino?.nome ?? 'Magazzino'}</h1>
           <p className="text-tenue mt-1">{magazzino ? `${magazzino.indirizzo}, ${magazzino.citta}, ` : ''}{articoli.data?.length ?? 0} articoli, {totalePezzi} pezzi{fuori ? `, ${fuori} fuori per eventi` : ''}</p>
-          <p className="text-xs text-tenue mt-1">Si aggiorna da solo: l'attrezzatura esce quando l'operatore parte dal magazzino e rientra quando torna. I consumabili si scalano.</p>
         </div>
         {!nuovo && <Pulsante taglia="lg" icona={<Plus className="size-[18px]" aria-hidden />} onClick={() => setNuovo(true)}>Aggiungi articolo</Pulsante>}
       </div>

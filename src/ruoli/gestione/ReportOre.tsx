@@ -1,9 +1,8 @@
 import { useSearchParams } from 'react-router-dom'
-import { numeroCsv, scaricaCsv } from '@/shared/lib/csv'
 import { usePuo } from '@/modules/auth/permessi'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Check, Download } from 'lucide-react'
+import { numeroCsv, scaricaCsv } from '@/shared/lib/csv'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { useApprovaOre, useReportOre } from '@/modules/eventi/api'
 import type { RigaReport } from '@/modules/eventi/types'
@@ -54,7 +53,7 @@ export function ReportOre() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap gap-4 justify-between items-end">
         <div>
-          <h1 className="font-display text-[30px] md:text-[34px] font-semibold leading-tight">Ore, costi e compensi</h1>
+          <h1 className="font-display text-[26px] font-semibold leading-tight">Ore, costi e compensi</h1>
           <p className="text-tenue mt-2">
             {tutti ? 'Le chiusure da approvare e le ore di ogni operatore' : 'Le chiusure dei tuoi eventi'} (location + viaggio × tariffa). I conti per regione sono in Andamento.
           </p>
@@ -65,7 +64,7 @@ export function ReportOre() {
             <input type="month" value={mese} onChange={(e) => setMese(e.target.value)}
               className="h-12 rounded-lg border border-bordo-forte bg-superficie px-3 text-[15px]" />
           </label>
-          <Pulsante taglia="lg" variante="secondario" icona={<Download className="size-4" aria-hidden />} onClick={esportaCsv} disabled={!righe.length}>
+          <Pulsante taglia="lg" variante="secondario" onClick={esportaCsv} disabled={!righe.length}>
             Esporta Excel (CSV)
           </Pulsante>
         </div>
@@ -146,7 +145,7 @@ function RigaTabella({ r }: { r: RigaReport }) {
       <td className="px-5 py-3 whitespace-nowrap">{euro(speseApprovabili(r))}</td>
       <td className="px-5 py-3 whitespace-nowrap text-right">
         {r.stato === 'inviato' ? (
-          <Pulsante icona={<Check className="size-4" aria-hidden />} caricamento={approva.isPending}
+          <Pulsante caricamento={approva.isPending}
             onClick={() => r.evento && approva.mutate({ oreId: r.id, eventoId: r.evento.id, approva: true, approvatoDa: profilo.id })}>
             Approva
           </Pulsante>

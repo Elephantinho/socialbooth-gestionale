@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FileText, Image as Immagine, Paperclip, Trash2, Upload } from 'lucide-react'
+import { FileText, Image as Immagine, Trash2, Upload } from 'lucide-react'
 import { apriFile, useAllegati, useCaricaAllegato, useEliminaAllegato } from '../api'
 import { nomeCompleto } from '@/shared/lib/formato'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
@@ -24,7 +24,7 @@ export function AllegatiEvento({ eventoId }: { eventoId: string }) {
   return (
     <Card className="p-4 flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <TitoloSezione className="text-[15px] flex items-center gap-2"><Paperclip className="size-4" aria-hidden /> Documenti e foto</TitoloSezione>
+        <TitoloSezione className="text-[15px]">Documenti e foto</TitoloSezione>
         <div className="flex gap-1.5">
           <label className="h-9 px-3 rounded-lg border border-bordo-forte text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer hover:bg-sfondo">
             <Upload className="size-3.5" aria-hidden /> Carica

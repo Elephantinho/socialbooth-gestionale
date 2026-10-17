@@ -1,6 +1,5 @@
 import { AttivaNotifiche } from '@/modules/comunicazione/components/AttivaNotifiche'
 import { useMemo } from 'react'
-import { useProfilo } from '@/modules/auth/AuthProvider'
 import { usePuo } from '@/modules/auth/permessi'
 import { useEventiGestione } from '@/modules/eventi/api'
 import { AvvisiCarta } from '@/modules/carta/components/Carta'
@@ -19,7 +18,6 @@ import { ProssimiGiorni } from './ProssimiGiorni'
  * Numeri, grafici e margini stanno in Andamento.
  */
 export function Panoramica() {
-  const profilo = useProfilo()
   const puo = usePuo()
   const eventi = useEventiGestione()
 
@@ -31,7 +29,7 @@ export function Panoramica() {
 
   return (
     <div className="flex flex-col gap-5 max-w-3xl">
-      <Intestazione titolo={`Ciao, ${profilo.nome || 'benvenuto'}`} />
+      <Intestazione titolo="Panoramica" />
       <DaFare futuri={futuri} tutti={tutti} />
       {puo('carta.ricarica') && <AvvisiCarta />}
       <AttivaNotifiche />

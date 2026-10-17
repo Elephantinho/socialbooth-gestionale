@@ -1,4 +1,4 @@
-import { Check } from 'lucide-react'
+
 import { Avatar } from '@/shared/ui/Avatar'
 import { useOperatoriDisponibili, useProponiOperatore } from '@/modules/eventi/api'
 import { nomeCompleto } from '@/shared/lib/formato'
@@ -36,7 +36,7 @@ export function AssegnaOperatore({ eventoId, onFatto }: { eventoId: string; onFa
           </div>
           <Pulsante
             taglia="md"
-            icona={<Check className="size-4" aria-hidden />}
+           
             caricamento={proponi.isPending && proponi.variables?.operatoreId === op.id}
             disabled={proponi.isPending}
             onClick={() => proponi.mutate({ eventoId, operatoreId: op.id }, { onSuccess: onFatto })}

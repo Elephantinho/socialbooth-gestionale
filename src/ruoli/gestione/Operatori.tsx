@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useScorteCarta } from '@/modules/carta/api'
 import { BadgeCarta } from '@/modules/carta/components/Carta'
 import { Link } from 'react-router-dom'
-import { Building2, Check, Search, Sparkles } from 'lucide-react'
+import { Building2, Search } from 'lucide-react'
 import { usePuo } from '@/modules/auth/permessi'
 import { useAggiornaProfilo, useMagazzini, useOperatori } from '@/modules/anagrafiche/api'
 import { SceltaRegioni } from '@/modules/auth/SceltaRegioni'
@@ -36,9 +36,7 @@ export function Operatori() {
   return (
     <div className="flex flex-col gap-7">
       <Intestazione
-        sopra="Gestione"
         titolo="Operatori"
-        descrizione="Divisi per regione di riferimento. Clicca su un operatore per vedere eventi, compensi e margini."
       />
 
       <div className="flex flex-wrap gap-3 items-end">
@@ -70,11 +68,6 @@ export function Operatori() {
               <h2 className="flex flex-wrap items-center gap-2">
                 <span className="font-display text-xl font-semibold">{g.regione}</span>
                 <span className="text-sm font-semibold text-tenue">{g.operatori.length} {g.operatori.length === 1 ? 'operatore' : 'operatori'}</span>
-                {g.operatori.length === 1 && (
-                  <span className="text-[11px] font-semibold bg-accento-tenue text-accento-scuro px-2 py-1 rounded-lg inline-flex items-center gap-1">
-                    <Sparkles className="size-3" aria-hidden /> assegnazione automatica
-                  </span>
-                )}
               </h2>
               <Griglia>{g.operatori.map((o) => <SchedaOperatore key={`${g.regione}-${o.id}`} o={o} admin={admin} />)}</Griglia>
             </section>
@@ -120,7 +113,7 @@ function SchedaOperatore({ o, admin }: { o: Operatore; admin: boolean }) {
           {o.zone.map((z) => <span key={z.regione} className="text-[11px] font-semibold bg-sfondo border border-bordo px-2 py-0.5 rounded-full">{z.regione}</span>)}
         </div>
         {admin && !o.attivo && (
-          <Pulsante className="mt-auto" icona={<Check className="size-4" aria-hidden />} caricamento={aggiorna.isPending}
+          <Pulsante className="mt-auto" caricamento={aggiorna.isPending}
             onClick={() => aggiorna.mutate({ id: o.id, modifiche: { attivo: true } })}>
             Approva
           </Pulsante>

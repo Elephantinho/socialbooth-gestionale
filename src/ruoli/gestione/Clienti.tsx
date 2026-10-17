@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Building, Mail, Pencil, Phone, Plus, Trash2 } from 'lucide-react'
+import { Building, Mail, Phone, Plus } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { useClientiConEventi, useEliminaCliente, useSalvaCliente } from '@/modules/anagrafiche/api'
 import { euro } from '@/shared/lib/formato'
@@ -19,7 +19,7 @@ export function Clienti() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Intestazione sopra="Archivio" titolo="Clienti" descrizione="Lo storico di chi vi ingaggia: eventi fatti, fatturato e fatture da incassare. Si compilano da soli negli eventi nuovi."
+      <Intestazione titolo="Clienti"
         azioni={!nuovo && <Pulsante taglia="lg" icona={<Plus className="size-[18px]" aria-hidden />} onClick={() => setNuovo(true)}>Nuovo cliente</Pulsante>} />
       {nuovo && <Card className="p-5 max-w-2xl"><ModuloCliente onFatto={() => setNuovo(false)} /></Card>}
       <Campo etichetta="Cerca" placeholder="Nome azienda" value={cerca} onChange={(e) => setCerca(e.target.value)} className="max-w-md" />
@@ -65,9 +65,9 @@ function SchedaCliente({ c }: { c: Cliente }) {
         {c.note && <p className="text-tenue">{c.note}</p>}
       </div>
       <div className="flex gap-2 mt-auto">
-        <Pulsante variante="secondario" icona={<Pencil className="size-4" aria-hidden />} onClick={() => setModifica(true)}>Modifica</Pulsante>
+        <Pulsante variante="secondario" onClick={() => setModifica(true)}>Modifica</Pulsante>
         {admin && (
-          <Pulsante variante="fantasma" icona={<Trash2 className="size-4" aria-hidden />} caricamento={elimina.isPending}
+          <Pulsante variante="fantasma" caricamento={elimina.isPending}
             onClick={() => confirm(`Eliminare ${c.nome}? Gli eventi restano, senza cliente.`) && elimina.mutate(c.id)}>Elimina</Pulsante>
         )}
       </div>

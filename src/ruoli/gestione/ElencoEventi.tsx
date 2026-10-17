@@ -45,7 +45,7 @@ export function ElencoEventi() {
 
   return (
     <div className="flex flex-col gap-6">
-      <Intestazione sopra="Lavoro" titolo="Eventi" descrizione="In programma e in corso, dal più vicino."
+      <Intestazione titolo="Eventi"
         azioni={
           <>
             <Link to="/gestione/archivio" className="h-12 px-4 rounded-lg border border-bordo-forte bg-superficie font-semibold text-sm flex items-center gap-2 hover:bg-sfondo">
@@ -86,7 +86,7 @@ export function ElencoEventi() {
       {mappa && !isPending && !error ? <MappaEventi eventi={eventi} /> : isPending ? <Caricamento /> : error ? <Errore errore={error} /> : eventi.length === 0 ? (
         <Card>
           <Vuoto titolo="Nessun evento qui"
-            testo={puo('eventi.crea') ? "Crea un evento: se in zona c'è un solo operatore, gli verrà proposto in automatico." : 'Quando ci saranno eventi in programma li trovi qui.'} />
+            testo={puo('eventi.crea') ? "Nessun evento in programma." : 'Quando ci saranno eventi in programma li trovi qui.'} />
         </Card>
       ) : (
         <div className="flex flex-col gap-2.5">

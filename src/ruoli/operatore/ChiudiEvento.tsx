@@ -95,7 +95,7 @@ export function ChiudiEvento({ e, onChiudi, soloSpese }: { e: EventoDettaglio; o
             </div>
           )
         ) : <>
-        <p className="text-sm text-tenue -mt-2">Usa questo modulo solo se non hai registrato le tappe. Gli orari sono quelli previsti: correggili se serve.</p>
+        <p className="text-sm text-tenue -mt-2">Solo se non hai registrato le tappe. Correggi gli orari se serve.</p>
 
         <div className="grid grid-cols-2 gap-3">
           <Campo etichetta="Inizio lavoro" type="time" required value={inizio} onChange={(ev) => setInizio(ev.target.value)} />

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { Building2, FileUp, MapPin, Package, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Building2, MapPin, Package, Plus } from 'lucide-react'
 import { ImportaMagazzini } from './ImportaMagazzini'
 import { usePuo } from '@/modules/auth/permessi'
 import { useEliminaMagazzino, useMagazzini, useSalvaMagazzino } from '@/modules/anagrafiche/api'
@@ -30,12 +30,11 @@ export function Magazzini() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap gap-4 justify-between items-end">
         <div>
-          <h1 className="font-display text-[30px] md:text-[34px] font-semibold leading-tight">Magazzini</h1>
-          <p className="text-tenue mt-2 max-w-2xl">Da qui partono gli operatori: l'indirizzo serve per calcolare in automatico i tempi di viaggio.</p>
+          <h1 className="font-display text-[26px] font-semibold leading-tight">Magazzini</h1>
         </div>
         {admin && (
           <div className="flex gap-2 flex-wrap">
-            {!importa && <Pulsante taglia="lg" variante="secondario" icona={<FileUp className="size-[18px]" aria-hidden />} onClick={() => setImporta(true)}>Importa da Excel</Pulsante>}
+            {!importa && <Pulsante taglia="lg" variante="secondario" onClick={() => setImporta(true)}>Importa da Excel</Pulsante>}
             {!nuovo && <Pulsante taglia="lg" icona={<Plus className="size-[18px]" aria-hidden />} onClick={() => setNuovo(true)}>Nuovo magazzino</Pulsante>}
           </div>
         )}
@@ -85,7 +84,7 @@ function SchedaMagazzino({ m, admin }: { m: Riga<'magazzini'>; admin: boolean })
       </div>
       <p className={posizione ? 'text-xs font-semibold text-accento flex items-center gap-1.5' : 'text-xs font-semibold text-urgente-testo flex items-center gap-1.5'}>
         <MapPin className="size-3.5" aria-hidden />
-        {posizione ? 'Posizione trovata: viaggi calcolati in automatico' : 'Posizione non trovata: correggi l\'indirizzo'}
+        {posizione ? 'Posizione trovata' : 'Posizione non trovata: correggi l\'indirizzo'}
       </p>
       {m.note && <p className="text-sm text-tenue">{m.note}</p>}
       {elimina.error && <Errore errore={new Error('Non si può eliminare: è usato da eventi o operatori')} />}
@@ -95,8 +94,8 @@ function SchedaMagazzino({ m, admin }: { m: Riga<'magazzini'>; admin: boolean })
         </Link>
       {admin && (
         <>
-          <Pulsante variante="secondario" icona={<Pencil className="size-4" aria-hidden />} onClick={() => setModifica(true)}>Modifica</Pulsante>
-          <Pulsante variante="fantasma" icona={<Trash2 className="size-4" aria-hidden />} caricamento={elimina.isPending}
+          <Pulsante variante="secondario" onClick={() => setModifica(true)}>Modifica</Pulsante>
+          <Pulsante variante="fantasma" caricamento={elimina.isPending}
             onClick={() => confirm(`Eliminare ${m.nome}?`) && elimina.mutate(m.id)}>
             Elimina
           </Pulsante>

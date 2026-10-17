@@ -57,7 +57,7 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
       const d = distanza({ lat: pos.coords.latitude, lng: pos.coords.longitude }, meta)
       if (d <= 150 && inviata.current !== prossima) {
         inviata.current = prossima
-        setAuto(prossima === 'arrivo' ? 'Arrivo registrato in automatico' : 'Rientro registrato in automatico')
+        setAuto(prossima === 'arrivo' ? 'Arrivo registrato' : 'Rientro registrato')
         registra.mutate({ eventoId: e.id, tappa: prossima })
       }
     }, undefined, { enableHighAccuracy: true, maximumAge: 30_000 })
@@ -127,7 +127,6 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
       <Card className="p-4 flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <p className="font-semibold text-[15px]">Le tue tappe</p>
-          <span className="text-xs font-semibold text-accento bg-accento-tenue px-2 py-1 rounded-lg">Ore calcolate in automatico</span>
         </div>
         <ol className="flex flex-col">
           {passi.map((p, i) => {
@@ -171,7 +170,6 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
       <div className="fixed bottom-0 inset-x-0 z-30 max-w-md mx-auto bg-sfondo/95 backdrop-blur border-t border-bordo px-5 pt-3.5 pb-sicura flex flex-col gap-1.5 shadow-[0_-8px_24px_-16px_rgba(21,22,26,0.25)]">
         {registra.error && <Errore errore={registra.error} />}
         {auto && <p className="text-center text-sm font-semibold text-accento" role="status">{auto}</p>}
-        {prossima && !auto && <p className="text-center text-xs text-tenue">Con l'app aperta, {prossima === 'arrivo' ? "l'arrivo" : 'il rientro'} si registra da solo quando sei sul posto</p>}
         {azione}
         <div className="flex justify-center gap-4">
           <button onClick={() => setSpese(true)} className="text-sm font-semibold text-accento py-1 inline-flex items-center gap-1.5 cursor-pointer">

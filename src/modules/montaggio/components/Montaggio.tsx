@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Camera, CheckCircle2, Loader2 } from 'lucide-react'
+import { CheckCircle2, Loader2 } from 'lucide-react'
 import { useAttrezzaturaEvento } from '@/modules/attrezzatura/api'
 import { useCaricaFotoMontaggio, useFotoMontaggio, useMontaggio, useSalvaChecklist } from '../api'
 import { cn } from '@/shared/lib/cn'
@@ -48,7 +48,6 @@ export function ChecklistMontaggio({ eventoId, wifi }: { eventoId: string; wifi:
 
       <div className="border-t border-bordo pt-3 flex flex-col gap-2">
         <p className="text-sm font-semibold">Foto del set montato</p>
-        <p className="text-xs text-tenue">Arriva subito al project: è la prova per il cliente che è tutto pronto.</p>
         {!!foto.data?.length && (
           <div className="flex gap-2 overflow-x-auto">
             {foto.data.map((f) => f.url && <img key={f.id} src={f.url} alt={`Set montato alle ${ora(f.creato_il)}`} className="h-24 w-24 object-cover rounded-lg border border-bordo shrink-0" />)}
@@ -57,7 +56,7 @@ export function ChecklistMontaggio({ eventoId, wifi }: { eventoId: string; wifi:
         <input ref={input} type="file" accept="image/*" capture="environment" className="hidden"
           onChange={(ev) => { const f = ev.target.files?.[0]; if (f) carica.mutate({ eventoId, file: f }); ev.target.value = '' }} />
         <Pulsante variante={foto.data?.length ? 'secondario' : 'primario'} taglia="lg" pieno caricamento={carica.isPending}
-          icona={<Camera className="size-4" aria-hidden />} onClick={() => input.current?.click()}>
+          onClick={() => input.current?.click()}>
           {foto.data?.length ? 'Aggiungi un\'altra foto' : 'Fotografa il set'}
         </Pulsante>
         {carica.error && <p className="text-sm text-urgente-testo font-semibold">{carica.error.message}</p>}

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FileSpreadsheet } from 'lucide-react'
+
 import { eventiPerCommercialista } from '../api'
 import { numeroCsv, scaricaCsv } from '@/shared/lib/csv'
 import { meseCorrente } from '@/shared/lib/formato'
@@ -41,7 +41,7 @@ export function ExportCommercialista() {
         Mese
         <input type="month" value={mese} onChange={(e) => setMese(e.target.value)} className="h-11 rounded-lg border border-bordo-forte bg-superficie px-3 font-semibold" />
       </label>
-      <Pulsante variante="secondario" icona={<FileSpreadsheet className="size-4" aria-hidden />} caricamento={carico} onClick={scarica}>Export commercialista</Pulsante>
+      <Pulsante variante="secondario" caricamento={carico} onClick={scarica}>Export commercialista</Pulsante>
       {errore && <p className="w-full text-sm text-urgente-testo font-semibold">{errore}</p>}
     </div>
   )

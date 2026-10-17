@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Download, FileUp } from 'lucide-react'
+import { FileUp } from 'lucide-react'
 import { useSalvaMagazzino } from '@/modules/anagrafiche/api'
 import { magazziniDaCsv, MODELLO_MAGAZZINI, type MagazzinoDaImportare } from '@/modules/anagrafiche/logic/importaCsv'
 import { trovaCoordinate } from '@/modules/viaggio/api'
@@ -61,7 +61,7 @@ export function ImportaMagazzini({ onFatto }: { onFatto: () => void }) {
         come CSV (in Excel: File → Salva con nome → CSV). Puoi partire dal modello.
       </p>
       <div className="flex flex-wrap gap-2">
-        <Pulsante variante="secondario" icona={<Download className="size-4" aria-hidden />} onClick={scaricaModello}>Scarica modello</Pulsante>
+        <Pulsante variante="secondario" onClick={scaricaModello}>Scarica modello</Pulsante>
         <label className="h-11 px-4 rounded-lg bg-accento text-white text-sm font-semibold inline-flex items-center gap-2 cursor-pointer">
           <FileUp className="size-4" aria-hidden /> Scegli file CSV
           <input type="file" accept=".csv,text/csv" className="sr-only" onChange={(e) => e.target.files?.[0] && leggi(e.target.files[0])} />

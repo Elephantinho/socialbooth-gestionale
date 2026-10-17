@@ -73,9 +73,9 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
           </a>
         </div>
 
-        {/* ZTL e meteo */}
-        <div className="grid gap-2.5 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
-          <div className={cn('rounded-xl p-3.5 flex gap-3',
+        {/* ZTL e meteo: si mostrano solo quando c'è qualcosa da dire */}
+        <div className="grid gap-2.5 grid-cols-[repeat(auto-fit,minmax(200px,1fr))] empty:hidden">
+          {(ztlDichiarata || ztl || (dintorni.isPending && punto)) && <div className={cn('rounded-xl p-3.5 flex gap-3',
             ztl?.stato === 'dentro' || ztlDichiarata ? 'bg-urgente-tenue text-urgente-testo' : ztl?.stato === 'vicino' ? 'bg-avviso text-avviso-testo' : 'bg-sfondo')}>
             {dintorni.isPending && punto ? <Loader2 className="size-5 animate-spin shrink-0" aria-hidden />
               : ztl?.stato === 'non_rilevata' && !ztlDichiarata ? <CheckCircle2 className="size-5 shrink-0 text-accento" aria-hidden />
@@ -86,13 +86,13 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
               </p>
               <p className="text-xs opacity-80">
                 {ztlDichiarata && !ztl ? 'Serve il permesso per entrare'
-                  : !ztl ? (dintorni.error ? 'Controllo non disponibile ora' : 'Cerco sulle mappe…')
-                  : ztl.dettaglio ?? (ztl.stato === 'non_rilevata' ? 'Dalle mappe, verifica comunque i cartelli' : 'Serve il permesso per entrare')}
+                  : !ztl ? (dintorni.error ? 'Controllo non disponibile ora' : 'Controllo in corso…')
+                  : ztl.dettaglio ?? (ztl.stato === 'non_rilevata' ? 'Verifica comunque i cartelli' : 'Serve il permesso per entrare')}
               </p>
             </div>
-          </div>
+          </div>}
 
-          <div className="rounded-xl p-3.5 bg-sfondo flex gap-3">
+          {((meteo.data && typeof meteo.data === 'object') || (meteo.isPending && punto)) && <div className="rounded-xl p-3.5 bg-sfondo flex gap-3">
             {meteo.data && typeof meteo.data === 'object' && meteo.data.pioggia >= 40
               ? <CloudRain className="size-5 shrink-0 text-[#2F6FD1]" aria-hidden />
               : <Sun className="size-5 shrink-0 text-avviso-icona" aria-hidden />}
@@ -109,7 +109,7 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
                   </>
                 )}
             </div>
-          </div>
+          </div>}
         </div>
 
         {/* Mappa, parcheggi e servizi: chiusi finché non servono */}
@@ -129,7 +129,7 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
         {/* Parcheggi */}
         <div className="flex flex-col gap-2">
           <TitoloSezione className="text-[15px]">Parcheggi vicini</TitoloSezione>
-          {dintorni.isPending && punto ? <p className="text-sm text-tenue inline-flex items-center gap-2"><Loader2 className="size-4 animate-spin" aria-hidden /> Cerco i parcheggi…</p>
+          {dintorni.isPending && punto ? <p className="text-sm text-tenue inline-flex items-center gap-2"><Loader2 className="size-4 animate-spin" aria-hidden /> Caricamento parcheggi…</p>
             : dintorni.error ? <p className="text-sm text-tenue">Parcheggi non disponibili al momento.</p>
             : !dintorni.data?.parcheggi.length ? <p className="text-sm text-tenue">Nessun parcheggio segnato sulle mappe qui vicino.</p>
             : dintorni.data.parcheggi.slice(0, compatto ? 5 : 8).map((p) => {
@@ -177,7 +177,6 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
         {magazzino && magazzino.lat == null && (
           <p className="text-xs text-tenue">Il magazzino {magazzino.nome} non ha una posizione: aggiornala per calcolare i viaggi.</p>
         )}
-        <p className="text-[11px] text-tenue">Dati da OpenStreetMap e Open‑Meteo: indicativi, verifica sempre la segnaletica sul posto.</p>
       </div>
     </Card>
   )

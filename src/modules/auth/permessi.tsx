@@ -43,11 +43,11 @@ const PERMESSI: Record<Ruolo, Permesso[]> = {
 }
 
 export const RUOLI: { id: Ruolo; etichetta: string; descrizione: string }[] = [
-  { id: 'admin', etichetta: 'Admin', descrizione: 'Il titolare: vede e può fare tutto' },
-  { id: 'project', etichetta: 'Project', descrizione: 'Solo i suoi eventi: calendario, operatori, ricavi e costi dei suoi eventi' },
-  { id: 'gestore_operatori', etichetta: 'Gestore operatori', descrizione: 'Tutta l\'operatività: eventi, operatori, magazzini, carta. Non vede i soldi' },
-  { id: 'amministrazione', etichetta: 'Amministrazione', descrizione: 'Costi, compensi, fatture, tariffe e carte. Non crea eventi' },
-  { id: 'operatore', etichetta: 'Operatore', descrizione: "Usa l'app sul telefono" },
+  { id: 'admin', etichetta: 'Admin', descrizione: 'Tutto, compresi ruoli e impostazioni' },
+  { id: 'project', etichetta: 'Project', descrizione: 'I propri eventi, con costi e ricavi' },
+  { id: 'gestore_operatori', etichetta: 'Gestore operatori', descrizione: 'Eventi, operatori, magazzini e carta, senza importi' },
+  { id: 'amministrazione', etichetta: 'Amministrazione', descrizione: 'Costi, compensi, fatture, tariffe e carte aziendali' },
+  { id: 'operatore', etichetta: 'Operatore', descrizione: 'App sul telefono' },
 ]
 
 export const etichettaRuolo = (r: Ruolo) => RUOLI.find((x) => x.id === r)?.etichetta ?? r

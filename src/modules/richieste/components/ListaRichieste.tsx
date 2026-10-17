@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { Check, Hand, Undo2, X } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { etichettaRuolo } from '@/modules/auth/permessi'
 import { useAggiornaRichiesta, type Richiesta } from '../api'
@@ -65,27 +64,26 @@ function RigaRichiesta({ r }: { r: Richiesta }) {
       {aperta && (toccaAMe || mia) && (
         <div className="flex flex-wrap gap-2 pt-1">
           {toccaAMe && r.stato === 'aperta' && (
-            <Pulsante variante="secondario" icona={<Hand className="size-4" aria-hidden />} caricamento={aggiorna.isPending}
+            <Pulsante variante="secondario" caricamento={aggiorna.isPending}
               onClick={() => cambia('in_corso', { preso_da: io.id })}>Me ne occupo io</Pulsante>
           )}
           {toccaAMe && (
-            <Pulsante icona={<Check className="size-4" aria-hidden />} onClick={() => setChiudi((c) => !c)}>Fatto</Pulsante>
+            <Pulsante onClick={() => setChiudi((c) => !c)}>Fatto</Pulsante>
           )}
           {mia && (
-            <Pulsante variante="fantasma" icona={<X className="size-4" aria-hidden />} caricamento={aggiorna.isPending}
+            <Pulsante variante="fantasma" caricamento={aggiorna.isPending}
               onClick={() => confirm('Annullare la richiesta?') && cambia('annullata')}>Annulla</Pulsante>
           )}
         </div>
       )}
       {!aperta && mia && (
-        <div><Pulsante variante="fantasma" icona={<Undo2 className="size-4" aria-hidden />} onClick={() => cambia('aperta', { chiuso_il: null })}>Riapri</Pulsante></div>
+        <div><Pulsante variante="fantasma" onClick={() => cambia('aperta', { chiuso_il: null })}>Riapri</Pulsante></div>
       )}
       {chiudi && (
         <form className="flex flex-wrap gap-2 items-center" onSubmit={(e) => { e.preventDefault(); cambia('fatta', { nota_chiusura: nota.trim() || null }) }}>
           <input value={nota} onChange={(e) => setNota(e.target.value)} placeholder="Nota (facoltativa): es. spedita con corriere"
             className="h-10 flex-1 min-w-56 rounded-lg border border-bordo-forte bg-superficie px-3 text-sm" />
           <Pulsante type="submit" caricamento={aggiorna.isPending}>Segna come fatta</Pulsante>
-          {r.tipo === 'carta' && r.operatore_id && r.quantita ? <span className="w-full text-xs text-tenue">La ricarica di {r.quantita} stampe si registra da sola.</span> : null}
         </form>
       )}
     </li>

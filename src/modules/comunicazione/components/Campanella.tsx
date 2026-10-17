@@ -15,8 +15,11 @@ const quando = (iso: string) => {
   return new Date(iso).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })
 }
 
-/** Campanella con il numero di notifiche non lette e il pannello a tendina */
-export function Campanella({ scura }: { scura?: boolean }) {
+/**
+ * Campanella con il numero di notifiche non lette e il pannello a tendina.
+ * nelMenu: sta in cima al menu laterale e il pannello si apre di fianco.
+ */
+export function Campanella({ scura, nelMenu }: { scura?: boolean; nelMenu?: boolean }) {
   const profilo = useProfilo()
   const { data } = useNotifiche(profilo.id)
   const segna = useSegnaLette()
@@ -35,9 +38,10 @@ export function Campanella({ scura }: { scura?: boolean }) {
   return (
     <div className="relative" ref={box}>
       <button onClick={() => setAperta((a) => !a)} aria-label={`Notifiche${nonLette ? `, ${nonLette} nuove` : ''}`} aria-expanded={aperta}
-        className={cn('relative size-11 rounded-full flex items-center justify-center cursor-pointer transition',
-          scura ? 'bg-menu-2 text-white hover:bg-menu-3' : 'bg-superficie border border-bordo hover:border-bordo-forte')}>
-        <Bell className="size-5" aria-hidden />
+        className={cn('relative flex items-center justify-center cursor-pointer transition',
+          nelMenu ? 'size-9 rounded-lg text-menu-testo hover:bg-menu-2'
+            : scura ? 'size-11 rounded-full bg-menu-2 text-white hover:bg-menu-3' : 'size-11 rounded-full bg-superficie border border-bordo hover:border-bordo-forte')}>
+        <Bell className={nelMenu ? 'size-4' : 'size-5'} aria-hidden />
         {nonLette > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 rounded-full bg-urgente text-white text-[11px] font-semibold flex items-center justify-center border-2 border-superficie">
             {nonLette > 9 ? '9+' : nonLette}
@@ -49,7 +53,8 @@ export function Campanella({ scura }: { scura?: boolean }) {
         {aperta && (
           <motion.div initial={{ opacity: 0, y: -6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 w-[min(360px,calc(100vw-32px))] max-h-[70vh] overflow-y-auto rounded-xl bg-superficie text-inchiostro border border-bordo shadow-[0_20px_50px_-20px_rgba(21,22,26,0.45)] z-50">
+            className={cn(nelMenu ? 'fixed left-[256px] top-4' : 'absolute right-0 mt-2',
+              'w-[min(360px,calc(100vw-32px))] max-h-[70vh] overflow-y-auto rounded-xl bg-superficie text-inchiostro border border-bordo shadow-[0_20px_50px_-20px_rgba(21,22,26,0.45)] z-50')}>
             <div className="flex items-center justify-between px-4 py-3 border-b border-bordo sticky top-0 bg-superficie">
               <p className="font-semibold">Notifiche</p>
               {nonLette > 0 && (
