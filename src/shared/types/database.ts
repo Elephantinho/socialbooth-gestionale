@@ -276,6 +276,7 @@ export type Database = {
         Row: {
           id: string; evento_id: string; voce: Database['public']['Enums']['voce_spesa']; descrizione: string | null; importo: number
           pagata_con: Database['public']['Enums']['pagata_con']; operatore_id: string | null; scontrino: string | null; creato_da: string; creato_il: string
+          fonte: 'app' | 'revolut'; pagamento_id: string | null
         }
         Insert: {
           id?: string; evento_id: string; voce: Database['public']['Enums']['voce_spesa']; descrizione?: string | null; importo: number
@@ -285,6 +286,20 @@ export type Database = {
         Relationships: [
           { foreignKeyName: 'spese_evento_evento_id_fkey'; columns: ['evento_id']; isOneToOne: false; referencedRelation: 'eventi'; referencedColumns: ['id'] },
           { foreignKeyName: 'spese_evento_operatore_id_fkey'; columns: ['operatore_id']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
+        ]
+      }
+      pagamenti_carte: {
+        Row: {
+          id: string; rif_esterno: string; carta_ultime: string | null; titolare: string | null; importo: number; valuta: string
+          esercente: string | null; mcc: string | null; citta: string | null; pagato_il: string
+          stato: 'abbinato' | 'da_abbinare' | 'ignorato'; motivo: string | null
+          operatore_id: string | null; evento_id: string | null; spesa_id: string | null; ricevute: string[]; creato_il: string
+        }
+        Insert: never
+        Update: never
+        Relationships: [
+          { foreignKeyName: 'pagamenti_carte_operatore_id_fkey'; columns: ['operatore_id']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
+          { foreignKeyName: 'pagamenti_carte_evento_id_fkey'; columns: ['evento_id']; isOneToOne: false; referencedRelation: 'eventi'; referencedColumns: ['id'] },
         ]
       }
       passaggi_evento: {
@@ -346,6 +361,8 @@ export type Database = {
       segna_passaggio: { Args: { p_evento: string; p_passaggio: Database['public']['Enums']['passaggio'] }; Returns: undefined }
       annulla_passaggio: { Args: { p_evento: string }; Returns: undefined }
       concludi_evento: { Args: { p_evento: string }; Returns: undefined }
+      abbina_a_mano: { Args: { p_pagamento: string; p_evento: string }; Returns: undefined }
+      ignora_pagamento: { Args: { p_pagamento: string }; Returns: undefined }
       proponi_operatore: { Args: { p_evento: string; p_operatore: string }; Returns: undefined }
       rispondi_proposta: { Args: { p_accetta: boolean; p_proposta: string }; Returns: undefined }
       gestisco_evento: { Args: { p_evento: string }; Returns: boolean }

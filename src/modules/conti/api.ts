@@ -85,10 +85,50 @@ export function useContiMese(mese: string) {
     queryFn: async () => {
       const [a, m] = mese.split('-').map(Number)
       return ok(await supabase.from('eventi')
-        .select('id, nome, citta, stato, allestimento_il, tipo_booth:tipi_booth(nome), project:profili!eventi_project_id_fkey(nome, cognome), conti:conti_evento(*), spese:spese_evento(importo, pagata_con)')
+        .select(`id, nome, citta, stato, allestimento_il, tipo_booth:tipi_booth(nome),
+          project:profili!eventi_project_id_fkey(nome, cognome), operatore:profili!eventi_operatore_id_fkey(id, nome, cognome),
+          conti:conti_evento(*), spese:spese_evento(importo, pagata_con, voce, operatore_id, fonte)`)
         .neq('stato', 'annullato')
         .gte('allestimento_il', new Date(a, m - 1, 1).toISOString()).lt('allestimento_il', new Date(a, m, 1).toISOString())
         .order('allestimento_il').limit(1000))
     },
+  })
+}
+
+/* ---------- Pagamenti delle carte arrivati dalla banca ---------- */
+
+export function usePagamentiDaControllare() {
+  return useQuery({
+    queryKey: ['pagamenti', 'da_abbinare'],
+    queryFn: async () => ok(await supabase.from('pagamenti_carte')
+      .select('*, operatore:profili!pagamenti_carte_operatore_id_fkey(id, nome, cognome)')
+      .eq('stato', 'da_abbinare').order('pagato_il', { ascending: false }).limit(500)),
+  })
+}
+
+/** Eventi intorno alla data di un pagamento, per abbinarlo a mano */
+export function useEventiVicini(quando: string, operatoreId: string | null) {
+  return useQuery({
+    queryKey: ['eventi', 'vicini', quando, operatoreId ?? ''],
+    queryFn: async () => {
+      const t = new Date(quando).getTime()
+      let q = supabase.from('eventi').select('id, nome, citta, allestimento_il, tipo_booth:tipi_booth(nome)')
+        .neq('stato', 'annullato')
+        .gte('allestimento_il', new Date(t - 3 * 86_400_000).toISOString()).lte('allestimento_il', new Date(t + 2 * 86_400_000).toISOString())
+        .order('allestimento_il').limit(200)
+      if (operatoreId) q = q.eq('operatore_id', operatoreId)
+      return ok(await q)
+    },
+  })
+}
+
+export function useSistemaPagamento() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (v: { id: string; eventoId?: string }) =>
+      v.eventoId
+        ? ok(await supabase.rpc('abbina_a_mano', { p_pagamento: v.id, p_evento: v.eventoId }))
+        : ok(await supabase.rpc('ignora_pagamento', { p_pagamento: v.id })),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['pagamenti'] }); qc.invalidateQueries({ queryKey: ['conti'] }); qc.invalidateQueries({ queryKey: ['spese'] }) },
   })
 }

@@ -112,7 +112,10 @@ function Spese({ eventoId, operatoreId, spese }: { eventoId: string; operatoreId
           {spese.map((s) => (
             <li key={s.id} className="px-3 py-2.5 flex items-center gap-3 text-sm">
               <div className="flex-1 min-w-0">
-                <p className="font-semibold truncate">{etichettaVoce(s.voce)}{s.descrizione ? `, ${s.descrizione}` : ''}</p>
+                <p className="font-semibold truncate">
+                  {etichettaVoce(s.voce)}{s.descrizione ? `, ${s.descrizione}` : ''}
+                  {s.fonte === 'revolut' && <span className="ml-2 text-[11px] font-semibold text-tenue bg-sfondo border border-bordo rounded px-1.5 py-px align-middle">Revolut</span>}
+                </p>
                 <p className="text-xs text-tenue truncate">
                   {PAGATA_CON[s.pagata_con]}{s.operatore ? `, ${nomeCompleto(s.operatore)}` : ''}, {new Date(s.creato_il).toLocaleDateString('it-IT')}
                 </p>
@@ -124,10 +127,12 @@ function Spese({ eventoId, operatoreId, spese }: { eventoId: string; operatoreId
                 </button>
               )}
               <span className="font-semibold tabular-nums">{euro(s.importo)}</span>
-              <button onClick={() => { if (confirm('Togliere questa spesa?')) togli.mutate(s.id) }} title="Togli" aria-label="Togli la spesa"
-                className="size-8 rounded-lg text-tenue hover:text-urgente-testo hover:bg-urgente-tenue flex items-center justify-center cursor-pointer">
-                <X className="size-4" aria-hidden />
-              </button>
+              {s.fonte === 'revolut' ? <span className="size-8" aria-hidden /> : (
+                <button onClick={() => { if (confirm('Togliere questa spesa?')) togli.mutate(s.id) }} title="Togli" aria-label="Togli la spesa"
+                  className="size-8 rounded-lg text-tenue hover:text-urgente-testo hover:bg-urgente-tenue flex items-center justify-center cursor-pointer">
+                  <X className="size-4" aria-hidden />
+                </button>
+              )}
             </li>
           ))}
         </ul>
