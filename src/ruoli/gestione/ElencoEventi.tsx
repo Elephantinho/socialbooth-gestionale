@@ -53,7 +53,7 @@ export function ElencoEventi() {
             </Link>
             {puo('eventi.crea') && (
               <Link to="/gestione/eventi/nuovo"
-                className="h-12 px-5 rounded-lg bg-accento text-white font-semibold text-sm flex items-center gap-2 hover:bg-accento-scuro transition">
+                className="h-12 px-5 rounded-lg bg-accento text-su-accento font-semibold text-sm flex items-center gap-2 hover:bg-accento-hover transition">
                 <Plus className="size-[18px]" aria-hidden /> Nuovo evento
               </Link>
             )}
@@ -69,7 +69,7 @@ export function ElencoEventi() {
               attivo.id === f.id ? 'bg-accento-tenue text-accento-scuro' : 'bg-superficie border border-bordo text-tenue hover:border-bordo-forte',
             )}>
             {f.etichetta}
-            <span className={cn('text-xs', attivo.id === f.id ? 'text-accento' : 'text-tenue')}>{inProgramma.filter(f.passa).length}</span>
+            <span className={cn('text-xs', attivo.id === f.id ? 'text-accento-scuro' : 'text-tenue')}>{inProgramma.filter(f.passa).length}</span>
           </button>
         ))}
       </div>

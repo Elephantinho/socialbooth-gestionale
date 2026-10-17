@@ -61,7 +61,7 @@ export function ArchivioEventi() {
               className={cn('h-10 px-4 rounded-full text-sm font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2',
                 attivo.id === f.id ? 'bg-accento-tenue text-accento-scuro' : 'bg-superficie border border-bordo text-tenue hover:border-bordo-forte')}>
               {f.etichetta}
-              <span className={cn('text-xs', attivo.id === f.id ? 'text-accento' : 'text-tenue')}>{archivio.filter(f.passa).length}</span>
+              <span className={cn('text-xs', attivo.id === f.id ? 'text-accento-scuro' : 'text-tenue')}>{archivio.filter(f.passa).length}</span>
             </button>
           ))}
         </div>

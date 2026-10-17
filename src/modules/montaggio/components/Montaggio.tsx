@@ -35,7 +35,7 @@ export function ChecklistMontaggio({ eventoId, wifi }: { eventoId: string; wifi:
     <Card className="p-4 flex flex-col gap-3">
       <div className="flex justify-between items-center">
         <TitoloSezione className="text-[15px]">Montaggio</TitoloSezione>
-        <span className={cn('text-xs font-semibold', fatte.length === voci.length ? 'text-accento' : 'text-tenue')}>{fatte.length}/{voci.length}</span>
+        <span className={cn('text-xs font-semibold', fatte.length === voci.length ? 'text-accento-scuro' : 'text-tenue')}>{fatte.length}/{voci.length}</span>
       </div>
       <div className="flex flex-col">
         {voci.map((v) => (
@@ -74,7 +74,7 @@ export function StatoMontaggio({ eventoId }: { eventoId: string }) {
   return (
     <Card className="p-5 flex flex-col gap-3">
       <TitoloSezione className="text-[15px] flex items-center gap-2">
-        {montaggio.data?.completato_il ? <CheckCircle2 className="size-4 text-accento" aria-hidden /> : null}
+        {montaggio.data?.completato_il ? <CheckCircle2 className="size-4 text-accento-scuro" aria-hidden /> : null}
         Montaggio
       </TitoloSezione>
       <p className="text-sm text-tenue">

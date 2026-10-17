@@ -181,7 +181,7 @@ function Operatore({ e }: { e: EventoGestioneCompleto }) {
       )}
       {puoAssegnare && (
         <button onClick={() => setScegli((s) => !s)} aria-expanded={scegli}
-          className="h-11 rounded-lg bg-accento text-white font-semibold text-sm cursor-pointer">
+          className="h-11 rounded-lg bg-superficie border border-bordo-forte hover:border-inchiostro font-semibold text-sm cursor-pointer">
           {e.operatore ? 'Cambia operatore' : 'Scegli operatore'}
         </button>
       )}
@@ -209,7 +209,7 @@ function Storico({ e }: { e: EventoGestioneCompleto }) {
       {proposte.map((p) => (
         <div key={p.id} className="flex justify-between gap-3 text-sm">
           <span className="font-semibold">{p.operatore?.nome || 'Operatore'}{p.automatica && <span className="text-tenue font-medium">, automatica</span>}</span>
-          <span className={cn('font-semibold', p.stato === 'rifiutata' ? 'text-urgente-testo' : p.stato === 'accettata' ? 'text-accento' : 'text-tenue')}>
+          <span className={cn('font-semibold', p.stato === 'rifiutata' ? 'text-urgente-testo' : p.stato === 'accettata' ? 'text-ok' : 'text-tenue')}>
             {etichettaProposta[p.stato]}
           </span>
         </div>

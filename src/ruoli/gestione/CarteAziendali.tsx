@@ -63,7 +63,7 @@ function SchedaCarta({ c, admin }: { c: Carta; admin: boolean }) {
           <p className="font-semibold text-[16px]">{c.nome}</p>
           <p className="text-xs text-white/75">{c.circuito ?? 'Carta'}{!c.attiva && ', disattivata'}</p>
         </div>
-        <CreditCard className="size-6 text-accento" aria-hidden />
+        <CreditCard className="size-6 text-accento-scuro" aria-hidden />
       </div>
       <p className="font-display text-2xl tracking-[0.2em]">···· {c.ultime_cifre}</p>
       <div className="flex justify-between items-end gap-2">

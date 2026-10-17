@@ -43,7 +43,7 @@ function BarraInBasso() {
     <nav className="sticky bottom-0 bg-superficie border-t border-bordo grid grid-cols-5 pt-1.5 pb-sicura" aria-label="Navigazione principale">
       {voci.map(({ a, etichetta, Icona }) => (
         <NavLink key={a} to={a} end={a === '/operatore'}
-          className={({ isActive }) => cn('relative flex flex-col items-center gap-0.5 py-1.5 text-[11px] font-semibold', isActive ? 'text-accento' : 'text-tenue')}>
+          className={({ isActive }) => cn('relative flex flex-col items-center gap-0.5 py-1.5 text-[11px] font-semibold', isActive ? 'text-accento-scuro' : 'text-tenue')}>
           <Icona className="size-[22px]" aria-hidden />
           {etichetta}
           {a.endsWith('squadra') && nonLetti > 0 && (

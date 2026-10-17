@@ -46,7 +46,7 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
 
   const segnaposti = useMemo<Segnaposto[]>(() => {
     if (!punto) return []
-    const s: Segnaposto[] = [{ id: 'evento', lat: punto.lat, lng: punto.lng, colore: '#0E7C6E', raggio: 11, etichetta: 'Evento', sempre: true }]
+    const s: Segnaposto[] = [{ id: 'evento', lat: punto.lat, lng: punto.lng, colore: '#16181D', raggio: 11, etichetta: 'Evento', sempre: true }]
     for (const p of dintorni.data?.parcheggi.slice(0, 8) ?? []) {
       s.push({ id: p.id, lat: p.punto.lat, lng: p.punto.lng, colore: coloriParcheggio[p.tipo].colore, raggio: selezionato === p.id ? 10 : 7, etichetta: `${p.nome}, ${coloriParcheggio[p.tipo].etichetta}`, onClick: () => setSelezionato(p.id) })
     }
@@ -68,7 +68,7 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
             <p className="text-sm text-tenue">{citta}</p>
           </div>
           <a href={linkNavigatore(indirizzo, citta)} target="_blank" rel="noreferrer"
-            className="h-11 px-4 rounded-lg bg-accento text-white font-semibold text-sm inline-flex items-center gap-2">
+            className="h-11 px-4 rounded-lg bg-inchiostro text-white font-semibold text-sm inline-flex items-center gap-2">
             <Car className="size-4" aria-hidden /> Naviga
           </a>
         </div>
@@ -78,7 +78,7 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
           {(ztlDichiarata || ztl || (dintorni.isPending && punto)) && <div className={cn('rounded-xl p-3.5 flex gap-3',
             ztl?.stato === 'dentro' || ztlDichiarata ? 'bg-urgente-tenue text-urgente-testo' : ztl?.stato === 'vicino' ? 'bg-avviso text-avviso-testo' : 'bg-sfondo')}>
             {dintorni.isPending && punto ? <Loader2 className="size-5 animate-spin shrink-0" aria-hidden />
-              : ztl?.stato === 'non_rilevata' && !ztlDichiarata ? <CheckCircle2 className="size-5 shrink-0 text-accento" aria-hidden />
+              : ztl?.stato === 'non_rilevata' && !ztlDichiarata ? <CheckCircle2 className="size-5 shrink-0 text-accento-scuro" aria-hidden />
               : <AlertTriangle className="size-5 shrink-0" aria-hidden />}
             <div className="min-w-0">
               <p className="font-semibold text-sm">
@@ -160,7 +160,7 @@ export function InfoLuogo({ indirizzo, citta, lat, lng, data, magazzino, ztlDich
                 return (
                   <a key={s.id} href={`https://www.google.com/maps/dir/?api=1&destination=${s.punto.lat},${s.punto.lng}`} target="_blank" rel="noreferrer"
                     className="rounded-lg bg-sfondo p-3 flex items-center gap-2.5 hover:bg-bordo/50 transition">
-                    <Icona className="size-4 shrink-0 text-accento" aria-hidden />
+                    <Icona className="size-4 shrink-0 text-accento-scuro" aria-hidden />
                     <div className="min-w-0">
                       <p className="text-xs font-semibold text-tenue">{etichetta}, {metri(s.distanza)}</p>
                       <p className="text-sm font-semibold truncate">{s.nome || etichetta}</p>

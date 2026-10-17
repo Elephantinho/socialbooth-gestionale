@@ -8,8 +8,8 @@ import type { EventoGestione as EventoLista } from '../types'
 
 const colori: Record<string, { colore: string; etichetta: string }> = {
   da_assegnare: { colore: '#C2321F', etichetta: 'Da assegnare' },
-  proposto: { colore: '#D89A00', etichetta: 'In attesa' },
-  confermato: { colore: '#0E8C7E', etichetta: 'Confermato' },
+  proposto: { colore: '#E8700F', etichetta: 'In attesa' },
+  confermato: { colore: '#1E7A4C', etichetta: 'Confermato' },
   in_corso: { colore: '#16181D', etichetta: 'In corso' },
   magazzino: { colore: '#8A8F98', etichetta: 'Magazzino' },
 }

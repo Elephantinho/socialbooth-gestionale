@@ -111,7 +111,7 @@ export function ChiudiEvento({ e, onChiudi, soloSpese }: { e: EventoDettaglio; o
         <div className="rounded-xl bg-evidenza border border-evidenza-bordo p-4 grid grid-cols-3 gap-2 text-center">
           <div><p className="text-xs text-su-scuro-tenue">Location</p><p className="font-semibold">{durata(minutiLocation)}</p></div>
           <div><p className="text-xs text-su-scuro-tenue">Viaggio</p><p className="font-semibold">{durata(minutiViaggio)}</p></div>
-          <div><p className="text-xs text-accento">Totale</p><p className="font-semibold text-accento">{durata(minutiLocation + minutiViaggio)}</p></div>
+          <div><p className="text-xs text-accento-scuro">Totale</p><p className="font-semibold text-accento-scuro">{durata(minutiLocation + minutiViaggio)}</p></div>
         </div>
 
         {cambiato && (
@@ -124,7 +124,7 @@ export function ChiudiEvento({ e, onChiudi, soloSpese }: { e: EventoDettaglio; o
           <div className="flex justify-between items-center">
             <span className="text-[13px] font-semibold text-tenue">Spese sostenute</span>
             <button type="button" onClick={() => setSpese((s) => [...s, { categoria: 'carburante', importo: '', descrizione: '', conCarta: !!carta }])}
-              className="text-sm font-semibold text-accento inline-flex items-center gap-1 cursor-pointer">
+              className="text-sm font-semibold text-accento-scuro inline-flex items-center gap-1 cursor-pointer">
               <Plus className="size-4" aria-hidden /> Aggiungi
             </button>
           </div>
@@ -144,7 +144,7 @@ export function ChiudiEvento({ e, onChiudi, soloSpese }: { e: EventoDettaglio; o
               </div>
               <Campo etichetta="Descrizione (facoltativa)" placeholder="Es. caffè per il cliente" value={s.descrizione} onChange={(ev) => aggiorna(i, { descrizione: ev.target.value })} />
               <label className={cn('h-11 rounded-lg border border-dashed text-sm font-semibold inline-flex items-center justify-center gap-2 cursor-pointer',
-                s.foto ? 'border-accento text-accento bg-accento-tenue/40' : 'border-bordo-forte text-tenue')}>
+                s.foto ? 'border-accento text-accento-scuro bg-accento-tenue/40' : 'border-bordo-forte text-tenue')}>
                 <Camera className="size-4" aria-hidden /> {s.foto ? 'Foto scontrino aggiunta ✓' : 'Fotografa lo scontrino'}
                 <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(ev) => ev.target.files?.[0] && aggiorna(i, { foto: ev.target.files[0] })} />
               </label>

@@ -50,7 +50,7 @@ export function OreOperatore() {
             <Card tono="scuro" className="p-4 flex flex-col gap-3">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-xs font-semibold text-accento">{etichettaMese(mese)}</p>
+                  <p className="text-xs font-semibold text-accento-scuro">{etichettaMese(mese)}</p>
                   <p className="font-semibold mt-0.5">{valide.length} eventi, {durata(minuti)}</p>
                 </div>
                 <p className="font-display text-2xl font-semibold">{euro(compenso)}</p>
@@ -70,7 +70,7 @@ export function OreOperatore() {
                 <div className="text-right">
                   <p className="font-semibold">{euro(r.compenso)}</p>
                   <p className={cn('text-xs font-semibold',
-                    r.stato === 'approvato' ? 'text-accento' : r.stato === 'respinto' ? 'text-urgente-testo' : 'text-avviso-testo')}>
+                    r.stato === 'approvato' ? 'text-ok' : r.stato === 'respinto' ? 'text-urgente-testo' : 'text-avviso-testo')}>
                     {r.stato === 'approvato' ? 'Approvate' : r.stato === 'respinto' ? 'Respinte' : 'In verifica'}
                   </p>
                 </div>

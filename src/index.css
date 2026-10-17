@@ -17,16 +17,17 @@
   --color-bordo: #E6E9EF;
   --color-bordo-forte: #D3D8E0;
 
-  /* Colori del marchio Socialbooth: cambia qui per aggiornare logo e dettagli */
-  --color-marchio: #0E7C6E;
-
-  /* Verde petrolio per azioni e selezione; la sua tinta chiara per ciò che è in evidenza */
-  --color-accento: #0E7C6E;
-  --color-accento-scuro: #0A5E54;
-  --color-accento-tenue: #E3F3EF;
-  --color-accento-chiaro: #8FD6C8;
-  --color-evidenza: #F1F8F6;
-  --color-evidenza-bordo: #D4EAE4;
+  /* Marchio: giallo su nero. Il giallo è solo per azioni principali e selezione, mai per gli stati */
+  --color-marchio: #FFC72C;
+  --color-accento: #FFC72C;
+  --color-accento-hover: #F2B60C;
+  --color-su-accento: #16181D;
+  /* testo e icone "in tinta" su fondo chiaro: ocra scuro, il giallo puro non si legge */
+  --color-accento-scuro: #7A5A00;
+  --color-accento-tenue: #FFF3CC;
+  --color-accento-chiaro: #FFC72C;
+  --color-evidenza: #F4F5F7;
+  --color-evidenza-bordo: #E2E5EA;
 
   /* Menu laterale scuro */
   --color-menu: #16181D;
@@ -35,11 +36,11 @@
   --color-menu-testo: #C9CBD2;
   --color-menu-tenue: #8B8E97;
 
-  /* Segnali in tinte pastello: ambra da guardare, rosso da fare subito, verde tutto ok / online */
-  --color-avviso: #FFF6E0;
-  --color-avviso-testo: #7A5200;
-  --color-avviso-titolo: #5F4000;
-  --color-avviso-icona: #E0A100;
+  /* Stati: rosso = da risolvere subito, arancione = attenzione, verde = tutto a posto */
+  --color-avviso: #FFF0E3;
+  --color-avviso-testo: #9A4300;
+  --color-avviso-titolo: #7A3400;
+  --color-avviso-icona: #E8700F;
 
   --color-urgente: #D9402B;
   --color-urgente-tenue: #FDEDEA;
@@ -50,7 +51,7 @@
 
   /* Vecchi colori "scuri": ora chiari, così nessun riquadro è più nero */
   --color-scuro-2: #FFFFFF;
-  --color-scuro-3: #D9EEE8;
+  --color-scuro-3: #FFF3CC;
   --color-su-scuro-tenue: #667085;
 }
 
@@ -70,7 +71,7 @@ body {
 .pt-sicura { padding-top: max(20px, env(safe-area-inset-top)); }
 
 h1, h2, h3 { letter-spacing: -0.012em; }
-:focus-visible { outline: 2px solid var(--color-accento); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--color-inchiostro); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
 
 /* Cifre della stessa larghezza solo dove servono (orari, importi, tabelle):

@@ -85,7 +85,7 @@ export function Passato() {
                   <YAxis type="category" dataKey="regione" width={120} tickLine={false} axisLine={false} tick={{ fill: '#15161A', fontSize: 13, fontWeight: 700 }} />
                   <Tooltip cursor={{ fill: 'rgba(21,22,26,0.05)' }} formatter={(v) => euro(Number(v))}
                     contentStyle={{ borderRadius: 12, border: '1px solid #E3E1DB', fontWeight: 600 }} />
-                  <Legend iconType="circle" wrapperStyle={{ fontSize: 13, fontWeight: 700 }} />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: 13, fontWeight: 600 }} formatter={(v) => <span className="text-inchiostro">{v}</span>} />
                   <Bar dataKey="ricavi" name="Ricavi" fill={COLORE_RICAVI} radius={[0, 4, 4, 0]} maxBarSize={22} />
                   <Bar dataKey="costi" name="Costi" fill={COLORE_COSTI} radius={[0, 4, 4, 0]} maxBarSize={22} />
                 </BarChart>
@@ -119,7 +119,7 @@ export function Passato() {
                         <td className="px-4 py-3 text-right">{euro(Math.round(r.compensi))}</td>
                         <td className="px-4 py-3 text-right">{euro(Math.round(r.altriCosti))}</td>
                         <td className="px-4 py-3 text-right font-semibold">{euro(Math.round(r.costiTotali))}</td>
-                        <td className={cn('px-4 py-3 text-right font-semibold', r.margine < 0 ? 'text-urgente-testo' : 'text-accento')}>{euro(Math.round(r.margine))}</td>
+                        <td className={cn('px-4 py-3 text-right font-semibold', r.margine < 0 ? 'text-urgente-testo' : 'text-ok')}>{euro(Math.round(r.margine))}</td>
                         <td className="px-4 py-3 text-right text-tenue">{percentuale(r.margine, r.ricavi)}</td>
                       </tr>
                       {aperta === r.regione && (data ?? []).filter((e) => e.regione === r.regione).map((e) => {
@@ -149,7 +149,7 @@ export function Passato() {
                     <td className="px-4 py-3 text-right">{euro(Math.round(totale.compensi))}</td>
                     <td className="px-4 py-3 text-right">{euro(Math.round(totale.altriCosti))}</td>
                     <td className="px-4 py-3 text-right">{euro(Math.round(totale.costiTotali))}</td>
-                    <td className={cn('px-4 py-3 text-right', totale.margine < 0 ? 'text-urgente-testo' : 'text-accento')}>{euro(Math.round(totale.margine))}</td>
+                    <td className={cn('px-4 py-3 text-right', totale.margine < 0 ? 'text-urgente-testo' : 'text-ok')}>{euro(Math.round(totale.margine))}</td>
                     <td className="px-4 py-3 text-right">{percentuale(totale.margine, totale.ricavi)}</td>
                   </tr>
                 </tbody>

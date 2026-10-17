@@ -47,7 +47,7 @@ function SchedaCliente({ c }: { c: Cliente }) {
   return (
     <Card className="p-5 flex flex-col gap-3">
       <div className="flex items-start gap-3">
-        <div className="size-11 rounded-lg bg-accento-tenue text-accento flex items-center justify-center shrink-0"><Building className="size-5" aria-hidden /></div>
+        <div className="size-11 rounded-lg bg-accento-tenue text-accento-scuro flex items-center justify-center shrink-0"><Building className="size-5" aria-hidden /></div>
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-[16px] truncate">{c.nome}</p>
           <p className="text-sm text-tenue">{validi.length} eventi</p>

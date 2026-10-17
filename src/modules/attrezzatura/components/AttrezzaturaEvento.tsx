@@ -27,7 +27,7 @@ export function AttrezzaturaEvento({ eventoId, magazzinoId, modificabile }: { ev
           {stato !== 'vuota' && <span className={cn('text-[11px] font-semibold px-2 py-0.5 rounded-full', ETICHETTE_STATO[stato].stile)}>{ETICHETTE_STATO[stato].testo}</span>}
         </TitoloSezione>
         {modificabile && magazzinoId && !modifica && (
-          <button onClick={() => setModifica(true)} className="text-sm font-semibold text-accento inline-flex items-center gap-1 cursor-pointer">
+          <button onClick={() => setModifica(true)} className="text-sm font-semibold text-accento-scuro inline-flex items-center gap-1 cursor-pointer">
             <Pencil className="size-3.5" aria-hidden /> Scegli
           </button>
         )}

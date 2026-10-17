@@ -2,8 +2,8 @@ import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAx
 import { euro } from '@/shared/lib/formato'
 
 // Colori validati per il daltonismo (teal / arancio) con il validatore della palette
-export const COLORE_RICAVI = '#0E8C7E'
-export const COLORE_COSTI = '#D97A1E'
+export const COLORE_RICAVI = '#1F2533'
+export const COLORE_COSTI = '#E6A700'
 
 export type PuntoAndamento = { mese: string; ricavi: number; costi: number; margine: number }
 
@@ -19,8 +19,8 @@ export function GraficoAndamento({ dati }: { dati: PuntoAndamento[] }) {
             <YAxis tickLine={false} axisLine={false} width={56} tick={{ fill: '#5E5F66', fontSize: 12 }}
               tickFormatter={(v: number) => (v >= 1000 ? `${Math.round(v / 100) / 10}k €` : `${v} €`)} />
             <Tooltip cursor={{ fill: 'rgba(21,22,26,0.05)' }} formatter={(v) => euro(Number(v))}
-              contentStyle={{ borderRadius: 12, border: '1px solid #E3E1DB', fontFamily: 'Manrope', fontWeight: 600 }} />
-            <Legend iconType="circle" wrapperStyle={{ fontSize: 13, fontWeight: 700, color: '#15161A' }} />
+              contentStyle={{ borderRadius: 12, border: '1px solid #E3E1DB', fontWeight: 600 }} />
+            <Legend iconType="circle" wrapperStyle={{ fontSize: 13, fontWeight: 600 }} formatter={(v) => <span className="text-inchiostro">{v}</span>} />
             <Bar dataKey="ricavi" name="Ricavi" fill={COLORE_RICAVI} radius={[4, 4, 0, 0]} maxBarSize={34} />
             <Bar dataKey="costi" name="Costi" fill={COLORE_COSTI} radius={[4, 4, 0, 0]} maxBarSize={34} />
           </BarChart>

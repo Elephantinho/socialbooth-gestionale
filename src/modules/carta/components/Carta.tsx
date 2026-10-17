@@ -17,7 +17,7 @@ const stampe = (n: number) => `${n.toLocaleString('it-IT')} stamp${n === 1 ? 'a'
 const stili: Record<LivelloCarta, { badge: string; barra: string; testo: string }> = {
   finita: { badge: 'bg-urgente text-white', barra: 'bg-urgente', testo: 'Carta finita' },
   bassa: { badge: 'bg-urgente-tenue text-urgente-testo', barra: 'bg-urgente', testo: 'Carta in esaurimento' },
-  ok: { badge: 'bg-accento-tenue text-accento-scuro', barra: 'bg-accento', testo: 'Carta ok' },
+  ok: { badge: 'bg-ok-tenue text-ok', barra: 'bg-ok', testo: 'Carta ok' },
   da_impostare: { badge: 'bg-sfondo text-tenue border border-bordo', barra: 'bg-bordo-forte', testo: 'Scorta da impostare' },
 }
 
@@ -90,7 +90,7 @@ export function AvvisiCarta() {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <TitoloSezione>Carta degli operatori
         </TitoloSezione>
-        <span className={cn('text-sm font-semibold', critici.length ? 'text-urgente-testo' : 'text-accento-scuro')}>
+        <span className={cn('text-sm font-semibold', critici.length ? 'text-urgente-testo' : 'text-ok')}>
           {critici.length} da ricaricare
         </span>
       </div>
@@ -209,7 +209,7 @@ export function SchedaCarta({ operatore, modo }: { operatore: string; modo: 'ges
                   <span className="font-semibold">{etichettaMovimento[m.tipo]}</span>
                   <span className="text-tenue">, {dataBreve(m.creato_il)}{m.evento ? `, ${m.evento.citta}` : ''}{m.note ? `, ${m.note}` : ''}</span>
                 </span>
-                <span className={cn('font-semibold tabular-nums whitespace-nowrap', m.tipo === 'ricarica' && 'text-accento', m.tipo === 'consumo' && 'text-urgente-testo')}>
+                <span className={cn('font-semibold tabular-nums whitespace-nowrap', m.tipo === 'ricarica' && 'text-ok', m.tipo === 'consumo' && 'text-urgente-testo')}>
                   {m.tipo === 'correzione' ? `= ${m.stampe}` : m.stampe > 0 ? `+${m.stampe}` : m.stampe}
                 </span>
               </li>

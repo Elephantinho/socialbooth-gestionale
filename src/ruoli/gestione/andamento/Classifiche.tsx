@@ -29,7 +29,7 @@ export function Classifiche({ eventi }: { eventi: Evento[] }) {
             <Avatar nome={nomeCompleto(r.op)} foto={r.op.foto} taglia="sm" />
             <span className="flex-1 min-w-0 font-semibold truncate">{nomeCompleto(r.op)}</span>
             <span className="text-sm text-tenue">{r.eventi} eventi</span>
-            <span className={cn('text-sm font-semibold w-24 text-right', r.margine < 0 ? 'text-urgente-testo' : 'text-accento')}>{euro(Math.round(r.margine))}</span>
+            <span className={cn('text-sm font-semibold w-24 text-right', r.margine < 0 ? 'text-urgente-testo' : 'text-ok')}>{euro(Math.round(r.margine))}</span>
           </Link>
         ))}
       </Card>

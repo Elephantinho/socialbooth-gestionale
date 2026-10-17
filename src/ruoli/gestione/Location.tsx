@@ -67,7 +67,7 @@ function SchedaLocation({ l }: { l: Riga<'location'> }) {
   return (
     <Card className="p-5 flex flex-col gap-3">
       <div className="flex items-start gap-3">
-        <div className="size-11 rounded-lg bg-accento-tenue text-accento flex items-center justify-center shrink-0"><MapPin className="size-5" aria-hidden /></div>
+        <div className="size-11 rounded-lg bg-accento-tenue text-accento-scuro flex items-center justify-center shrink-0"><MapPin className="size-5" aria-hidden /></div>
         <div className="min-w-0">
           <p className="font-semibold text-[16px]">{l.nome || l.indirizzo}</p>
           <p className="text-sm text-tenue">{l.nome ? `${l.indirizzo}, ` : ''}{l.citta}, {l.regione}</p>

@@ -118,7 +118,7 @@ function VoceCosto({ c }: { c: Voce }) {
           {etichettaPagamento(c.pagato_con)}{c.carta && ` (${c.carta.nome} ****${c.carta.ultime_cifre})`}
           {c.operatore?.nome && `, ${c.operatore.nome}`}
           {c.stato === 'inviato' && c.operatore_id && <span className="text-avviso-testo font-semibold">, da approvare</span>}
-          {c.scontrino && <>, <button type="button" onClick={() => apriFile(c.scontrino!)} className="font-semibold text-accento underline cursor-pointer">vedi scontrino</button></>}
+          {c.scontrino && <>, <button type="button" onClick={() => apriFile(c.scontrino!)} className="font-semibold text-accento-scuro underline cursor-pointer">vedi scontrino</button></>}
         </p>
       </div>
       {senzaPrezzo ? (
@@ -225,7 +225,7 @@ function RicavoFattura({ e }: { e: EventoGestioneCompleto }) {
       {aggiorna.error && <Errore errore={aggiorna.error} />}
       <div className="flex items-center gap-3">
         <Pulsante type="submit" variante="scuro" caricamento={aggiorna.isPending}>Salva ricavo</Pulsante>
-        {salvato && <span className="text-sm font-semibold text-accento" role="status">Salvato</span>}
+        {salvato && <span className="text-sm font-semibold text-accento-scuro" role="status">Salvato</span>}
       </div>
     </form>
   )

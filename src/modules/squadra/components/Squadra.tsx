@@ -49,7 +49,7 @@ export function Squadra({ telefono }: { telefono?: boolean }) {
       </div>
       <div className="overflow-y-auto flex-1">
         <RigaContatto attiva={scelta === 'squadra'} onClick={() => apri(CANALE_SQUADRA)} nonLetti={nonLettiDi(CANALE_SQUADRA)}
-          icona={<span className="size-10 rounded-full bg-accento-tenue text-accento flex items-center justify-center"><Users className="size-5" aria-hidden /></span>}
+          icona={<span className="size-10 rounded-full bg-accento-tenue text-accento-scuro flex items-center justify-center"><Users className="size-5" aria-hidden /></span>}
           titolo="Tutta la squadra" sotto={`${quantiOnline} online adesso`} />
         {persone.isPending ? <Caricamento className="py-6" /> : altri.map((p) => (
           <RigaContatto key={p.id} attiva={typeof scelta === 'object' && scelta?.id === p.id} onClick={() => apri(p.id)}
@@ -85,7 +85,7 @@ function AvatarPresenza({ p, online }: { p: Persona; online: boolean }) {
   return (
     <span className="relative">
       <Avatar nome={nomeCompleto(p)} foto={p.foto} />
-      <span className={cn('absolute bottom-0 right-0 size-3 rounded-full border-2 border-superficie', online ? 'bg-[#1F9D55]' : 'bg-bordo-forte')}
+      <span className={cn('absolute bottom-0 right-0 size-3 rounded-full border-2 border-superficie', online ? 'bg-ok' : 'bg-bordo-forte')}
         aria-label={online ? 'online' : 'offline'} />
     </span>
   )
@@ -102,11 +102,11 @@ function RigaContatto({ attiva, onClick, icona, titolo, sotto, stato, online, no
       <span className="flex-1 min-w-0">
         <span className="flex items-baseline justify-between gap-2">
           <span className="font-semibold truncate">{titolo}</span>
-          {stato && <span className={cn('text-xs whitespace-nowrap', online ? 'text-[#1F7A45] font-semibold' : 'text-tenue')}>{stato}</span>}
+          {stato && <span className={cn('text-xs whitespace-nowrap', online ? 'text-ok font-semibold' : 'text-tenue')}>{stato}</span>}
         </span>
         <span className="block text-xs text-tenue truncate">{sotto}</span>
       </span>
-      {nonLetti > 0 && <span className="min-w-5 h-5 px-1.5 rounded-full bg-accento text-white text-[11px] font-semibold flex items-center justify-center">{nonLetti}</span>}
+      {nonLetti > 0 && <span className="min-w-5 h-5 px-1.5 rounded-full bg-accento text-su-accento text-[11px] font-semibold flex items-center justify-center">{nonLetti}</span>}
     </button>
   )
 }
@@ -137,11 +137,11 @@ function Conversazione({ chi, persone, online, onIndietro }: { chi: Persona | 's
       <header className="h-16 px-4 border-b border-bordo flex items-center gap-3 shrink-0">
         {onIndietro && <button onClick={onIndietro} aria-label="Torna all'elenco" className="size-9 -ml-1 flex items-center justify-center cursor-pointer"><ArrowLeft className="size-5" aria-hidden /></button>}
         {chi === 'squadra'
-          ? <span className="size-10 rounded-full bg-accento-tenue text-accento flex items-center justify-center"><Users className="size-5" aria-hidden /></span>
+          ? <span className="size-10 rounded-full bg-accento-tenue text-accento-scuro flex items-center justify-center"><Users className="size-5" aria-hidden /></span>
           : <AvatarPresenza p={chi} online={online} />}
         <div className="min-w-0">
           <p className="font-semibold truncate">{chi === 'squadra' ? 'Tutta la squadra' : nomeCompleto(chi)}</p>
-          <p className={cn('text-xs', online ? 'text-[#1F7A45] font-semibold' : 'text-tenue')}>
+          <p className={cn('text-xs', online ? 'text-ok font-semibold' : 'text-tenue')}>
             {chi === 'squadra' ? 'Lo leggono tutti: ufficio e operatori' : statoPresenza(online, chi.visto_il)}
           </p>
         </div>
@@ -160,7 +160,7 @@ function Conversazione({ chi, persone, online, onIndietro }: { chi: Persona | 's
             <div key={m.id} className={cn('flex flex-col max-w-[78%]', mio ? 'self-end items-end' : 'self-start items-start', nuovoAutore && i > 0 && 'mt-2')}>
               {chi === 'squadra' && !mio && nuovoAutore && <span className="text-xs font-semibold text-tenue mb-0.5 px-1">{nomeDi(m.autore_id)}</span>}
               <p className={cn('px-3 py-2 text-[15px] leading-snug whitespace-pre-line break-words rounded-lg',
-                mio ? 'bg-accento text-white rounded-br-sm' : 'bg-superficie border border-bordo rounded-bl-sm')}>
+                mio ? 'bg-accento text-su-accento rounded-br-sm' : 'bg-superficie border border-bordo rounded-bl-sm')}>
                 {m.testo}
                 <span className={cn('ml-2 text-[11px] align-bottom', mio ? 'text-white/70' : 'text-tenue')}>{ora(m.creato_il)}</span>
               </p>
@@ -179,7 +179,7 @@ function Conversazione({ chi, persone, online, onIndietro }: { chi: Persona | 's
             className="w-full max-h-32 min-h-11 rounded-lg border border-bordo-forte bg-superficie px-3 py-2.5 text-[15px] resize-none" />
         </label>
         <button type="submit" disabled={!testo.trim() || invia.isPending} aria-label="Invia"
-          className="size-11 rounded-lg bg-accento text-white flex items-center justify-center cursor-pointer disabled:opacity-40">
+          className="size-11 rounded-lg bg-accento text-su-accento flex items-center justify-center cursor-pointer disabled:opacity-40">
           <SendHorizontal className="size-5" aria-hidden />
         </button>
       </form>

@@ -58,7 +58,7 @@ export function Campanella({ scura, nelMenu }: { scura?: boolean; nelMenu?: bool
             <div className="flex items-center justify-between px-4 py-3 border-b border-bordo sticky top-0 bg-superficie">
               <p className="font-semibold">Notifiche</p>
               {nonLette > 0 && (
-                <button onClick={() => segna.mutate({ utenteId: profilo.id })} className="text-xs font-semibold text-accento inline-flex items-center gap-1 cursor-pointer">
+                <button onClick={() => segna.mutate({ utenteId: profilo.id })} className="text-xs font-semibold text-accento-scuro inline-flex items-center gap-1 cursor-pointer">
                   <CheckCheck className="size-4" aria-hidden /> Segna tutte lette
                 </button>
               )}

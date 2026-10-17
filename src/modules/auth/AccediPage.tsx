@@ -37,7 +37,7 @@ export function AccediPage() {
       </form>
 
       <p className="text-sm text-tenue text-center">
-        Sei un operatore e non hai un account? <Link to="/registrati" className="font-semibold text-accento">Registrati</Link>
+        Sei un operatore e non hai un account? <Link to="/registrati" className="font-semibold text-accento-scuro">Registrati</Link>
       </p>
     </PaginaAccesso>
   )

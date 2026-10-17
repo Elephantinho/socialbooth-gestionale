@@ -62,7 +62,7 @@ export function ImportaMagazzini({ onFatto }: { onFatto: () => void }) {
       </p>
       <div className="flex flex-wrap gap-2">
         <Pulsante variante="secondario" onClick={scaricaModello}>Scarica modello</Pulsante>
-        <label className="h-11 px-4 rounded-lg bg-accento text-white text-sm font-semibold inline-flex items-center gap-2 cursor-pointer">
+        <label className="h-11 px-4 rounded-lg bg-accento text-su-accento text-sm font-semibold inline-flex items-center gap-2 cursor-pointer">
           <FileUp className="size-4" aria-hidden /> Scegli file CSV
           <input type="file" accept=".csv,text/csv" className="sr-only" onChange={(e) => e.target.files?.[0] && leggi(e.target.files[0])} />
         </label>

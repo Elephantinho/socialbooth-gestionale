@@ -14,7 +14,7 @@ const coloreStato: Record<string, string> = {
   bozza: 'bg-sfondo text-tenue border-bordo',
   da_assegnare: 'bg-urgente-tenue text-urgente-testo border-urgente/30',
   proposto: 'bg-avviso text-avviso-testo border-avviso-icona/40',
-  confermato: 'bg-accento-tenue text-accento-scuro border-accento/30',
+  confermato: 'bg-ok-tenue text-ok border-ok/30',
   in_corso: 'bg-accento-tenue text-accento-scuro border-accento',
   completato: 'bg-superficie text-tenue border-bordo',
 }
@@ -62,7 +62,7 @@ export function Calendario() {
             <ChevronRight className="size-5" aria-hidden />
           </button>
           <button onClick={() => { const d = new Date(); setMese(new Date(d.getFullYear(), d.getMonth(), 1)) }}
-            className="h-11 px-4 rounded-lg text-sm font-semibold text-accento hover:bg-accento-tenue cursor-pointer">Oggi</button>
+            className="h-11 px-4 rounded-lg text-sm font-semibold text-accento-scuro hover:bg-accento-tenue cursor-pointer">Oggi</button>
         </div>
         <Selezione etichetta="" aria-label="Regione" value={regione} onChange={(e) => setRegione(e.target.value)} className="w-56">
           <option value="">Tutte le regioni</option>
@@ -85,7 +85,7 @@ export function Calendario() {
                   return (
                     <div key={k} className={cn('min-h-28 border-r border-b border-bordo p-1.5 flex flex-col gap-1 [&:nth-child(7n)]:border-r-0', fuori && 'bg-sfondo/60')}>
                       <span className={cn('text-xs font-semibold w-7 h-7 rounded-full flex items-center justify-center',
-                        k === oggi ? 'bg-accento text-white' : fuori ? 'text-tenue/60' : 'text-inchiostro')}>{d.getDate()}</span>
+                        k === oggi ? 'bg-accento text-su-accento' : fuori ? 'text-tenue/60' : 'text-inchiostro')}>{d.getDate()}</span>
                       {eventi.slice(0, 3).map((e) => (
                         <Link key={e.id} to={`/gestione/eventi/${e.id}`}
                           className={cn('rounded-lg border px-1.5 py-1 text-[11px] leading-tight hover:brightness-95 transition', coloreStato[e.stato])}>

@@ -81,7 +81,7 @@ export function Futuro() {
           )}
 
           <Card className={cn('p-5 flex flex-wrap items-center gap-4', mancanti > 0 && 'border border-[#F2B8AE]')}>
-            <Printer className={cn('size-6', mancanti > 0 ? 'text-urgente' : 'text-accento')} aria-hidden />
+            <Printer className={cn('size-6', mancanti > 0 ? 'text-urgente' : 'text-ok')} aria-hidden />
             <div className="flex-1 min-w-56">
               <p className="font-semibold">
                 {data.mediaStampe ? `Servono circa ${stampeNecessarie.toLocaleString('it-IT')} stampe` : 'Ancora nessuna media di stampe per evento'}
@@ -92,7 +92,7 @@ export function Futuro() {
                 {mancanti > 0 && carta.parametri && ((n) => ` Da comprare: ${n} confezion${n === 1 ? 'e' : 'i'}.`)(confezioniPer(mancanti, carta.parametri.perConfezione))}
               </p>
             </div>
-            {puo('carta.ricarica') && <Link to="/gestione/panoramica" className="text-sm font-semibold text-accento hover:underline">Carta per operatore</Link>}
+            {puo('carta.ricarica') && <Link to="/gestione/panoramica" className="text-sm font-semibold text-accento-scuro hover:underline">Carta per operatore</Link>}
           </Card>
 
           <Card className="p-5 flex flex-col gap-3">
@@ -107,7 +107,7 @@ export function Futuro() {
                     tickFormatter={(v: number) => (v >= 1000 ? `${Math.round(v / 100) / 10}k €` : `${v} €`)} />
                   <Tooltip cursor={{ fill: 'rgba(21,22,26,0.05)' }} formatter={(v) => euro(Number(v))}
                     contentStyle={{ borderRadius: 12, border: '1px solid #E3E1DB', fontWeight: 600 }} />
-                  <Legend iconType="circle" wrapperStyle={{ fontSize: 13, fontWeight: 700 }} />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: 13, fontWeight: 600 }} formatter={(v) => <span className="text-inchiostro">{v}</span>} />
                   <Bar dataKey="ricavi" name="Ricavi previsti" fill={COLORE_RICAVI} radius={[4, 4, 0, 0]} maxBarSize={36} />
                   <Bar dataKey="costi" name="Costi previsti" fill={COLORE_COSTI} radius={[4, 4, 0, 0]} maxBarSize={36} />
                 </BarChart>
@@ -181,7 +181,7 @@ function Celle({ c, scuro }: { c: ReturnType<typeof totalePrevisione>; scuro?: b
       <td className="px-4 py-2.5 text-right whitespace-nowrap">{tondo(c.altriCosti - c.carta)}</td>
       <td className="px-4 py-2.5 text-right font-semibold whitespace-nowrap">{tondo(c.costiTotali)}</td>
       <td className={cn('px-4 py-2.5 text-right font-semibold whitespace-nowrap',
-        c.margine < 0 ? (scuro ? 'text-urgente-testo' : 'text-urgente-testo') : scuro ? 'text-accento' : 'text-accento')}>{tondo(c.margine)}</td>
+        c.margine < 0 ? 'text-urgente-testo' : 'text-ok')}>{tondo(c.margine)}</td>
     </>
   )
 }

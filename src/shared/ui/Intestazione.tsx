@@ -32,7 +32,7 @@ export function Numero({ valore, etichetta, tono = 'chiaro' }: {
   etichetta: string
   tono?: 'chiaro' | 'scuro' | 'accento' | 'urgente'
 }) {
-  const colore = { chiaro: '', scuro: '', accento: 'text-accento-scuro', urgente: 'text-urgente-testo' }[tono]
+  const colore = { chiaro: '', scuro: '', accento: '', urgente: 'text-urgente-testo' }[tono]
   return (
     <div className="h-full rounded-lg bg-superficie border border-bordo px-4 py-3">
       <p className={`text-[22px] font-semibold leading-tight truncate tabular-nums ${colore}`}>{valore}</p>

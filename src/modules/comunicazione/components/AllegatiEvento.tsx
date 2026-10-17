@@ -43,7 +43,7 @@ export function AllegatiEvento({ eventoId }: { eventoId: string }) {
             return (
               <li key={a.id} className="flex items-center gap-3 rounded-lg border border-bordo p-2.5">
                 <span className="size-9 rounded-lg bg-sfondo flex items-center justify-center shrink-0">
-                  {immagine ? <Immagine className="size-4 text-accento" aria-hidden /> : <FileText className="size-4 text-tenue" aria-hidden />}
+                  {immagine ? <Immagine className="size-4 text-accento-scuro" aria-hidden /> : <FileText className="size-4 text-tenue" aria-hidden />}
                 </span>
                 <button onClick={() => apriFile(a.percorso).catch(setErrore)} className="flex-1 min-w-0 text-left cursor-pointer">
                   <span className="block text-sm font-semibold truncate hover:underline">{a.nome}</span>

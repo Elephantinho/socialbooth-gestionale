@@ -10,7 +10,7 @@ import { Pulsante } from '@/shared/ui/Pulsante'
 const coloreStato: Record<Richiesta['stato'], string> = {
   aperta: 'bg-urgente-tenue text-urgente-testo',
   in_corso: 'bg-avviso text-avviso-testo',
-  fatta: 'bg-accento-tenue text-accento-scuro',
+  fatta: 'bg-ok-tenue text-ok',
   annullata: 'bg-sfondo text-tenue',
 }
 

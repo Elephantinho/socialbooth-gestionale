@@ -9,8 +9,8 @@ import type { EventoLista } from './tipi'
 function fase(e: EventoLista) {
   const t = e.ore?.[0]
   if (t?.rientro_il) return { testo: 'Rientrato', stile: 'bg-sfondo text-tenue' }
-  if (t?.fine_il) return { testo: `Finito alle ${ora(t.fine_il)}, in rientro`, stile: 'bg-accento-tenue text-accento-scuro' }
-  if (t?.check_in_il) return { testo: `In location dalle ${ora(t.check_in_il)}`, stile: 'bg-accento-tenue text-accento-scuro' }
+  if (t?.fine_il) return { testo: `Finito alle ${ora(t.fine_il)}, in rientro`, stile: 'bg-ok-tenue text-ok' }
+  if (t?.check_in_il) return { testo: `In location dalle ${ora(t.check_in_il)}`, stile: 'bg-ok-tenue text-ok' }
   if (t?.partenza_il) return { testo: `In viaggio dalle ${ora(t.partenza_il)}`, stile: 'bg-avviso text-avviso-testo' }
   return { testo: `Parte alle ${ora(e.ritiro_magazzino_il ?? e.allestimento_il)}`, stile: 'bg-sfondo text-tenue' }
 }
@@ -27,8 +27,8 @@ export function Adesso({ eventi }: { eventi: EventoLista[] }) {
     <Card className="p-5 flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <span className="relative flex size-2.5" aria-hidden>
-          {lista.length > 0 && <span className="absolute inline-flex size-full rounded-full bg-accento opacity-60 animate-ping" />}
-          <span className="relative inline-flex size-2.5 rounded-full bg-accento" />
+          {lista.length > 0 && <span className="absolute inline-flex size-full rounded-full bg-ok opacity-60 animate-ping" />}
+          <span className="relative inline-flex size-2.5 rounded-full bg-ok" />
         </span>
         <TitoloSezione>In questo momento</TitoloSezione>
         <span className="text-sm text-tenue font-semibold">{lista.length ? `${lista.length} ${lista.length === 1 ? 'evento' : 'eventi'} oggi` : ''}</span>

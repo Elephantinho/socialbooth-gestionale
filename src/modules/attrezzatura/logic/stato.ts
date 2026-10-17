@@ -7,7 +7,7 @@ export const ETICHETTE_STATO: Record<StatoAttrezzatura, { testo: string; stile: 
   in_magazzino: { testo: 'In magazzino', stile: 'bg-sfondo text-tenue' },
   parziale: { testo: 'Prelevata in parte', stile: 'bg-avviso text-avviso-testo' },
   fuori: { testo: 'Fuori dal magazzino', stile: 'bg-inchiostro text-white' },
-  rientrata: { testo: 'Rientrata', stile: 'bg-accento-tenue text-accento-scuro' },
+  rientrata: { testo: 'Rientrata', stile: 'bg-ok-tenue text-ok' },
 }
 
 /** Stato complessivo dell'attrezzatura di un evento */

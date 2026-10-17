@@ -85,7 +85,7 @@ function Indisponibilita() {
       <div className="flex items-center justify-between">
         <TitoloSezione className="text-[15px]">Giorni non disponibile</TitoloSezione>
         {!aperto && (
-          <button onClick={() => setAperto(true)} className="text-sm font-semibold text-accento inline-flex items-center gap-1 cursor-pointer">
+          <button onClick={() => setAperto(true)} className="text-sm font-semibold text-accento-scuro inline-flex items-center gap-1 cursor-pointer">
             <Plus className="size-4" aria-hidden /> Aggiungi
           </button>
         )}

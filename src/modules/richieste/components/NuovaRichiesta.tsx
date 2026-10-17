@@ -113,7 +113,7 @@ export function NuovaRichiesta({ onFatto }: { onFatto?: () => void }) {
           Arriva a {ha('destinatario') ? 'chi scegli' : RUOLI.find((r) => r.id === modello.per)?.etichetta.toLowerCase()} con una notifica.
         </span>
       </div>
-      {crea.isSuccess && <p role="status" className="text-sm font-semibold text-accento">Richiesta inviata.</p>}
+      {crea.isSuccess && <p role="status" className="text-sm font-semibold text-ok">Richiesta inviata.</p>}
     </form>
   )
 }

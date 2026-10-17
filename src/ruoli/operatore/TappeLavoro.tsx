@@ -136,7 +136,7 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
               <li key={p.chiave} className="flex gap-3">
                 <span className="flex flex-col items-center" aria-hidden>
                   <span className={cn('size-8 rounded-full flex items-center justify-center',
-                    fatto ? 'bg-accento text-white' : prossimo ? 'bg-accento-tenue text-accento-scuro' : 'bg-sfondo text-tenue')}>
+                    fatto ? 'bg-accento text-su-accento' : prossimo ? 'bg-accento-tenue text-accento-scuro' : 'bg-sfondo text-tenue')}>
                     {fatto ? <Check className="size-4" /> : <p.Icona className="size-4" />}
                   </span>
                   {i < passi.length - 1 && <span className={cn('w-0.5 flex-1 min-h-4', fatto ? 'bg-accento' : 'bg-bordo')} />}
@@ -169,10 +169,10 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
       <div aria-hidden className="h-44 order-last" />
       <div className="fixed bottom-0 inset-x-0 z-30 max-w-md mx-auto bg-sfondo/95 backdrop-blur border-t border-bordo px-5 pt-3.5 pb-sicura flex flex-col gap-1.5 shadow-[0_-8px_24px_-16px_rgba(21,22,26,0.25)]">
         {registra.error && <Errore errore={registra.error} />}
-        {auto && <p className="text-center text-sm font-semibold text-accento" role="status">{auto}</p>}
+        {auto && <p className="text-center text-sm font-semibold text-accento-scuro" role="status">{auto}</p>}
         {azione}
         <div className="flex justify-center gap-4">
-          <button onClick={() => setSpese(true)} className="text-sm font-semibold text-accento py-1 inline-flex items-center gap-1.5 cursor-pointer">
+          <button onClick={() => setSpese(true)} className="text-sm font-semibold text-accento-scuro py-1 inline-flex items-center gap-1.5 cursor-pointer">
             <Receipt className="size-4" aria-hidden /> Aggiungi una spesa
           </button>
           {!chiuso && iniziato && (

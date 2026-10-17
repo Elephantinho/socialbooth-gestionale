@@ -164,7 +164,7 @@ export function DettaglioOperatore() {
                     {soldi && <td className="px-5 py-3 whitespace-nowrap font-semibold">{compenso != null ? euro(compenso) : '—'}</td>}
                     {soldi && <td className="px-5 py-3 whitespace-nowrap">
                       {margine == null ? <span className="text-tenue text-xs font-semibold">ricavo mancante</span> : (
-                        <span className={cn('font-semibold', margine < 0 ? 'text-urgente-testo' : 'text-accento')}>
+                        <span className={cn('font-semibold', margine < 0 ? 'text-urgente-testo' : 'text-ok')}>
                           {euro(margine)}{!definitivo && <span className="text-xs font-semibold text-tenue"> prev.</span>}
                         </span>
                       )}

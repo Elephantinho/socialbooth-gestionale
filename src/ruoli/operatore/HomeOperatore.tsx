@@ -41,7 +41,7 @@ export function HomeOperatore() {
 
       <AttivaNotifiche />
       <Link to="/operatore/richieste" className="rounded-xl border border-bordo bg-superficie px-4 py-3 flex items-center gap-3">
-        <Inbox className="size-5 text-accento" aria-hidden />
+        <Inbox className="size-5 text-accento-scuro" aria-hidden />
         <span className="flex-1 font-semibold">Richieste all'ufficio</span>
         <ChevronRight className="size-4 text-tenue" aria-hidden />
       </Link>
@@ -118,7 +118,7 @@ function ProssimoEvento({ evento: e }: { evento: EventoDettaglio }) {
         )}
         <Link
           to={`/operatore/eventi/${e.id}`}
-          className="h-[50px] rounded-lg bg-accento text-white font-semibold text-[15px] flex items-center justify-center gap-2 active:translate-y-px"
+          className="h-[50px] rounded-lg bg-accento text-su-accento font-semibold text-[15px] flex items-center justify-center gap-2 active:translate-y-px"
         >
           Apri la scheda
         </Link>

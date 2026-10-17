@@ -37,9 +37,9 @@ export function Segno({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden>
       <rect width="32" height="32" rx="9" className="fill-marchio" />
-      <circle cx="16" cy="16" r="8.5" fill="none" stroke="white" strokeWidth="2.6" />
-      <circle cx="16" cy="16" r="3" fill="white" />
-      <circle cx="24.5" cy="7.5" r="2" fill="white" />
+      <circle cx="16" cy="16" r="8.5" fill="none" stroke="#16181D" strokeWidth="2.6" />
+      <circle cx="16" cy="16" r="3" fill="#16181D" />
+      <circle cx="24.5" cy="7.5" r="2" fill="#16181D" />
     </svg>
   )
 }

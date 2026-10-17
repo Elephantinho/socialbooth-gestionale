@@ -218,7 +218,7 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante, idModulo
             {ztlRilevata && ztlRilevata.stato !== 'non_rilevata' && !m.ztl && (
               <div className="rounded-xl bg-avviso p-3.5 flex flex-wrap items-center gap-3 text-sm text-avviso-testo">
                 <span className="flex-1 min-w-48"><strong className="text-avviso-titolo">{ztlRilevata.stato === 'dentro' ? 'Questo indirizzo sembra dentro una ZTL' : 'C\'è una ZTL vicino'}</strong>{ztlRilevata.dettaglio && `, ${ztlRilevata.dettaglio}`}</span>
-                <button type="button" onClick={() => imposta('ztl', true)} className="h-9 px-3 rounded-lg bg-accento text-white font-semibold cursor-pointer">Imposta ZTL: Sì</button>
+                <button type="button" onClick={() => imposta('ztl', true)} className="h-9 px-3 rounded-lg bg-accento text-su-accento font-semibold cursor-pointer">Imposta ZTL: Sì</button>
               </div>
             )}
             <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(140px,1fr))]">
@@ -281,7 +281,7 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante, idModulo
                 )}
               </div>
               <p className={cn('text-xs font-semibold flex items-center gap-1.5',
-                viaggio.stato === 'fatto' && !m.viaggioManuale ? 'text-accento' : 'text-su-scuro-tenue')}>
+                viaggio.stato === 'fatto' && !m.viaggioManuale ? 'text-accento-scuro' : 'text-su-scuro-tenue')}>
                 {viaggio.stato === 'calcolo' ? <Loader2 className="size-3.5 animate-spin" aria-hidden /> : <MapPin className="size-3.5" aria-hidden />}
                 {m.viaggioManuale ? 'Inserito a mano' : messaggioViaggio[viaggio.stato]}
               </p>
@@ -294,7 +294,7 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante, idModulo
           </Card>
 
           <button type="submit" disabled={invio || !calcolo}
-            className="h-14 rounded-xl bg-accento text-white font-semibold text-[17px] flex items-center justify-center gap-2 cursor-pointer hover:bg-accento-scuro disabled:opacity-50 transition">
+            className="h-14 rounded-xl bg-accento text-su-accento font-semibold text-[17px] flex items-center justify-center gap-2 cursor-pointer hover:bg-accento-hover disabled:opacity-50 transition">
             {invio && <Loader2 className="size-5 animate-spin" aria-hidden />}
             {testoPulsante}
           </button>

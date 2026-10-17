@@ -47,10 +47,10 @@ export function RegistratiPage() {
   if (inviata) {
     return (
       <Centro>
-        <div className="size-14 rounded-xl bg-accento text-white flex items-center justify-center"><MailCheck className="size-7" aria-hidden /></div>
+        <div className="size-14 rounded-xl bg-accento text-su-accento flex items-center justify-center"><MailCheck className="size-7" aria-hidden /></div>
         <h1 className="font-display text-[26px] font-semibold leading-tight">Controlla la tua email</h1>
         <p className="text-tenue">Ti abbiamo mandato un link a <strong className="text-inchiostro">{email}</strong> per confermare l'account. Poi un amministratore lo attiverà.</p>
-        <Link to="/accedi" className="font-semibold text-accento">Torna all'accesso</Link>
+        <Link to="/accedi" className="font-semibold text-accento-scuro">Torna all'accesso</Link>
       </Centro>
     )
   }

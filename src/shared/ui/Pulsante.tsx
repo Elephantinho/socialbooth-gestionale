@@ -5,11 +5,11 @@ type Variante = 'primario' | 'secondario' | 'scuro' | 'chiaro' | 'fantasma'
 type Taglia = 'md' | 'lg' | 'xl'
 
 const varianti: Record<Variante, string> = {
-  primario: 'bg-accento text-white hover:bg-accento-scuro',
+  primario: 'bg-accento text-su-accento hover:bg-accento-hover',
   secondario: 'bg-superficie text-inchiostro border border-bordo-forte hover:border-inchiostro',
-  scuro: 'bg-accento-tenue text-accento-scuro hover:bg-scuro-3',
+  scuro: 'bg-inchiostro text-white hover:bg-menu',
   chiaro: 'bg-white text-inchiostro hover:bg-sfondo',
-  fantasma: 'bg-transparent text-accento hover:bg-accento-tenue',
+  fantasma: 'bg-transparent text-inchiostro hover:bg-sfondo',
 }
 
 const taglie: Record<Taglia, string> = {

@@ -66,7 +66,7 @@ export function ProfiloOperatore() {
           </Selezione>
           <SceltaRegioni valore={regioni} onChange={setRegioni} />
           {aggiorna.error && <Errore errore={aggiorna.error} />}
-          {salvato && <p className="text-sm font-semibold text-accento" role="status">Salvato</p>}
+          {salvato && <p className="text-sm font-semibold text-accento-scuro" role="status">Salvato</p>}
           <Pulsante type="submit" taglia="lg" pieno caricamento={aggiorna.isPending}>Salva</Pulsante>
         </form>
       </Card>

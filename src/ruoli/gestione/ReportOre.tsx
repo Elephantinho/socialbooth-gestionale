@@ -105,7 +105,7 @@ function BloccoOperatore({ nome, righe }: { nome: string; righe: RigaReport[] })
           <span><span className="text-su-scuro-tenue">Ore </span><strong>{durata(minuti)}</strong></span>
           <span><span className="text-su-scuro-tenue">Compenso </span><strong>{euro(compenso)}</strong></span>
           <span><span className="text-su-scuro-tenue">Rimborsi </span><strong>{euro(spese)}</strong></span>
-          <span className="text-accento"><span className="opacity-80">Totale </span><strong>{euro(compenso + spese)}</strong></span>
+          <span><span className="text-tenue">Totale </span><strong>{euro(compenso + spese)}</strong></span>
         </div>
       </div>
       <div className="overflow-x-auto">
@@ -150,7 +150,7 @@ function RigaTabella({ r }: { r: RigaReport }) {
             Approva
           </Pulsante>
         ) : (
-          <span className={cn('text-xs font-semibold', r.stato === 'approvato' ? 'text-accento' : 'text-urgente-testo')}>
+          <span className={cn('text-xs font-semibold', r.stato === 'approvato' ? 'text-ok' : 'text-urgente-testo')}>
             {r.stato === 'approvato' ? 'Approvate' : 'Respinte'}
           </span>
         )}
