@@ -168,3 +168,23 @@ describe('conti', () => {
     expect(leggiImporto('-3')).toBeNull()
   })
 })
+
+import { raggruppa, type EventoConti } from '../src/modules/conti/conti'
+describe('raggruppare i conti', () => {
+  const op = (id: string, nome: string) => ({ id, nome, cognome: null })
+  const ev: EventoConti[] = [
+    { id: 'a', allestimento_il: '2026-10-05T16:00:00Z', regione: 'Toscana', operatore: op('g', 'Giulia'), conti: { prezzo: 1000, fattura_importo: null }, spese: [{ importo: 100, pagata_con: 'carta_aziendale', operatore_id: 'g' }, { importo: 20, pagata_con: 'operatore', operatore_id: 'g' }] },
+    { id: 'b', allestimento_il: '2026-10-31T23:30:00Z', regione: 'Lombardia', operatore: op('g', 'Giulia'), conti: { prezzo: 500, fattura_importo: 600 }, spese: [{ importo: 50, pagata_con: 'azienda', operatore_id: null }] }, // 1 novembre a Roma
+    { id: 'c', allestimento_il: '2026-11-10T16:00:00Z', regione: 'Toscana', operatore: null, conti: null, spese: [] },
+  ]
+  it('per mese (all\'ora di Roma)', () => {
+    const g = raggruppa(ev, 'mese')
+    expect(g.map((x) => [x.etichetta, x.eventi, x.ricavi, x.costi, x.margine])).toEqual([['Ottobre 2026', 1, 1000, 120, 880], ['Novembre 2026', 2, 600, 50, 550]])
+  })
+  it('per regione', () => expect(raggruppa(ev, 'regione').map((x) => [x.chiave, x.ricavi, x.senzaPrezzo])).toEqual([['Toscana', 1000, 1], ['Lombardia', 600, 0]]))
+  it('per operatore, con quanto rimborsare', () => {
+    const g = raggruppa(ev, 'operatore')
+    expect(g.map((x) => [x.etichetta, x.eventi, x.daRimborsare])).toEqual([['Giulia', 2, 20], ['Senza operatore', 1, 0]])
+  })
+  it('percentuale di margine', () => expect(raggruppa(ev, 'evento')[0].percentuale).toBe(88))
+})

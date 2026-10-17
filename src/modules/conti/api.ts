@@ -78,20 +78,46 @@ export async function apriScontrino(percorso: string) {
   window.open(data.signedUrl, '_blank', 'noopener')
 }
 
-/** Eventi di un mese con conti e spese, per la pagina Conti */
-export function useContiMese(mese: string) {
+/** Eventi di un periodo con conti e spese, per la pagina Conti (letti a blocchi da 1000) */
+export function useContiPeriodo(dal: Date, al: Date) {
   return useQuery({
-    queryKey: ['conti', 'mese', mese],
+    queryKey: ['conti', 'periodo', dal.toISOString(), al.toISOString()],
     queryFn: async () => {
-      const [a, m] = mese.split('-').map(Number)
-      return ok(await supabase.from('eventi')
-        .select(`id, nome, citta, stato, allestimento_il, tipo_booth:tipi_booth(nome),
+      const campi = `id, nome, citta, regione, stato, allestimento_il, tipo_booth:tipi_booth(nome),
           project:profili!eventi_project_id_fkey(nome, cognome), operatore:profili!eventi_operatore_id_fkey(id, nome, cognome),
-          conti:conti_evento(*), spese:spese_evento(importo, pagata_con, voce, operatore_id, fonte)`)
+          conti:conti_evento(*), spese:spese_evento(importo, pagata_con, voce, operatore_id, fonte)`
+      const leggi = (da: number) => supabase.from('eventi').select(campi)
         .neq('stato', 'annullato')
-        .gte('allestimento_il', new Date(a, m - 1, 1).toISOString()).lt('allestimento_il', new Date(a, m, 1).toISOString())
-        .order('allestimento_il').limit(1000))
+        .gte('allestimento_il', dal.toISOString()).lt('allestimento_il', al.toISOString())
+        .order('allestimento_il').order('id').range(da, da + 999)
+      const tutti = []
+      for (let da = 0; ; da += 1000) {
+        const parte = ok(await leggi(da))
+        tutti.push(...parte)
+        if (parte.length < 1000) return tutti
+      }
     },
+  })
+}
+
+/* ---------- Carte aziendali ---------- */
+
+export function useCarte() {
+  return useQuery({
+    queryKey: ['carte'],
+    queryFn: async () => ok(await supabase.from('carte_aziendali')
+      .select('*, operatore:profili!carte_aziendali_operatore_id_fkey(id, nome, cognome)').order('creato_il')),
+  })
+}
+
+export function useSalvaCarta() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (v: { id?: string; ultime_cifre: string; operatore_id: string | null; attiva: boolean; nome?: string }) =>
+      v.id
+        ? ok(await supabase.from('carte_aziendali').update({ ultime_cifre: v.ultime_cifre, operatore_id: v.operatore_id, attiva: v.attiva }).eq('id', v.id).select('id').single())
+        : ok(await supabase.from('carte_aziendali').insert({ nome: v.nome ?? 'Revolut', ultime_cifre: v.ultime_cifre, operatore_id: v.operatore_id, attiva: v.attiva }).select('id').single()),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['carte'] }),
   })
 }
 
