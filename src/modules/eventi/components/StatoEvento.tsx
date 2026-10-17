@@ -11,7 +11,9 @@ const stati: Record<Enum<'stato_evento'>, { etichetta: string; stile: string; pu
   annullato:    { etichetta: 'Annullato',    stile: 'bg-sfondo text-tenue line-through',   punto: 'bg-tenue' },
 }
 
+/** Etichetta di stato. "Confermato" è la normalità: non si mostra. */
 export function StatoEvento({ stato, className }: { stato: Enum<'stato_evento'>; className?: string }) {
+  if (stato === 'confermato') return null
   const s = stati[stato]
   return (
     <span className={cn('inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-semibold whitespace-nowrap', s.stile, className)}>

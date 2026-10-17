@@ -1,73 +1,60 @@
-import { useOperatori } from '@/modules/anagrafiche/api'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Plus } from 'lucide-react'
-import { usePuo, type Permesso } from '@/modules/auth/permessi'
+import { ArrowLeft, Archive, Plus } from 'lucide-react'
+import { useOperatori } from '@/modules/anagrafiche/api'
+import { usePuo } from '@/modules/auth/permessi'
 import { useEventiGestione } from '@/modules/eventi/api'
-import { RigaEvento } from '@/modules/eventi/components/RigaEvento'
+import { BoxEvento } from '@/modules/eventi/components/BoxEvento'
 import { passato } from '@/modules/eventi/logic/archivio'
-import type { EventoGestione } from '@/modules/eventi/types'
-import { cn } from '@/shared/lib/cn'
 import { Card } from '@/shared/ui/Card'
 import { Intestazione } from '@/shared/ui/Intestazione'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 
-type Filtro = { id: string; etichetta: string; passa: (e: EventoGestione) => boolean; permesso?: Permesso }
-
-const tra = (...stati: string[]) => (e: EventoGestione) => stati.includes(e.stato)
-
-const filtri: Filtro[] = [
-  { id: 'tutti', etichetta: 'In programma', passa: (e) => !passato(e) },
-  { id: 'assegnare', etichetta: 'Da assegnare', passa: (e) => !passato(e) && tra('da_assegnare', 'bozza')(e), permesso: 'eventi.assegna' },
-  { id: 'attesa', etichetta: 'In attesa', passa: (e) => !passato(e) && tra('proposto')(e), permesso: 'eventi.assegna' },
-  { id: 'confermati', etichetta: 'Confermati', passa: (e) => !passato(e) && tra('confermato', 'in_corso')(e) },
-  { id: 'passati', etichetta: 'Passati', passa: (e) => passato(e) },
-]
-
-/** Elenco eventi: quelli in programma divisi per stato, e i passati. */
+/** Eventi in programma, dal più vicino. I passati stanno nell'archivio (il cassetto in alto). */
 export function ElencoEventi() {
   const { data, isPending, error } = useEventiGestione()
   const puo = usePuo()
   const [parametri, setParametri] = useSearchParams()
-  const visibili = filtri.filter((f) => !f.permesso || puo(f.permesso))
-  const attivo = visibili.find((f) => f.id === parametri.get('filtro')) ?? visibili[0]
-  const setFiltro = (id: string) => setParametri(id === 'tutti' ? {} : { filtro: id }, { replace: true })
+  const archivio = parametri.has('archivio')
   const tutti = data ?? []
-  // I passati dal più recente, quelli in programma dal più vicino
-  const eventi = tutti.filter(attivo.passa)
-  if (attivo.id === 'passati') eventi.reverse()
+  const eventi = archivio ? tutti.filter(passato).reverse() : tutti.filter((e) => !passato(e))
 
   return (
     <div className="flex flex-col gap-6">
-      <Intestazione titolo="Eventi"
-        azioni={puo('eventi.crea') && (
-          <Link to="/gestione/eventi/nuovo"
-            className="h-11 px-5 rounded-lg bg-accento text-su-accento font-semibold text-sm flex items-center gap-2 hover:bg-accento-hover">
-            <Plus className="size-[18px]" aria-hidden /> Nuovo evento
-          </Link>
-        )} />
-
-      <div className="flex gap-2 overflow-x-auto pb-1" role="tablist">
-        {visibili.map((f) => (
-          <button key={f.id} role="tab" aria-selected={attivo.id === f.id} onClick={() => setFiltro(f.id)}
-            className={cn(
-              'h-10 px-4 rounded-full text-sm font-semibold whitespace-nowrap cursor-pointer flex items-center gap-2',
-              attivo.id === f.id ? 'bg-inchiostro text-white' : 'bg-superficie border border-bordo text-tenue hover:border-bordo-forte',
-            )}>
-            {f.etichetta}
-            {f.id !== 'passati' && <span className={cn('text-xs', attivo.id === f.id ? 'text-white/70' : 'text-tenue')}>{tutti.filter(f.passa).length}</span>}
+      {archivio ? (
+        <div>
+          <button onClick={() => setParametri({}, { replace: true })}
+            className="text-sm font-semibold text-tenue inline-flex items-center gap-1 hover:text-inchiostro cursor-pointer">
+            <ArrowLeft className="size-4" aria-hidden /> In programma
           </button>
-        ))}
-      </div>
+          <h1 className="font-display text-[26px] font-semibold leading-tight mt-1">Archivio</h1>
+        </div>
+      ) : (
+        <Intestazione titolo="In programma"
+          azioni={
+            <div className="flex items-center gap-2">
+              <button onClick={() => setParametri({ archivio: '' }, { replace: true })} title="Archivio" aria-label="Archivio"
+                className="size-9 rounded-lg text-tenue/70 flex items-center justify-center hover:text-inchiostro hover:bg-superficie cursor-pointer">
+                <Archive className="size-[18px]" aria-hidden />
+              </button>
+              {puo('eventi.crea') && (
+                <Link to="/gestione/eventi/nuovo"
+                  className="h-11 px-5 rounded-lg bg-accento text-su-accento font-semibold text-sm flex items-center gap-2 hover:bg-accento-hover">
+                  <Plus className="size-[18px]" aria-hidden /> Nuovo evento
+                </Link>
+              )}
+            </div>
+          } />
+      )}
 
-      {puo('eventi.assegna') && attivo.id !== 'passati' && <ZoneScoperte eventi={tutti.filter((e) => !passato(e))} />}
+      {puo('eventi.assegna') && !archivio && <ZoneScoperte eventi={eventi} />}
 
       {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : eventi.length === 0 ? (
         <Card>
-          <Vuoto titolo="Nessun evento" testo={attivo.id === 'passati' ? 'Gli eventi conclusi compariranno qui.' : 'Nessun evento in questo elenco.'} />
+          <Vuoto titolo="Nessun evento" testo={archivio ? 'Gli eventi conclusi compariranno qui.' : 'Crea un evento per vederlo qui.'} />
         </Card>
       ) : (
-        <div className="flex flex-col gap-2.5">
-          {eventi.map((e) => <RigaEvento key={e.id} e={e} assegna={puo('eventi.assegna')} />)}
+        <div className="grid gap-3.5 grid-cols-[repeat(auto-fill,minmax(280px,1fr))] items-start">
+          {eventi.map((e) => <BoxEvento key={e.id} e={e} assegna={puo('eventi.assegna') && !archivio} />)}
         </div>
       )}
     </div>
@@ -83,7 +70,7 @@ function ZoneScoperte({ eventi }: { eventi: { regione: string }[] }) {
   if (!scoperte.length) return null
   return (
     <p className="rounded-lg border border-avviso-icona/40 bg-avviso text-avviso-testo px-4 py-3 text-sm">
-      Nessun operatore attivo in {scoperte.join(', ')}: gli eventi lì vanno assegnati a mano.
+      Nessun operatore attivo in {scoperte.join(', ')}: per ora nessuno può prendere quegli eventi.
     </p>
   )
 }
