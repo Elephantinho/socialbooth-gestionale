@@ -11,6 +11,7 @@ import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Caricamento, Errore } from '@/shared/ui/Stati'
 import { nomeEvento } from '@/modules/eventi/logic/nome'
 import { PassaggiOperatore } from '@/modules/passaggi/PassaggiOperatore'
+import { SpeseOperatore } from '@/modules/conti/SpeseOperatore'
 
 export function SchedaEvento() {
   const { id = '' } = useParams()
@@ -44,6 +45,7 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
       <div className="flex flex-col gap-3.5 p-5">
         {e.stato === 'proposto' && <Risposta eventoId={e.id} />}
         <PassaggiOperatore e={e} />
+        <SpeseOperatore e={e} />
         <Programma e={e} />
 
         <Card className="p-4 flex items-center justify-between gap-3">

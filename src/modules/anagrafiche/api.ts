@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase, ok } from '@/shared/lib/supabase'
+import { rimpicciolisci } from '@/shared/lib/immagini'
 import type { Database, Enum, Inserimento } from '@/shared/types/database'
 
 // Dati di base: tipi di booth, operatori, utenti.
@@ -88,17 +89,6 @@ export function useEliminaIndisponibilita() {
 }
 
 /* ---------- Foto profilo ---------- */
-
-/** Rimpicciolisce l'immagine a max 512px (foto più leggere e veloci da caricare) */
-async function rimpicciolisci(file: File, lato = 512): Promise<Blob> {
-  const img = await createImageBitmap(file)
-  const scala = Math.min(1, lato / Math.max(img.width, img.height))
-  const canvas = document.createElement('canvas')
-  canvas.width = Math.round(img.width * scala)
-  canvas.height = Math.round(img.height * scala)
-  canvas.getContext('2d')!.drawImage(img, 0, 0, canvas.width, canvas.height)
-  return new Promise((ok, ko) => canvas.toBlob((b) => (b ? ok(b) : ko(new Error('Immagine non valida'))), 'image/jpeg', 0.85))
-}
 
 /** Carica la foto di un utente (la propria, o di chiunque se admin) e la salva sul profilo */
 export function useCaricaFoto() {

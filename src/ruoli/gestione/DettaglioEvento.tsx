@@ -6,6 +6,7 @@ import { usePuo } from '@/modules/auth/permessi'
 import { giaPassato } from '@/modules/eventi/logic/archivio'
 import { useAggiornaEvento, useConcludiEvento, useEventoGestione } from '@/modules/eventi/api'
 import { ritardo } from '@/modules/passaggi/ritardi'
+import { CostiRicavi } from '@/modules/conti/CostiRicavi'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
 import { ModuloEvento } from '@/modules/eventi/components/ModuloEvento'
 import type { EventoGestioneCompleto } from '@/modules/eventi/types'
@@ -23,6 +24,7 @@ export function DettaglioEvento() {
   const { data: e, isPending, error } = useEventoGestione(id)
   const [modifica, setModifica] = useState(false)
   const aggiorna = useAggiornaEvento()
+  const puoSoldi = usePuo()('soldi')
   const puo = usePuo()
   const modificabile = puo('eventi.modifica')
   const creatore = puo('eventi.crea')
@@ -94,6 +96,7 @@ export function DettaglioEvento() {
         <div className="flex flex-wrap gap-6 items-start">
           <div className="flex-[999_1_520px] min-w-0 flex flex-col gap-4">
             <Riepilogo e={e} />
+            {puoSoldi && <CostiRicavi eventoId={e.id} operatoreId={e.operatore_id} />}
           </div>
           <aside className="flex-[1_1_320px] min-w-0 flex flex-col gap-4">
             {['confermato', 'in_corso', 'completato'].includes(e.stato) && (

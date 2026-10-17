@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/AuthProvider'
 import { useCreaEvento } from '@/modules/eventi/api'
+import { useUtenti } from '@/modules/anagrafiche/api'
+import { nomeCompleto } from '@/shared/lib/formato'
 import { ModuloEvento } from '@/modules/eventi/components/ModuloEvento'
 import { AssegnaOperatore } from '@/modules/assegnazione/AssegnaOperatore'
 import { Pulsante } from '@/shared/ui/Pulsante'
@@ -13,6 +15,11 @@ export function NuovoEvento() {
   const creaEvento = useCreaEvento()
   const [creato, setCreato] = useState<{ id: string }>()
   const [chiave, setChiave] = useState(0) // per svuotare il modulo
+  // L'admin crea eventi per conto di un project; il project li crea per sé
+  const admin = profilo.ruolo === 'admin'
+  const utenti = useUtenti()
+  const projects = (utenti.data ?? []).filter((u) => u.ruolo === 'project' && u.attivo)
+  const [projectId, setProjectId] = useState('')
 
   if (creato) {
     return (
@@ -30,11 +37,21 @@ export function NuovoEvento() {
         </Link>
         <h1 className="font-display text-[26px] font-semibold leading-tight mt-1">Nuovo evento</h1>
       </div>
+      {admin && (
+        <label className="flex flex-col gap-1.5 max-w-sm -mb-2">
+          <span className="text-[13px] font-semibold text-tenue">Project di riferimento</span>
+          <select value={projectId} onChange={(e) => setProjectId(e.target.value)}
+            className="h-12 rounded-lg border border-bordo-forte bg-superficie px-3 text-[15px] font-medium">
+            <option value="">Io ({nomeCompleto(profilo)})</option>
+            {projects.map((p) => <option key={p.id} value={p.id}>{nomeCompleto(p)}</option>)}
+          </select>
+        </label>
+      )}
       <ModuloEvento
         key={chiave}
         testoPulsante="Crea e assegna"
         onSalva={async (dati) => {
-          const r = await creaEvento.mutateAsync({ ...dati, project_id: profilo.id, stato: 'da_assegnare' })
+          const r = await creaEvento.mutateAsync({ ...dati, project_id: (admin && projectId) || profilo.id, stato: 'da_assegnare' })
           setCreato({ id: r.id })
         }}
       />

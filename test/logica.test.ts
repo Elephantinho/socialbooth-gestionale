@@ -145,3 +145,26 @@ describe('ritardi', () => {
     expect(ritardo(ev('da_assegnare', null), t0 + 20 * h)).toBeNull()
   })
 })
+
+import { bilancio, euro, leggiImporto, ricavo } from '../src/modules/conti/conti'
+describe('conti', () => {
+  it('il ricavo è la fattura, altrimenti il prezzo', () => {
+    expect(ricavo({ prezzo: 1000, fattura_importo: 1200 })).toBe(1200)
+    expect(ricavo({ prezzo: 1000, fattura_importo: null })).toBe(1000)
+    expect(ricavo(null)).toBeNull()
+  })
+  it('margine e percentuale', () => {
+    expect(bilancio({ prezzo: 1000, fattura_importo: null }, [{ importo: 180 }, { importo: 45.5 }])).toEqual({ ricavo: 1000, costi: 225.5, margine: 774.5, percentuale: 77 })
+  })
+  it('euro col punto delle migliaia', () => { expect(euro(1400).replace(/\s/g, ' ')).toBe('1.400,00 €'); expect(euro(null)).toBe('—') })
+  it('senza ricavo il margine non si calcola', () => expect(bilancio(null, [{ importo: 50 }]).margine).toBeNull())
+  it('in perdita', () => expect(bilancio({ prezzo: 100, fattura_importo: null }, [{ importo: 150 }]).margine).toBe(-50))
+  it('importi scritti all\'italiana', () => {
+    expect(leggiImporto('45,50')).toBe(45.5)
+    expect(leggiImporto('1.200')).toBe(1200)
+    expect(leggiImporto('1.200,00 €')).toBe(1200)
+    expect(leggiImporto('12.5')).toBe(12.5)
+    expect(leggiImporto('abc')).toBeNull()
+    expect(leggiImporto('-3')).toBeNull()
+  })
+})

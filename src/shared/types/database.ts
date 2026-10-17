@@ -258,6 +258,35 @@ export type Database = {
           { foreignKeyName: 'profili_magazzino_fk'; columns: ['magazzino_id']; isOneToOne: false; referencedRelation: 'magazzini'; referencedColumns: ['id'] },
         ]
       }
+      conti_evento: {
+        Row: {
+          evento_id: string; prezzo: number | null; fattura_numero: string | null; fattura_data: string | null
+          fattura_importo: number | null; incassata: boolean; incassata_il: string | null; aggiornato_il: string
+        }
+        Insert: {
+          evento_id: string; prezzo?: number | null; fattura_numero?: string | null; fattura_data?: string | null
+          fattura_importo?: number | null; incassata?: boolean; incassata_il?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['conti_evento']['Insert']>
+        Relationships: [
+          { foreignKeyName: 'conti_evento_evento_id_fkey'; columns: ['evento_id']; isOneToOne: true; referencedRelation: 'eventi'; referencedColumns: ['id'] },
+        ]
+      }
+      spese_evento: {
+        Row: {
+          id: string; evento_id: string; voce: Database['public']['Enums']['voce_spesa']; descrizione: string | null; importo: number
+          pagata_con: Database['public']['Enums']['pagata_con']; operatore_id: string | null; scontrino: string | null; creato_da: string; creato_il: string
+        }
+        Insert: {
+          id?: string; evento_id: string; voce: Database['public']['Enums']['voce_spesa']; descrizione?: string | null; importo: number
+          pagata_con?: Database['public']['Enums']['pagata_con']; operatore_id?: string | null; scontrino?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['spese_evento']['Insert']>
+        Relationships: [
+          { foreignKeyName: 'spese_evento_evento_id_fkey'; columns: ['evento_id']; isOneToOne: false; referencedRelation: 'eventi'; referencedColumns: ['id'] },
+          { foreignKeyName: 'spese_evento_operatore_id_fkey'; columns: ['operatore_id']; isOneToOne: false; referencedRelation: 'profili'; referencedColumns: ['id'] },
+        ]
+      }
       passaggi_evento: {
         Row: { id: string; evento_id: string; operatore_id: string; passaggio: Database['public']['Enums']['passaggio']; fatto_il: string; annullato_il: string | null }
         Insert: { id?: string; evento_id: string; operatore_id: string; passaggio: Database['public']['Enums']['passaggio']; fatto_il?: string; annullato_il?: string | null }
@@ -339,6 +368,8 @@ export type Database = {
         | 'Trentino-Alto Adige' | 'Umbria' | "Valle d'Aosta" | 'Veneto'
       ruolo: 'admin' | 'project' | 'gestore_operatori' | 'amministrazione' | 'operatore'
       stato_approvazione: 'inviato' | 'approvato' | 'respinto'
+      voce_spesa: 'noleggio' | 'carburante' | 'pedaggi' | 'parcheggio' | 'vitto' | 'alloggio' | 'materiali' | 'altro'
+      pagata_con: 'carta_aziendale' | 'operatore' | 'azienda'
       passaggio: 'check_in' | 'attrezzatura' | 'montato' | 'smontato' | 'rientrato' | 'check_out'
       stato_evento: 'bozza' | 'da_assegnare' | 'proposto' | 'confermato' | 'in_corso' | 'completato' | 'annullato'
       stato_proposta: 'in_attesa' | 'accettata' | 'rifiutata' | 'scaduta' | 'revocata'
