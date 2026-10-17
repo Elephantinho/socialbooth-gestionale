@@ -13,6 +13,7 @@ import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 import { ModificaOperatore } from './Operatori'
+import { nomeEvento } from '@/modules/eventi/logic/nome'
 
 export function DettaglioOperatore() {
   const { id = '' } = useParams()
@@ -86,7 +87,7 @@ export function DettaglioOperatore() {
               <li key={e.id}>
                 <Link to={`/gestione/eventi/${e.id}`} className="px-5 py-3 flex items-center gap-4 hover:bg-sfondo/60">
                   <span className="w-28 shrink-0 text-sm font-semibold">{dataBreve(e.allestimento_il)}<span className="block text-xs font-normal text-tenue">{ora(e.allestimento_il)}</span></span>
-                  <span className="flex-1 min-w-0 text-sm font-semibold truncate">{e.tipo_booth?.nome ?? 'Evento'}, {e.citta}</span>
+                  <span className="flex-1 min-w-0 text-sm font-semibold truncate">{nomeEvento(e)}, {e.citta}</span>
                   <StatoEvento stato={e.stato} />
                 </Link>
               </li>

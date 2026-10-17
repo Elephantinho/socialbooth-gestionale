@@ -87,3 +87,10 @@ describe('permessi', () => {
   })
   it('ogni ruolo del pannello ha almeno un permesso', () => RUOLI_GESTIONE.forEach((r) => expect(tutti.some((p) => puo(r, p))).toBe(true)))
 })
+
+import { nomeEvento } from '../src/modules/eventi/logic/nome'
+describe('nome evento', () => {
+  it('usa il nome', () => expect(nomeEvento({ nome: 'Matrimonio Rossi', tipo_booth: { nome: 'Photobooth' } })).toBe('Matrimonio Rossi'))
+  it('vecchi eventi senza nome: il servizio', () => expect(nomeEvento({ nome: null, tipo_booth: { nome: 'Photobooth' } })).toBe('Photobooth'))
+  it('nome di soli spazi conta come vuoto', () => expect(nomeEvento({ nome: '   ', tipo_booth: null })).toBe('Evento'))
+})

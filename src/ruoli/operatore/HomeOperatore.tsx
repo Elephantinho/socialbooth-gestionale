@@ -12,6 +12,7 @@ import { dataBreve, nomeCompleto, ora, traQuanto } from '@/shared/lib/formato'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
+import { nomeEvento } from '@/modules/eventi/logic/nome'
 
 export function HomeOperatore() {
   const profilo = useProfilo()
@@ -63,7 +64,7 @@ export function HomeOperatore() {
             <Link key={e.id} to={`/operatore/eventi/${e.id}`}>
               <Card className="p-4 flex items-center justify-between active:scale-[0.99] transition">
                 <div>
-                  <p className="font-semibold">{e.tipo_booth?.nome ?? 'Evento'}</p>
+                  <p className="font-semibold">{nomeEvento(e)}</p>
                   <p className="text-sm text-tenue">{dataBreve(e.allestimento_il)}, {e.citta}</p>
                 </div>
                 <ChevronRight className="size-5 text-tenue" aria-hidden />
@@ -86,7 +87,7 @@ function ProssimoEvento({ evento: e }: { evento: EventoDettaglio }) {
           <span className="text-xs font-semibold bg-scuro-3 text-accento-scuro px-2.5 py-1.5 rounded-full">{traQuanto(e.allestimento_il)}</span>
         </div>
         <div>
-          <p className="font-display text-[26px] font-semibold leading-tight">{e.tipo_booth?.nome ?? 'Evento'}</p>
+          <p className="font-display text-[26px] font-semibold leading-tight">{nomeEvento(e)}</p>
           <p className="text-[15px] text-tenue mt-1">{dataBreve(e.allestimento_il)}, {e.citta}</p>
         </div>
         <div className="grid grid-cols-3 gap-2">
@@ -133,7 +134,7 @@ function PropostaCard({ proposta }: { proposta: Proposta }) {
       <Card className="p-4 flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="font-semibold text-[16px]">{e.tipo_booth?.nome ?? 'Evento'}</p>
+            <p className="font-semibold text-[16px]">{nomeEvento(e)}</p>
             <p className="text-sm text-tenue mt-0.5">{dataBreve(e.allestimento_il)}, {e.citta}</p>
             <p className="text-sm text-tenue">{ora(e.allestimento_il)} – {ora(e.smontaggio_il)}</p>
           </div>

@@ -159,7 +159,7 @@ export type Database = {
       }
       eventi: {
         Row: {
-          aggiornato_il: string; allestimento_il: string; citta: string; cliente_id: string | null; codice: number; creato_il: string
+          aggiornato_il: string; allestimento_il: string; citta: string; cliente_id: string | null; codice: number; creato_il: string; nome: string | null
           fine_attivazione: string; hostess: boolean; id: string; indirizzo: string; inizio_attivazione: string; location_id: string | null
           magazzino_id: string | null; note: string | null; note_accesso: string | null; operatore_id: string | null; outfit: string | null
           project_id: string; referente_nome: string | null; referente_telefono: string | null; regione: Regione
@@ -171,7 +171,7 @@ export type Database = {
           promemoria_ore_inviato: boolean
         }
         Insert: {
-          aggiornato_il?: string; allestimento_il: string; citta: string; cliente_id?: string | null; codice?: number; creato_il?: string
+          aggiornato_il?: string; allestimento_il: string; citta: string; cliente_id?: string | null; codice?: number; creato_il?: string; nome?: string | null
           fine_attivazione: string; hostess?: boolean; id?: string; indirizzo: string; inizio_attivazione: string; location_id?: string | null
           magazzino_id?: string | null; note?: string | null; note_accesso?: string | null; operatore_id?: string | null; outfit?: string | null
           project_id: string; referente_nome?: string | null; referente_telefono?: string | null; regione: Regione

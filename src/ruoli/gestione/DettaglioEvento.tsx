@@ -15,6 +15,7 @@ import { cn } from '@/shared/lib/cn'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore } from '@/shared/ui/Stati'
+import { nomeEvento } from '@/modules/eventi/logic/nome'
 
 export function DettaglioEvento() {
   const { id = '' } = useParams()
@@ -45,11 +46,11 @@ export function DettaglioEvento() {
             <ArrowLeft className="size-4" aria-hidden /> Eventi
           </Link>
           <div className="flex flex-wrap items-center gap-3 mt-1">
-            <h1 className="font-display text-[26px] font-semibold leading-tight">{e.tipo_booth?.nome ?? 'Evento'}</h1>
+            <h1 className="font-display text-[26px] font-semibold leading-tight">{nomeEvento(e)}</h1>
             <StatoEvento stato={e.stato} />
           </div>
           <p className="text-tenue font-medium mt-1">
-            #{String(e.codice).padStart(4, '0')}, {dataLunga(e.allestimento_il)}, {e.citta}
+            {e.nome && e.tipo_booth ? `${e.tipo_booth.nome}, ` : ''}#{String(e.codice).padStart(4, '0')}, {dataLunga(e.allestimento_il)}, {e.citta}
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -111,8 +112,8 @@ function Riepilogo({ e }: { e: EventoGestioneCompleto }) {
     ['Allestimento', ora(e.allestimento_il)],
     ['Attivazione', `${ora(e.inizio_attivazione)} – ${ora(e.fine_attivazione)}`],
     ['Smontaggio', ora(e.smontaggio_il)],
-    ['ZTL / Wi‑Fi / Hostess', `${e.ztl ? 'Sì' : 'No'} / ${e.wifi ? 'Sì' : 'No'} / ${e.hostess ? 'Sì' : 'No'}`],
-    ['Outfit', e.outfit || '—'],
+    ['ZTL / Wi‑Fi', `${e.ztl ? 'Sì' : 'No'} / ${e.wifi ? 'Sì' : 'No'}`],
+    ['Steward', e.hostess ? `Sì, outfit: ${e.outfit || 'da definire'}` : 'No'],
     ['Referente', [e.referente_nome, e.referente_telefono].filter(Boolean).join(', ') || '—'],
   ]
   return (

@@ -9,6 +9,7 @@ import { dataLunga, ora, iniziali } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Caricamento, Errore } from '@/shared/ui/Stati'
+import { nomeEvento } from '@/modules/eventi/logic/nome'
 
 export function SchedaEvento() {
   const { id = '' } = useParams()
@@ -34,8 +35,8 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
   return (
     <>
       <div className="px-5 pt-4">
-        <p className="text-[13px] font-semibold tracking-wider text-tenue">Evento #{String(e.codice).padStart(4, '0')}</p>
-        <h1 className="font-display text-[28px] font-semibold leading-tight mt-1">{e.tipo_booth?.nome ?? 'Evento'}</h1>
+        <p className="text-[13px] font-semibold text-tenue">{e.tipo_booth?.nome ?? 'Evento'}, #{String(e.codice).padStart(4, '0')}</p>
+        <h1 className="font-display text-[28px] font-semibold leading-tight mt-1">{nomeEvento(e)}</h1>
         <p className="text-base font-medium text-tenue mt-1.5">{dataLunga(e.allestimento_il)}, {e.citta}</p>
       </div>
 
@@ -67,9 +68,14 @@ function Contenuto({ e }: { e: EventoDettaglio }) {
         <div className="grid grid-cols-2 gap-2.5">
           <Info etichetta="ZTL" valore={e.ztl ? 'Sì' : 'No'} nota={e.ztl ? 'Verifica il permesso' : undefined} />
           <Info etichetta="Wi‑Fi" valore={e.wifi ? 'Sì' : 'No'} nota={e.wifi ? undefined : "Porta l'hotspot"} />
-          <Info etichetta="Hostess / steward" valore={e.hostess ? 'Sì' : 'No'} />
-          <Info etichetta="Outfit" valore={e.outfit || '—'} piccolo />
         </div>
+
+        {e.hostess && (
+          <Card tono="avviso" className="p-4">
+            <p className="font-semibold text-[15px] text-avviso-titolo">Fai anche da steward</p>
+            <p className="text-sm mt-1">Outfit: <span className="font-semibold">{e.outfit || 'chiedi al project'}</span></p>
+          </Card>
+        )}
 
         {e.referente_nome && (
           <Card className="p-4 flex flex-col gap-3">

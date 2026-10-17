@@ -10,6 +10,7 @@ import { Card } from '@/shared/ui/Card'
 import { StatoEvento } from './StatoEvento'
 import type { EventoGestione } from '../types'
 import { giaPassato } from '../logic/archivio'
+import { nomeEvento } from '@/modules/eventi/logic/nome'
 
 const fuso = { timeZone: 'Europe/Rome' } as const
 
@@ -37,7 +38,8 @@ export function BoxEvento({ e, assegna = false }: { e: EventoGestione; assegna?:
         </div>
 
         <div className="min-w-0">
-          <p className="font-semibold truncate">{e.tipo_booth?.nome ?? 'Evento'}</p>
+          <p className="font-semibold truncate">{nomeEvento(e)}</p>
+          {e.nome && e.tipo_booth && <p className="text-sm font-medium truncate">{e.tipo_booth.nome}</p>}
           <p className="text-sm text-tenue truncate">{e.indirizzo}, {e.citta}</p>
         </div>
 

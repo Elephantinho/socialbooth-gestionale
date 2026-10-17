@@ -9,6 +9,7 @@ import { Card } from '@/shared/ui/Card'
 import { Selezione } from '@/shared/ui/Campo'
 import { Intestazione } from '@/shared/ui/Intestazione'
 import { Caricamento, Errore } from '@/shared/ui/Stati'
+import { nomeEvento } from '@/modules/eventi/logic/nome'
 
 const coloreStato: Record<string, string> = {
   bozza: 'bg-sfondo text-tenue border-bordo',
@@ -89,7 +90,7 @@ export function Calendario() {
                       {eventi.slice(0, 3).map((e) => (
                         <Link key={e.id} to={`/gestione/eventi/${e.id}`}
                           className={cn('rounded-lg border px-1.5 py-1 text-[11px] leading-tight hover:brightness-95 transition', coloreStato[e.stato])}>
-                          <span className="font-semibold">{ora(e.allestimento_il)}</span> {e.tipo_booth?.nome ?? 'Evento'}
+                          <span className="font-semibold">{ora(e.allestimento_il)}</span> {nomeEvento(e)}
                           <span className="block truncate opacity-80">{e.citta}{e.operatore ? `, ${nomeCompleto(e.operatore).split(' ')[0]}` : ''}</span>
                         </Link>
                       ))}

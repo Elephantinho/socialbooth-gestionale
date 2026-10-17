@@ -10,6 +10,7 @@ import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Campo } from '@/shared/ui/Campo'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
+import { nomeEvento } from '@/modules/eventi/logic/nome'
 
 export function CalendarioOperatore() {
   const profilo = useProfilo()
@@ -54,7 +55,7 @@ export function CalendarioOperatore() {
                   <p className="text-xs font-semibold text-tenue ">{new Date(e.allestimento_il).toLocaleDateString('it-IT', { weekday: 'short' })}</p>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold truncate">{e.tipo_booth?.nome ?? 'Evento'}, {e.citta}</p>
+                  <p className="font-semibold truncate">{nomeEvento(e)}, {e.citta}</p>
                   <p className="text-sm text-tenue">{ora(e.allestimento_il)} – {ora(e.smontaggio_il)}</p>
                 </div>
                 {e.stato === 'completato' ? <StatoEvento stato={e.stato} /> : <ChevronRight className="size-5 text-tenue" aria-hidden />}

@@ -10,6 +10,7 @@ import { AreaTesto, Campo, Selezione, SiNo } from '@/shared/ui/Campo'
 import { Errore } from '@/shared/ui/Stati'
 
 type Valori = {
+  nome: string
   tipoBoothId: string
   indirizzo: string; citta: string; regione: Enum<'regione'>; noteAccesso: string
   ztl: boolean; wifi: boolean; hostess: boolean
@@ -18,6 +19,7 @@ type Valori = {
 }
 
 const vuoto: Valori = {
+  nome: '',
   tipoBoothId: '',
   indirizzo: '', citta: '', regione: 'Toscana', noteAccesso: '',
   ztl: false, wifi: false, hostess: false,
@@ -27,6 +29,7 @@ const vuoto: Valori = {
 
 function daEvento(e: EventoGestioneCompleto): Valori {
   return {
+    nome: e.nome ?? '',
     tipoBoothId: e.tipo_booth_id ?? '',
     indirizzo: e.indirizzo, citta: e.citta, regione: e.regione, noteAccesso: e.note_accesso ?? '',
     ztl: e.ztl, wifi: e.wifi, hostess: e.hostess,
@@ -71,12 +74,14 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante }: Props)
     setErrore(undefined)
     try {
       await onSalva({
+        nome: m.nome.trim(),
         tipo_booth_id: m.tipoBoothId || null,
         indirizzo: m.indirizzo, citta: m.citta, regione: m.regione, note_accesso: m.noteAccesso || null,
+        // "hostess" nel database = l'operatore fa anche da steward
         ztl: m.ztl, wifi: m.wifi, hostess: m.hostess,
         allestimento_il: orari.allestimento, inizio_attivazione: orari.inizio, fine_attivazione: orari.fine, smontaggio_il: orari.smontaggio,
         referente_nome: m.referenteNome || null, referente_telefono: m.referenteTelefono || null,
-        outfit: m.outfit || null, note: m.note || null,
+        outfit: m.hostess ? m.outfit.trim() || null : null, note: m.note || null,
       })
     } catch (err) {
       setErrore(err)
@@ -89,7 +94,8 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante }: Props)
     <form onSubmit={invia} className="flex flex-col gap-4 max-w-3xl">
       {errore != null && <Errore errore={errore} />}
 
-      <Sezione titolo="Servizio">
+      <Sezione titolo="Evento">
+        <Campo etichetta="Nome dell'evento" required maxLength={120} placeholder="Matrimonio Rossi" {...testo('nome')} />
         <Selezione etichetta="Tipo di booth" required {...testo('tipoBoothId')} className="max-w-sm">
           <option value="">Scegli…</option>
           {[...new Set(tipi.data?.map((t) => t.linea))].map((linea) => (
@@ -122,8 +128,12 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante }: Props)
         <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(140px,1fr))]">
           <SiNo etichetta="ZTL" valore={m.ztl} onChange={(v) => imposta('ztl', v)} />
           <SiNo etichetta="Wi‑Fi" valore={m.wifi} onChange={(v) => imposta('wifi', v)} />
-          <SiNo etichetta="Hostess / steward" valore={m.hostess} onChange={(v) => imposta('hostess', v)} />
         </div>
+      </Sezione>
+
+      <Sezione titolo="Operatore">
+        <div className="max-w-sm"><SiNo etichetta="Fa anche da steward" valore={m.hostess} onChange={(v) => imposta('hostess', v)} /></div>
+        {m.hostess && <Campo etichetta="Outfit" required placeholder="Total black con giacca" {...testo('outfit')} className="max-w-xl" />}
       </Sezione>
 
       <Sezione titolo="Referente e note">
@@ -131,7 +141,6 @@ export function ModuloEvento({ evento, modello, onSalva, testoPulsante }: Props)
           <Campo etichetta="Referente in loco" {...testo('referenteNome')} />
           <Campo etichetta="Telefono referente" type="tel" placeholder="+39…" {...testo('referenteTelefono')} />
         </Griglia>
-        <Campo etichetta="Outfit" placeholder="Total black con giacca" {...testo('outfit')} />
         <AreaTesto etichetta="Note per l'operatore" rows={2} {...testo('note')} />
       </Sezione>
 
