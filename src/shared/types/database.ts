@@ -159,7 +159,7 @@ export type Database = {
       }
       eventi: {
         Row: {
-          aggiornato_il: string; allestimento_il: string; citta: string; cliente_id: string | null; codice: number; creato_il: string; nome: string | null
+          aggiornato_il: string; allestimento_il: string; citta: string; cliente_id: string | null; codice: number; creato_il: string; nome: string | null; ultimo_passaggio: Database['public']['Enums']['passaggio'] | null
           fine_attivazione: string; hostess: boolean; id: string; indirizzo: string; inizio_attivazione: string; location_id: string | null
           magazzino_id: string | null; note: string | null; note_accesso: string | null; operatore_id: string | null; outfit: string | null
           project_id: string; referente_nome: string | null; referente_telefono: string | null; regione: Regione
@@ -171,7 +171,7 @@ export type Database = {
           promemoria_ore_inviato: boolean
         }
         Insert: {
-          aggiornato_il?: string; allestimento_il: string; citta: string; cliente_id?: string | null; codice?: number; creato_il?: string; nome?: string | null
+          aggiornato_il?: string; allestimento_il: string; citta: string; cliente_id?: string | null; codice?: number; creato_il?: string; nome?: string | null; ultimo_passaggio?: Database['public']['Enums']['passaggio'] | null
           fine_attivazione: string; hostess?: boolean; id?: string; indirizzo: string; inizio_attivazione: string; location_id?: string | null
           magazzino_id?: string | null; note?: string | null; note_accesso?: string | null; operatore_id?: string | null; outfit?: string | null
           project_id: string; referente_nome?: string | null; referente_telefono?: string | null; regione: Regione
@@ -258,6 +258,14 @@ export type Database = {
           { foreignKeyName: 'profili_magazzino_fk'; columns: ['magazzino_id']; isOneToOne: false; referencedRelation: 'magazzini'; referencedColumns: ['id'] },
         ]
       }
+      passaggi_evento: {
+        Row: { id: string; evento_id: string; operatore_id: string; passaggio: Database['public']['Enums']['passaggio']; fatto_il: string; annullato_il: string | null }
+        Insert: { id?: string; evento_id: string; operatore_id: string; passaggio: Database['public']['Enums']['passaggio']; fatto_il?: string; annullato_il?: string | null }
+        Update: Partial<Database['public']['Tables']['passaggi_evento']['Insert']>
+        Relationships: [
+          { foreignKeyName: 'passaggi_evento_evento_id_fkey'; columns: ['evento_id']; isOneToOne: false; referencedRelation: 'eventi'; referencedColumns: ['id'] },
+        ]
+      }
       proposte: {
         Row: {
           automatica: boolean; creato_il: string; evento_id: string; id: string; operatore_id: string
@@ -306,6 +314,8 @@ export type Database = {
         Returns: Database['public']['Tables']['profili']['Row'][]
         SetofOptions: { from: '*'; to: 'profili'; isOneToOne: false; isSetofReturn: true }
       }
+      segna_passaggio: { Args: { p_evento: string; p_passaggio: Database['public']['Enums']['passaggio'] }; Returns: undefined }
+      annulla_passaggio: { Args: { p_evento: string }; Returns: undefined }
       proponi_operatore: { Args: { p_evento: string; p_operatore: string }; Returns: undefined }
       rispondi_proposta: { Args: { p_accetta: boolean; p_proposta: string }; Returns: undefined }
       gestisco_evento: { Args: { p_evento: string }; Returns: boolean }
@@ -328,6 +338,7 @@ export type Database = {
         | 'Trentino-Alto Adige' | 'Umbria' | "Valle d'Aosta" | 'Veneto'
       ruolo: 'admin' | 'project' | 'gestore_operatori' | 'amministrazione' | 'operatore'
       stato_approvazione: 'inviato' | 'approvato' | 'respinto'
+      passaggio: 'check_in' | 'attrezzatura' | 'montato' | 'smontato' | 'rientrato' | 'check_out'
       stato_evento: 'bozza' | 'da_assegnare' | 'proposto' | 'confermato' | 'in_corso' | 'completato' | 'annullato'
       stato_proposta: 'in_attesa' | 'accettata' | 'rifiutata' | 'scaduta' | 'revocata'
       stato_articolo: 'disponibile' | 'in_manutenzione' | 'fuori_uso'

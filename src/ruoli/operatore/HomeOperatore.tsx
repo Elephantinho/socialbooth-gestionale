@@ -13,6 +13,7 @@ import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 import { nomeEvento } from '@/modules/eventi/logic/nome'
+import { prossimoPassaggio } from '@/modules/passaggi/passaggi'
 
 export function HomeOperatore() {
   const profilo = useProfilo()
@@ -99,6 +100,11 @@ function ProssimoEvento({ evento: e }: { evento: EventoDettaglio }) {
           <p className="flex items-start gap-2 text-[13px] font-medium text-avviso-testo">
             <AlertTriangle className="size-4 shrink-0 mt-0.5" aria-hidden />
             <span className="line-clamp-2">{e.note_accesso}</span>
+          </p>
+        )}
+        {Date.now() >= new Date(e.allestimento_il).getTime() - 24 * 3_600_000 && prossimoPassaggio(e.ultimo_passaggio) && (
+          <p className="text-sm font-semibold">
+            Prossimo passo: <span className="text-accento-scuro">{prossimoPassaggio(e.ultimo_passaggio)!.azione}</span>
           </p>
         )}
         <Link

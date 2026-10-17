@@ -94,3 +94,11 @@ describe('nome evento', () => {
   it('vecchi eventi senza nome: il servizio', () => expect(nomeEvento({ nome: null, tipo_booth: { nome: 'Photobooth' } })).toBe('Photobooth'))
   it('nome di soli spazi conta come vuoto', () => expect(nomeEvento({ nome: '   ', tipo_booth: null })).toBe('Evento'))
 })
+
+import { PASSAGGI, passaggiFatti, prossimoPassaggio } from '../src/modules/passaggi/passaggi'
+describe('passaggi', () => {
+  it('sono sei, dal check-in al check-out', () => { expect(PASSAGGI.map((p) => p.id)).toEqual(['check_in', 'attrezzatura', 'montato', 'smontato', 'rientrato', 'check_out']) })
+  it('nessun passaggio: si parte dal check-in', () => { expect(passaggiFatti(null)).toBe(0); expect(prossimoPassaggio(null)?.id).toBe('check_in') })
+  it('dopo il montaggio: 3 fatti, poi smontato', () => { expect(passaggiFatti('montato')).toBe(3); expect(prossimoPassaggio('montato')?.id).toBe('smontato') })
+  it('dopo il check-out non c\'è altro', () => { expect(passaggiFatti('check_out')).toBe(6); expect(prossimoPassaggio('check_out')).toBeNull() })
+})

@@ -5,6 +5,7 @@ import { cn } from '@/shared/lib/cn'
 import { Avatar } from '@/shared/ui/Avatar'
 import type { EventoGestione } from '../types'
 import { nomeEvento } from '../logic/nome'
+import { PASSAGGI, passaggiFatti, type Passaggio } from '@/modules/passaggi/passaggi'
 
 const fuso = { timeZone: 'Europe/Rome' } as const
 
@@ -12,7 +13,6 @@ const fuso = { timeZone: 'Europe/Rome' } as const
 const aspetto: Partial<Record<EventoGestione['stato'], { barra: string; segno: React.ReactNode }>> = {
   confermato:   { barra: 'bg-ok',           segno: <span title="Confermato" className="size-5 rounded-full bg-ok text-white flex items-center justify-center"><Check className="size-3.5" strokeWidth={3} aria-label="Confermato" /></span> },
   completato:   { barra: 'bg-ok',           segno: <span title="Completato" className="size-5 rounded-full bg-ok text-white flex items-center justify-center"><Check className="size-3.5" strokeWidth={3} aria-label="Completato" /></span> },
-  in_corso:     { barra: 'bg-ok',           segno: <span className="text-[11px] font-semibold text-ok bg-ok-tenue rounded-full px-2 py-0.5">In corso</span> },
   proposto:     { barra: 'bg-avviso-icona', segno: <span title="In attesa di risposta" className="text-avviso-icona"><Clock className="size-[18px]" aria-label="In attesa di risposta" /></span> },
   da_assegnare: { barra: 'bg-urgente',      segno: null },
   bozza:        { barra: 'bg-urgente',      segno: null },
@@ -20,7 +20,9 @@ const aspetto: Partial<Record<EventoGestione['stato'], { barra: string; segno: R
 
 /** Un evento in un box compatto: data, nome, servizio e città, operatore. */
 export function BoxEvento({ e }: { e: EventoGestione }) {
-  const a = aspetto[e.stato] ?? { barra: 'bg-bordo-forte', segno: null }
+  const a = e.stato === 'in_corso'
+    ? { barra: 'bg-ok', segno: <InCorso ultimo={e.ultimo_passaggio} /> }
+    : aspetto[e.stato] ?? { barra: 'bg-bordo-forte', segno: null }
   const data = new Date(e.allestimento_il)
 
   return (
@@ -51,5 +53,15 @@ export function BoxEvento({ e }: { e: EventoGestione }) {
         </span>
       )}
     </Link>
+  )
+}
+
+/** Evento in corso: l'ultimo passaggio fatto e quanti mancano, es. "Montato 3/6" */
+function InCorso({ ultimo }: { ultimo: Passaggio | null }) {
+  const n = passaggiFatti(ultimo)
+  return (
+    <span className="text-[11px] font-semibold text-white bg-ok rounded-full px-2 py-0.5 whitespace-nowrap">
+      {n ? PASSAGGI[n - 1].fatto.split(',')[0] : 'In corso'} {n}/{PASSAGGI.length}
+    </span>
   )
 }

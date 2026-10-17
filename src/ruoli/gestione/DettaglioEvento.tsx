@@ -16,6 +16,7 @@ import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore } from '@/shared/ui/Stati'
 import { nomeEvento } from '@/modules/eventi/logic/nome'
+import { Andamento } from '@/modules/passaggi/Andamento'
 
 export function DettaglioEvento() {
   const { id = '' } = useParams()
@@ -97,6 +98,12 @@ export function DettaglioEvento() {
             <Riepilogo e={e} />
           </div>
           <aside className="flex-[1_1_320px] min-w-0 flex flex-col gap-4">
+            {['confermato', 'in_corso', 'completato'].includes(e.stato) && (
+              <Card className="p-5 flex flex-col gap-4">
+                <TitoloSezione>Andamento</TitoloSezione>
+                <Andamento eventoId={e.id} />
+              </Card>
+            )}
             <Operatore e={e} />
             <Storico e={e} />
           </aside>
@@ -153,7 +160,7 @@ function Operatore({ e }: { e: EventoGestioneCompleto }) {
           <div className="flex-1 min-w-0">
             <Link to={`/gestione/operatori/${e.operatore.id}`} className="font-semibold truncate block hover:underline">{nomeCompleto(e.operatore)}</Link>
             <p className="text-xs text-su-scuro-tenue">
-              {e.stato === 'proposto' ? 'Deve ancora accettare' : e.stato === 'confermato' ? 'Ha confermato' : 'Assegnato'}
+              {e.stato === 'proposto' ? 'Deve ancora accettare' : e.stato === 'confermato' ? 'Ha confermato' : e.stato === 'in_corso' ? 'Al lavoro' : e.stato === 'completato' ? 'Ha concluso' : 'Assegnato'}
             </p>
           </div>
           {numero && (
