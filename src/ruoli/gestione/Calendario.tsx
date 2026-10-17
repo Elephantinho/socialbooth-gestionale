@@ -62,8 +62,11 @@ export function Calendario() {
           <button onClick={() => sposta(1)} aria-label="Mese successivo" className="size-11 rounded-lg border border-bordo-forte bg-superficie flex items-center justify-center cursor-pointer hover:bg-sfondo">
             <ChevronRight className="size-5" aria-hidden />
           </button>
-          <button onClick={() => { const d = new Date(); setMese(new Date(d.getFullYear(), d.getMonth(), 1)) }}
-            className="h-11 px-4 rounded-lg text-sm font-semibold text-accento-scuro hover:bg-accento-tenue cursor-pointer">Oggi</button>
+          {/* Compare solo se ti sei spostato su un altro mese */}
+          {(mese.getFullYear() !== new Date().getFullYear() || mese.getMonth() !== new Date().getMonth()) && (
+            <button onClick={() => { const d = new Date(); setMese(new Date(d.getFullYear(), d.getMonth(), 1)) }}
+              className="h-11 px-4 rounded-lg border border-bordo-forte bg-superficie text-sm font-semibold cursor-pointer hover:bg-sfondo">Torna a oggi</button>
+          )}
         </div>
         <Selezione etichetta="" aria-label="Regione" value={regione} onChange={(e) => setRegione(e.target.value)} className="w-56">
           <option value="">Tutte le regioni</option>
