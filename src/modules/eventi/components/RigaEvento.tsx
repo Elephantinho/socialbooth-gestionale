@@ -74,7 +74,7 @@ function Stato({ e, manca }: { e: EventoGestione; manca: string | null }) {
 }
 
 /** Pulsante "Assegna" con il menu degli operatori liberi: si propone senza aprire la scheda. */
-function AssegnaRapido({ eventoId }: { eventoId: string }) {
+export function AssegnaRapido({ eventoId, destra, piccolo }: { eventoId: string; destra?: boolean; piccolo?: boolean }) {
   const [aperto, setAperto] = useState(false)
   const rif = useRef<HTMLDivElement>(null)
   const liberi = useOperatoriDisponibili(aperto ? eventoId : undefined)
@@ -92,11 +92,11 @@ function AssegnaRapido({ eventoId }: { eventoId: string }) {
   return (
     <div ref={rif} className="relative">
       <button onClick={() => setAperto((a) => !a)} aria-expanded={aperto}
-        className="h-8 pl-3 pr-2 rounded-lg bg-accento text-su-accento text-sm font-semibold flex items-center gap-1 cursor-pointer hover:bg-accento-hover">
+        className={cn('rounded-lg bg-accento text-su-accento font-semibold flex items-center gap-1 cursor-pointer hover:bg-accento-hover', piccolo ? 'h-7 pl-2.5 pr-1.5 text-xs' : 'h-8 pl-3 pr-2 text-sm')}>
         Assegna <ChevronDown className={cn('size-4 transition-transform', aperto && 'rotate-180')} aria-hidden />
       </button>
       {aperto && (
-        <div className="absolute left-0 top-full mt-1.5 w-72 bg-superficie border border-bordo rounded-xl shadow-lg p-1 z-30 cursor-default">
+        <div className={cn('absolute top-full mt-1.5 w-72 bg-superficie border border-bordo rounded-xl shadow-lg p-1 z-30 cursor-default', destra ? 'right-0' : 'left-0')}>
           <p className="px-3 pt-2 pb-1 text-[11px] font-semibold text-tenue uppercase tracking-wide">Operatori liberi</p>
           {liberi.isPending ? (
             <p className="px-3 py-3 text-sm text-tenue flex items-center gap-2"><Loader2 className="size-4 animate-spin" aria-hidden />Cerco…</p>

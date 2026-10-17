@@ -10,6 +10,8 @@ type Props = {
   archivio: boolean
   /** Mesi da proporre (archivio); se manca, quelli degli eventi caricati */
   mesi?: string[]
+  /** Vista a settimana: le date si scelgono con le frecce */
+  senzaQuando?: boolean
   imposta: (modifiche: Partial<Record<keyof Filtri, string | undefined>>) => void
   azzera?: () => void
 }
@@ -20,7 +22,7 @@ const nomeGiorno = (g: string) => maiuscola(new Date(`${g}T12:00:00Z`).toLocaleD
 const conta = <T,>(lista: T[], chiave: (x: T) => string) => lista.reduce((m, x) => m.set(chiave(x), (m.get(chiave(x)) ?? 0) + 1), new Map<string, number>())
 
 /** Barra dei filtri: stato a sinistra (con i numeri), quando e regione a destra. */
-export function FiltriEventi({ eventi, filtri, archivio, imposta, azzera, mesi: mesiFissi }: Props) {
+export function FiltriEventi({ eventi, filtri, archivio, imposta, azzera, mesi: mesiFissi, senzaQuando }: Props) {
   // I numeri di ogni scelta tengono conto degli altri filtri già attivi
   const perStato = filtra(eventi, { ...filtri, stato: undefined })
   const perQuando = filtra(eventi, { ...filtri, mese: undefined, giorno: undefined })
@@ -58,7 +60,7 @@ export function FiltriEventi({ eventi, filtri, archivio, imposta, azzera, mesi: 
       ) : <span />}
 
       <div className="flex items-center gap-2 flex-wrap">
-        <Menu icona={CalendarDays} attivo={!!(filtri.mese || filtri.giorno)}
+        {!senzaQuando && <Menu icona={CalendarDays} attivo={!!(filtri.mese || filtri.giorno)}
           etichetta={filtri.giorno ? nomeGiorno(filtri.giorno) : filtri.mese ? nomeMese(filtri.mese) : 'Quando'}>
           {(chiudi) => (
             <>
@@ -78,7 +80,7 @@ export function FiltriEventi({ eventi, filtri, archivio, imposta, azzera, mesi: 
                 className="mx-1 mb-1 h-10 rounded-lg border border-bordo px-3 text-sm font-semibold w-[calc(100%-0.5rem)]" />
             </>
           )}
-        </Menu>
+        </Menu>}
 
         <Menu icona={MapPin} attivo={!!filtri.regione} etichetta={filtri.regione ?? 'Regione'}>
           {(chiudi) => (

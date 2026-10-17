@@ -1,6 +1,5 @@
-import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, Archive, Plus } from 'lucide-react'
+import { ArrowLeft, Archive, ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 import { useOperatori } from '@/modules/anagrafiche/api'
 import { usePuo } from '@/modules/auth/permessi'
 import { useArchivio, useEventiInProgramma } from '@/modules/eventi/api'
@@ -8,6 +7,7 @@ import { COLONNE, RigaEvento } from '@/modules/eventi/components/RigaEvento'
 import { passato } from '@/modules/eventi/logic/archivio'
 import { filtra, giornoRoma, type Filtri } from '@/modules/eventi/logic/filtri'
 import { FiltriEventi } from './FiltriEventi'
+import { SettimanaEventi, piuGiorni } from './SettimanaEventi'
 import type { EventoGestione } from '@/modules/eventi/types'
 import { Card } from '@/shared/ui/Card'
 import { cn } from '@/shared/lib/cn'
@@ -31,15 +31,24 @@ export function ElencoEventi() {
     regione: parametri.get('regione') ?? undefined,
     stato: (parametri.get('stato') as Filtri['stato']) ?? undefined,
   }
-  const eventi = filtra(base, filtri)
+  const oggi = giornoRoma(new Date().toISOString())
+  // Vista a settimana (7 colonne) per "In programma"; con un filtro di stato si passa all'elenco di tutti quelli che corrispondono
+  const settimana = !archivio && !filtri.stato
+  const inizio = settimana ? parametri.get('giorno') ?? parametri.get('da') ?? oggi : oggi
+  const fine = piuGiorni(inizio, 6)
+  const eventi = settimana
+    ? filtra(base, { regione: filtri.regione }).filter((e) => { const g = giornoRoma(e.allestimento_il); return g >= inizio && g <= fine })
+    : filtra(base, filtri)
+  // Eventi di giorni già passati rimasti aperti (manca il check-out): non stanno nella settimana, vanno segnalati
+  const rimastiAperti = settimana ? base.filter((e) => giornoRoma(e.allestimento_il) < oggi) : []
   const filtrato = Object.values(filtri).some(Boolean)
-  // Senza filtri si vede una settimana alla volta: con centinaia di eventi non si scende all'infinito
-  const [settimane, setSettimane] = useState(1)
   const giorni = perGiorno(eventi, archivio)
-  const limite = giornoRoma(new Date(Date.now() + (settimane * 7 - 1) * 86_400_000).toISOString())
-  const aFinestra = !archivio && !filtrato
-  const visibili = aFinestra ? giorni.filter(([g]) => g <= limite) : giorni
-  const nascosti = giorni.length - visibili.length
+  const vaiA = (g: string) => {
+    const p = new URLSearchParams(parametri)
+    p.delete('giorno'); p.delete('mese')
+    if (g === oggi) p.delete('da'); else p.set('da', g)
+    setParametri(p, { replace: true })
+  }
   /** Cambia un filtro tenendo gli altri (e l'archivio) */
   const imposta = (modifiche: Partial<Record<keyof Filtri, string | undefined>>) => {
     const p = new URLSearchParams(parametri)
@@ -51,7 +60,7 @@ export function ElencoEventi() {
     }
     setParametri(p, { replace: true })
   }
-  const azzera = () => setParametri(archivio ? { archivio: '' } : {}, { replace: true })
+  const azzera = () => setParametri(archivio ? { archivio: '' } : settimana && inizio !== oggi ? { da: inizio } : {}, { replace: true })
 
   return (
     <div className="flex flex-col gap-6">
@@ -81,23 +90,51 @@ export function ElencoEventi() {
           } />
       )}
 
-      <FiltriEventi eventi={base} filtri={filtri} mesi={archivio ? ultimiMesi(24) : undefined} imposta={imposta} azzera={filtrato ? azzera : undefined} archivio={archivio} />
-      {!archivio && !filtri.stato && eventi.length > 0 && <Avanzamento eventi={eventi} />}
+      <FiltriEventi eventi={base} filtri={filtri} mesi={archivio ? ultimiMesi(24) : undefined} imposta={imposta}
+        azzera={(settimana ? filtri.regione : filtrato) ? azzera : undefined} archivio={archivio} senzaQuando={settimana} />
+      {settimana && (
+        <div className="flex flex-wrap items-center gap-3 -mt-1">
+          <div className="flex items-center gap-1.5">
+            <button onClick={() => vaiA(piuGiorni(inizio, -7) < oggi ? oggi : piuGiorni(inizio, -7))} disabled={inizio <= oggi} aria-label="Settimana prima"
+              className="size-9 rounded-lg border border-bordo-forte bg-superficie flex items-center justify-center cursor-pointer hover:bg-sfondo disabled:opacity-40 disabled:cursor-default">
+              <ChevronLeft className="size-[18px]" aria-hidden />
+            </button>
+            <p className="font-semibold min-w-44 text-center">{intervallo(inizio, fine)}</p>
+            <button onClick={() => vaiA(piuGiorni(inizio, 7))} aria-label="Settimana dopo"
+              className="size-9 rounded-lg border border-bordo-forte bg-superficie flex items-center justify-center cursor-pointer hover:bg-sfondo">
+              <ChevronRight className="size-[18px]" aria-hidden />
+            </button>
+            {inizio !== oggi && (
+              <button onClick={() => vaiA(oggi)} className="h-9 px-3 rounded-lg text-sm font-semibold text-tenue hover:text-inchiostro hover:bg-superficie cursor-pointer">Torna a oggi</button>
+            )}
+          </div>
+          {eventi.length > 0 && <div className="flex-1 min-w-60"><Avanzamento eventi={eventi} /></div>}
+        </div>
+      )}
+      {rimastiAperti.length > 0 && (
+        <button onClick={() => imposta({ stato: 'ritardo' })}
+          className="text-left rounded-lg border-l-4 border-urgente bg-urgente-tenue px-4 py-3 text-sm cursor-pointer -mt-2">
+          <span className="font-semibold text-urgente-testo">{rimastiAperti.length === 1 ? '1 evento dei giorni scorsi è ancora aperto' : `${rimastiAperti.length} eventi dei giorni scorsi sono ancora aperti`}</span>
+          <span className="text-inchiostro">: manca il check-out. Vedili</span>
+        </button>
+      )}
       {puo('eventi.assegna') && !archivio && <ZoneScoperte eventi={eventi} />}
 
       {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : eventi.length === 0 ? (
         <Card>
-          <Vuoto titolo="Nessun evento" testo={filtrato ? 'Nessun evento con questi filtri.' : archivio ? 'Gli eventi conclusi compariranno qui.' : 'Crea un evento per vederlo qui.'} />
+          <Vuoto titolo="Nessun evento" testo={settimana ? 'Nessun evento in questa settimana.' : filtrato ? 'Nessun evento con questi filtri.' : archivio ? 'Gli eventi conclusi compariranno qui.' : 'Crea un evento per vederlo qui.'} />
         </Card>
+      ) : settimana ? (
+        <SettimanaEventi eventi={eventi} inizio={inizio} assegna={puo('eventi.assegna')} />
       ) : (
         <div className="flex flex-col gap-4">
           <div className={cn('max-md:hidden px-4 pr-3 text-xs font-semibold text-tenue -mb-2', COLONNE)}>
             <span>Ora</span><span>Evento</span><span>Project</span><span>Operatore</span><span className="justify-self-end">Stato</span>
           </div>
-          {visibili.map(([giorno, lista]) => (
+          {giorni.map(([giorno, lista]) => (
             <Card key={giorno} className="overflow-visible">
               <h2 className="px-4 py-2.5 border-b border-bordo bg-sfondo/60 rounded-t-xl text-sm font-semibold flex items-baseline gap-2">
-                <span className={cn(giorno !== giornoRoma(new Date().toISOString()) && 'text-tenue')}>{titoloGiorno(giorno)}</span>
+                <span className={cn(giorno !== oggi && 'text-tenue')}>{titoloGiorno(giorno)}</span>
                 <span className="font-medium text-tenue/70">{lista.length === 1 ? '1 evento' : `${lista.length} eventi`}</span>
               </h2>
               <div className="divide-y divide-bordo">
@@ -105,12 +142,6 @@ export function ElencoEventi() {
               </div>
             </Card>
           ))}
-          {nascosti > 0 && (
-            <button onClick={() => setSettimane((n) => n + 1)}
-              className="h-11 self-center px-5 rounded-lg border border-bordo-forte bg-superficie text-sm font-semibold cursor-pointer hover:bg-sfondo">
-              Mostra la settimana dopo
-            </button>
-          )}
         </div>
       )}
     </div>
@@ -181,4 +212,10 @@ function ZoneScoperte({ eventi }: { eventi: { regione: string }[] }) {
       Nessun operatore attivo in {scoperte.join(', ')}: per ora nessuno può prendere quegli eventi.
     </p>
   )
+}
+
+/** "17 – 23 ottobre", oppure "28 ottobre – 3 novembre" */
+function intervallo(a: string, b: string) {
+  const f = (g: string, o: Intl.DateTimeFormatOptions) => new Date(`${g}T12:00:00Z`).toLocaleDateString('it-IT', { timeZone: 'UTC', ...o })
+  return a.slice(5, 7) === b.slice(5, 7) ? `${f(a, { day: 'numeric' })} – ${f(b, { day: 'numeric', month: 'long' })}` : `${f(a, { day: 'numeric', month: 'long' })} – ${f(b, { day: 'numeric', month: 'long' })}`
 }
