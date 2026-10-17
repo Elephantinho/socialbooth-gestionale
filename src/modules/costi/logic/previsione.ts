@@ -26,9 +26,12 @@ export function previsioneEvento(e: EventoEconomico, p: ParametriPrevisione): Co
   const cartaInserita = e.costi
     .filter((c) => c.fase === 'previsto' && c.categoria === 'carta_stampe' && c.stato !== 'respinto')
     .reduce((s, c) => s + Number(c.importo ?? 0), 0)
-  const haCarta = e.costi.some((c) => c.fase === 'previsto' && c.categoria === 'carta_stampe')
-  const stampe = p.mediaStampe ?? 0
-  const cartaStimata = haCarta ? 0 : Math.round(stampe * p.costoStampa * 100) / 100
+  // Una riga a 0 € (creata quando il costo della confezione non era ancora impostato) non conta e si stima;
+  // una riga respinta vuol dire "niente carta per questo evento"
+  const haCarta = cartaInserita > 0 || e.costi.some((c) => c.fase === 'previsto' && c.categoria === 'carta_stampe' && c.stato === 'respinto')
+  const stampa = e.tipo_booth?.stampa ?? true
+  const stampe = stampa ? p.mediaStampe ?? 0 : 0
+  const cartaStimata = haCarta || !stampa ? 0 : Math.round(stampe * p.costoStampa * 100) / 100
   return {
     ...base,
     altriCosti: base.altriCosti + cartaStimata,

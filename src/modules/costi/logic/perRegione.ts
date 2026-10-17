@@ -13,6 +13,8 @@ export type EventoEconomico = {
   fattura_importo: number | null
   operatore: { tariffa_oraria: number | null } | null
   ore: { compenso: number | null; stato: Enum<'stato_approvazione'>; check_out_il: string | null }[]
+  /** il servizio stampa? (il Videobooth no): senza dato si assume di sì */
+  tipo_booth?: { nome?: string; stampa?: boolean } | null
   costi: { fase: Enum<'fase_costo'>; categoria: Enum<'categoria_costo'>; importo: number | null; stato: Enum<'stato_approvazione'>; pagato_con: Enum<'pagamento'> }[]
 }
 

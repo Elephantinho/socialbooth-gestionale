@@ -6,7 +6,7 @@ import { useProfilo } from '@/modules/auth/AuthProvider'
 import { useAggiungiCosto } from '@/modules/costi/api'
 import { useRegistraTappa, useTappe, type Tappa } from '@/modules/eventi/api'
 import type { EventoDettaglio } from '@/modules/eventi/types'
-import { durata, ora } from '@/shared/lib/formato'
+import { dataBreve, durata, ora } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
 import { Card } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
@@ -64,10 +64,17 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
     return () => navigator.geolocation.clearWatch(id)
   }, [prossima, e.id, e.lat, e.lng, e.magazzino?.lat, e.magazzino?.lng]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Le tappe si possono registrare da 12 ore prima dell'allestimento (stessa regola del database)
+  const apreIl = new Date(new Date(e.allestimento_il).getTime() - 12 * 3_600_000)
+  const troppoPresto = Date.now() < apreIl.getTime()
+  const iniziato = Date.now() >= new Date(e.allestimento_il).getTime()
+
   // Prossima azione
   let azione: React.ReactNode = null
   if (!chiuso) {
-    if (!t?.partenza_il && !t?.check_in_il) {
+    if (!t?.partenza_il && !t?.check_in_il && troppoPresto) {
+      azione = <p className="text-center text-sm text-tenue py-2">Potrai registrare la partenza da {dataBreve(apreIl.toISOString()).toLowerCase()} alle {ora(apreIl.toISOString())}</p>
+    } else if (!t?.partenza_il && !t?.check_in_il) {
       azione = (
         <>
           <Pulsante taglia="xl" pieno icona={<Car className="size-5" aria-hidden />} caricamento={registra.isPending} onClick={() => vai('partenza')}>
@@ -170,7 +177,7 @@ export function TappeLavoro({ e }: { e: EventoDettaglio }) {
           <button onClick={() => setSpese(true)} className="text-sm font-semibold text-accento py-1 inline-flex items-center gap-1.5 cursor-pointer">
             <Receipt className="size-4" aria-hidden /> Aggiungi una spesa
           </button>
-          {!chiuso && (
+          {!chiuso && iniziato && (
             <button onClick={() => setManuale(true)} className="text-sm font-semibold text-tenue py-1 cursor-pointer">Inserisci ore a mano</button>
           )}
         </div>

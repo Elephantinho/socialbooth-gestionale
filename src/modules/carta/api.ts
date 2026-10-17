@@ -43,11 +43,12 @@ export function useScorteCarta() {
       const [operatori, eventi] = await Promise.all([
         supabase.from('profili').select('id, nome, cognome, foto, carta_disponibile, carta_aggiornata_il, zone:zone_operatore(regione)')
           .eq('ruolo', 'operatore').eq('attivo', true),
-        supabase.from('eventi').select('operatore_id')
+        supabase.from('eventi').select('operatore_id, tipo_booth:tipi_booth(stampa)')
           .in('stato', [...STATI_ASSEGNATI]).gte('smontaggio_il', new Date().toISOString()).not('operatore_id', 'is', null),
       ])
+      // Contano solo gli eventi con un servizio che stampa (il Videobooth 360 non consuma carta)
       const prossimi = new Map<string, number>()
-      for (const e of ok(eventi)) prossimi.set(e.operatore_id!, (prossimi.get(e.operatore_id!) ?? 0) + 1)
+      for (const e of ok(eventi)) if (e.tipo_booth?.stampa !== false) prossimi.set(e.operatore_id!, (prossimi.get(e.operatore_id!) ?? 0) + 1)
       const ordine = { finita: 0, bassa: 1, da_impostare: 2, ok: 3 }
       return ok(operatori).map((o) => ({
         id: o.id, nome: o.nome, cognome: o.cognome, foto: o.foto,
@@ -80,13 +81,12 @@ export function useScortaOperatore(id: string | undefined) {
       const p = parametri.data!
       const [profilo, eventi, movimenti] = await Promise.all([
         supabase.from('profili').select('carta_disponibile, carta_aggiornata_il').eq('id', id!).single(),
-        supabase.from('eventi').select('id', { count: 'exact', head: true }).eq('operatore_id', id!)
+        supabase.from('eventi').select('id, tipo_booth:tipi_booth(stampa)').eq('operatore_id', id!)
           .in('stato', [...STATI_ASSEGNATI]).gte('smontaggio_il', new Date().toISOString()),
         supabase.from('movimenti_carta').select('*, evento:eventi(citta, allestimento_il)')
           .eq('operatore_id', id!).order('creato_il', { ascending: false }).limit(15),
       ])
-      if (eventi.error) throw eventi.error
-      const prossimi = eventi.count ?? 0
+      const prossimi = ok(eventi).filter((e) => e.tipo_booth?.stampa !== false).length
       return {
         ...statoCarta(ok(profilo).carta_disponibile, p.soglia, prossimi, p.media, !!ok(profilo).carta_aggiornata_il),
         prossimiEventi: prossimi,

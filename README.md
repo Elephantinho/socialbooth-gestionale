@@ -118,3 +118,11 @@ Le regole di calcolo (orari, ritiro dal magazzino, ore) stanno in `modules/*/log
 - **Magazzino automatico**: quando l'operatore registra "Parto dal magazzino" l'attrezzatura dell'evento risulta fuori (i consumabili si scalano), con "Rientrato" torna disponibile.
 - **Carta**: le stampe dichiarate a fine evento scalano la scorta dell'operatore; sotto soglia (Impostazioni) o se non basta per i prossimi eventi diventa rossa e admin, gestori e project ricevono una notifica.
 - **Previsione costi**: ogni nuovo evento riceve il costo previsto della carta (media stampe × costo per stampa); la pagina Previsione somma compensi, carta e costi previsti degli eventi futuri.
+
+## Test
+
+- `npm test`: controlla i tipi e lancia i test delle regole pure (orari, fuso orario, brief, carta, conti, previsione, permessi, CSV): oltre 130 casi, anche quelli limite.
+- `supabase/test/*.sql`: test del database da incollare nel SQL editor di Supabase. Creano utenti finti, provano tutto e annullano ogni modifica alla fine (l'ultima riga solleva apposta un errore con il risultato: `RISULTATO N test, 0 falliti`).
+  - `01_permessi.sql`: chi vede e chi può cambiare cosa, ruolo per ruolo (111 controlli)
+  - `02_automatismi.sql`: proposte, rifiuti, riserva, scadenze, ferie, tappe, chiusure, carta, magazzino, richieste, chat (60 controlli)
+  - `03_casi_limite.sql`: riserva più vicina, riserva spenta, attrezzatura, operatori disattivati, carta (17 controlli)

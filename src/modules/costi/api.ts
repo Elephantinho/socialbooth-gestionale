@@ -125,7 +125,7 @@ export function useEconomiaPeriodo(mesi = 6) {
       const fine = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 1)
       return ok(await supabase.from('eventi')
         .select(`id, regione, citta, stato, allestimento_il, smontaggio_il, viaggio_minuti, prezzo_cliente, fattura_importo, lat, lng,
-          tipo_booth:tipi_booth(nome), cliente:clienti(id, nome),
+          tipo_booth:tipi_booth(nome, stampa), cliente:clienti(id, nome),
           operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto, tariffa_oraria),
           ore:ore_lavorate(compenso, stato, check_out_il, minuti_totali),
           costi:costi_evento(fase, categoria, importo, stato, pagato_con)`)
@@ -146,7 +146,7 @@ export function useEconomiaFutura(mesi = 3) {
       const [eventi, operatori, costoStampa, media] = await Promise.all([
         supabase.from('eventi')
           .select(`id, regione, citta, stato, allestimento_il, smontaggio_il, viaggio_minuti, prezzo_cliente, fattura_importo,
-            tipo_booth:tipi_booth(nome), cliente:clienti(id, nome),
+            tipo_booth:tipi_booth(nome, stampa), cliente:clienti(id, nome),
             operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto, tariffa_oraria),
             ore:ore_lavorate(compenso, stato, check_out_il, minuti_totali),
             costi:costi_evento(fase, categoria, importo, stato, pagato_con)`)

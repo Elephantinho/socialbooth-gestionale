@@ -39,5 +39,10 @@ export function regioneDiCitta(citta: string): Enum<'regione'> | null {
 /** Prima città conosciuta citata nel testo */
 export function trovaCitta(testo: string) {
   const t = ` ${normalizza(testo).replace(/[^a-z0-9' ]+/g, ' ')} `
-  return CITTA_NOTE.find((c) => t.includes(` ${c.chiave} `)) ?? null
+  return CITTA_NOTE.find((c) => t.includes(` ${c.chiave} `) && (!PAROLE_COMUNI.has(c.chiave) || conMaiuscola(testo, c.nome))) ?? null
 }
+
+/** Città che sono anche parole comuni ("sul prato", "all'alba", "fermo"): valgono solo scritte con la maiuscola */
+const PAROLE_COMUNI = new Set(['prato', 'alba', 'massa', 'fermo', 'lodi'])
+const conMaiuscola = (testo: string, nome: string) =>
+  [...testo.matchAll(new RegExp(`(?<!\\p{L})${nome}(?!\\p{L})`, 'giu'))].some((m) => m[0] !== m[0].toLowerCase())

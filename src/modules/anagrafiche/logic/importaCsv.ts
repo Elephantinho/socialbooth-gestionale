@@ -34,7 +34,7 @@ export type MagazzinoDaImportare = { nome: string; indirizzo: string; citta: str
 /** Colonne attese: nome; indirizzo; città; regione (la prima riga può essere l'intestazione) */
 export function magazziniDaCsv(testo: string): MagazzinoDaImportare[] {
   const righe = leggiCsv(testo)
-  const conIntestazione = righe[0]?.[0]?.toLowerCase().includes('nome')
+  const conIntestazione = righe[0]?.[0]?.trim().toLowerCase() === 'nome'   // "Magazzino Nomentana" non è un'intestazione
   return righe.slice(conIntestazione ? 1 : 0).map((r, i) => ({
     nome: r[0] ?? '', indirizzo: r[1] ?? '', citta: r[2] ?? '', regione: normalizzaRegione(r[3] ?? ''),
     riga: i + (conIntestazione ? 2 : 1),

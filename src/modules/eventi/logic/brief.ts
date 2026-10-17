@@ -47,7 +47,7 @@ const sposta = (orario: string, minuti: number) => {
 const RE_ORA = /(?:\bore\s*|\balle\s*|\bdalle\s*|\bh\s*)?\b([01]?\d|2[0-3])(?:[:.]([0-5]\d)|\s*h\b|(?=\s*(?:-|–|alle|\/|,|;|\.|$|\s)))/gi
 
 function orariIn(riga: string): string[] {
-  const pulita = riga.replace(/\b\d{1,2}[/-]\d{1,2}(?:[/-]\d{2,4})?\b/g, ' ')   // toglie le date
+  const pulita = riga.replace(RE_DATA_SICURA, ' ')                                  // toglie le date (non "19-23")
     .replace(/(\+39\s?)?3\d{2}[\s.]?\d{3}[\s.]?\d{3,4}/g, ' ')                  // e i telefoni
     .replace(/\b(?:via|viale|piazza|corso|largo|n\.?|civico)\s+[^,\n]*\d+/gi, ' ') // e i civici
   const out: string[] = []
@@ -62,11 +62,20 @@ function orariIn(riga: string): string[] {
   return out
 }
 
+/**
+ * Date scritte con i numeri, solo quando non possono essere altro:
+ * 28/10, 28/10/26, 28-10-2026, 28.10.2026.
+ * Restano fuori "10.05" (un orario), "3-5" (un civico) e "19-23" (un orario).
+ */
+const RE_DATA_SICURA = /(?<![\d/.-])(\d{1,2})\/(\d{1,2})(?:\/(\d{2}|\d{4}))?(?![\d/])|(?<![\d/.-])(\d{1,2})[.-](\d{1,2})[.-](\d{2}|\d{4})(?![\d.-])/g
+
 function leggiData(testo: string, oggi: Date): string | undefined {
   const t = norm(testo)
   let g: number | undefined, me: number | undefined, a: number | undefined
-  const num = t.match(/\b(\d{1,2})[/.-](\d{1,2})(?:[/.-](\d{2,4}))?\b/)
-  if (num) { g = +num[1]; me = +num[2]; a = num[3] ? +num[3] : undefined }
+  const num = [...t.matchAll(RE_DATA_SICURA)]
+    .map((m) => [m[1] ?? m[4], m[2] ?? m[5], m[3] ?? m[6]].map((x) => (x ? +x : undefined)))
+    .find(([gg, mm]) => gg! >= 1 && gg! <= 31 && mm! >= 1 && mm! <= 12)
+  if (num) { [g, me, a] = num }
   else {
     const par = t.match(new RegExp(`\\b(\\d{1,2})\\s+(${MESI.join('|')}|${MESI.map((x) => x.slice(0, 3)).join('|')})\\b(?:\\s+(\\d{4}))?`))
     if (par) { g = +par[1]; me = MESI.findIndex((x) => x.startsWith(par[2])) + 1; a = par[3] ? +par[3] : undefined }
