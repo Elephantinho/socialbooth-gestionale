@@ -1,9 +1,10 @@
+import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Archive, Plus } from 'lucide-react'
 import { useOperatori } from '@/modules/anagrafiche/api'
 import { usePuo } from '@/modules/auth/permessi'
 import { useArchivio, useEventiInProgramma } from '@/modules/eventi/api'
-import { BoxEvento } from '@/modules/eventi/components/BoxEvento'
+import { COLONNE, RigaEvento } from '@/modules/eventi/components/RigaEvento'
 import { passato } from '@/modules/eventi/logic/archivio'
 import { filtra, giornoRoma, type Filtri } from '@/modules/eventi/logic/filtri'
 import { FiltriEventi } from './FiltriEventi'
@@ -32,6 +33,13 @@ export function ElencoEventi() {
   }
   const eventi = filtra(base, filtri)
   const filtrato = Object.values(filtri).some(Boolean)
+  // Senza filtri si vede una settimana alla volta: con centinaia di eventi non si scende all'infinito
+  const [settimane, setSettimane] = useState(1)
+  const giorni = perGiorno(eventi, archivio)
+  const limite = giornoRoma(new Date(Date.now() + (settimane * 7 - 1) * 86_400_000).toISOString())
+  const aFinestra = !archivio && !filtrato
+  const visibili = aFinestra ? giorni.filter(([g]) => g <= limite) : giorni
+  const nascosti = giorni.length - visibili.length
   /** Cambia un filtro tenendo gli altri (e l'archivio) */
   const imposta = (modifiche: Partial<Record<keyof Filtri, string | undefined>>) => {
     const p = new URLSearchParams(parametri)
@@ -82,17 +90,28 @@ export function ElencoEventi() {
           <Vuoto titolo="Nessun evento" testo={filtrato ? 'Nessun evento con questi filtri.' : archivio ? 'Gli eventi conclusi compariranno qui.' : 'Crea un evento per vederlo qui.'} />
         </Card>
       ) : (
-        perGiorno(eventi, archivio).map(([giorno, lista]) => (
-          <section key={giorno} className="flex flex-col gap-2.5">
-            <h2 className="text-sm font-semibold text-tenue flex items-baseline gap-2">
-              <span className={cn(giorno === giornoRoma(new Date().toISOString()) && 'text-inchiostro')}>{titoloGiorno(giorno)}</span>
-              <span className="font-medium text-tenue/70">{lista.length === 1 ? '1 evento' : `${lista.length} eventi`}</span>
-            </h2>
-            <div className="grid gap-2.5 grid-cols-[repeat(auto-fill,minmax(210px,1fr))]">
-              {lista.map((e) => <BoxEvento key={e.id} e={e} />)}
-            </div>
-          </section>
-        ))
+        <div className="flex flex-col gap-4">
+          <div className={cn('max-md:hidden px-4 pr-3 text-xs font-semibold text-tenue -mb-2', COLONNE)}>
+            <span>Ora</span><span>Evento</span><span>Project</span><span>Operatore</span><span className="justify-self-end">Stato</span>
+          </div>
+          {visibili.map(([giorno, lista]) => (
+            <Card key={giorno} className="overflow-visible">
+              <h2 className="px-4 py-2.5 border-b border-bordo bg-sfondo/60 rounded-t-xl text-sm font-semibold flex items-baseline gap-2">
+                <span className={cn(giorno !== giornoRoma(new Date().toISOString()) && 'text-tenue')}>{titoloGiorno(giorno)}</span>
+                <span className="font-medium text-tenue/70">{lista.length === 1 ? '1 evento' : `${lista.length} eventi`}</span>
+              </h2>
+              <div className="divide-y divide-bordo">
+                {lista.map((e) => <RigaEvento key={e.id} e={e} assegna={puo('eventi.assegna') && !archivio} />)}
+              </div>
+            </Card>
+          ))}
+          {nascosti > 0 && (
+            <button onClick={() => setSettimane((n) => n + 1)}
+              className="h-11 self-center px-5 rounded-lg border border-bordo-forte bg-superficie text-sm font-semibold cursor-pointer hover:bg-sfondo">
+              Mostra la settimana dopo
+            </button>
+          )}
+        </div>
       )}
     </div>
   )
@@ -105,6 +124,7 @@ function perGiorno(eventi: EventoGestione[], recenti = false) {
     const lista = gruppi.get(g)
     if (lista) lista.push(e); else gruppi.set(g, [e])
   }
+  for (const lista of gruppi.values()) lista.sort((a, b) => a.allestimento_il.localeCompare(b.allestimento_il))
   // In ordine di data; nell'archivio dal più recente
   return [...gruppi].sort(([a], [b]) => (recenti ? b.localeCompare(a) : a.localeCompare(b)))
 }

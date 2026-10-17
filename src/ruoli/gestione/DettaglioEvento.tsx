@@ -12,7 +12,6 @@ import type { EventoGestioneCompleto } from '@/modules/eventi/types'
 import { AssegnaOperatore } from '@/modules/assegnazione/AssegnaOperatore'
 import { dataLunga, nomeCompleto, ora } from '@/shared/lib/formato'
 import { Avatar } from '@/shared/ui/Avatar'
-import { cn } from '@/shared/lib/cn'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore } from '@/shared/ui/Stati'
@@ -104,7 +103,6 @@ export function DettaglioEvento() {
               </Card>
             )}
             <Operatore e={e} />
-            <Storico e={e} />
           </aside>
         </div>
       )}
@@ -114,6 +112,7 @@ export function DettaglioEvento() {
 
 function Riepilogo({ e }: { e: EventoGestioneCompleto }) {
   const righe: [string, string][] = [
+    ['Project', e.project ? nomeCompleto(e.project) : '—'],
     ['Indirizzo', `${e.indirizzo}, ${e.citta} (${e.regione})`],
     ['Allestimento', ora(e.allestimento_il)],
     ['Attivazione', `${ora(e.inizio_attivazione)} – ${ora(e.fine_attivazione)}`],
@@ -190,27 +189,6 @@ function Operatore({ e }: { e: EventoGestioneCompleto }) {
   )
 }
 
-const etichettaProposta: Record<string, string> = {
-  in_attesa: 'in attesa', accettata: 'ha accettato', rifiutata: 'ha rifiutato', scaduta: 'scaduta', revocata: 'revocata',
-}
-
-function Storico({ e }: { e: EventoGestioneCompleto }) {
-  if (!e.proposte.length) return null
-  const proposte = [...e.proposte].sort((a, b) => b.creato_il.localeCompare(a.creato_il))
-  return (
-    <Card className="p-5 flex flex-col gap-3">
-      <TitoloSezione className="text-[15px]">Storico proposte</TitoloSezione>
-      {proposte.map((p) => (
-        <div key={p.id} className="flex justify-between gap-3 text-sm">
-          <span className="font-semibold">{p.operatore?.nome || 'Operatore'}{p.automatica && <span className="text-tenue font-medium">, automatica</span>}</span>
-          <span className={cn('font-semibold', p.stato === 'rifiutata' ? 'text-urgente-testo' : p.stato === 'accettata' ? 'text-ok' : 'text-tenue')}>
-            {etichettaProposta[p.stato]}
-          </span>
-        </div>
-      ))}
-    </Card>
-  )
-}
 
 /** Evento iniziato che ha un passaggio in ritardo o è finito senza check-out: si può chiudere a mano */
 function DaChiudere({ e }: { e: EventoGestioneCompleto }) {

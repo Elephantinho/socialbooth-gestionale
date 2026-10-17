@@ -74,7 +74,7 @@ export function useRispondiProposta() {
 
 /* ---------------- Lato gestione (project / admin) ---------------- */
 
-const campiGestione = '*, tipo_booth:tipi_booth(nome), operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto)'
+const campiGestione = '*, tipo_booth:tipi_booth(nome), operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto), project:profili!eventi_project_id_fkey(id, nome, cognome)'
 const BLOCCO = 1000 // il database ne restituisce al massimo 1000 per volta
 
 /** Legge a blocchi finché ce ne sono: con tanti eventi non se ne perde nessuno. */
@@ -147,7 +147,7 @@ export function useEventoGestione(id: string) {
       ok(await supabase.from('eventi')
         .select(`*, tipo_booth:tipi_booth(nome),
           operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto, telefono),
-          proposte(id, stato, automatica, creato_il, risposta_il, operatore:profili(nome))`)
+          project:profili!eventi_project_id_fkey(id, nome, cognome)`)
         .eq('id', id)
         .single()),
   })

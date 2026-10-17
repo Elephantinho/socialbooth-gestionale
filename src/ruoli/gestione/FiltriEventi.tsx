@@ -41,7 +41,7 @@ export function FiltriEventi({ eventi, filtri, archivio, imposta, azzera, mesi: 
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 -mt-2">
       {!archivio ? (
-        <div className="inline-flex bg-superficie border border-bordo rounded-xl p-1 gap-0.5" role="group" aria-label="Stato">
+        <div className="inline-flex max-w-full overflow-x-auto bg-superficie border border-bordo rounded-xl p-1 gap-0.5" role="group" aria-label="Stato">
           {stati.map((s) => {
             const attivo = filtri.stato === s.id
             return (

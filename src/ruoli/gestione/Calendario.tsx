@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEventiPeriodo } from '@/modules/eventi/api'
-import { nomeCompleto, ora, perCampoData } from '@/shared/lib/formato'
+import { ora, perCampoData } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
 import { REGIONI } from '@/shared/types/database'
 import { Card } from '@/shared/ui/Card'
@@ -11,6 +10,9 @@ import { Intestazione } from '@/shared/ui/Intestazione'
 import { Caricamento, Errore } from '@/shared/ui/Stati'
 import { nomeEvento } from '@/modules/eventi/logic/nome'
 import { ritardo } from '@/modules/passaggi/ritardi'
+import { RigaEvento } from '@/modules/eventi/components/RigaEvento'
+import { usePuo } from '@/modules/auth/permessi'
+import type { EventoGestione } from '@/modules/eventi/types'
 
 const coloreStato: Record<string, string> = {
   bozza: 'bg-sfondo text-tenue border-bordo',
@@ -27,6 +29,9 @@ const giorniSettimana = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
 export function Calendario() {
   const [mese, setMese] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1) })
   const [regione, setRegione] = useState('')
+  const puo = usePuo()
+  // Giorno aperto sotto il calendario: all'inizio oggi
+  const [scelto, setScelto] = useState<string>(() => new Date().toLocaleDateString('sv-SE'))
 
   const giorni = useMemo(() => {
     const primo = new Date(mese)
@@ -46,6 +51,7 @@ export function Calendario() {
       const k = perCampoData(e.allestimento_il)
       m.set(k, [...(m.get(k) ?? []), e])
     }
+    for (const l of m.values()) l.sort((a, b) => a.allestimento_il.localeCompare(b.allestimento_il))
     return m
   }, [data, regione])
 
@@ -81,7 +87,7 @@ export function Calendario() {
       {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : (
         <Card className="overflow-hidden">
           <div className="overflow-x-auto">
-            <div className="min-w-[760px]">
+            <div className="min-w-[640px]">
               <div className="grid grid-cols-7 border-b border-bordo bg-sfondo">
                 {giorniSettimana.map((g) => <div key={g} className="px-3 py-2.5 text-xs font-semibold text-tenue ">{g}</div>)}
               </div>
@@ -91,26 +97,17 @@ export function Calendario() {
                   const eventi = perGiorno.get(k) ?? []
                   const fuori = d.getMonth() !== mese.getMonth()
                   return (
-                    <div key={k} className={cn('min-h-28 border-r border-b border-bordo p-1.5 flex flex-col gap-1 [&:nth-child(7n)]:border-r-0', fuori && 'bg-sfondo/60')}>
-                      <div className="flex items-center justify-between">
-                        <Link to={`/gestione?giorno=${k}`} title="Tutti gli eventi del giorno"
-                          className={cn('text-xs font-semibold w-7 h-7 rounded-full flex items-center justify-center hover:ring-2 hover:ring-bordo-forte',
-                            k === oggi ? 'bg-accento text-su-accento' : fuori ? 'text-tenue/60' : 'text-inchiostro')}>{d.getDate()}</Link>
-                        {eventi.length > 3 && <span className="text-[11px] font-semibold text-tenue pr-1">{eventi.length}</span>}
-                      </div>
-                      {eventi.slice(0, 3).map((e) => (
-                        <Link key={e.id} to={`/gestione/eventi/${e.id}`}
-                          className={cn('rounded-lg border px-1.5 py-1 text-[11px] leading-tight hover:brightness-95 transition', ritardo(e) ? 'bg-urgente text-white border-urgente' : coloreStato[e.stato])}>
+                    <button key={k} onClick={() => setScelto(k)} aria-pressed={scelto === k}
+                      className={cn('min-h-24 border-r border-b border-bordo p-1.5 flex flex-col gap-1 text-left cursor-pointer [&:nth-child(7n)]:border-r-0 hover:bg-sfondo/70',
+                        fuori && 'bg-sfondo/60', scelto === k && 'ring-2 ring-inset ring-inchiostro')}>
+                      <span className={cn('text-xs font-semibold w-7 h-7 rounded-full flex items-center justify-center shrink-0',
+                        k === oggi ? 'bg-accento text-su-accento' : fuori ? 'text-tenue/60' : 'text-inchiostro')}>{d.getDate()}</span>
+                      {eventi.length > 0 && eventi.length <= 2 ? eventi.map((e) => (
+                        <span key={e.id} className={cn('rounded-md border px-1.5 py-0.5 text-[11px] leading-tight truncate w-full', ritardo(e) ? 'bg-urgente text-white border-urgente' : coloreStato[e.stato])}>
                           <span className="font-semibold">{ora(e.allestimento_il)}</span> {nomeEvento(e)}
-                          <span className="block truncate opacity-80">{e.citta}{e.operatore ? `, ${nomeCompleto(e.operatore).split(' ')[0]}` : ''}</span>
-                        </Link>
-                      ))}
-                      {eventi.length > 3 && (
-                        <Link to={`/gestione?giorno=${k}`} className="text-[11px] font-semibold text-inchiostro px-1.5 py-0.5 rounded hover:bg-sfondo">
-                          Vedi tutti, altri {eventi.length - 3}
-                        </Link>
-                      )}
-                    </div>
+                        </span>
+                      )) : eventi.length > 2 && <Riassunto eventi={eventi} />}
+                    </button>
                   )
                 })}
               </div>
@@ -118,6 +115,50 @@ export function Calendario() {
           </div>
         </Card>
       )}
+
+      {scelto && (
+        <Card className="overflow-visible">
+          <h2 className="px-4 py-3 border-b border-bordo bg-sfondo/60 rounded-t-xl font-semibold flex items-baseline gap-2">
+            {titoloGiorno(scelto)}
+            <span className="text-sm font-medium text-tenue">{(perGiorno.get(scelto) ?? []).length === 1 ? '1 evento' : `${(perGiorno.get(scelto) ?? []).length} eventi`}</span>
+          </h2>
+          {(perGiorno.get(scelto) ?? []).length === 0 ? (
+            <p className="px-4 py-6 text-sm text-tenue">Nessun evento in questo giorno.</p>
+          ) : (
+            <div className="divide-y divide-bordo">
+              {(perGiorno.get(scelto) ?? []).map((e) => <RigaEvento key={e.id} e={e} assegna={puo('eventi.assegna')} />)}
+            </div>
+          )}
+        </Card>
+      )}
     </div>
   )
+}
+
+/** Giorno con tanti eventi: quanti sono, barra per stato e cosa c'è da fare */
+function Riassunto({ eventi }: { eventi: EventoGestione[] }) {
+  const daFare = eventi.filter((e) => ritardo(e) || e.stato === 'da_assegnare' || e.stato === 'bozza').length
+  const attesa = eventi.filter((e) => !ritardo(e) && e.stato === 'proposto').length
+  const ok = eventi.length - daFare - attesa
+  const pct = (n: number) => `${(n / eventi.length) * 100}%`
+  return (
+    <div className="flex flex-col gap-1 px-0.5 w-full">
+      <p className="text-sm font-semibold leading-tight">{eventi.length} <span className="text-xs font-medium text-tenue">eventi</span></p>
+      <div className="h-1.5 rounded-full bg-bordo overflow-hidden flex" aria-hidden>
+        <span className="bg-ok" style={{ width: pct(ok) }} />
+        <span className="bg-avviso-icona" style={{ width: pct(attesa) }} />
+        <span className="bg-urgente" style={{ width: pct(daFare) }} />
+      </div>
+      {daFare > 0
+        ? <p className="text-[11px] font-semibold text-urgente-testo leading-tight">{daFare} da sistemare</p>
+        : attesa > 0 ? <p className="text-[11px] font-semibold text-avviso-testo leading-tight">{attesa} in attesa</p>
+        : <p className="text-[11px] font-semibold text-ok leading-tight">Tutti coperti</p>}
+    </div>
+  )
+}
+
+/** "Oggi, sabato 17 ottobre" o "Lunedì 19 ottobre" */
+function titoloGiorno(g: string) {
+  const testo = new Date(`${g}T12:00:00`).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })
+  return g === new Date().toLocaleDateString('sv-SE') ? `Oggi, ${testo}` : testo[0].toUpperCase() + testo.slice(1)
 }
