@@ -7,8 +7,7 @@ import { COLONNE, RigaEvento } from '@/modules/eventi/components/RigaEvento'
 import { passato } from '@/modules/eventi/logic/archivio'
 import { filtra, giornoRoma, type Filtri } from '@/modules/eventi/logic/filtri'
 import { FiltriEventi } from './FiltriEventi'
-import { SettimanaEventi, SettimanaGrande, piuGiorni } from './SettimanaEventi'
-import { useProfilo } from '@/modules/auth/AuthProvider'
+import { SettimanaEventi, piuGiorni } from './SettimanaEventi'
 import type { EventoGestione } from '@/modules/eventi/types'
 import { Card } from '@/shared/ui/Card'
 import { cn } from '@/shared/lib/cn'
@@ -18,8 +17,6 @@ import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 /** Eventi in programma, divisi per giorno. I passati stanno nell'archivio (il cassetto in alto). */
 export function ElencoEventi() {
   const puo = usePuo()
-  // Il project ha pochi eventi: li vede a schede grandi
-  const { ruolo } = useProfilo()
   const [parametri, setParametri] = useSearchParams()
   const archivio = parametri.has('archivio')
   const programma = useEventiInProgramma()
@@ -128,9 +125,7 @@ export function ElencoEventi() {
           <Vuoto titolo="Nessun evento" testo={settimana ? 'Nessun evento in questa settimana.' : filtrato ? 'Nessun evento con questi filtri.' : archivio ? 'Gli eventi conclusi compariranno qui.' : 'Crea un evento per vederlo qui.'} />
         </Card>
       ) : settimana ? (
-        ruolo === 'project'
-          ? <SettimanaGrande eventi={eventi} inizio={inizio} assegna={puo('eventi.assegna')} />
-          : <SettimanaEventi eventi={eventi} inizio={inizio} assegna={puo('eventi.assegna')} />
+        <SettimanaEventi eventi={eventi} inizio={inizio} assegna={puo('eventi.assegna')} />
       ) : (
         <div className="flex flex-col gap-4">
           <div className={cn('max-md:hidden px-4 pr-3 text-xs font-semibold text-tenue -mb-2', COLONNE)}>

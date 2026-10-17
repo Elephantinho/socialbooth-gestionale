@@ -96,17 +96,19 @@ export function Calendario() {
                   const k = d.toLocaleDateString('sv-SE')
                   const eventi = perGiorno.get(k) ?? []
                   const fuori = d.getMonth() !== mese.getMonth()
+                  // I giorni già passati sono neutri: in evidenza resta solo ciò che è rimasto aperto
+                  const passatoGiorno = k < oggi
                   return (
                     <button key={k} onClick={() => setScelto(k)} aria-pressed={scelto === k}
                       className={cn('min-h-24 border-r border-b border-bordo p-1.5 flex flex-col gap-1 text-left cursor-pointer [&:nth-child(7n)]:border-r-0 hover:bg-sfondo/70',
-                        fuori && 'bg-sfondo/60', scelto === k && 'ring-2 ring-inset ring-inchiostro')}>
+                        (fuori || passatoGiorno) && 'bg-sfondo/60', scelto === k && 'ring-2 ring-inset ring-inchiostro')}>
                       <span className={cn('text-xs font-semibold w-7 h-7 rounded-full flex items-center justify-center shrink-0',
-                        k === oggi ? 'bg-accento text-su-accento' : fuori ? 'text-tenue/60' : 'text-inchiostro')}>{d.getDate()}</span>
+                        k === oggi ? 'bg-accento text-su-accento' : fuori || passatoGiorno ? 'text-tenue/60' : 'text-inchiostro')}>{d.getDate()}</span>
                       {eventi.length > 0 && eventi.length <= 2 ? eventi.map((e) => (
-                        <span key={e.id} className={cn('rounded-md border px-1.5 py-0.5 text-[11px] leading-tight truncate w-full', ritardo(e) ? 'bg-urgente text-white border-urgente' : coloreStato[e.stato])}>
+                        <span key={e.id} className={cn('rounded-md border px-1.5 py-0.5 text-[11px] leading-tight truncate w-full', ritardo(e) ? 'bg-urgente text-white border-urgente' : passatoGiorno ? 'bg-transparent text-tenue border-bordo' : coloreStato[e.stato])}>
                           <span className="font-semibold">{ora(e.allestimento_il)}</span> {nomeEvento(e)}
                         </span>
-                      )) : eventi.length > 2 && <Riassunto eventi={eventi} />}
+                      )) : eventi.length > 2 && <Riassunto eventi={eventi} passato={passatoGiorno} />}
                     </button>
                   )
                 })}
@@ -136,11 +138,22 @@ export function Calendario() {
 }
 
 /** Giorno con tanti eventi: quanti sono, barra per stato e cosa c'è da fare */
-function Riassunto({ eventi }: { eventi: EventoGestione[] }) {
+function Riassunto({ eventi, passato }: { eventi: EventoGestione[]; passato?: boolean }) {
   const daFare = eventi.filter((e) => ritardo(e) || e.stato === 'da_assegnare' || e.stato === 'bozza').length
   const attesa = eventi.filter((e) => !ritardo(e) && e.stato === 'proposto').length
   const ok = eventi.length - daFare - attesa
   const pct = (n: number) => `${(n / eventi.length) * 100}%`
+  if (passato) {
+    const aperti = eventi.filter((e) => ritardo(e) || e.stato === 'confermato' || e.stato === 'in_corso').length
+    return (
+      <div className="flex flex-col gap-0.5 px-0.5 w-full">
+        <p className="text-sm font-semibold leading-tight text-tenue">{eventi.length} <span className="text-xs font-medium">eventi</span></p>
+        {aperti > 0
+          ? <p className="text-[11px] font-semibold text-urgente-testo leading-tight">{aperti} da chiudere</p>
+          : <p className="text-[11px] text-tenue leading-tight">conclusi</p>}
+      </div>
+    )
+  }
   return (
     <div className="flex flex-col gap-1 px-0.5 w-full">
       <p className="text-sm font-semibold leading-tight">{eventi.length} <span className="text-xs font-medium text-tenue">eventi</span></p>
