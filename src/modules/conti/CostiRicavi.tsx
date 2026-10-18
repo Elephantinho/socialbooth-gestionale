@@ -75,7 +75,7 @@ function Ricavo({ eventoId, conti }: { eventoId: string; conti: Conti | null }) 
       } }, { onSuccess: () => setFatto(true) })
     }}>
       <p className="text-sm font-semibold">Ricavo</p>
-      <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(150px,1fr))]">
+      <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(200px,1fr))]">
         <Campo etichetta="Prezzo concordato (€)" inputMode="decimal" placeholder="1.200,00" value={v.prezzo} onChange={(e) => setV({ ...v, prezzo: e.target.value })} />
         <Campo etichetta="Fattura n." placeholder="12/2026" value={v.numero} onChange={(e) => setV({ ...v, numero: e.target.value })} />
         <SceltaData etichetta="Data fattura" valore={v.data} onChange={(g) => setV({ ...v, data: g })} vuotabile />

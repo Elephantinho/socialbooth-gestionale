@@ -44,12 +44,12 @@ export function App() {
         </Route>
 
         <Route path="/gestione" element={<Protetto ruoli={RUOLI_GESTIONE}><GestioneLayout /></Protetto>}>
-          <Route index element={<ElencoEventi />} />
-          <Route path="eventi" element={<ElencoEventi />} />
+          <Route index element={<Solo permesso="eventi.elenco"><ElencoEventi /></Solo>} />
+          <Route path="eventi" element={<Solo permesso="eventi.elenco"><ElencoEventi /></Solo>} />
           <Route path="panoramica" element={<Panoramica />} />
           <Route path="eventi/nuovo" element={<Solo permesso="eventi.crea"><NuovoEvento /></Solo>} />
           <Route path="eventi/:id" element={<DettaglioEvento />} />
-          <Route path="calendario" element={<Calendario />} />
+          <Route path="calendario" element={<Solo permesso="eventi.elenco"><Calendario /></Solo>} />
           <Route path="operatori" element={<Solo permesso="operatori.vedi"><Operatori /></Solo>} />
           <Route path="operatori/:id" element={<Solo permesso="operatori.vedi"><DettaglioOperatore /></Solo>} />
           <Route path="carte" element={<Solo permesso="carte"><Carte /></Solo>} />

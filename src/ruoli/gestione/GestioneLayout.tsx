@@ -21,8 +21,8 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
     titolo: 'Lavoro',
     voci: [
       { a: '/gestione/panoramica', etichetta: 'Panoramica', Icona: LayoutDashboard },
-      { a: '/gestione', etichetta: 'Eventi', Icona: CalendarDays },
-      { a: '/gestione/calendario', etichetta: 'Calendario', Icona: CalendarRange },
+      { a: '/gestione', etichetta: 'Eventi', Icona: CalendarDays, permesso: 'eventi.elenco' },
+      { a: '/gestione/calendario', etichetta: 'Calendario', Icona: CalendarRange, permesso: 'eventi.elenco' },
       { a: '/gestione/operatori', etichetta: 'Operatori', Icona: Users, permesso: 'operatori.vedi' },
       { a: '/gestione/clienti', etichetta: 'Clienti', Icona: Building2, permesso: 'clienti' },
       { a: '/gestione/conti', etichetta: 'Conti', Icona: Wallet, permesso: 'soldi' },

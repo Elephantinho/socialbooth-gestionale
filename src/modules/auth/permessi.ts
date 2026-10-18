@@ -6,6 +6,7 @@ import type { Enum } from '@/shared/types/database'
 export type Ruolo = Enum<'ruolo'>
 
 export type Permesso =
+  | 'eventi.elenco'        // elenco degli eventi e calendario (chi organizza; l'amministrazione no)
   | 'eventi.crea'          // creare, duplicare, annullare eventi
   | 'eventi.modifica'      // modificare orari, luogo e note
   | 'eventi.tutti'         // vedere gli eventi di tutti (il project vede i suoi)
@@ -17,13 +18,13 @@ export type Permesso =
   | 'carte'                // carte aziendali e pagamenti arrivati dalla banca
   | 'clienti'              // anagrafica clienti (dati per la fattura)
 
-const TUTTI: Permesso[] = ['eventi.crea', 'eventi.modifica', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'utenti', 'soldi', 'carte', 'clienti']
+const TUTTI: Permesso[] = ['eventi.elenco', 'eventi.crea', 'eventi.modifica', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'utenti', 'soldi', 'carte', 'clienti']
 
 /** Ogni ruolo ha solo quello che gli serve; l'admin ha tutto */
 const PERMESSI: Record<Ruolo, Permesso[]> = {
   admin: TUTTI,
-  project: ['eventi.crea', 'eventi.modifica', 'eventi.assegna', 'soldi', 'clienti'],
-  gestore_operatori: ['eventi.tutti', 'eventi.modifica', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci'],
+  project: ['eventi.elenco', 'eventi.crea', 'eventi.modifica', 'eventi.assegna', 'soldi', 'clienti'],
+  gestore_operatori: ['eventi.elenco', 'eventi.tutti', 'eventi.modifica', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci'],
   amministrazione: ['eventi.tutti', 'soldi', 'carte', 'clienti'],
   operatore: [],
 }

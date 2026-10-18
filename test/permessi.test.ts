@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { puo, RUOLI, RUOLI_GESTIONE, type Permesso, type Ruolo } from '@/modules/auth/permessi'
 
 describe('permessi', () => {
-  const tutti: Permesso[] = ['eventi.crea', 'eventi.modifica', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'utenti', 'soldi', 'carte', 'clienti']
+  const tutti: Permesso[] = ['eventi.elenco', 'eventi.crea', 'eventi.modifica', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'utenti', 'soldi', 'carte', 'clienti']
   it('l\'admin ha tutto, l\'operatore niente', () => {
     tutti.forEach((p) => { expect(puo('admin', p)).toBe(true); expect(puo('operatore', p)).toBe(false) })
   })
@@ -26,6 +26,6 @@ describe('permessi', () => {
   it('il project vede i soldi (dei suoi eventi) ma non le carte', () => { expect(puo('project', 'soldi')).toBe(true); expect(puo('project', 'carte')).toBe(false) })
   it('l\'amministrazione vede soldi e carte ma non crea eventi', () => {
     expect(puo('amministrazione', 'soldi')).toBe(true); expect(puo('amministrazione', 'carte')).toBe(true); expect(puo('amministrazione', 'eventi.crea')).toBe(false)
-    expect(puo('amministrazione', 'operatori.vedi')).toBe(false)
+    expect(puo('amministrazione', 'operatori.vedi')).toBe(false); expect(puo('amministrazione', 'eventi.elenco')).toBe(false)
   })
 })

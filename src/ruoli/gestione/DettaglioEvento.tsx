@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, Phone, UserRound } from 'lucide-react'
 import { usePuo } from '@/modules/auth/permessi'
@@ -28,6 +28,7 @@ export function DettaglioEvento() {
   const aggiorna = useAggiornaEvento()
   const puoSoldi = usePuo()('soldi')
   const puo = usePuo()
+  const naviga = useNavigate()
   const modificabile = puo('eventi.modifica')
   const creatore = puo('eventi.crea')
 
@@ -47,9 +48,17 @@ export function DettaglioEvento() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap gap-4 justify-between items-end">
         <div>
-          <Link to="/gestione" className="text-sm font-semibold text-tenue inline-flex items-center gap-1 hover:text-inchiostro">
-            <ArrowLeft className="size-4" aria-hidden /> Eventi
-          </Link>
+          {puo('eventi.elenco') ? (
+            <Link to="/gestione" className="text-sm font-semibold text-tenue inline-flex items-center gap-1 hover:text-inchiostro">
+              <ArrowLeft className="size-4" aria-hidden /> Eventi
+            </Link>
+          ) : (
+            // Chi non ha l'elenco degli eventi (l'amministrazione) torna da dove è venuto: Incassi, Rimborsi, Conti
+            <button onClick={() => (window.history.length > 1 ? naviga(-1) : naviga('/gestione/conti'))}
+              className="text-sm font-semibold text-tenue inline-flex items-center gap-1 hover:text-inchiostro cursor-pointer">
+              <ArrowLeft className="size-4" aria-hidden /> Indietro
+            </button>
+          )}
           <div className="flex flex-wrap items-center gap-3 mt-1">
             <h1 className="font-display text-[26px] font-semibold leading-tight">{nomeEvento(e)}</h1>
             <StatoEvento stato={e.stato} />

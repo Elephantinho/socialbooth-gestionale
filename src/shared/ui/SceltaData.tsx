@@ -74,6 +74,8 @@ export function SceltaData({ etichetta, valore, onChange, min, vuotabile, errore
   useClicFuori(rif, aperto, () => setAperto(false))
 
   const testo = bozza ?? scriviData(valore)
+  // Il giorno della settimana a destra, se c'è spazio (non accanto al pulsante per togliere la data)
+  const conGiorno = !(vuotabile && valore)
   const letta = bozza == null ? valore || null : leggiData(bozza)
   const problema = bozza != null && bozza.trim() !== ''
     ? !letta ? 'Scrivi la data come 19/10/2026' : min && letta < min ? 'Questo giorno è già passato' : undefined
@@ -98,8 +100,8 @@ export function SceltaData({ etichetta, valore, onChange, min, vuotabile, errore
         <input id={id} value={testo} onChange={(e) => scrivi(e.target.value)} onBlur={() => { if (!problema) setBozza(null) }}
           onFocus={(e) => e.target.select()}
           inputMode="numeric" autoComplete="off" placeholder="gg/mm/aaaa" aria-invalid={!!(errore || problema)}
-          className={stileCasella(!!(errore || problema), aperto)} />
-        {letta && !problema && (
+          className={cn(stileCasella(!!(errore || problema), aperto), conGiorno && 'pr-12')} />
+        {letta && !problema && conGiorno && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-tenue pointer-events-none" aria-hidden>{giornoSettimana(letta)}</span>
         )}
         {vuotabile && valore && (
