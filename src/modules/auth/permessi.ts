@@ -24,7 +24,7 @@ const PERMESSI: Record<Ruolo, Permesso[]> = {
   admin: TUTTI,
   project: ['eventi.crea', 'eventi.modifica', 'eventi.assegna', 'soldi', 'clienti'],
   gestore_operatori: ['eventi.tutti', 'eventi.modifica', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci'],
-  amministrazione: ['eventi.tutti', 'operatori.vedi', 'soldi', 'carte', 'clienti'],
+  amministrazione: ['eventi.tutti', 'soldi', 'carte', 'clienti'],
   operatore: [],
 }
 

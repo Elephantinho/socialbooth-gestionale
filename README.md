@@ -13,7 +13,7 @@ Pubblicato su Vercel: https://socialbooth-gestionale.vercel.app · Database: Sup
 | **Admin** | web | Tutto, compresi utenti e ruoli |
 | **Project** | web | Solo i suoi eventi: li crea, li assegna, ne vede costi e ricavi |
 | **Gestore operatori** | web | Tutti gli eventi e gli operatori, nessun importo |
-| **Amministrazione** | web | Tutti i soldi: prezzi, fatture, incassi, spese, carte aziendali |
+| **Amministrazione** | web | Tutti i soldi: incassi, rimborsi, carte aziendali, clienti, conti. Panoramica tutta sui soldi |
 | **Operatore** | telefono | I suoi incarichi: accetta, segue i passaggi, segna le spese |
 
 Chi si registra nasce *non attivo*: gli operatori li attivano admin o gestore dalla pagina **Operatori**,

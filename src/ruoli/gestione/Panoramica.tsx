@@ -2,8 +2,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Check, Plus } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/sessione'
 import { usePuo } from '@/modules/auth/permessi'
-import { useContiPeriodo, usePagamentiDaControllare } from '@/modules/conti/api'
-import { euro, totali } from '@/modules/conti/conti'
+import { useContiPeriodo, useIncassi, usePagamentiDaControllare, useRimborsi } from '@/modules/conti/api'
+import { useClienti } from '@/modules/clienti/api'
+import { controllaCliente, daCliente } from '@/modules/clienti/clienti'
+import { GIORNI_PER_INCASSARE, euro, riepilogoIncassi, rimborsiPerOperatore, totali } from '@/modules/conti/conti'
 import { useEventiInProgramma } from '@/modules/eventi/api'
 import { AssegnaRapido } from '@/modules/eventi/components/RigaEvento'
 import { giaPassato, passato } from '@/modules/eventi/logic/archivio'
@@ -21,10 +23,21 @@ import { Card } from '@/shared/ui/Card'
 import { Caricamento, Errore } from '@/shared/ui/Stati'
 
 /**
- * Prima pagina dell'ufficio. In cima due frasi che dicono com'è la giornata; poi oggi come una
- * linea del tempo, la settimana a pallini, le cose da sistemare e (a chi li vede) i soldi del mese.
+ * Prima pagina dell'ufficio. L'amministrazione vede i soldi da sistemare; gli altri la giornata degli eventi.
  */
 export function Panoramica() {
+  return useProfilo().ruolo === 'amministrazione' ? <PanoramicaSoldi /> : <PanoramicaEventi />
+}
+
+const conta = (n: number, uno: string, tanti: string) => `${n} ${n === 1 ? uno : tanti}`
+
+const salutoDelle = (adesso: number) => { const ore = new Date(adesso).getHours(); return ore < 13 ? 'Buongiorno' : ore < 18 ? 'Buon pomeriggio' : 'Buonasera' }
+
+/**
+ * Per admin, project e gestore: in cima due frasi che dicono com'è la giornata; poi oggi come una
+ * linea del tempo, la settimana a pallini, le cose da sistemare e (a chi li vede) i soldi del mese.
+ */
+function PanoramicaEventi() {
   const profilo = useProfilo()
   const puo = usePuo()
   const adesso = useAdesso()
@@ -40,8 +53,7 @@ export function Panoramica() {
     .toSorted((a, b) => a.allestimento_il.localeCompare(b.allestimento_il))
   const frasi = riassuntoDelGiorno(data, adesso, conRitardi)
 
-  const ore = new Date(adesso).getHours()
-  const saluto = ore < 13 ? 'Buongiorno' : ore < 18 ? 'Buon pomeriggio' : 'Buonasera'
+  const saluto = salutoDelle(adesso)
 
   return (
     <div className="flex flex-col gap-8">
@@ -67,6 +79,68 @@ export function Panoramica() {
           <DaSistemare eventi={inProgramma} tutti={data} adesso={adesso} conRitardi={conRitardi} conCarte={puo('carte')} />
           {puo('soldi') && <SoldiDelMese adesso={adesso} />}
         </div>
+      </div>
+    </div>
+  )
+}
+
+/* ---------- Per l'amministrazione: i soldi da sistemare ---------- */
+
+/** Incassi, rimborsi, pagamenti con la carta e clienti da completare, ognuno con il suo pulsante; poi il mese */
+function PanoramicaSoldi() {
+  const profilo = useProfilo()
+  const adesso = useAdesso()
+  const oggi = giornoRoma(adesso)
+  const incassi = useIncassi(false)
+  const rimborsi = useRimborsi(false)
+  const pagamenti = usePagamentiDaControllare()
+  const clienti = useClienti()
+  if (incassi.isPending || rimborsi.isPending) return <Caricamento />
+  if (incassi.error || rimborsi.error) return <Errore errore={incassi.error ?? rimborsi.error} />
+
+  const fatture = incassi.data
+  const ri = riepilogoIncassi(fatture, oggi)
+  const persone = rimborsiPerOperatore(rimborsi.data)
+  const daRimborsare = persone.reduce((t, o) => t + o.totale, 0)
+  const nPagamenti = pagamenti.data?.length ?? 0
+  const incompleti = (clienti.data ?? []).filter((c) => Object.keys(controllaCliente(daCliente(c))).length > 0)
+
+  const cose: Cosa[] = [
+    fatture.length > 0 && { chiave: 'incassi', urgente: ri.inRitardo > 0, azione: 'Incassa', a: '/gestione/conti?vista=incassi',
+      testo: `${conta(fatture.length, 'fattura', 'fatture')} da incassare`,
+      esempi: fatture.slice(0, 2).map((f) => `${f.evento.cliente?.nome ?? nomeEvento(f.evento)}, n. ${f.fattura_numero}`).join('; ') + (fatture.length > 2 ? '…' : '') },
+    persone.length > 0 && { chiave: 'rimborsi', urgente: false, azione: 'Rimborsa', a: '/gestione/conti?vista=rimborsi',
+      testo: `${euro(daRimborsare)} da rimborsare`, esempi: persone.map((o) => o.nome).join(', ') },
+    nPagamenti > 0 && { chiave: 'carte', urgente: false, azione: 'Controlla', a: '/gestione/carte',
+      testo: `${conta(nPagamenti, 'pagamento', 'pagamenti')} con la carta da controllare` },
+    incompleti.length > 0 && { chiave: 'clienti', urgente: false, azione: 'Completa', a: '/gestione/clienti',
+      testo: `${conta(incompleti.length, 'cliente', 'clienti')} senza i dati per la fattura`, esempi: incompleti.slice(0, 3).map((c) => c.nome).join(', ') },
+  ].filter(Boolean) as Cosa[]
+
+  return (
+    <div className="flex flex-col gap-8">
+      <header className="max-w-[52rem]">
+        <p className="text-tenue font-medium">{salutoDelle(adesso)} {profilo.nome}, è {giornoLungo(oggi)}.</p>
+        <p className="font-display text-[24px] md:text-[28px] font-semibold leading-snug mt-2 text-pretty">
+          {fatture.length === 0 ? 'Nessuna fattura da incassare.' : `Da incassare ${euro(ri.totale)} in ${conta(fatture.length, 'fattura', 'fatture')}.`}
+        </p>
+        {ri.inRitardo > 0 && (
+          <p className="text-[17px] leading-snug mt-2 text-urgente-testo font-medium">
+            {ri.inRitardo === 1 ? '1 fattura aspetta' : `${ri.inRitardo} fatture aspettano`} da più di {GIORNI_PER_INCASSARE} giorni: {euro(ri.totaleInRitardo)}.
+          </p>
+        )}
+      </header>
+
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] items-start">
+        <section className="flex flex-col gap-3 min-w-0">
+          <h2 className="text-lg font-semibold">Da sistemare</h2>
+          {cose.length === 0 ? (
+            <p className="flex items-center gap-2 text-ok font-medium"><Check className="size-5" strokeWidth={2.5} aria-hidden /> Niente da sistemare.</p>
+          ) : (
+            <Card className="divide-y divide-bordo">{cose.map((c) => <RigaCosa key={c.chiave} cosa={c} />)}</Card>
+          )}
+        </section>
+        <div className="min-w-0"><SoldiDelMese adesso={adesso} /></div>
       </div>
     </div>
   )
@@ -300,9 +374,6 @@ function SoldiDelMese({ adesso }: { adesso: number }) {
                 </div>
                 <p className="text-sm text-tenue">I costi sono il {Math.round((t.costi / t.ricavi) * 100)}% dei ricavi.</p>
               </div>
-            )}
-            {t.daIncassare > 0 && (
-              <p className="text-sm text-tenue">{t.daIncassare === 1 ? '1 fattura da incassare.' : `${t.daIncassare} fatture da incassare.`}</p>
             )}
           </Card>
         )

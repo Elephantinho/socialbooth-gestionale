@@ -1,26 +1,26 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { CalendarDays, Check, ChevronLeft, ChevronRight, FileText, Receipt, Undo2, Wallet, X } from 'lucide-react'
+import { CalendarDays, Check, Clock, ChevronLeft, ChevronRight, FileText, Receipt, Undo2, Wallet, X } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/sessione'
 import { usePuo } from '@/modules/auth/permessi'
-import { apriScontrino, useContiPeriodo, useRimborsi, useSegnaRimborso } from '@/modules/conti/api'
-import { bilancio, etichettaVoce, euro, mesiDellAnno, raggruppa, rimborsiPerOperatore, spesePerOperatore, totali, type Voce } from '@/modules/conti/conti'
+import { apriScontrino, useContiPeriodo, useIncassi, useRimborsi, useSegnaIncasso, useSegnaRimborso } from '@/modules/conti/api'
+import { GIORNI_PER_INCASSARE, bilancio, etichettaVoce, euro, giorniInAttesa, importoFattura, mesiDellAnno, riepilogoIncassi, raggruppa, rimborsiPerOperatore, spesePerOperatore, totali, type Voce } from '@/modules/conti/conti'
 import { nomeEvento } from '@/modules/eventi/logic/nome'
 import { nomeCompleto } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
-import { confiniMese, meseRoma, nomeMese, piuMesi } from '@/shared/lib/date'
+import { confiniMese, giornoRoma, meseRoma, nomeMese, piuMesi } from '@/shared/lib/date'
 import { useAdesso } from '@/shared/lib/tempo'
 import { Card } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Intestazione } from '@/shared/ui/Intestazione'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 
-type Vista = 'andamento' | 'eventi' | 'operatori' | 'regioni' | 'rimborsi'
+type Vista = 'andamento' | 'eventi' | 'operatori' | 'regioni' | 'incassi' | 'rimborsi'
 type Periodo = 'mese' | 'anno'
 type EventoRiga = NonNullable<ReturnType<typeof useContiPeriodo>['data']>[number]
 type Imposta = (modifiche: Record<string, string | null>) => void
 
-const VISTE: [Vista, string][] = [['andamento', 'Andamento'], ['eventi', 'Eventi'], ['operatori', 'Operatori'], ['regioni', 'Regioni'], ['rimborsi', 'Rimborsi']]
+const VISTE: [Vista, string][] = [['andamento', 'Andamento'], ['eventi', 'Eventi'], ['operatori', 'Operatori'], ['regioni', 'Regioni'], ['incassi', 'Incassi'], ['rimborsi', 'Rimborsi']]
 
 /*
  * Un solo linguaggio in tutta la pagina: una barra lunga quanto i ricavi, arancione per la parte
@@ -88,6 +88,7 @@ export function Conti() {
       {vista === 'operatori' && <ConPeriodo periodo={periodo} mese={mese} anno={anno} imposta={imposta}>
         {(eventi) => <Operatori eventi={eventi} periodo={periodo} mese={mese} imposta={imposta} />}
       </ConPeriodo>}
+      {vista === 'incassi' && <Incassi incassate={par.get('incassate') != null} imposta={imposta} />}
       {vista === 'rimborsi' && <Rimborsi rimborsate={par.get('rimborsate') != null} imposta={imposta} />}
       {vista === 'regioni' && <ConPeriodo periodo={periodo} mese={mese} anno={anno} imposta={imposta}>
         {(eventi) => <Regioni eventi={eventi} periodo={periodo} mese={mese} imposta={imposta} />}
@@ -284,6 +285,85 @@ function BarraVoci({ voci, larghezza, alta }: { voci: { voce: Voce; importo: num
         <span key={f.id} className="h-full first:rounded-l-[4px] last:rounded-r-[4px]" style={{ width: `${(f.importo / totale) * 100}%`, background: f.colore }} />
       ))}
     </span>
+  )
+}
+
+/** "12 ott" */
+const breve = (iso: string) => new Date(iso).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', timeZone: 'Europe/Rome' }).replace('.', '')
+
+/* ---------- Incassi: le fatture emesse, finché non arrivano i soldi ---------- */
+
+function Incassi({ incassate, imposta }: { incassate: boolean; imposta: Imposta }) {
+  const adesso = useAdesso()
+  const oggi = giornoRoma(adesso)
+  const { data, isPending, error } = useIncassi(incassate)
+  const segna = useSegnaIncasso()
+  const fatture = data ?? []
+  const r = riepilogoIncassi(fatture, oggi)
+
+  return (
+    <div className="flex flex-col gap-8">
+      <div className="inline-flex self-start bg-superficie border border-bordo rounded-xl p-1 gap-0.5">
+        {([[false, 'Da incassare'], [true, 'Incassate']] as [boolean, string][]).map(([v, testo]) => (
+          <button key={testo} onClick={() => imposta({ incassate: v ? '' : null })} aria-pressed={incassate === v}
+            className={cn('h-9 px-4 rounded-lg text-sm font-semibold cursor-pointer', incassate === v ? 'bg-inchiostro text-white' : 'text-tenue hover:text-inchiostro hover:bg-sfondo')}>
+            {testo}
+          </button>
+        ))}
+      </div>
+
+      {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : fatture.length === 0 ? (
+        <Card><Vuoto titolo={incassate ? 'Nessun incasso negli ultimi 3 mesi' : 'Nessuna fattura da incassare'} /></Card>
+      ) : (
+        <>
+          {!incassate && (
+            <div className="flex flex-wrap items-end gap-x-10 gap-y-3">
+              <Cifra etichetta="Da incassare" valore={r.totale} grande />
+              {r.inRitardo > 0 && (
+                <Cifra etichetta={`Da più di ${GIORNI_PER_INCASSARE} giorni (${r.inRitardo})`} valore={r.totaleInRitardo}
+                  icona={<Clock className="size-4 text-urgente" aria-hidden />} />
+              )}
+            </div>
+          )}
+          {segna.error && <Errore errore={segna.error} />}
+          <Card className="divide-y divide-bordo">
+            {fatture.map((f) => {
+              const giorni = giorniInAttesa(f, oggi)
+              return (
+                <div key={f.evento_id} className="grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[7rem_minmax(0,1fr)_5rem_8rem_auto] items-center gap-x-4 gap-y-1 px-4 py-3">
+                  <span className="max-md:hidden leading-tight">
+                    <span className="block font-semibold tabular-nums truncate">N. {f.fattura_numero}</span>
+                    <span className="block text-xs text-tenue">{f.fattura_data ? breve(f.fattura_data) : 'senza data'}</span>
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block font-semibold truncate">{f.evento.cliente?.nome ?? nomeEvento(f.evento)}</span>
+                    <Link to={`/gestione/eventi/${f.evento.id}`} className="block text-sm text-tenue truncate hover:underline">
+                      <span className="md:hidden">N. {f.fattura_numero}, </span>{nomeEvento(f.evento)}, {breve(f.evento.allestimento_il)}
+                    </Link>
+                  </span>
+                  <span className={cn('max-md:hidden text-sm tabular-nums text-right', incassate ? 'text-ok' : giorni > GIORNI_PER_INCASSARE ? 'font-semibold text-urgente-testo' : 'text-tenue')}
+                    title={incassate ? 'Incassata' : `In attesa da ${giorni} giorni`}>
+                    {incassate ? (f.incassata_il ? breve(f.incassata_il) : '') : `${giorni} gg`}
+                  </span>
+                  <span className="font-semibold tabular-nums text-right">{euro(importoFattura(f))}</span>
+                  <span className="max-md:col-span-2 md:justify-self-end">
+                    {incassate ? (
+                      <button onClick={() => segna.mutate({ eventoId: f.evento_id, incassata: false })} title="Non ancora incassata" aria-label="Rimetti da incassare"
+                        className="size-9 rounded-lg flex items-center justify-center text-tenue hover:text-inchiostro hover:bg-sfondo cursor-pointer"><Undo2 className="size-4" aria-hidden /></button>
+                    ) : (
+                      <Pulsante variante="secondario" caricamento={segna.isPending && segna.variables?.eventoId === f.evento_id}
+                        onClick={() => segna.mutate({ eventoId: f.evento_id, incassata: true })}>
+                        <Check className="size-4" aria-hidden /> Incassata
+                      </Pulsante>
+                    )}
+                  </span>
+                </div>
+              )
+            })}
+          </Card>
+        </>
+      )}
+    </div>
   )
 }
 

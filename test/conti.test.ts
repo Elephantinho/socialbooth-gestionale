@@ -1,6 +1,6 @@
 // Conti: ricavo, costi, margine, importi, raggruppamenti, totali.
 import { describe, expect, it } from 'vitest'
-import { bilancio, euro, leggiImporto, mesiDellAnno, raggruppa, ricavo, rimborsiPerOperatore, spesePerOperatore, totali, type EventoConti } from '@/modules/conti/conti'
+import { bilancio, euro, giorniInAttesa, leggiImporto, mesiDellAnno, raggruppa, ricavo, riepilogoIncassi, rimborsiPerOperatore, spesePerOperatore, totali, type EventoConti } from '@/modules/conti/conti'
 
 describe('conti', () => {
   it('il ricavo è la fattura, altrimenti il prezzo', () => {
@@ -45,14 +45,14 @@ describe('raggruppare i conti', () => {
 })
 
 describe('totali dei conti', () => {
-  it('somma, margine, incassi e rimborsi', () => {
+  it('somma e margine', () => {
     const t = totali([
       { id: 'a', allestimento_il: '2026-10-05T16:00:00Z', regione: 'Toscana', operatore: null, stato: 'completato', conti: { prezzo: 1000, fattura_importo: null, fattura_numero: null, incassata: false }, spese: [{ importo: 100, pagata_con: 'operatore', operatore_id: null }] },
       { id: 'b', allestimento_il: '2026-10-06T16:00:00Z', regione: 'Lazio', operatore: null, stato: 'completato', conti: { prezzo: 500, fattura_importo: 500, fattura_numero: '3/2026', incassata: false }, spese: [] },
       { id: 'c', allestimento_il: '2026-10-07T16:00:00Z', regione: 'Lazio', operatore: null, stato: 'confermato', conti: null, spese: [] },
       { id: 'd', allestimento_il: '2026-10-08T16:00:00Z', regione: 'Lazio', operatore: null, stato: 'completato', conti: null, spese: [] },
     ])
-    expect(t).toEqual({ ricavi: 1500, costi: 100, margine: 1400, percentuale: 93, daIncassare: 1 })
+    expect(t).toEqual({ ricavi: 1500, costi: 100, margine: 1400, percentuale: 93 })
   })
 })
 
@@ -92,5 +92,20 @@ describe('rimborsi', () => {
       { id: '4', importo: 5, creato_il: '2026-10-01T10:00:00Z', operatore: null },
     ])
     expect(r.map((o) => [o.nome, o.totale, o.spese.map((s) => s.id)])).toEqual([['Luca', 40, ['2']], ['Giulia Neri', 19.6, ['3', '1']]])
+  })
+})
+
+describe('incassi', () => {
+  const ev = { allestimento_il: '2026-09-10T16:00:00Z' }
+  const f = [
+    { fattura_data: '2026-09-12', fattura_importo: 1200, prezzo: 1000, evento: ev },  // 36 giorni: in ritardo
+    { fattura_data: null, fattura_importo: null, prezzo: 800, evento: { allestimento_il: '2026-10-10T16:00:00Z' } }, // dall'evento: 8 giorni
+  ]
+  it('giorni di attesa dalla fattura o dall\'evento', () => {
+    expect(giorniInAttesa(f[0], '2026-10-18')).toBe(36)
+    expect(giorniInAttesa(f[1], '2026-10-18')).toBe(8)
+  })
+  it('totale e quanto è in ritardo', () => {
+    expect(riepilogoIncassi(f, '2026-10-18')).toEqual({ totale: 2000, inRitardo: 1, totaleInRitardo: 1200 })
   })
 })

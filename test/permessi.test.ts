@@ -26,5 +26,6 @@ describe('permessi', () => {
   it('il project vede i soldi (dei suoi eventi) ma non le carte', () => { expect(puo('project', 'soldi')).toBe(true); expect(puo('project', 'carte')).toBe(false) })
   it('l\'amministrazione vede soldi e carte ma non crea eventi', () => {
     expect(puo('amministrazione', 'soldi')).toBe(true); expect(puo('amministrazione', 'carte')).toBe(true); expect(puo('amministrazione', 'eventi.crea')).toBe(false)
+    expect(puo('amministrazione', 'operatori.vedi')).toBe(false)
   })
 })

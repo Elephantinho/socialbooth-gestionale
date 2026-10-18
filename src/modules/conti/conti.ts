@@ -1,5 +1,5 @@
 import type { Enum } from '@/shared/types/database'
-import { meseRoma, nomeMese } from '@/shared/lib/date'
+import { giornoRoma, giorniTra, meseRoma, nomeMese } from '@/shared/lib/date'
 
 /** Arrotonda ai centesimi (le somme di decimali lasciano code tipo 0.30000000000000004) */
 const tondo = (n: number) => Math.round(n * 100) / 100
@@ -96,7 +96,7 @@ export function raggruppa(eventi: EventoConti[], per: Per, nomeEvento: (e: Event
   })
 }
 
-/** Totali di un insieme di eventi: ricavi, costi, margine, da incassare */
+/** Totali di un insieme di eventi: ricavi, costi, margine */
 export function totali(eventi: (EventoConti & { stato: string; conti: (Conti & { fattura_numero?: string | null; incassata?: boolean }) | null })[]) {
   const g = raggruppa(eventi, 'regione')
   const somma = (k: 'ricavi' | 'costi') => tondo(g.reduce((t, x) => t + x[k], 0))
@@ -104,7 +104,6 @@ export function totali(eventi: (EventoConti & { stato: string; conti: (Conti & {
   return {
     ricavi, costi, margine: tondo(ricavi - costi),
     percentuale: ricavi ? Math.round(((ricavi - costi) / ricavi) * 100) : null,
-    daIncassare: eventi.filter((e) => e.conti?.fattura_numero && !e.conti.incassata).length,
   }
 }
 
@@ -178,4 +177,28 @@ export function rimborsiPerOperatore<S extends SpesaDiTasca>(spese: S[]) {
   return [...mappa.values()]
     .map((o) => ({ ...o, totale: tondo(o.totale), spese: o.spese.toSorted((a, b) => a.creato_il.localeCompare(b.creato_il)) }))
     .toSorted((a, b) => b.totale - a.totale || a.nome.localeCompare(b.nome))
+}
+
+/* ---------- Incassi ---------- */
+
+/** Dopo quanti giorni una fattura non incassata è "in ritardo" */
+export const GIORNI_PER_INCASSARE = 30
+
+type FatturaAperta = { fattura_data: string | null; fattura_importo: number | null; prezzo: number | null; evento: { allestimento_il: string } }
+
+/** L'importo da incassare: quello della fattura, altrimenti il prezzo concordato */
+export const importoFattura = (f: Pick<FatturaAperta, 'fattura_importo' | 'prezzo'>) => Number(f.fattura_importo ?? f.prezzo ?? 0)
+
+/** Da quanti giorni aspetta: dalla data della fattura, o dall'evento se la data manca */
+export const giorniInAttesa = (f: FatturaAperta, oggi: string) =>
+  Math.max(0, giorniTra(f.fattura_data ?? giornoRoma(f.evento.allestimento_il), oggi))
+
+/** Totale da incassare e quanto è in ritardo */
+export function riepilogoIncassi(fatture: FatturaAperta[], oggi: string) {
+  const inRitardo = fatture.filter((f) => giorniInAttesa(f, oggi) > GIORNI_PER_INCASSARE)
+  return {
+    totale: tondo(fatture.reduce((t, f) => t + importoFattura(f), 0)),
+    inRitardo: inRitardo.length,
+    totaleInRitardo: tondo(inRitardo.reduce((t, f) => t + importoFattura(f), 0)),
+  }
 }

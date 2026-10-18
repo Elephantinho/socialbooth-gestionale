@@ -203,3 +203,31 @@ export function useSegnaRimborso() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['spese'] }),
   })
 }
+
+/* ---------- Incassi ---------- */
+
+/** Fatture emesse: da incassare (dalla più vecchia) oppure incassate negli ultimi 90 giorni (dalla più recente) */
+export function useIncassi(incassate: boolean) {
+  return useQuery({
+    queryKey: ['conti', 'incassi', incassate],
+    queryFn: async () => {
+      let q = supabase.from('conti_evento')
+        .select(`evento_id, prezzo, fattura_numero, fattura_data, fattura_importo, incassata, incassata_il,
+          evento:eventi!inner(id, nome, citta, allestimento_il, stato, tipo_booth:tipi_booth(nome), cliente:clienti(id, nome))`)
+        .not('fattura_numero', 'is', null)
+      q = incassate
+        ? q.eq('incassata', true).gte('incassata_il', new Date(Date.now() - 90 * 864e5).toISOString()).order('incassata_il', { ascending: false })
+        : q.eq('incassata', false).order('fattura_data', { ascending: true, nullsFirst: false })
+      return ok(await q.limit(2000))
+    },
+  })
+}
+
+export function useSegnaIncasso() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (v: { eventoId: string; incassata: boolean }) =>
+      ok(await supabase.from('conti_evento').update({ incassata: v.incassata }).eq('evento_id', v.eventoId).select('evento_id').single()),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['conti'] }),
+  })
+}
