@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEventiPeriodo } from '@/modules/eventi/api'
 import { ora } from '@/shared/lib/formato'
-import { giornoRoma, meseRoma, nomeMese, piuGiorni, piuMesi, titoloGiorno } from '@/shared/lib/date'
+import { caselleDelMese, giornoRoma, meseRoma, nomeMese, piuGiorni, piuMesi, titoloGiorno } from '@/shared/lib/date'
 import { useAdesso } from '@/shared/lib/tempo'
 import { perGiorno as raggruppaPerGiorno } from '@/modules/eventi/logic/giorni'
 import { cn } from '@/shared/lib/cn'
@@ -27,14 +27,6 @@ const coloreStato: Record<string, string> = {
 }
 
 const giorniSettimana = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom']
-
-/** Le 42 caselle (6 settimane, da lunedì) che mostrano un mese "2026-10" */
-function caselleDelMese(mese: string): string[] {
-  const primo = `${mese}-01`
-  const giornoSettimana = (new Date(`${primo}T12:00:00Z`).getUTCDay() + 6) % 7 // 0 = lunedì
-  const inizio = piuGiorni(primo, -giornoSettimana)
-  return Array.from({ length: 42 }, (_, i) => piuGiorni(inizio, i))
-}
 
 /** Calendario mensile degli eventi, filtrabile per regione. Cliccando un giorno, la sua lista si apre sotto. */
 export function Calendario() {

@@ -12,6 +12,8 @@ import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 import { nomeEvento } from '@/modules/eventi/logic/nome'
 import { useAdesso } from '@/shared/lib/tempo'
+import { giornoRoma } from '@/shared/lib/date'
+import { SceltaData } from '@/shared/ui/SceltaData'
 
 export function CalendarioOperatore() {
   const profilo = useProfilo()
@@ -78,6 +80,7 @@ function Indisponibilita() {
   const aggiungi = useAggiungiIndisponibilita()
   const elimina = useEliminaIndisponibilita()
   const [aperto, setAperto] = useState(false)
+  const oggi = giornoRoma(useAdesso())
   const [dal, setDal] = useState('')
   const [al, setAl] = useState('')
   const [motivo, setMotivo] = useState('')
@@ -97,18 +100,19 @@ function Indisponibilita() {
       {aperto && (
         <form className="flex flex-col gap-3" onSubmit={(e) => {
           e.preventDefault()
+          if (!dal) return
           aggiungi.mutate({ operatore_id: profilo.id, dal, al: al || dal, motivo: motivo || null }, {
             onSuccess: () => { setAperto(false); setDal(''); setAl(''); setMotivo('') },
           })
         }}>
           <div className="grid grid-cols-2 gap-3">
-            <Campo etichetta="Dal" type="date" required value={dal} onChange={(e) => setDal(e.target.value)} />
-            <Campo etichetta="Al" type="date" min={dal} value={al} onChange={(e) => setAl(e.target.value)} />
+            <SceltaData etichetta="Dal" valore={dal} onChange={(g) => { setDal(g); if (al && al < g) setAl('') }} min={oggi} />
+            <SceltaData etichetta="Al (se più giorni)" valore={al} onChange={setAl} min={dal || oggi} vuotabile />
           </div>
           <Campo etichetta="Motivo (facoltativo)" value={motivo} onChange={(e) => setMotivo(e.target.value)} />
           {aggiungi.error && <Errore errore={aggiungi.error} />}
           <div className="flex gap-2">
-            <Pulsante type="submit" caricamento={aggiungi.isPending}>Salva</Pulsante>
+            <Pulsante type="submit" caricamento={aggiungi.isPending} disabled={!dal}>Salva</Pulsante>
             <Pulsante type="button" variante="secondario" onClick={() => setAperto(false)}>Annulla</Pulsante>
           </div>
         </form>

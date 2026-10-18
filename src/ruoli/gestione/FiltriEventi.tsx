@@ -6,6 +6,7 @@ import { useClicFuori } from '@/shared/lib/clicFuori'
 import { useAdesso } from '@/shared/lib/tempo'
 import type { EventoGestione } from '@/modules/eventi/types'
 import { cn } from '@/shared/lib/cn'
+import { Mesetto } from '@/shared/ui/SceltaData'
 
 type Props = {
   eventi: EventoGestione[]
@@ -77,8 +78,7 @@ export function FiltriEventi({ eventi, filtri, archivio, imposta, azzera, mesi: 
                 <Voce key={m} scelta={filtri.mese === m} n={n} onClick={() => { imposta({ mese: m }); chiudi() }}>{nomeMese(m)}</Voce>
               ))}
               <Titoletto>Un giorno preciso</Titoletto>
-              <input type="date" value={filtri.giorno ?? ''} onChange={(e) => { imposta({ giorno: e.target.value || undefined }); if (e.target.value) chiudi() }}
-                className="mx-1 mb-1 h-10 rounded-lg border border-bordo px-3 text-sm font-semibold w-[calc(100%-0.5rem)]" />
+              <div className="px-2 pb-2"><Mesetto valore={filtri.giorno} onScegli={(g) => { imposta({ giorno: g }); chiudi() }} /></div>
             </>
           )}
         </Menu>}

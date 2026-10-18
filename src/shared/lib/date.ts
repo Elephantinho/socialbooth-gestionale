@@ -73,3 +73,14 @@ export function intervalloGiorni(da: string, a: string): string {
 
 /** Giorni tra due giorni del calendario: ("2026-10-18", "2026-10-21") → 3 */
 export const giorniTra = (da: string, a: string) => Math.round((Date.parse(`${a}T12:00:00Z`) - Date.parse(`${da}T12:00:00Z`)) / GIORNO_MS)
+
+/** "2026-10-19" → "Lunedì 19 ottobre 2026" */
+export const dataCompleta = (giorno: string) => maiuscola(formatta(giorno, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }))
+
+/** Le 42 caselle (6 settimane, da lunedì) che mostrano un mese "2026-10" */
+export function caselleDelMese(mese: string): string[] {
+  const primo = `${mese}-01`
+  const daLunedi = (new Date(`${primo}T12:00:00Z`).getUTCDay() + 6) % 7 // 0 = lunedì
+  const inizio = piuGiorni(primo, -daLunedi)
+  return Array.from({ length: 42 }, (_, i) => piuGiorni(inizio, i))
+}

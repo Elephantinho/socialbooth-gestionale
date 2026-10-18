@@ -7,6 +7,7 @@ import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Campo, Selezione, SiNo } from '@/shared/ui/Campo'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore } from '@/shared/ui/Stati'
+import { SceltaData } from '@/shared/ui/SceltaData'
 import { apriScontrino, useAggiungiSpesa, useConti, useSalvaConti, useSpese, useTogliSpesa } from './api'
 import { PAGATA_CON, VOCI, bilancio, etichettaVoce, euro, leggiImporto, type PagataCon, type Voce } from './conti'
 
@@ -77,7 +78,7 @@ function Ricavo({ eventoId, conti }: { eventoId: string; conti: Conti | null }) 
       <div className="grid gap-3 grid-cols-[repeat(auto-fit,minmax(150px,1fr))]">
         <Campo etichetta="Prezzo concordato (€)" inputMode="decimal" placeholder="1.200,00" value={v.prezzo} onChange={(e) => setV({ ...v, prezzo: e.target.value })} />
         <Campo etichetta="Fattura n." placeholder="12/2026" value={v.numero} onChange={(e) => setV({ ...v, numero: e.target.value })} />
-        <Campo etichetta="Data fattura" type="date" value={v.data} onChange={(e) => setV({ ...v, data: e.target.value })} />
+        <SceltaData etichetta="Data fattura" valore={v.data} onChange={(g) => setV({ ...v, data: g })} vuotabile />
         <Campo etichetta="Importo fattura (€)" inputMode="decimal" placeholder="1.200,00" value={v.importo} onChange={(e) => setV({ ...v, importo: e.target.value })} />
       </div>
       <div className="flex flex-wrap items-end gap-3 justify-between">

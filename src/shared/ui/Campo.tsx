@@ -21,7 +21,7 @@ function Etichetta({ etichetta, errore, className, children }: Base & { children
 export function Campo({ etichetta, errore, className, ...resto }: Base & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <Etichetta etichetta={etichetta} errore={errore} className={className}>
-      <input className={cn(stileInput, 'h-11')} {...resto} />
+      <input className={cn(stileInput, 'h-11', errore && 'border-urgente')} aria-invalid={!!errore} {...resto} />
     </Etichetta>
   )
 }
@@ -29,7 +29,7 @@ export function Campo({ etichetta, errore, className, ...resto }: Base & React.I
 export function AreaTesto({ etichetta, errore, className, ...resto }: Base & React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <Etichetta etichetta={etichetta} errore={errore} className={className}>
-      <textarea className={cn(stileInput, 'py-3 leading-relaxed resize-y min-h-24')} {...resto} />
+      <textarea className={cn(stileInput, 'py-3 leading-relaxed resize-y min-h-24', errore && 'border-urgente')} aria-invalid={!!errore} {...resto} />
     </Etichetta>
   )
 }
@@ -37,7 +37,7 @@ export function AreaTesto({ etichetta, errore, className, ...resto }: Base & Rea
 export function Selezione({ etichetta, errore, className, children, ...resto }: Base & React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
     <Etichetta etichetta={etichetta} errore={errore} className={className}>
-      <select className={cn(stileInput, 'h-11 appearance-none bg-[url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2716%27 height=%2716%27 fill=%27none%27 stroke=%27%235E5F66%27 stroke-width=%272%27%3E%3Cpath d=%27m4 6 4 4 4-4%27/%3E%3C/svg%3E")] bg-no-repeat bg-[right_14px_center] pr-10')} {...resto}>
+      <select className={cn(stileInput, 'h-11 appearance-none bg-[url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2716%27 height=%2716%27 fill=%27none%27 stroke=%27%235E5F66%27 stroke-width=%272%27%3E%3Cpath d=%27m4 6 4 4 4-4%27/%3E%3C/svg%3E")] bg-no-repeat bg-[right_14px_center] pr-10', errore && 'border-urgente')} aria-invalid={!!errore} {...resto}>
         {children}
       </select>
     </Etichetta>
@@ -45,11 +45,11 @@ export function Selezione({ etichetta, errore, className, children, ...resto }: 
 }
 
 /** Interruttore Sì/No a pillola, come nei mockup */
-export function SiNo({ etichetta, valore, onChange }: { etichetta: string; valore: boolean; onChange: (v: boolean) => void }) {
+export function SiNo({ etichetta, valore, onChange, errore }: { etichetta: string; valore: boolean | null; onChange: (v: boolean) => void; errore?: string }) {
   return (
     <div className="flex flex-col gap-1.5" role="group" aria-label={etichetta}>
       <span className="text-[13px] font-semibold text-tenue">{etichetta}</span>
-      <div className="flex rounded-lg bg-sfondo p-1">
+      <div className={cn('flex rounded-lg bg-sfondo p-1', errore && 'ring-1 ring-urgente')}>
         {[true, false].map((v) => (
           <button
             key={String(v)}
@@ -65,6 +65,7 @@ export function SiNo({ etichetta, valore, onChange }: { etichetta: string; valor
           </button>
         ))}
       </div>
+      {errore && <span className="text-xs font-semibold text-urgente-testo">{errore}</span>}
     </div>
   )
 }
