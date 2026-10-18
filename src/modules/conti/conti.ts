@@ -67,7 +67,7 @@ export type EventoConti = {
   }[]
 }
 
-export type Gruppo = {
+type Gruppo = {
   chiave: string; etichetta: string; eventi: number
   ricavi: number; costi: number; margine: number; percentuale: number | null
   senzaPrezzo: number; daRimborsare: number
