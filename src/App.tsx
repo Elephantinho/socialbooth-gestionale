@@ -42,6 +42,7 @@ export function App() {
 
         <Route path="/gestione" element={<Protetto ruoli={RUOLI_GESTIONE}><GestioneLayout /></Protetto>}>
           <Route index element={<ElencoEventi />} />
+          <Route path="eventi" element={<ElencoEventi />} />
           <Route path="panoramica" element={<Panoramica />} />
           <Route path="eventi/nuovo" element={<Solo permesso="eventi.crea"><NuovoEvento /></Solo>} />
           <Route path="eventi/:id" element={<DettaglioEvento />} />

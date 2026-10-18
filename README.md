@@ -1,97 +1,129 @@
-# Gestionale Social Booth
+# Gestionale Socialbooth
 
-Gestionale per eventi social booth / photobooth, con tre lati:
+Gestionale per gli eventi photobooth: l'ufficio organizza e assegna gli eventi dal web,
+l'operatore li segue dal telefono passo per passo, e i conti di ogni evento (prezzo, fattura,
+incasso, spese) si tengono nello stesso posto.
 
-- **Admin** – vede e controlla tutto (web, `/gestione`)
-- **Project** – crea gli eventi e li assegna agli operatori (web, `/gestione`)
-- **Operatore** – riceve gli incarichi e li accetta o rifiuta (app telefono, `/operatore`)
+Pubblicato su Vercel: https://socialbooth-gestionale.vercel.app · Database: Supabase.
+
+## Ruoli
+
+| Ruolo | Dove | Cosa vede e fa |
+|---|---|---|
+| **Admin** | web | Tutto, compresi utenti e ruoli |
+| **Project** | web | Solo i suoi eventi: li crea, li assegna, ne vede costi e ricavi |
+| **Gestore operatori** | web | Tutti gli eventi e gli operatori, nessun importo |
+| **Amministrazione** | web | Tutti i soldi: prezzi, fatture, incassi, spese, carte aziendali |
+| **Operatore** | telefono | I suoi incarichi: accetta, segue i passaggi, segna le spese |
+
+Chi si registra nasce *non attivo*: gli operatori li attivano admin o gestore dalla pagina **Operatori**,
+gli altri ruoli li assegna l'admin da **Utenti e ruoli**.
+
+## Come funziona
+
+- **Assegnazione** sempre manuale: si sceglie tra gli operatori liberi in zona (anche direttamente
+  dalla riga dell'evento). L'operatore ha 24 ore per accettare; se rifiuta o non risponde, l'evento
+  torna *da assegnare* e il project viene avvisato.
+- **Passaggi dell'operatore**: check-in, attrezzatura, montato, smontato, rientrato, check-out. Si aprono
+  il giorno prima, vanno in ordine e cambiano lo stato dell'evento (check-in → *in corso*, check-out →
+  *completato*). L'ultimo tocco si annulla entro 10 minuti. Tutti vedono l'andamento in tempo reale.
+- **Ritardi**: ogni 15 minuti il database controlla check-in, montaggio e check-out mancanti e avvisa
+  una volta sola project, admin, gestore e operatore. I passaggi normali avvisano solo il project.
+- **Conti**: i soldi stanno in tabelle separate (`conti_evento`, `spese_evento`), visibili solo a chi
+  può vederli. La pagina Conti divide ricavi, costi e margine per mese, evento, operatore o regione.
+- **Carte aziendali**: si salvano solo le ultime 4 cifre. Un pagamento con la carta fatto nello stesso
+  giorno di un evento dell'operatore diventa da solo una spesa di quell'evento; altrimenti resta
+  "da controllare" nella pagina Carte. La connessione automatica con la banca non è ancora attiva.
+- **Notifiche sul telefono**: Android (Chrome) subito, iPhone dopo "Aggiungi a Home". Le manda la
+  funzione `supabase/functions/invia-push`; le chiavi stanno nella tabella `segreti`, mai nel codice.
 
 ## Avvio in locale
 
 ```bash
 npm install
-cp .env.example .env   # chiavi pubbliche del progetto Supabase
-npm run dev            # apre su http://localhost:5173
+npm run dev          # http://localhost:5173
 ```
 
-### Utenti e ruoli
+Le chiavi pubbliche (publishable) di Supabase sono già nel codice e sono fatte per stare nel browser.
+Per usare un altro progetto Supabase basta un file `.env` (vedi `.env.example`).
+Le chiavi segrete (service role, chiavi push, Revolut) non vanno **mai** nel repository.
 
-| Ruolo | Cosa fa |
+## Controlli
+
+```bash
+npm run verifica     # tutto: lint, tipi, test, codice inutilizzato, build
+```
+
+| Comando | Cosa fa |
 |---|---|
-| **Admin** | Tutto, compresi utenti e ruoli |
-| **Project** | Crea i propri eventi e li assegna |
-| **Gestore operatori** | Vede tutti gli eventi, gestisce operatori e assegnazioni |
-| **Amministrazione** | Vede eventi e operatori |
-| **Operatore** | App sul telefono |
+| `npm run lint` | oxlint con regole severe (hook di React, stato negli effetti, cicli tra moduli) |
+| `npm test` | controllo dei tipi e test delle regole pure in `test/` |
+| `npm run inutilizzato` | knip: file, export e dipendenze non usati |
+| `npm run build` | build di produzione |
 
-I permessi stanno in un posto solo per lato: `src/modules/auth/permessi.tsx` (menu e pulsanti) e
-le funzioni `e_gestione()`, `vede_tutti_eventi()`, `gestisce_operatori()`, `amministra()` nel database (migrazione 0015).
+I test del database sono in `supabase/test/` e si incollano nel SQL editor di Supabase. Creano utenti
+finti, provano tutto e annullano ogni modifica: l'ultima riga solleva apposta un errore con il risultato
+(`RISULTATO N test, 0 falliti`).
 
-- **Operatori**: si registrano da soli dalla pagina `/registrati` (nome, telefono, regioni in cui lavorano).
-  Nascono *non attivi*: admin o gestore operatori li approvano dalla pagina **Operatori**.
-- **Gli altri ruoli**: la persona si registra, poi l'admin cambia il ruolo da **Utenti e ruoli**.
-
-**Importante per la registrazione**: in Supabase, *Authentication → URL Configuration*, imposta come
-*Site URL* l'indirizzo dell'app pubblicata (es. `https://socialbooth-gestionale.vercel.app`) e aggiungilo
-anche tra i *Redirect URLs*. Così il link di conferma email riporta all'app.
-
-## Funzionalità
-
-Versione minima, da far crescere un pezzo alla volta. La versione completa precedente
-(costi, magazzini, carta, richieste, chat, andamento…) è nel ramo `versione-completa`.
-
-**Ufficio (web)**
-- Eventi in programma divisi per stato, e passati; creazione, modifica, duplica, annullamento
-- Calendario del mese
-- Assegnazione sempre manuale: si sceglie tra gli operatori liberi in zona. L'operatore ha 24 ore per accettare;
-  se rifiuta o non risponde, l'evento torna da assegnare e il project riceve una notifica
-- Operatori per regione, attivazione dei nuovi, utenti e ruoli
-
-**Operatore (telefono)**
-- Incarichi da accettare o rifiutare, prossimo evento con programma, indirizzo, referente e note
-- Calendario con i giorni di indisponibilità, profilo con regioni e notifiche
-
-**Notifiche sul telefono**: funzionano su Android (Chrome) anche senza installare nulla; su iPhone dopo
-"Aggiungi a Home". Le manda la funzione `supabase/functions/invia-push` a ogni notifica nuova; le chiavi
-stanno nella tabella `segreti` del database, mai nel codice.
-
-## Stack
-
-- React + TypeScript + Vite
-- Tailwind CSS (tema in `src/index.css`), Framer Motion, icone Lucide
-- TanStack Query per i dati, React Router per le pagine
-- Supabase: database Postgres, login, sicurezza per ruolo, notifiche sul telefono
-- Capacitor per l'app Android (prossima fase)
+| File | Cosa prova | Controlli |
+|---|---|---|
+| `01_permessi.sql` | chi vede e chi cambia cosa, ruolo per ruolo; vecchio schema chiuso | 74 |
+| `02_proposte.sql` | proposte, rifiuti, cambi, scadenza 24 ore, ferie, annullamenti | 32 |
+| `03_passaggi.sql` | ordine dei passaggi, stati, notifiche, annullamento | 20 |
+| `04_ritardi.sql` | avvisi di ritardo una volta sola, chiusura a mano | 12 |
+| `05_soldi.sql` | abbinamento dei pagamenti con la carta, incassi, spese | 20 |
 
 ## Struttura del codice
 
 ```
 src/
-  modules/              ← la logica, divisa per funzionalità
-    auth/               login, sessione, permessi per ruolo
-    eventi/             api.ts (letture/scritture), logic/ (regole pure), components/
-    assegnazione/       scelta dell'operatore
-    anagrafiche/        tipi di booth, operatori, indisponibilità, utenti
-    comunicazione/      notifiche in app e sul telefono
-  ruoli/                ← solo le schermate, che usano i moduli
-    operatore/          app telefono
-    gestione/           pannello web
-  shared/               ← pezzi comuni: ui/, lib/, types/database.ts
-supabase/migrations/    ← schema del database, in ordine numerico
+  modules/            la logica, divisa per argomento
+    auth/             sessione.ts (chi è loggato), permessi.ts (chi può cosa), Protetto.tsx (pagine riservate)
+    eventi/           api.ts (letture e scritture), logic/ (regole pure, testate), components/
+    passaggi/         i passaggi dell'operatore e i ritardi
+    conti/            prezzi, fatture, spese, carte e pagamenti
+    assegnazione/     scelta dell'operatore
+    anagrafiche/      operatori, tipi di booth, indisponibilità, utenti
+    comunicazione/    notifiche in app e sul telefono
+  ruoli/              solo le schermate, che usano i moduli
+    gestione/         pannello web dell'ufficio
+    operatore/        app sul telefono
+  shared/
+    lib/              date.ts (giorni secondo l'ora di Roma), tempo.ts (un solo orologio), formato.ts, …
+    ui/               componenti comuni
+    types/            supabase.ts (generato) e database.ts (scorciatoie)
+supabase/
+  migrations/         lo schema del database, in ordine numerico
+  test/               i test del database
+  functions/          funzioni sul server (notifiche push)
 ```
 
-Regola: le pagine non chiamano mai Supabase direttamente, passano dagli hook in `modules/*/api.ts`.
+Regole del codice:
 
-## Regole principali del database
+- Le pagine non chiamano Supabase: passano dagli hook in `modules/*/api.ts` (solo l'accesso usa il login direttamente).
+- I giorni si trattano come testo `"AAAA-MM-GG"` secondo l'ora di Roma (`shared/lib/date.ts`), mai con il fuso del browser.
+- L'ora corrente si legge con `useAdesso()`, non con `Date.now()` nel render.
+- Le regole vere stanno nel database (Row Level Security e funzioni): l'app nasconde solo menu e pulsanti.
 
-- **Assegnazione**: sempre manuale. Chi crea l'evento sceglie l'operatore tra quelli liberi (zona giusta, non indisponibile, senza eventi sovrapposti). Se l'operatore rifiuta o non risponde in tempo, l'evento torna *da assegnare* e il project riceve una notifica.
-- **Stati**: proposto e confermato li mettono solo le funzioni (`proponi_operatore`, `rispondi_proposta`), non si forzano dall'app.
-- **Sicurezza**: ogni ruolo vede solo i propri dati (Row Level Security); chi si registra resta non attivo finché non viene attivato.
+### Tipi del database
 
-## Test
+`src/shared/types/supabase.ts` è generato dallo schema e non si modifica a mano. Dopo una migrazione
+si rigenera (Supabase CLI):
 
-- `npm test`: controlla i tipi e lancia i test delle regole pure (orari, fuso orario, eventi passati, permessi).
-- `supabase/test/*.sql`: test del database da incollare nel SQL editor di Supabase. Creano utenti finti, provano tutto e annullano ogni modifica alla fine (l'ultima riga solleva apposta un errore con il risultato: `RISULTATO N test, 0 falliti`).
-  - `01_permessi.sql`: chi vede e chi può cambiare cosa, ruolo per ruolo (111 controlli)
-  - `02_automatismi.sql`: proposte, rifiuti, scadenze, ferie, tappe, chiusure, carta, magazzino, richieste, chat (58 controlli; tappe, carta, magazzino e richieste riguardano funzioni ora spente nell'app ma ancora nel database)
-  - `03_casi_limite.sql`: nessuna riserva automatica, attrezzatura, operatori disattivati, carta (17 controlli)
+```bash
+npx supabase gen types typescript --project-id ltfzqnljmnbiqmbmvvfk > src/shared/types/supabase.ts
+```
+
+e si rimette in cima la riga `/* oxlint-disable */`. Nel codice si usano le scorciatoie di
+`database.ts`: `Riga<'eventi'>`, `Inserimento<'eventi'>`, `Enum<'regione'>`.
+
+## Da configurare in Supabase
+
+- *Authentication → URL Configuration*: *Site URL* e *Redirect URLs* con l'indirizzo dell'app pubblicata,
+  così il link di conferma email riporta all'app.
+- *Authentication → Password*: attivare la protezione contro le password già trapelate.
+
+## Vecchio schema
+
+Chat, richieste, magazzino, ore e costi previsti sono del vecchio gestionale: le tabelle sono ancora nel
+database ma chiuse all'app (migrazione 0041). Si possono cancellare quando si è sicuri di non volerle più.
