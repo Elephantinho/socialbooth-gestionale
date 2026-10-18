@@ -108,7 +108,8 @@ export function totali(eventi: (EventoConti & { stato: string; conti: (Conti & {
     ricavi, costi, margine: tondo(ricavi - costi),
     percentuale: ricavi ? Math.round(((ricavi - costi) / ricavi) * 100) : null,
     senzaPrezzo: somma('senzaPrezzo'), daRimborsare: somma('daRimborsare'),
-    daFatturare: eventi.filter((e) => e.stato === 'completato' && !e.conti?.fattura_numero).length,
+    // Conclusi, con un prezzo, senza fattura (senza prezzo contano già tra i "senza prezzo": prima va messo quello)
+    daFatturare: eventi.filter((e) => e.stato === 'completato' && !e.conti?.fattura_numero && ricavo(e.conti) != null).length,
     daIncassare: eventi.filter((e) => e.conti?.fattura_numero && !e.conti.incassata).length,
   }
 }
