@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Bell, CheckCheck } from 'lucide-react'
-import { useProfilo } from '@/modules/auth/AuthProvider'
+import { useProfilo } from '@/modules/auth/sessione'
 import { useNotifiche, useSegnaLette } from '../api'
 import { cn } from '@/shared/lib/cn'
 

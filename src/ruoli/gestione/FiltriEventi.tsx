@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { CalendarDays, Check, ChevronDown, MapPin, X } from 'lucide-react'
-import { filtra, giornoRoma, type Filtri } from '@/modules/eventi/logic/filtri'
+import { filtra, type Filtri } from '@/modules/eventi/logic/filtri'
+import { giornoBreve, giornoRoma, meseRoma, nomeMese, piuGiorni } from '@/shared/lib/date'
+import { useClicFuori } from '@/shared/lib/clicFuori'
+import { useAdesso } from '@/shared/lib/tempo'
 import type { EventoGestione } from '@/modules/eventi/types'
 import { cn } from '@/shared/lib/cn'
 
@@ -16,29 +19,27 @@ type Props = {
   azzera?: () => void
 }
 
-const maiuscola = (t: string) => t[0].toUpperCase() + t.slice(1)
-const nomeMese = (m: string) => maiuscola(new Date(`${m}-15T12:00:00Z`).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' }))
-const nomeGiorno = (g: string) => maiuscola(new Date(`${g}T12:00:00Z`).toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'short' }).replace('.', ''))
 const conta = <T,>(lista: T[], chiave: (x: T) => string) => lista.reduce((m, x) => m.set(chiave(x), (m.get(chiave(x)) ?? 0) + 1), new Map<string, number>())
 
 /** Barra dei filtri: stato a sinistra (con i numeri), quando e regione a destra. */
 export function FiltriEventi({ eventi, filtri, archivio, imposta, azzera, mesi: mesiFissi, senzaQuando }: Props) {
+  const adesso = useAdesso()
   // I numeri di ogni scelta tengono conto degli altri filtri già attivi
-  const perStato = filtra(eventi, { ...filtri, stato: undefined })
-  const perQuando = filtra(eventi, { ...filtri, mese: undefined, giorno: undefined })
-  const perRegione = filtra(eventi, { ...filtri, regione: undefined })
+  const perStato = filtra(eventi, { ...filtri, stato: undefined }, adesso)
+  const perQuando = filtra(eventi, { ...filtri, mese: undefined, giorno: undefined }, adesso)
+  const perRegione = filtra(eventi, { ...filtri, regione: undefined }, adesso)
 
   const stati = [
     { id: undefined, testo: 'Tutti', n: perStato.length, punto: null },
-    { id: 'da_assegnare' as const, testo: 'Da assegnare', n: filtra(perStato, { stato: 'da_assegnare' }).length, punto: 'bg-urgente' },
-    { id: 'proposto' as const, testo: 'In attesa', n: filtra(perStato, { stato: 'proposto' }).length, punto: 'bg-avviso-icona' },
-    { id: 'ritardo' as const, testo: 'In ritardo', n: filtra(perStato, { stato: 'ritardo' }).length, punto: 'bg-urgente' },
+    { id: 'da_assegnare' as const, testo: 'Da assegnare', n: filtra(perStato, { stato: 'da_assegnare' }, adesso).length, punto: 'bg-urgente' },
+    { id: 'proposto' as const, testo: 'In attesa', n: filtra(perStato, { stato: 'proposto' }, adesso).length, punto: 'bg-avviso-icona' },
+    { id: 'ritardo' as const, testo: 'In ritardo', n: filtra(perStato, { stato: 'ritardo' }, adesso).length, punto: 'bg-urgente' },
   ].filter((s) => s.id !== 'ritardo' || s.n > 0 || filtri.stato === 'ritardo')
-  const conteggi = conta(perQuando, (e) => giornoRoma(e.allestimento_il).slice(0, 7))
+  const conteggi = conta(perQuando, (e) => meseRoma(e.allestimento_il))
   const mesi: [string, number | undefined][] = mesiFissi ? mesiFissi.map((m) => [m, undefined]) : [...conteggi]
   const regioni = conta(perRegione, (e) => e.regione)
-  const oggi = giornoRoma(new Date().toISOString())
-  const domani = giornoRoma(new Date(Date.now() + 86_400_000).toISOString())
+  const oggi = giornoRoma(adesso)
+  const domani = piuGiorni(oggi, 1)
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 -mt-2">
@@ -61,7 +62,7 @@ export function FiltriEventi({ eventi, filtri, archivio, imposta, azzera, mesi: 
 
       <div className="flex items-center gap-2 flex-wrap">
         {!senzaQuando && <Menu icona={CalendarDays} attivo={!!(filtri.mese || filtri.giorno)}
-          etichetta={filtri.giorno ? nomeGiorno(filtri.giorno) : filtri.mese ? nomeMese(filtri.mese) : 'Quando'}>
+          etichetta={filtri.giorno ? giornoBreve(filtri.giorno) : filtri.mese ? nomeMese(filtri.mese) : 'Quando'}>
           {(chiudi) => (
             <>
               <Voce scelta={!filtri.mese && !filtri.giorno} onClick={() => { imposta({ mese: undefined, giorno: undefined }); chiudi() }}>Tutte le date</Voce>
@@ -86,7 +87,7 @@ export function FiltriEventi({ eventi, filtri, archivio, imposta, azzera, mesi: 
           {(chiudi) => (
             <>
               <Voce scelta={!filtri.regione} onClick={() => { imposta({ regione: undefined }); chiudi() }}>Tutte le regioni</Voce>
-              {[...regioni].sort(([a], [b]) => a.localeCompare(b)).map(([r, n]) => (
+              {[...regioni].toSorted(([a], [b]) => a.localeCompare(b)).map(([r, n]) => (
                 <Voce key={r} scelta={filtri.regione === r} n={n} onClick={() => { imposta({ regione: r }); chiudi() }}>{r}</Voce>
               ))}
             </>
@@ -110,14 +111,7 @@ function Menu({ icona: Icona, etichetta, attivo, children }: {
 }) {
   const [aperto, setAperto] = useState(false)
   const rif = useRef<HTMLDivElement>(null)
-  useEffect(() => {
-    if (!aperto) return
-    const fuori = (e: MouseEvent) => { if (!rif.current?.contains(e.target as Node)) setAperto(false) }
-    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') setAperto(false) }
-    document.addEventListener('mousedown', fuori)
-    document.addEventListener('keydown', esc)
-    return () => { document.removeEventListener('mousedown', fuori); document.removeEventListener('keydown', esc) }
-  }, [aperto])
+  useClicFuori(rif, aperto, () => setAperto(false))
 
   return (
     <div ref={rif} className="relative">

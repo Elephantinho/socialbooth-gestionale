@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Check, ChevronDown, Clock, Loader2 } from 'lucide-react'
 import { useOperatoriDisponibili, useProponiOperatore } from '@/modules/eventi/api'
@@ -6,6 +6,8 @@ import { PASSAGGI, passaggiFatti } from '@/modules/passaggi/passaggi'
 import { ritardo } from '@/modules/passaggi/ritardi'
 import { nomeCompleto, ora } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
+import { useClicFuori } from '@/shared/lib/clicFuori'
+import { useAdesso } from '@/shared/lib/tempo'
 import { Avatar } from '@/shared/ui/Avatar'
 import type { EventoGestione } from '../types'
 import { giaPassato } from '../logic/archivio'
@@ -16,12 +18,13 @@ export const COLONNE = 'md:grid md:grid-cols-[56px_minmax(0,2.2fr)_minmax(0,1fr)
 
 /** Un evento su una riga: ora, nome, project, operatore (o Assegna), stato. Un clic apre la scheda. */
 export function RigaEvento({ e, assegna }: { e: EventoGestione; assegna: boolean }) {
+  const adesso = useAdesso()
   const naviga = useNavigate()
-  const manca = ritardo(e)
+  const manca = ritardo(e, adesso)
   const barra = manca || e.stato === 'da_assegnare' || e.stato === 'bozza' ? 'bg-urgente'
     : e.stato === 'proposto' ? 'bg-avviso-icona'
     : ['confermato', 'in_corso', 'completato'].includes(e.stato) ? 'bg-ok' : 'bg-bordo-forte'
-  const assegnabile = assegna && e.stato === 'da_assegnare' && !giaPassato(e)
+  const assegnabile = assegna && e.stato === 'da_assegnare' && !giaPassato(e, adesso)
 
   return (
     <div role="link" tabIndex={0} onClick={() => naviga(`/gestione/eventi/${e.id}`)}
@@ -80,14 +83,7 @@ export function AssegnaRapido({ eventoId, destra, piccolo }: { eventoId: string;
   const liberi = useOperatoriDisponibili(aperto ? eventoId : undefined)
   const proponi = useProponiOperatore()
 
-  useEffect(() => {
-    if (!aperto) return
-    const fuori = (ev: MouseEvent) => { if (!rif.current?.contains(ev.target as Node)) setAperto(false) }
-    const esc = (ev: KeyboardEvent) => { if (ev.key === 'Escape') setAperto(false) }
-    document.addEventListener('mousedown', fuori)
-    document.addEventListener('keydown', esc)
-    return () => { document.removeEventListener('mousedown', fuori); document.removeEventListener('keydown', esc) }
-  }, [aperto])
+  useClicFuori(rif, aperto, () => setAperto(false))
 
   return (
     <div ref={rif} className="relative">

@@ -30,7 +30,7 @@ export function DettaglioOperatore() {
   const numero = o.telefono?.replace(/[^\d+]/g, '')
 
   const tutti = eventi.data ?? []
-  const prossimi = tutti.filter((e) => !passato(e)).reverse()
+  const prossimi = tutti.filter((e) => !passato(e)).toReversed()
   const passati = tutti.filter((e) => passato(e))
   const elenco = scheda === 'prossimi' ? prossimi : passati
 

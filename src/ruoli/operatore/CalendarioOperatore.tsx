@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronRight, Plus, Trash2 } from 'lucide-react'
-import { useProfilo } from '@/modules/auth/AuthProvider'
+import { useProfilo } from '@/modules/auth/sessione'
 import { useCalendarioOperatore } from '@/modules/eventi/api'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
 import { useAggiungiIndisponibilita, useEliminaIndisponibilita, useIndisponibilita } from '@/modules/anagrafiche/api'
@@ -11,15 +11,16 @@ import { Campo } from '@/shared/ui/Campo'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 import { nomeEvento } from '@/modules/eventi/logic/nome'
+import { useAdesso } from '@/shared/lib/tempo'
 
 export function CalendarioOperatore() {
   const profilo = useProfilo()
   const { data, isPending, error } = useCalendarioOperatore(profilo.id)
   const [mostraPassati, setMostraPassati] = useState(false)
 
-  const ora_ = Date.now()
-  const futuri = (data ?? []).filter((e) => new Date(e.smontaggio_il).getTime() >= ora_).reverse()
-  const passati = (data ?? []).filter((e) => new Date(e.smontaggio_il).getTime() < ora_)
+  const adesso = useAdesso()
+  const futuri = (data ?? []).filter((e) => new Date(e.smontaggio_il).getTime() >= adesso).toReversed()
+  const passati = (data ?? []).filter((e) => new Date(e.smontaggio_il).getTime() < adesso)
   const elenco = mostraPassati ? passati : futuri
 
   // Raggruppa per mese: "ottobre 2026"

@@ -94,8 +94,10 @@ export function useContiPeriodo(dal: Date, al: Date) {
       for (let da = 0; ; da += 1000) {
         const parte = ok(await leggi(da))
         tutti.push(...parte)
-        if (parte.length < 1000) return tutti
+        if (parte.length < 1000) break
       }
+      // conti_evento è uno a uno con l'evento: un oggetto (o null), spese sempre un elenco
+      return tutti.map((e) => ({ ...e, conti: (Array.isArray(e.conti) ? e.conti[0] : e.conti) ?? null, spese: e.spese ?? [] }))
     },
   })
 }

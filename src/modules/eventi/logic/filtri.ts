@@ -1,4 +1,5 @@
 import { ritardo } from '@/modules/passaggi/ritardi'
+import { giornoRoma } from '@/shared/lib/date'
 import type { Passaggio } from '@/modules/passaggi/passaggi'
 
 /** Filtri della pagina eventi. Le date si leggono all'ora di Roma. */
@@ -7,11 +8,6 @@ export type Filtri = { mese?: string; giorno?: string; regione?: string; stato?:
 type Filtrabile = {
   allestimento_il: string; inizio_attivazione: string; smontaggio_il: string
   regione: string; stato: string; ultimo_passaggio: Passaggio | null
-}
-
-/** "2026-10-18" all'ora di Roma */
-export function giornoRoma(iso: string): string {
-  return new Date(iso).toLocaleDateString('sv-SE', { timeZone: 'Europe/Rome' })
 }
 
 export function filtra<T extends Filtrabile>(eventi: T[], f: Filtri, adesso = Date.now()): T[] {

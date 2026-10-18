@@ -3,7 +3,8 @@ import { Loader2 } from 'lucide-react'
 import { useTipiBooth } from '@/modules/anagrafiche/api'
 import { costruisciOrari } from '../logic/orari'
 import type { EventoGestioneCompleto } from '../types'
-import { combinaDataOra, ora, perCampoData } from '@/shared/lib/formato'
+import { combinaDataOra, ora } from '@/shared/lib/formato'
+import { giornoRoma } from '@/shared/lib/date'
 import { REGIONI, type Enum, type Inserimento } from '@/shared/types/database'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { AreaTesto, Campo, Selezione, SiNo } from '@/shared/ui/Campo'
@@ -33,7 +34,7 @@ function daEvento(e: EventoGestioneCompleto): Valori {
     tipoBoothId: e.tipo_booth_id ?? '',
     indirizzo: e.indirizzo, citta: e.citta, regione: e.regione, noteAccesso: e.note_accesso ?? '',
     ztl: e.ztl, wifi: e.wifi, hostess: e.hostess,
-    data: perCampoData(e.allestimento_il), allestimento: ora(e.allestimento_il), inizio: ora(e.inizio_attivazione),
+    data: giornoRoma(e.allestimento_il), allestimento: ora(e.allestimento_il), inizio: ora(e.inizio_attivazione),
     fine: ora(e.fine_attivazione), smontaggio: ora(e.smontaggio_il),
     referenteNome: e.referente_nome ?? '', referenteTelefono: e.referente_telefono ?? '', outfit: e.outfit ?? '', note: e.note ?? '',
   }

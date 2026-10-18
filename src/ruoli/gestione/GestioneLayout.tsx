@@ -1,8 +1,8 @@
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CalendarDays, LayoutDashboard, CalendarRange, CreditCard, LogOut, Menu, ShieldCheck, Users, Wallet, X } from 'lucide-react'
-import { useAuth, useProfilo } from '@/modules/auth/AuthProvider'
+import { useAuth, useProfilo } from '@/modules/auth/sessione'
 import { etichettaRuolo, usePuo, type Permesso } from '@/modules/auth/permessi'
 import { useTempoReale } from '@/modules/eventi/api'
 import { nomeCompleto } from '@/shared/lib/formato'
@@ -37,12 +37,12 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
 ]
 
 export function GestioneLayout() {
-  const [menuAperto, setMenuAperto] = useState(false)
   const posizione = useLocation()
   useTempoReale()
-
-  // Chiude il menu del telefono quando si cambia pagina
-  useEffect(() => { setMenuAperto(false) }, [posizione.pathname])
+  // Il menu del telefono resta aperto solo sulla pagina in cui lo si è aperto: cambiando pagina si chiude da solo
+  const [apertoSu, setApertoSu] = useState<string | null>(null)
+  const menuAperto = apertoSu === posizione.pathname
+  const setMenuAperto = (aperto: boolean) => setApertoSu(aperto ? posizione.pathname : null)
 
   return (
     <>

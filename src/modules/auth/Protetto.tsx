@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom'
 import { Hourglass } from 'lucide-react'
-import { useAuth } from './AuthProvider'
+import { useAuth } from './sessione'
+import { homePerRuolo, usePuo, type Permesso } from './permessi'
 import { Caricamento } from '@/shared/ui/Stati'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import type { Enum } from '@/shared/types/database'
@@ -29,6 +30,7 @@ export function Protetto({ ruoli, children }: { ruoli: Enum<'ruolo'>[]; children
   return <>{children}</>
 }
 
-export function homePerRuolo(ruolo: Enum<'ruolo'>) {
-  return ruolo === 'operatore' ? '/operatore' : '/gestione/panoramica'
+/** Pagina riservata: chi non ha il permesso torna alla Panoramica */
+export function RichiedePermesso({ permesso, children }: { permesso: Permesso; children: React.ReactNode }) {
+  return usePuo()(permesso) ? <>{children}</> : <Navigate to="/gestione/panoramica" replace />
 }

@@ -133,9 +133,7 @@ export function ModificaOperatore({ o, onFatto }: { o: Operatore | (Operatore & 
       e.preventDefault()
       aggiorna.mutate({
         id: o.id,
-        modifiche: {
-          ...(gestisce ? { nome, cognome, telefono: telefono || null, attivo } : {}),
-        },
+        modifiche: gestisce ? { nome, cognome, telefono: telefono || null, attivo } : {},
         regioni: gestisce ? regioni : undefined,
       }, { onSuccess: onFatto })
     }}>

@@ -33,7 +33,7 @@ export function Logo({ chiaro, taglia = 'md', sottotitolo, className }: {
 }
 
 /** Il segno: un otturatore stilizzato dentro un quadrato morbido */
-export function Segno({ className }: { className?: string }) {
+function Segno({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={className} aria-hidden>
       <rect width="32" height="32" rx="9" className="fill-marchio" />

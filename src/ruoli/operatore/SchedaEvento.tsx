@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { AlertTriangle, ArrowLeft, MessageCircle, Navigation, Phone } from 'lucide-react'
 import { useEvento, useProposteInAttesa, useRispondiProposta } from '@/modules/eventi/api'
-import { useProfilo } from '@/modules/auth/AuthProvider'
+import { useProfilo } from '@/modules/auth/sessione'
 import { Pulsante } from '@/shared/ui/Pulsante'
 import { StatoEvento } from '@/modules/eventi/components/StatoEvento'
 import type { EventoDettaglio } from '@/modules/eventi/types'

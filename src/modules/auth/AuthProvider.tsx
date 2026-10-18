@@ -1,26 +1,23 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/shared/lib/supabase'
-import type { Riga } from '@/shared/types/database'
+import { AuthContext, type Profilo } from './sessione'
 
-type Profilo = Riga<'profili'>
+/** Esce dall'account (la sessione salvata viene cancellata) */
+const esci = async () => { await supabase.auth.signOut() }
 
-type StatoAuth = {
-  sessione: Session | null
-  profilo: Profilo | null
-  pronto: boolean          // false finché non sappiamo se l'utente è loggato
-  esci: () => Promise<void>
-  ricaricaProfilo: () => Promise<void>
+/** Legge il profilo (con il ruolo); se non si riesce, null */
+async function leggiProfilo(id: string): Promise<Profilo | null> {
+  const { data } = await supabase.from('profili').select('*').eq('id', id).single()
+  return data
 }
-
-const AuthContext = createContext<StatoAuth | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [sessione, setSessione] = useState<Session | null>(null)
-  const [profilo, setProfilo] = useState<Profilo | null>(null)
-  const [pronto, setPronto] = useState(false)
   // false finché non abbiamo letto la sessione salvata: prima non si sa se l'utente è loggato
   const [sessioneLetta, setSessioneLetta] = useState(false)
+  // Il profilo caricato, insieme all'utente a cui appartiene
+  const [caricato, setCaricato] = useState<{ id: string; profilo: Profilo | null } | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -34,44 +31,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => data.subscription.unsubscribe()
   }, [])
 
-  // Carica il profilo (con il ruolo) quando cambia l'utente
+  const id = sessione?.user.id
+  // Carica il profilo quando cambia l'utente (se il caricamento fallisce, si risulta non loggati invece di restare in attesa)
   useEffect(() => {
-    if (!sessioneLetta) return
+    if (!id) return
     let annullato = false
-    const id = sessione?.user.id
-    if (!id) {
-      setProfilo(null)
-      setPronto(true)
-      return
-    }
-    setPronto(false)
-    supabase.from('profili').select('*').eq('id', id).single().then(({ data }) => {
-      if (annullato) return
-      setProfilo(data)
-      setPronto(true)
-    })
+    leggiProfilo(id).then((profilo) => { if (!annullato) setCaricato({ id, profilo }) }, () => { if (!annullato) setCaricato({ id, profilo: null }) })
     return () => { annullato = true }
-  }, [sessione?.user.id, sessioneLetta])
+  }, [id])
 
-  const esci = async () => { await supabase.auth.signOut() }
+  const profilo = id && caricato?.id === id ? caricato.profilo : null
+  const pronto = sessioneLetta && (!id || caricato?.id === id)
   const ricaricaProfilo = async () => {
-    if (!sessione?.user.id) return
-    const { data } = await supabase.from('profili').select('*').eq('id', sessione.user.id).single()
-    if (data) setProfilo(data)
+    if (!id) return
+    const nuovo = await leggiProfilo(id)
+    if (nuovo) setCaricato({ id, profilo: nuovo })
   }
 
   return <AuthContext.Provider value={{ sessione, profilo, pronto, esci, ricaricaProfilo }}>{children}</AuthContext.Provider>
-}
-
-export function useAuth() {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth va usato dentro <AuthProvider>')
-  return ctx
-}
-
-/** Profilo dell'utente loggato: da usare solo nelle pagine protette. */
-export function useProfilo() {
-  const { profilo } = useAuth()
-  if (!profilo) throw new Error('Nessun utente loggato')
-  return profilo
 }

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Camera, Receipt, X } from 'lucide-react'
-import { useProfilo } from '@/modules/auth/AuthProvider'
+import { useProfilo } from '@/modules/auth/sessione'
 import { nomeCompleto } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
@@ -29,7 +29,8 @@ export function CostiRicavi({ eventoId, operatoreId }: { eventoId: string; opera
           tono={b.margine == null ? undefined : b.margine >= 0 ? 'ok' : 'male'} />
       </div>
 
-      <Ricavo eventoId={eventoId} conti={conti.data} />
+      {/* La chiave cambia quando i conti vengono salvati (anche da un altro utente): il modulo riparte dai valori nuovi */}
+      <Ricavo key={conti.data?.aggiornato_il ?? 'nuovo'} eventoId={eventoId} conti={conti.data} />
       <Spese eventoId={eventoId} operatoreId={operatoreId} spese={spese.data} />
     </Card>
   )
@@ -58,7 +59,6 @@ function Ricavo({ eventoId, conti }: { eventoId: string; conti: Conti | null }) 
   })
   const [v, setV] = useState(iniziale)
   const [fatto, setFatto] = useState(false)
-  useEffect(() => { setV(iniziale()) }, [conti]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const prezzo = v.prezzo ? leggiImporto(v.prezzo) : null
   const importo = v.importo ? leggiImporto(v.importo) : null

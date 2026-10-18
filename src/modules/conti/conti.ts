@@ -1,4 +1,8 @@
 import type { Enum } from '@/shared/types/database'
+import { meseRoma, nomeMese } from '@/shared/lib/date'
+
+/** Arrotonda ai centesimi (le somme di decimali lasciano code tipo 0.30000000000000004) */
+const tondo = (n: number) => Math.round(n * 100) / 100
 
 export type Voce = Enum<'voce_spesa'>
 export type PagataCon = Enum<'pagata_con'>
@@ -32,8 +36,8 @@ export function ricavo(c: Conti): number | null {
 /** Ricavo, costi, margine in euro e in percentuale sul ricavo */
 export function bilancio(c: Conti, spese: { importo: number }[]) {
   const r = ricavo(c)
-  const costi = Math.round(spese.reduce((t, s) => t + Number(s.importo), 0) * 100) / 100
-  const margine = r == null ? null : Math.round((r - costi) * 100) / 100
+  const costi = tondo(spese.reduce((t, s) => t + Number(s.importo), 0))
+  const margine = r == null ? null : tondo(r - costi)
   const percentuale = r && margine != null ? Math.round((margine / r) * 100) : null
   return { ricavo: r, costi, margine, percentuale }
 }
@@ -66,15 +70,13 @@ export type Gruppo = {
   senzaPrezzo: number; daRimborsare: number
 }
 
-const meseRoma = (iso: string) => new Date(iso).toLocaleDateString('sv-SE', { timeZone: 'Europe/Rome' }).slice(0, 7)
-const nomeMeseIt = (m: string) => { const t = new Date(`${m}-15T12:00:00Z`).toLocaleDateString('it-IT', { month: 'long', year: 'numeric', timeZone: 'UTC' }); return t[0].toUpperCase() + t.slice(1) }
 
 /** Somma ricavi, costi e margine degli eventi divisi per mese, evento, operatore o regione. */
 export function raggruppa(eventi: EventoConti[], per: Per, nomeEvento: (e: EventoConti) => string = (e) => e.id): Gruppo[] {
   const gruppi = new Map<string, Gruppo>()
   for (const e of eventi) {
     const [chiave, etichetta] =
-      per === 'mese' ? [meseRoma(e.allestimento_il), nomeMeseIt(meseRoma(e.allestimento_il))]
+      per === 'mese' ? [meseRoma(e.allestimento_il), nomeMese(meseRoma(e.allestimento_il))]
       : per === 'regione' ? [e.regione, e.regione]
       : per === 'operatore' ? (e.operatore ? [e.operatore.id, `${e.operatore.nome} ${e.operatore.cognome ?? ''}`.trim()] : ['-', 'Senza operatore'])
       : [e.id, nomeEvento(e)]
@@ -87,9 +89,22 @@ export function raggruppa(eventi: EventoConti[], per: Per, nomeEvento: (e: Event
     g.daRimborsare += e.spese.filter((s) => s.pagata_con === 'operatore').reduce((t, s) => t + Number(s.importo), 0)
     gruppi.set(chiave, g)
   }
-  const tondo = (n: number) => Math.round(n * 100) / 100
   return [...gruppi.values()].map((g) => {
     const ricavi = tondo(g.ricavi), costi = tondo(g.costi), margine = tondo(g.ricavi - g.costi)
     return { ...g, ricavi, costi, margine, daRimborsare: tondo(g.daRimborsare), percentuale: ricavi ? Math.round((margine / ricavi) * 100) : null }
   })
+}
+
+/** Totali di un insieme di eventi: ricavi, costi, margine, quanti senza prezzo, da fatturare, da incassare, da rimborsare */
+export function totali(eventi: (EventoConti & { stato: string; conti: (Conti & { fattura_numero?: string | null; incassata?: boolean }) | null })[]) {
+  const g = raggruppa(eventi, 'regione')
+  const somma = (k: 'ricavi' | 'costi' | 'senzaPrezzo' | 'daRimborsare') => tondo(g.reduce((t, x) => t + x[k], 0))
+  const ricavi = somma('ricavi'), costi = somma('costi')
+  return {
+    ricavi, costi, margine: tondo(ricavi - costi),
+    percentuale: ricavi ? Math.round(((ricavi - costi) / ricavi) * 100) : null,
+    senzaPrezzo: somma('senzaPrezzo'), daRimborsare: somma('daRimborsare'),
+    daFatturare: eventi.filter((e) => e.stato === 'completato' && !e.conti?.fattura_numero).length,
+    daIncassare: eventi.filter((e) => e.conti?.fattura_numero && !e.conti.incassata).length,
+  }
 }

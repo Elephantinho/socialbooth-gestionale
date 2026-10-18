@@ -18,6 +18,7 @@ import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore } from '@/shared/ui/Stati'
 import { nomeEvento } from '@/modules/eventi/logic/nome'
 import { Andamento } from '@/modules/passaggi/Andamento'
+import { useAdesso } from '@/shared/lib/tempo'
 
 export function DettaglioEvento() {
   const { id = '' } = useParams()
@@ -197,11 +198,12 @@ function Operatore({ e }: { e: EventoGestioneCompleto }) {
 function DaChiudere({ e }: { e: EventoGestioneCompleto }) {
   const concludi = useConcludiEvento()
   const puo = usePuo()('eventi.modifica')
+  const adesso = useAdesso()
   if (e.stato !== 'confermato' && e.stato !== 'in_corso') return null
-  const manca = ritardo(e)
-  const finito = giaPassato(e)
+  const manca = ritardo(e, adesso)
+  const finito = giaPassato(e, adesso)
   if (!manca && !finito) return null
-  const iniziato = new Date(e.allestimento_il).getTime() <= Date.now()
+  const iniziato = new Date(e.allestimento_il).getTime() <= adesso
   return (
     <Card tono="urgente" className="p-4 flex flex-wrap items-center gap-3 justify-between -mt-2">
       <div>

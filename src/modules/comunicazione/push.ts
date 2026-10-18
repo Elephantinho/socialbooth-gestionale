@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase, ok } from '@/shared/lib/supabase'
 
-export type StatoPush = 'caricamento' | 'non_supportato' | 'da_installare' | 'bloccate' | 'da_attivare' | 'attive'
+type StatoPush = 'caricamento' | 'non_supportato' | 'da_installare' | 'bloccate' | 'da_attivare' | 'attive'
 
 const supportato = () => typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window
 const iPhoneNonInstallato = () => /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.matchMedia('(display-mode: standalone)').matches
@@ -23,18 +23,31 @@ async function iscrizioneAttuale() {
   return reg ? reg.pushManager.getSubscription() : null
 }
 
+async function statoIscrizione(): Promise<StatoPush> {
+  return (await iscrizioneAttuale()) && Notification.permission === 'granted' ? 'attive' : 'da_attivare'
+}
+
 /** Stato delle notifiche su questo dispositivo, con attiva/disattiva */
 export function useNotifichePush() {
-  const [stato, setStato] = useState<StatoPush>('caricamento')
+  // Quello che si sa subito (browser non adatto, notifiche bloccate) senza aspettare
+  const [stato, setStato] = useState<StatoPush>(() =>
+    !supportato() ? (iPhoneNonInstallato() ? 'da_installare' : 'non_supportato')
+      : Notification.permission === 'denied' ? 'bloccate' : 'caricamento')
   const [errore, setErrore] = useState<string>()
 
   const aggiorna = useCallback(async () => {
     if (!supportato()) return setStato(iPhoneNonInstallato() ? 'da_installare' : 'non_supportato')
     if (Notification.permission === 'denied') return setStato('bloccate')
-    setStato((await iscrizioneAttuale()) && Notification.permission === 'granted' ? 'attive' : 'da_attivare')
+    setStato(await statoIscrizione())
   }, [])
 
-  useEffect(() => { aggiorna() }, [aggiorna])
+  // All'apertura: se questo dispositivo è già iscritto lo dice il browser (operazione asincrona)
+  useEffect(() => {
+    if (!supportato() || Notification.permission === 'denied') return
+    let annullato = false
+    statoIscrizione().then((s) => { if (!annullato) setStato(s) }, () => { if (!annullato) setStato('da_attivare') })
+    return () => { annullato = true }
+  }, [])
 
   const attiva = useCallback(async () => {
     setErrore(undefined)

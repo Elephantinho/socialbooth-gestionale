@@ -1,4 +1,5 @@
-// Formattazione di date, orari e durate in italiano.
+// Formattazione di orari, date e nomi in italiano. Giorni e mesi del calendario sono in date.ts.
+import { giorniTra, giornoRoma } from './date'
 
 const fuso = 'Europe/Rome'
 
@@ -17,10 +18,9 @@ export const dataLunga = (iso: string) => {
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
 
-/** "tra 12 giorni", "domani", "oggi" */
-export const traQuanto = (iso: string) => {
-  const inizioGiorno = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
-  const giorni = Math.round((inizioGiorno(new Date(iso)) - inizioGiorno(new Date())) / 86_400_000)
+/** "tra 12 giorni", "domani", "oggi" (giorni del calendario italiano) */
+export const traQuanto = (iso: string, adesso: number) => {
+  const giorni = giorniTra(giornoRoma(adesso), giornoRoma(iso))
   if (giorni === 0) return 'oggi'
   if (giorni === 1) return 'domani'
   if (giorni < 0) return 'passato'
@@ -34,9 +34,6 @@ export const nomeCompleto = (p: { nome?: string | null; cognome?: string | null 
 /** Iniziali per gli avatar: "Altea Mascolo" → "AM" */
 export const iniziali = (nome: string | null | undefined) =>
   (nome ?? '?').split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join('') || '?'
-
-/** ISO → "yyyy-mm-dd" (giorno italiano), per i campi data */
-export const perCampoData = (iso: string) => new Date(iso).toLocaleDateString('sv-SE', { timeZone: fuso })
 
 /** Unisce data (yyyy-mm-dd) e ora (hh:mm) in un ISO con il fuso italiano corretto. */
 export function combinaDataOra(data: string, orario: string): string {

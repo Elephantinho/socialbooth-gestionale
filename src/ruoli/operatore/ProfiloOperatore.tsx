@@ -1,8 +1,8 @@
 import { AttivaNotifiche } from '@/modules/comunicazione/components/AttivaNotifiche'
 import { Logo } from '@/shared/ui/Logo'
 import { BRAND } from '@/shared/brand'
-import { useEffect, useState } from 'react'
-import { useAuth, useProfilo } from '@/modules/auth/AuthProvider'
+import { useState } from 'react'
+import { useAuth, useProfilo } from '@/modules/auth/sessione'
 import { useAggiornaProfilo, useMieRegioni } from '@/modules/anagrafiche/api'
 import { SceltaRegioni } from '@/modules/auth/SceltaRegioni'
 import { nomeCompleto } from '@/shared/lib/formato'
@@ -22,10 +22,10 @@ export function ProfiloOperatore() {
   const [nome, setNome] = useState(profilo.nome)
   const [cognome, setCognome] = useState(profilo.cognome)
   const [telefono, setTelefono] = useState(profilo.telefono ?? '')
-  const [regioni, setRegioni] = useState<Enum<'regione'>[]>([])
+  // null finché l'operatore non le cambia: fino ad allora valgono quelle salvate
+  const [regioniScelte, setRegioni] = useState<Enum<'regione'>[] | null>(null)
+  const regioni = regioniScelte ?? regioniSalvate.data ?? []
   const [salvato, setSalvato] = useState(false)
-
-  useEffect(() => { if (regioniSalvate.data) setRegioni(regioniSalvate.data) }, [regioniSalvate.data])
 
   function salva(e: React.FormEvent) {
     e.preventDefault()

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
-import { useProfilo } from '@/modules/auth/AuthProvider'
+import { useProfilo } from '@/modules/auth/sessione'
 import { useCreaEvento } from '@/modules/eventi/api'
 import { useUtenti } from '@/modules/anagrafiche/api'
 import { nomeCompleto } from '@/shared/lib/formato'

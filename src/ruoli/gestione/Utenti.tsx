@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useProfilo } from '@/modules/auth/AuthProvider'
+import { useProfilo } from '@/modules/auth/sessione'
 import { RUOLI, etichettaRuolo, type Ruolo } from '@/modules/auth/permessi'
 import { useCambiaRuolo, useUtenti } from '@/modules/anagrafiche/api'
 import { dataBreve, nomeCompleto } from '@/shared/lib/formato'

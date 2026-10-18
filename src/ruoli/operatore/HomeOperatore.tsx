@@ -3,7 +3,7 @@ import { Logo } from '@/shared/ui/Logo'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { AlertTriangle, ChevronRight } from 'lucide-react'
-import { useProfilo } from '@/modules/auth/AuthProvider'
+import { useProfilo } from '@/modules/auth/sessione'
 import { Avatar } from '@/shared/ui/Avatar'
 import { Campanella } from '@/modules/comunicazione/components/Campanella'
 import { useEventiOperatore, useProposteInAttesa, useRispondiProposta } from '@/modules/eventi/api'
@@ -14,13 +14,16 @@ import { Pulsante } from '@/shared/ui/Pulsante'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 import { nomeEvento } from '@/modules/eventi/logic/nome'
 import { prossimoPassaggio } from '@/modules/passaggi/passaggi'
+import { useAdesso } from '@/shared/lib/tempo'
+import { giornoLungo, giornoRoma } from '@/shared/lib/date'
 
 export function HomeOperatore() {
   const profilo = useProfilo()
   const eventi = useEventiOperatore(profilo.id)
   const proposte = useProposteInAttesa(profilo.id)
 
-  const oggi = new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })
+  const adesso = useAdesso()
+  const oggi = giornoLungo(giornoRoma(adesso))
   const [prossimo, ...altri] = eventi.data ?? []
 
   return (
@@ -46,12 +49,12 @@ export function HomeOperatore() {
             <TitoloSezione>Da accettare</TitoloSezione>
             <span className="rounded-full bg-urgente px-2 text-xs font-semibold text-white">{proposte.data.length}</span>
           </div>
-          {proposte.data.map((p) => <PropostaCard key={p.id} proposta={p} />)}
+          {proposte.data.map((p) => <PropostaCard key={p.id} proposta={p} adesso={adesso} />)}
         </section>
       )}
 
       {eventi.isPending ? <Caricamento /> : eventi.error ? <Errore errore={eventi.error} /> : prossimo ? (
-        <ProssimoEvento evento={prossimo} />
+        <ProssimoEvento evento={prossimo} adesso={adesso} />
       ) : (
         <Card><Vuoto titolo="Nessun evento in programma" testo="Quando ti assegnano un evento lo trovi qui." /></Card>
       )}
@@ -79,13 +82,13 @@ export function HomeOperatore() {
   )
 }
 
-function ProssimoEvento({ evento: e }: { evento: EventoDettaglio }) {
+function ProssimoEvento({ evento: e, adesso }: { evento: EventoDettaglio; adesso: number }) {
   return (
     <div>
       <Card tono="scuro" className="p-5 flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <span className="text-sm font-semibold text-accento-scuro">Il tuo prossimo evento</span>
-          <span className="text-xs font-semibold bg-scuro-3 text-accento-scuro px-2.5 py-1.5 rounded-full">{traQuanto(e.allestimento_il)}</span>
+          <span className="text-xs font-semibold bg-scuro-3 text-accento-scuro px-2.5 py-1.5 rounded-full">{traQuanto(e.allestimento_il, adesso)}</span>
         </div>
         <div>
           <p className="font-display text-[26px] font-semibold leading-tight">{nomeEvento(e)}</p>
@@ -102,7 +105,7 @@ function ProssimoEvento({ evento: e }: { evento: EventoDettaglio }) {
             <span className="line-clamp-2">{e.note_accesso}</span>
           </p>
         )}
-        {Date.now() >= new Date(e.allestimento_il).getTime() - 24 * 3_600_000 && prossimoPassaggio(e.ultimo_passaggio) && (
+        {adesso >= new Date(e.allestimento_il).getTime() - 24 * 3_600_000 && prossimoPassaggio(e.ultimo_passaggio) && (
           <p className="text-sm font-semibold">
             Prossimo passo: <span className="text-accento-scuro">{prossimoPassaggio(e.ultimo_passaggio)!.azione}</span>
           </p>
@@ -127,12 +130,12 @@ function Orario({ etichetta, valore }: { etichetta: string; valore: string }) {
   )
 }
 
-function PropostaCard({ proposta }: { proposta: Proposta }) {
+function PropostaCard({ proposta, adesso }: { proposta: Proposta; adesso: number }) {
   const rispondi = useRispondiProposta()
   const e = proposta.evento
   if (!e) return null
   const oreAllaScadenza = proposta.scade_il
-    ? Math.max(0, Math.round((new Date(proposta.scade_il).getTime() - Date.now()) / 3_600_000))
+    ? Math.max(0, Math.round((new Date(proposta.scade_il).getTime() - adesso) / 3_600_000))
     : null
 
   return (

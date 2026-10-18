@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { Plus, Receipt, X } from 'lucide-react'
-import { useProfilo } from '@/modules/auth/AuthProvider'
+import { useProfilo } from '@/modules/auth/sessione'
 import type { EventoDettaglio } from '@/modules/eventi/types'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Errore } from '@/shared/ui/Stati'
 import { useSpese, useTogliSpesa } from './api'
 import { etichettaVoce, euro } from './conti'
 import { NuovaSpesa } from './CostiRicavi'
+import { useAdesso } from '@/shared/lib/tempo'
 
 const GIORNO = 86_400_000
 
@@ -18,7 +19,7 @@ export function SpeseOperatore({ e }: { e: EventoDettaglio }) {
   const [nuova, setNuova] = useState(false)
 
   // Dal giorno prima a due giorni dopo l'evento
-  const adesso = Date.now()
+  const adesso = useAdesso()
   const aperte = ['confermato', 'in_corso', 'completato'].includes(e.stato)
     && adesso >= new Date(e.allestimento_il).getTime() - GIORNO
     && adesso <= new Date(e.smontaggio_il).getTime() + 2 * GIORNO

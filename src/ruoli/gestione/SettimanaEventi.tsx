@@ -2,44 +2,36 @@ import { Link } from 'react-router-dom'
 import { Check, Clock } from 'lucide-react'
 import { AssegnaRapido } from '@/modules/eventi/components/RigaEvento'
 import { giaPassato } from '@/modules/eventi/logic/archivio'
-import { giornoRoma } from '@/modules/eventi/logic/filtri'
 import { nomeEvento } from '@/modules/eventi/logic/nome'
 import type { EventoGestione } from '@/modules/eventi/types'
 import { PASSAGGI, passaggiFatti } from '@/modules/passaggi/passaggi'
 import { ritardo } from '@/modules/passaggi/ritardi'
+import { giornoBreve, piuGiorni } from '@/shared/lib/date'
 import { ora } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
-
-/** "2026-10-17" + n giorni */
-export function piuGiorni(g: string, n: number) {
-  const d = new Date(`${g}T12:00:00Z`)
-  d.setUTCDate(d.getUTCDate() + n)
-  return d.toISOString().slice(0, 10)
-}
-
-const da = (g: string, opz: Intl.DateTimeFormatOptions) => new Date(`${g}T12:00:00Z`).toLocaleDateString('it-IT', { timeZone: 'UTC', ...opz })
+import { useAdesso } from '@/shared/lib/tempo'
+import { perGiorno } from '@/modules/eventi/logic/giorni'
 
 /** Sette colonne, una per giorno a partire da "inizio"; ogni evento è una schedina. */
-export function SettimanaEventi({ eventi, inizio, assegna }: { eventi: EventoGestione[]; inizio: string; assegna: boolean }) {
+export function SettimanaEventi({ eventi, inizio, oggi, assegna }: { eventi: EventoGestione[]; inizio: string; oggi: string; assegna: boolean }) {
+  const adesso = useAdesso()
   const giorni = Array.from({ length: 7 }, (_, i) => piuGiorni(inizio, i))
-  const perGiorno = new Map<string, EventoGestione[]>(giorni.map((g) => [g, []]))
-  for (const e of eventi) perGiorno.get(giornoRoma(e.allestimento_il))?.push(e)
-  for (const l of perGiorno.values()) l.sort((a, b) => a.allestimento_il.localeCompare(b.allestimento_il))
-  const oggi = giornoRoma(new Date().toISOString())
+  const diGiorno = new Map(perGiorno(eventi))
 
   return (
     <div className="overflow-x-auto -mx-4 px-4 scroll-px-4 md:mx-0 md:px-0 snap-x snap-mandatory">
       <div className="grid grid-cols-[repeat(7,minmax(240px,1fr))] md:grid-cols-7 gap-2 min-w-max md:min-w-0">
         {giorni.map((g, i) => {
-          const lista = perGiorno.get(g) ?? []
-          const daSistemare = lista.filter((e) => ritardo(e) || e.stato === 'da_assegnare' || e.stato === 'bozza').length
+          const lista = diGiorno.get(g) ?? []
+          const daSistemare = lista.filter((e) => ritardo(e, adesso) || e.stato === 'da_assegnare' || e.stato === 'bozza').length
+          const [nomeGiorno, numero, mese] = giornoBreve(g).split(' ')
           return (
             <section key={g} className="snap-start flex flex-col gap-1.5 min-w-0">
               <header className={cn('rounded-lg px-2.5 py-2 flex items-baseline justify-between gap-2 sticky top-0 z-10',
                 g === oggi ? 'bg-inchiostro text-white' : 'bg-superficie border border-bordo')}>
-                <span className="text-sm font-semibold capitalize truncate">
-                  {g === oggi ? 'Oggi' : da(g, { weekday: 'short' }).replace('.', '')} {da(g, { day: 'numeric' })}
-                  <span className={cn('font-medium ml-1', g === oggi ? 'text-white/60' : 'text-tenue')}>{da(g, { month: 'short' }).replace('.', '')}</span>
+                <span className="text-sm font-semibold truncate">
+                  {g === oggi ? 'Oggi' : nomeGiorno} {numero}
+                  <span className={cn('font-medium ml-1', g === oggi ? 'text-white/60' : 'text-tenue')}>{mese}</span>
                 </span>
                 <span className="flex items-center gap-1.5 text-xs font-semibold shrink-0">
                   {daSistemare > 0 && <span className="size-2 rounded-full bg-urgente" title={`${daSistemare} da sistemare`} />}
@@ -48,7 +40,7 @@ export function SettimanaEventi({ eventi, inizio, assegna }: { eventi: EventoGes
               </header>
               {lista.length === 0
                 ? <p className="text-xs text-tenue/70 text-center py-4">Nessun evento</p>
-                : lista.map((e) => <Schedina key={e.id} e={e} assegna={assegna} destra={i >= 4} />)}
+                : lista.map((e) => <Schedina key={e.id} e={e} adesso={adesso} assegna={assegna} destra={i >= 4} />)}
             </section>
           )
         })}
@@ -57,8 +49,8 @@ export function SettimanaEventi({ eventi, inizio, assegna }: { eventi: EventoGes
   )
 }
 
-function Schedina({ e, assegna, destra }: { e: EventoGestione; assegna: boolean; destra: boolean }) {
-  const manca = ritardo(e)
+function Schedina({ e, adesso, assegna, destra }: { e: EventoGestione; adesso: number; assegna: boolean; destra: boolean }) {
+  const manca = ritardo(e, adesso)
   const daAssegnare = e.stato === 'da_assegnare' || e.stato === 'bozza'
   const barra = manca || daAssegnare ? 'bg-urgente' : e.stato === 'proposto' ? 'bg-avviso-icona' : 'bg-ok'
   const n = passaggiFatti(e.ultimo_passaggio)
@@ -81,7 +73,7 @@ function Schedina({ e, assegna, destra }: { e: EventoGestione; assegna: boolean;
       <div className="mt-1.5">
         {e.operatore ? (
           <p className="text-[11px] font-medium truncate">{e.operatore.nome} {e.operatore.cognome}</p>
-        ) : assegna && e.stato === 'da_assegnare' && !giaPassato(e) ? (
+        ) : assegna && e.stato === 'da_assegnare' && !giaPassato(e, adesso) ? (
           <AssegnaRapido eventoId={e.id} destra={destra} piccolo />
         ) : (
           <p className="text-[11px] font-semibold text-urgente-testo">Nessun operatore</p>

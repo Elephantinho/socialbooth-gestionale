@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import type { EventoDettaglio } from '@/modules/eventi/types'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { Pulsante } from '@/shared/ui/Pulsante'
@@ -6,6 +5,7 @@ import { Errore } from '@/shared/ui/Stati'
 import { Andamento } from './Andamento'
 import { useAnnullaPassaggio, usePassaggi, useSegnaPassaggio } from './api'
 import { prossimoPassaggio } from './passaggi'
+import { useAdesso } from '@/shared/lib/tempo'
 
 const DIECI_MINUTI = 10 * 60_000
 
@@ -44,14 +44,4 @@ export function PassaggiOperatore({ e }: { e: EventoDettaglio }) {
       )}
     </Card>
   )
-}
-
-/** L'ora attuale, aggiornata ogni 30 secondi (per aprire i passaggi e far sparire "annulla"). */
-function useAdesso() {
-  const [adesso, setAdesso] = useState(() => Date.now())
-  useEffect(() => {
-    const t = setInterval(() => setAdesso(Date.now()), 30_000)
-    return () => clearInterval(t)
-  }, [])
-  return adesso
 }

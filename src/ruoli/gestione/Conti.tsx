@@ -1,20 +1,18 @@
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
-import { useProfilo } from '@/modules/auth/AuthProvider'
+import { useProfilo } from '@/modules/auth/sessione'
 import { useContiPeriodo } from '@/modules/conti/api'
-import { bilancio, euro, raggruppa, type EventoConti, type Gruppo, type Per } from '@/modules/conti/conti'
+import { bilancio, euro, raggruppa, totali, type Gruppo, type Per } from '@/modules/conti/conti'
 import { nomeEvento } from '@/modules/eventi/logic/nome'
 import { nomeCompleto } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
+import { confiniMese, meseRoma, nomeMese, piuMesi } from '@/shared/lib/date'
+import { useAdesso } from '@/shared/lib/tempo'
 import { Card } from '@/shared/ui/Card'
 import { Intestazione } from '@/shared/ui/Intestazione'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 
 type Periodo = 'mese' | 'anno'
-const oggi = new Date()
-const meseDi = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
-const maiuscola = (t: string) => t[0].toUpperCase() + t.slice(1)
-const nomeMese = (m: string) => maiuscola(new Date(`${m}-15T12:00:00`).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' }))
 
 const DIVISIONI: Record<Per, string> = { mese: 'Mese', evento: 'Evento', operatore: 'Operatore', regione: 'Regione' }
 
@@ -25,10 +23,11 @@ const DIVISIONI: Record<Per, string> = { mese: 'Mese', evento: 'Evento', operato
 export function Conti() {
   const { ruolo } = useProfilo()
   const naviga = useNavigate()
+  const adesso = useAdesso()
   const [par, setPar] = useSearchParams()
   const periodo: Periodo = par.get('periodo') === 'anno' ? 'anno' : 'mese'
-  const mese = par.get('mese') ?? meseDi(oggi)
-  const anno = Number(par.get('anno') ?? oggi.getFullYear())
+  const mese = par.get('mese') ?? meseRoma(adesso)
+  const anno = Number(par.get('anno') ?? mese.slice(0, 4))
   const per: Per = (par.get('per') as Per) ?? (periodo === 'anno' ? 'mese' : 'evento')
   const filtro = { operatore: par.get('operatore'), regione: par.get('regione') }
 
@@ -38,19 +37,13 @@ export function Conti() {
     setPar(p, { replace: true })
   }
 
-  const [a, m] = mese.split('-').map(Number)
-  const dal = periodo === 'mese' ? new Date(a, m - 1, 1) : new Date(anno, 0, 1)
-  const al = periodo === 'mese' ? new Date(a, m, 1) : new Date(anno + 1, 0, 1)
+  const { dal, al } = periodo === 'mese' ? confiniMese(mese) : { dal: new Date(anno, 0, 1), al: new Date(anno + 1, 0, 1) }
   const { data, isPending, error } = useContiPeriodo(dal, al)
 
   const eventi = (data ?? [])
-    .map((e) => ({ ...e, conti: Array.isArray(e.conti) ? e.conti[0] ?? null : e.conti, spese: e.spese ?? [] }))
     .filter((e) => (!filtro.operatore || e.operatore?.id === filtro.operatore) && (!filtro.regione || e.regione === filtro.regione))
-  const totale = raggruppa(eventi as EventoConti[], 'regione').reduce(
-    (t, g) => ({ ricavi: t.ricavi + g.ricavi, costi: t.costi + g.costi, senzaPrezzo: t.senzaPrezzo + g.senzaPrezzo, daRimborsare: t.daRimborsare + g.daRimborsare }),
-    { ricavi: 0, costi: 0, senzaPrezzo: 0, daRimborsare: 0 })
-  const margine = totale.ricavi - totale.costi
-  const daFatturare = eventi.filter((e) => e.stato === 'completato' && !e.conti?.fattura_numero).length
+  const totale = totali(eventi)
+  const { margine, daFatturare } = totale
   const divisioni = (Object.keys(DIVISIONI) as Per[]).filter((d) => d !== 'mese' || periodo === 'anno')
   const nomeFiltro = filtro.operatore ? eventi[0]?.operatore && nomeCompleto(eventi[0].operatore) : filtro.regione
 
@@ -69,11 +62,11 @@ export function Conti() {
       {/* Periodo */}
       <div className="flex flex-wrap items-center gap-3 -mt-2">
         <Segmenti valore={periodo} scelte={[['mese', 'Un mese'], ['anno', "Tutto l'anno"]]}
-          onChange={(v) => imposta({ periodo: v === 'anno' ? 'anno' : null, anno: v === 'anno' ? String(a) : null, per: null })} />
+          onChange={(v) => imposta({ periodo: v === 'anno' ? 'anno' : null, anno: v === 'anno' ? mese.slice(0, 4) : null, per: null })} />
         <div className="flex items-center gap-1.5">
-          <Freccia lato="sinistra" onClick={() => periodo === 'mese' ? imposta({ mese: meseDi(new Date(a, m - 2, 1)) }) : imposta({ anno: String(anno - 1) })} />
+          <Freccia lato="sinistra" onClick={() => periodo === 'mese' ? imposta({ mese: piuMesi(mese, -1) }) : imposta({ anno: String(anno - 1) })} />
           <p className="text-lg font-semibold min-w-40 text-center">{periodo === 'mese' ? nomeMese(mese) : anno}</p>
-          <Freccia lato="destra" onClick={() => periodo === 'mese' ? imposta({ mese: meseDi(new Date(a, m, 1)) }) : imposta({ anno: String(anno + 1) })} />
+          <Freccia lato="destra" onClick={() => periodo === 'mese' ? imposta({ mese: piuMesi(mese, 1) }) : imposta({ anno: String(anno + 1) })} />
         </div>
       </div>
 
@@ -108,7 +101,7 @@ export function Conti() {
 
           {eventi.length === 0 ? <Card><Vuoto titolo="Nessun evento in questo periodo" /></Card>
             : per === 'evento' ? <TabellaEventi eventi={eventi} conProject={ruolo !== 'project'} />
-            : <TabellaGruppi gruppi={raggruppa(eventi as EventoConti[], per)} per={per} onApri={apri} />}
+            : <TabellaGruppi gruppi={raggruppa(eventi, per)} per={per} onApri={apri} />}
         </>
       )}
     </div>
@@ -155,7 +148,7 @@ const intestazioni: Record<Exclude<Per, 'evento'>, string> = { mese: 'Mese', ope
 
 /** Una riga per mese, operatore o regione; cliccando si vedono i suoi eventi */
 function TabellaGruppi({ gruppi, per, onApri }: { gruppi: Gruppo[]; per: Exclude<Per, 'evento'>; onApri: (g: Gruppo) => void }) {
-  const ordinati = per === 'mese' ? gruppi : [...gruppi].sort((x, y) => y.ricavi - x.ricavi)
+  const ordinati = per === 'mese' ? gruppi : gruppi.toSorted((x, y) => y.ricavi - x.ricavi)
   const tot = gruppi.reduce((t, g) => ({ eventi: t.eventi + g.eventi, ricavi: t.ricavi + g.ricavi, costi: t.costi + g.costi, rimb: t.rimb + g.daRimborsare }), { eventi: 0, ricavi: 0, costi: 0, rimb: 0 })
   const maxRicavi = Math.max(...gruppi.map((g) => g.ricavi), 1)
   return (
@@ -205,7 +198,7 @@ function TabellaGruppi({ gruppi, per, onApri }: { gruppi: Gruppo[]; per: Exclude
   )
 }
 
-type EventoRiga = Omit<NonNullable<ReturnType<typeof useContiPeriodo>['data']>[number], 'conti'> & { conti: { prezzo: number | null; fattura_numero: string | null; fattura_importo: number | null; incassata: boolean } | null }
+type EventoRiga = NonNullable<ReturnType<typeof useContiPeriodo>['data']>[number]
 
 /** Una riga per evento, con lo stato della fattura */
 function TabellaEventi({ eventi, conProject }: { eventi: EventoRiga[]; conProject: boolean }) {

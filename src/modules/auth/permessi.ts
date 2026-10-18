@@ -1,7 +1,6 @@
 // Chi può fare cosa. Rispecchia le regole del database (migrazione 0015):
 // qui servono solo a mostrare o nascondere menu e pulsanti.
-import { Navigate } from 'react-router-dom'
-import { useProfilo } from './AuthProvider'
+import { useProfilo } from './sessione'
 import type { Enum } from '@/shared/types/database'
 
 export type Ruolo = Enum<'ruolo'>
@@ -49,7 +48,7 @@ export function usePuo() {
   return (permesso: Permesso) => puo(ruolo, permesso)
 }
 
-/** Pagina riservata: chi non ha il permesso torna alla Panoramica */
-export function RichiedePermesso({ permesso, children }: { permesso: Permesso; children: React.ReactNode }) {
-  return usePuo()(permesso) ? <>{children}</> : <Navigate to="/gestione/panoramica" replace />
+/** Dove arriva ogni ruolo dopo l'accesso */
+export function homePerRuolo(ruolo: Ruolo) {
+  return ruolo === 'operatore' ? '/operatore' : '/gestione/panoramica'
 }

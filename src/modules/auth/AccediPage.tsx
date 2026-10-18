@@ -3,8 +3,8 @@ import { Link, Navigate } from 'react-router-dom'
 import { supabase } from '@/shared/lib/supabase'
 import { Campo } from '@/shared/ui/Campo'
 import { Pulsante } from '@/shared/ui/Pulsante'
-import { useAuth } from './AuthProvider'
-import { homePerRuolo } from './Protetto'
+import { useAuth } from './sessione'
+import { homePerRuolo } from './permessi'
 import { PaginaAccesso } from './PaginaAccesso'
 
 export function AccediPage() {
