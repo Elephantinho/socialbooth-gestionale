@@ -36,7 +36,7 @@ describe('raggruppare i conti', () => {
     const g = raggruppa(ev, 'mese')
     expect(g.map((x) => [x.etichetta, x.eventi, x.ricavi, x.costi, x.margine])).toEqual([['Ottobre 2026', 1, 1000, 120, 880], ['Novembre 2026', 2, 600, 50, 550]])
   })
-  it('per regione', () => expect(raggruppa(ev, 'regione').map((x) => [x.chiave, x.ricavi, x.senzaPrezzo])).toEqual([['Toscana', 1000, 1], ['Lombardia', 600, 0]]))
+  it('per regione', () => expect(raggruppa(ev, 'regione').map((x) => [x.chiave, x.ricavi])).toEqual([['Toscana', 1000], ['Lombardia', 600]]))
   it('per operatore, con quanto rimborsare', () => {
     const g = raggruppa(ev, 'operatore')
     expect(g.map((x) => [x.etichetta, x.eventi, x.daRimborsare])).toEqual([['Giulia', 2, 20], ['Senza operatore', 1, 0]])
@@ -52,7 +52,7 @@ describe('totali dei conti', () => {
       { id: 'c', allestimento_il: '2026-10-07T16:00:00Z', regione: 'Lazio', operatore: null, stato: 'confermato', conti: null, spese: [] },
       { id: 'd', allestimento_il: '2026-10-08T16:00:00Z', regione: 'Lazio', operatore: null, stato: 'completato', conti: null, spese: [] },
     ])
-    expect(t).toEqual({ ricavi: 1500, costi: 100, margine: 1400, percentuale: 93, senzaPrezzo: 2, daRimborsare: 100, daIncassare: 1 })
+    expect(t).toEqual({ ricavi: 1500, costi: 100, margine: 1400, percentuale: 93, daRimborsare: 100, daIncassare: 1 })
   })
 })
 

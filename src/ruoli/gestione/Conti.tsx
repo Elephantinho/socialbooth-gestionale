@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { CalendarDays, ChevronLeft, ChevronRight, FileText, Tag, Wallet, X } from 'lucide-react'
+import { CalendarDays, ChevronLeft, ChevronRight, FileText, Wallet, X } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/sessione'
 import { useContiPeriodo } from '@/modules/conti/api'
 import { bilancio, etichettaVoce, euro, mesiDellAnno, raggruppa, spesePerOperatore, totali, type Voce } from '@/modules/conti/conti'
@@ -108,7 +108,7 @@ function Andamento({ anno, adesso, imposta }: { anno: number; adesso: number; im
     <div className="flex flex-col gap-8">
       <Scorri testo={String(anno)} prima={() => imposta({ anno: String(anno - 1) })} dopo={() => imposta({ anno: String(anno + 1) })} />
       <Riepilogo ricavi={t.ricavi} costi={t.costi} />
-      <Segnali senzaPrezzo={t.senzaPrezzo} daRimborsare={t.daRimborsare} />
+      <Segnali daRimborsare={t.daRimborsare} />
       <Righe righe={mesi.map((m) => ({ ...m, etichetta: meseCorto(m.chiave) }))}
         onApri={(chiave) => imposta({ vista: 'eventi', mese: chiave, anno: null })} />
       {anni.length > 1 && (
@@ -144,7 +144,7 @@ function EventiDelMese({ mese, imposta, conProject, operatore, regione }: { mese
       ) : (
         <>
           <Riepilogo ricavi={t.ricavi} costi={t.costi} />
-          <Segnali senzaPrezzo={t.senzaPrezzo} daRimborsare={t.daRimborsare} />
+          <Segnali daRimborsare={t.daRimborsare} />
           <Card className="divide-y divide-bordo">
             {eventi.map((e) => {
               const b = bilancio(e.conti, e.spese)
@@ -160,7 +160,7 @@ function EventiDelMese({ mese, imposta, conProject, operatore, regione }: { mese
                     <span className="block text-sm text-tenue truncate">{[e.citta, e.operatore && nomeCompleto(e.operatore), conProject && e.project && nomeCompleto(e.project)].filter(Boolean).join(', ')}</span>
                   </span>
                   <span className="max-md:col-span-3 max-md:order-last">
-                    <Barra ricavi={b.ricavo ?? 0} costi={b.costi} scala={scala} senzaPrezzo={b.ricavo == null} />
+                    <Barra ricavi={b.ricavo ?? 0} costi={b.costi} scala={scala} />
                   </span>
                   <Cifre ricavi={b.ricavo} costi={b.costi} />
                   <span className="max-md:hidden justify-self-end"><Fattura conti={e.conti} /></span>
@@ -309,7 +309,7 @@ function Regioni({ eventi, periodo, mese, imposta }: { eventi: EventoRiga[]; per
 /* ---------- Il linguaggio comune: barra, riepilogo, righe ---------- */
 
 /** Barra lunga quanto i ricavi (rispetto a "scala"): arancione i costi, verde quello che resta. In perdita, tutta arancione. */
-function Barra({ ricavi, costi, scala, alta, senzaPrezzo }: { ricavi: number; costi: number; scala: number; alta?: boolean; senzaPrezzo?: boolean }) {
+function Barra({ ricavi, costi, scala, alta }: { ricavi: number; costi: number; scala: number; alta?: boolean }) {
   const lungo = Math.max(ricavi, costi)
   if (lungo === 0) return <span className={cn('block rounded-full bg-sfondo', alta ? 'h-5' : 'h-3')} aria-hidden />
   const quotaCosti = Math.min(costi / lungo, 1)
@@ -317,7 +317,6 @@ function Barra({ ricavi, costi, scala, alta, senzaPrezzo }: { ricavi: number; co
     <span className={cn('flex gap-[2px]', alta ? 'h-5' : 'h-3')} style={{ width: `${(lungo / scala) * 100}%` }} aria-hidden>
       {costi > 0 && <span className="h-full rounded-l-[4px] last:rounded-r-[4px]" style={{ width: `${quotaCosti * 100}%`, background: COSTI }} />}
       {ricavi > costi && <span className="h-full rounded-r-[4px] first:rounded-l-[4px]" style={{ width: `${(1 - quotaCosti) * 100}%`, background: RESTA }} />}
-      {senzaPrezzo && <Tag className="size-3.5 text-urgente shrink-0 ml-1 self-center" />}
     </span>
   )
 }
@@ -352,7 +351,7 @@ function Cifra({ etichetta, valore, colore, nota, grande, icona }: { etichetta: 
   )
 }
 
-type Riga = { chiave: string; etichetta: string; eventi: number; ricavi: number; costi: number; senzaPrezzo: number }
+type Riga = { chiave: string; etichetta: string; eventi: number; ricavi: number; costi: number }
 
 /** Una riga per mese, anno o regione: nome, barra, cifre. Clic: si scende nel dettaglio. */
 function Righe({ righe, onApri, evidenzia }: { righe: Riga[]; onApri: (chiave: string) => void; evidenzia?: string }) {
@@ -369,7 +368,7 @@ function Righe({ righe, onApri, evidenzia }: { righe: Riga[]; onApri: (chiave: s
               {r.etichetta}
               {!vuota && <span className="text-xs font-medium text-tenue inline-flex items-center gap-1"><CalendarDays className="size-3" aria-hidden />{r.eventi}</span>}
             </span>
-            {vuota ? <span /> : <Barra ricavi={r.ricavi} costi={r.costi} scala={scala} senzaPrezzo={r.senzaPrezzo > 0} />}
+            {vuota ? <span /> : <Barra ricavi={r.ricavi} costi={r.costi} scala={scala} />}
             {vuota ? <span /> : <Cifre ricavi={r.ricavi} costi={r.costi} />}
           </button>
         )
@@ -391,12 +390,11 @@ function Cifre({ ricavi, costi }: { ricavi: number | null; costi: number }) {
 }
 
 /** Cose da sistemare: icona e numero, niente frasi */
-function Segnali({ senzaPrezzo, daRimborsare }: { senzaPrezzo: number; daRimborsare: number }) {
-  if (!senzaPrezzo && !daRimborsare) return null
+function Segnali({ daRimborsare }: { daRimborsare: number }) {
+  if (!daRimborsare) return null
   const p = 'h-8 px-3 rounded-full text-sm font-semibold inline-flex items-center gap-1.5'
   return (
     <div className="flex flex-wrap gap-2 -mt-4">
-      {senzaPrezzo > 0 && <span className={cn(p, 'bg-urgente-tenue text-urgente-testo')}><Tag className="size-4" aria-hidden />{senzaPrezzo} senza prezzo</span>}
       {daRimborsare > 0 && <span className={cn(p, 'bg-avviso text-avviso-testo')}><Wallet className="size-4" aria-hidden />{euro(daRimborsare)} da rimborsare</span>}
     </div>
   )

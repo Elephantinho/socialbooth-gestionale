@@ -70,7 +70,7 @@ export type EventoConti = {
 type Gruppo = {
   chiave: string; etichetta: string; eventi: number
   ricavi: number; costi: number; margine: number; percentuale: number | null
-  senzaPrezzo: number; daRimborsare: number
+  daRimborsare: number
 }
 
 
@@ -84,12 +84,11 @@ export function raggruppa(eventi: EventoConti[], per: Per, nomeEvento: (e: Event
       : per === 'regione' ? [e.regione, e.regione]
       : per === 'operatore' ? (e.operatore ? [e.operatore.id, `${e.operatore.nome} ${e.operatore.cognome ?? ''}`.trim()] : ['-', 'Senza operatore'])
       : [e.id, nomeEvento(e)]
-    const g = gruppi.get(chiave) ?? { chiave, etichetta, eventi: 0, ricavi: 0, costi: 0, margine: 0, percentuale: null, senzaPrezzo: 0, daRimborsare: 0 }
+    const g = gruppi.get(chiave) ?? { chiave, etichetta, eventi: 0, ricavi: 0, costi: 0, margine: 0, percentuale: null, daRimborsare: 0 }
     const b = bilancio(e.conti, e.spese)
     g.eventi += 1
     g.ricavi += b.ricavo ?? 0
     g.costi += b.costi
-    if (b.ricavo == null) g.senzaPrezzo += 1
     g.daRimborsare += e.spese.filter((s) => s.pagata_con === 'operatore').reduce((t, s) => t + Number(s.importo), 0)
     gruppi.set(chiave, g)
   }
@@ -99,15 +98,15 @@ export function raggruppa(eventi: EventoConti[], per: Per, nomeEvento: (e: Event
   })
 }
 
-/** Totali di un insieme di eventi: ricavi, costi, margine, quanti senza prezzo, da incassare, da rimborsare */
+/** Totali di un insieme di eventi: ricavi, costi, margine, da incassare, da rimborsare */
 export function totali(eventi: (EventoConti & { stato: string; conti: (Conti & { fattura_numero?: string | null; incassata?: boolean }) | null })[]) {
   const g = raggruppa(eventi, 'regione')
-  const somma = (k: 'ricavi' | 'costi' | 'senzaPrezzo' | 'daRimborsare') => tondo(g.reduce((t, x) => t + x[k], 0))
+  const somma = (k: 'ricavi' | 'costi' | 'daRimborsare') => tondo(g.reduce((t, x) => t + x[k], 0))
   const ricavi = somma('ricavi'), costi = somma('costi')
   return {
     ricavi, costi, margine: tondo(ricavi - costi),
     percentuale: ricavi ? Math.round(((ricavi - costi) / ricavi) * 100) : null,
-    senzaPrezzo: somma('senzaPrezzo'), daRimborsare: somma('daRimborsare'),
+    daRimborsare: somma('daRimborsare'),
     daIncassare: eventi.filter((e) => e.conti?.fattura_numero && !e.conti.incassata).length,
   }
 }
@@ -117,7 +116,7 @@ export function mesiDellAnno(eventi: EventoConti[], anno: number): Gruppo[] {
   const trovati = new Map(raggruppa(eventi, 'mese').map((g) => [g.chiave, g]))
   return Array.from({ length: 12 }, (_, i) => {
     const chiave = `${anno}-${String(i + 1).padStart(2, '0')}`
-    return trovati.get(chiave) ?? { chiave, etichetta: nomeMese(chiave), eventi: 0, ricavi: 0, costi: 0, margine: 0, percentuale: null, senzaPrezzo: 0, daRimborsare: 0 }
+    return trovati.get(chiave) ?? { chiave, etichetta: nomeMese(chiave), eventi: 0, ricavi: 0, costi: 0, margine: 0, percentuale: null, daRimborsare: 0 }
   })
 }
 

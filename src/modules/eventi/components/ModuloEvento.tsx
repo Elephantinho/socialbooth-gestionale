@@ -9,9 +9,11 @@ import { REGIONI, type Enum, type Inserimento } from '@/shared/types/database'
 import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { AreaTesto, Campo, Selezione, SiNo } from '@/shared/ui/Campo'
 import { Errore } from '@/shared/ui/Stati'
+import { leggiImporto } from '@/modules/conti/conti'
 
 type Valori = {
   nome: string
+  prezzo: string
   tipoBoothId: string
   indirizzo: string; citta: string; regione: Enum<'regione'>; noteAccesso: string
   ztl: boolean; wifi: boolean; hostess: boolean
@@ -21,6 +23,7 @@ type Valori = {
 
 const vuoto: Valori = {
   nome: '',
+  prezzo: '',
   tipoBoothId: '',
   indirizzo: '', citta: '', regione: 'Toscana', noteAccesso: '',
   ztl: false, wifi: false, hostess: false,
@@ -31,6 +34,7 @@ const vuoto: Valori = {
 function daEvento(e: EventoGestioneCompleto): Valori {
   return {
     nome: e.nome ?? '',
+    prezzo: '',
     tipoBoothId: e.tipo_booth_id ?? '',
     indirizzo: e.indirizzo, citta: e.citta, regione: e.regione, noteAccesso: e.note_accesso ?? '',
     ztl: e.ztl, wifi: e.wifi, hostess: e.hostess,
@@ -42,12 +46,14 @@ function daEvento(e: EventoGestioneCompleto): Valori {
 
 type Props = {
   evento?: EventoGestioneCompleto
-  onSalva: (dati: Omit<Inserimento<'eventi'>, 'project_id'>) => Promise<unknown>
+  /** Con il prezzo al cliente (obbligatorio): solo alla creazione, poi si cambia nei conti dell'evento */
+  conPrezzo?: boolean
+  onSalva: (dati: Omit<Inserimento<'eventi'>, 'project_id'>, prezzo: number | null) => Promise<unknown>
   testoPulsante: string
 }
 
 /** Modulo dell'evento, usato sia per creare sia per modificare. */
-export function ModuloEvento({ evento, onSalva, testoPulsante }: Props) {
+export function ModuloEvento({ evento, conPrezzo, onSalva, testoPulsante }: Props) {
   const [m, setM] = useState<Valori>(() => (evento ? daEvento(evento) : vuoto))
   const imposta = <K extends keyof Valori>(k: K, v: Valori[K]) => setM((p) => ({ ...p, [k]: v }))
   const testo = (k: keyof Valori) => ({ value: m[k] as string, onChange: (e: { target: { value: string } }) => imposta(k, e.target.value as never) })
@@ -69,6 +75,11 @@ export function ModuloEvento({ evento, onSalva, testoPulsante }: Props) {
       setErrore(new Error("La data dell'allestimento è già passata: controlla giorno e orari."))
       return
     }
+    const prezzo = conPrezzo ? leggiImporto(m.prezzo) : null
+    if (conPrezzo && !prezzo) {
+      setErrore(new Error('Scrivi il prezzo al cliente in euro, per esempio 1.200'))
+      return
+    }
     setInvio(true)
     setErrore(undefined)
     try {
@@ -81,7 +92,7 @@ export function ModuloEvento({ evento, onSalva, testoPulsante }: Props) {
         allestimento_il: orari.allestimento, inizio_attivazione: orari.inizio, fine_attivazione: orari.fine, smontaggio_il: orari.smontaggio,
         referente_nome: m.referenteNome || null, referente_telefono: m.referenteTelefono || null,
         outfit: m.hostess ? m.outfit.trim() || null : null, note: m.note || null,
-      })
+      }, prezzo)
     } catch (err) {
       setErrore(err)
     } finally {
@@ -103,6 +114,9 @@ export function ModuloEvento({ evento, onSalva, testoPulsante }: Props) {
             </optgroup>
           ))}
         </Selezione>
+        {conPrezzo && (
+          <Campo etichetta="Prezzo al cliente (€)" required inputMode="decimal" placeholder="1.200" {...testo('prezzo')} className="max-w-60" />
+        )}
       </Sezione>
 
       <Sezione titolo="Data e orari">
