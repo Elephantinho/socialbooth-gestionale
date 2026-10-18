@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Check, ChevronDown, Clock, Loader2 } from 'lucide-react'
 import { useOperatoriDisponibili, useProponiOperatore } from '@/modules/eventi/api'
-import { PASSAGGI, passaggiFatti } from '@/modules/passaggi/passaggi'
+import { avanzamento } from '@/modules/passaggi/passaggi'
 import { ritardo } from '@/modules/passaggi/ritardi'
 import { nomeCompleto, ora } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
@@ -64,10 +64,7 @@ function Stato({ e, manca }: { e: EventoGestione; manca: string | null }) {
   const pillola = 'text-xs font-semibold rounded-full px-2.5 py-1 whitespace-nowrap inline-flex items-center gap-1.5'
   if (manca) return <span className={cn(pillola, 'bg-urgente text-white')}>{manca}</span>
   switch (e.stato) {
-    case 'in_corso': {
-      const n = passaggiFatti(e.ultimo_passaggio)
-      return <span className={cn(pillola, 'bg-ok text-white')}>{n ? PASSAGGI[n - 1].fatto.split(',')[0] : 'In corso'} {n}/{PASSAGGI.length}</span>
-    }
+    case 'in_corso': return <span className={cn(pillola, 'bg-ok text-white')}>{avanzamento(e.ultimo_passaggio)}</span>
     case 'confermato': return <span className={cn(pillola, 'text-ok')}><Check className="size-4" strokeWidth={3} aria-hidden />Confermato</span>
     case 'completato': return <span className={cn(pillola, 'text-ok')}><Check className="size-4" strokeWidth={3} aria-hidden />Completato</span>
     case 'proposto': return <span className={cn(pillola, 'text-avviso-testo')}><Clock className="size-4" aria-hidden />In attesa</span>

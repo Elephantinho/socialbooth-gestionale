@@ -23,9 +23,9 @@ export function CostiRicavi({ eventoId, operatoreId }: { eventoId: string; opera
       <TitoloSezione>Costi e ricavi</TitoloSezione>
 
       <div className="grid grid-cols-3 gap-2">
-        <Cifra etichetta="Ricavo" valore={euro(b.ricavo)} nota={conti.data?.fattura_importo != null ? 'da fattura' : b.ricavo != null ? 'prezzo concordato' : 'da inserire'} />
-        <Cifra etichetta="Costi" valore={euro(b.costi)} nota={`${spese.data.length} ${spese.data.length === 1 ? 'spesa' : 'spese'}`} />
-        <Cifra etichetta="Margine" valore={euro(b.margine)} nota={b.percentuale != null ? `${b.percentuale}%` : undefined}
+        <Riquadro etichetta="Ricavo" valore={euro(b.ricavo)} nota={conti.data?.fattura_importo != null ? 'da fattura' : b.ricavo != null ? 'prezzo concordato' : 'da inserire'} />
+        <Riquadro etichetta="Costi" valore={euro(b.costi)} nota={`${spese.data.length} ${spese.data.length === 1 ? 'spesa' : 'spese'}`} />
+        <Riquadro etichetta="Margine" valore={euro(b.margine)} nota={b.percentuale != null ? `${b.percentuale}%` : undefined}
           tono={b.margine == null ? undefined : b.margine >= 0 ? 'ok' : 'male'} />
       </div>
 
@@ -36,7 +36,7 @@ export function CostiRicavi({ eventoId, operatoreId }: { eventoId: string; opera
   )
 }
 
-function Cifra({ etichetta, valore, nota, tono }: { etichetta: string; valore: string; nota?: string; tono?: 'ok' | 'male' }) {
+function Riquadro({ etichetta, valore, nota, tono }: { etichetta: string; valore: string; nota?: string; tono?: 'ok' | 'male' }) {
   return (
     <div className={cn('rounded-xl border px-3 py-2.5', tono === 'ok' ? 'bg-ok-tenue border-ok/20' : tono === 'male' ? 'bg-urgente-tenue border-urgente/20' : 'bg-sfondo border-bordo')}>
       <p className="text-xs font-semibold text-tenue">{etichetta}</p>

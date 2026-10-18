@@ -74,9 +74,9 @@ export function Conti() {
         <>
           {/* Le tre cifre del periodo */}
           <Card className="p-5 md:p-6 grid gap-5 grid-cols-[repeat(auto-fit,minmax(180px,1fr))]">
-            <Cifra etichetta="Incassato e da incassare" titolo="Ricavi" valore={euro(totale.ricavi)} />
-            <Cifra etichetta="Spese di tutti gli eventi" titolo="Costi" valore={euro(totale.costi)} />
-            <Cifra etichetta={totale.ricavi ? `Resta il ${Math.round((margine / totale.ricavi) * 100)}% dei ricavi` : 'Ricavi meno costi'} titolo="Margine"
+            <CifraGrande etichetta="Incassato e da incassare" titolo="Ricavi" valore={euro(totale.ricavi)} />
+            <CifraGrande etichetta="Spese di tutti gli eventi" titolo="Costi" valore={euro(totale.costi)} />
+            <CifraGrande etichetta={totale.ricavi ? `Resta il ${Math.round((margine / totale.ricavi) * 100)}% dei ricavi` : 'Ricavi meno costi'} titolo="Margine"
               valore={euro(margine)} tono={margine >= 0 ? 'ok' : 'male'} />
           </Card>
           {(totale.senzaPrezzo > 0 || daFatturare > 0 || totale.daRimborsare > 0) && (
@@ -130,7 +130,7 @@ function Freccia({ lato, onClick }: { lato: 'sinistra' | 'destra'; onClick: () =
   )
 }
 
-function Cifra({ titolo, valore, etichetta, tono }: { titolo: string; valore: string; etichetta: string; tono?: 'ok' | 'male' }) {
+function CifraGrande({ titolo, valore, etichetta, tono }: { titolo: string; valore: string; etichetta: string; tono?: 'ok' | 'male' }) {
   return (
     <div>
       <p className="text-sm font-semibold text-tenue">{titolo}</p>

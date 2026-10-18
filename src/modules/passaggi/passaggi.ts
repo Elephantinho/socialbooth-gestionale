@@ -21,3 +21,9 @@ export function passaggiFatti(ultimo: Passaggio | null | undefined): number {
 export function prossimoPassaggio(ultimo: Passaggio | null | undefined) {
   return PASSAGGI[passaggiFatti(ultimo)] ?? null
 }
+
+/** Breve, per gli elenchi: "Montato 3/6" (o "In corso 0/6" se non ha ancora iniziato). */
+export function avanzamento(ultimo: Passaggio | null | undefined): string {
+  const n = passaggiFatti(ultimo)
+  return `${n ? PASSAGGI[n - 1].fatto.split(',')[0] : 'In corso'} ${n}/${PASSAGGI.length}`
+}

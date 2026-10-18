@@ -4,7 +4,7 @@ import { AssegnaRapido } from '@/modules/eventi/components/RigaEvento'
 import { giaPassato } from '@/modules/eventi/logic/archivio'
 import { nomeEvento } from '@/modules/eventi/logic/nome'
 import type { EventoGestione } from '@/modules/eventi/types'
-import { PASSAGGI, passaggiFatti } from '@/modules/passaggi/passaggi'
+import { avanzamento } from '@/modules/passaggi/passaggi'
 import { ritardo } from '@/modules/passaggi/ritardi'
 import { giornoBreve, piuGiorni } from '@/shared/lib/date'
 import { ora } from '@/shared/lib/formato'
@@ -53,7 +53,6 @@ function Schedina({ e, adesso, assegna, destra }: { e: EventoGestione; adesso: n
   const manca = ritardo(e, adesso)
   const daAssegnare = e.stato === 'da_assegnare' || e.stato === 'bozza'
   const barra = manca || daAssegnare ? 'bg-urgente' : e.stato === 'proposto' ? 'bg-avviso-icona' : 'bg-ok'
-  const n = passaggiFatti(e.ultimo_passaggio)
 
   return (
     <div className="relative bg-superficie border border-bordo rounded-lg pl-3 pr-2 py-2 hover:border-bordo-forte hover:shadow-sm transition">
@@ -62,7 +61,7 @@ function Schedina({ e, adesso, assegna, destra }: { e: EventoGestione; adesso: n
         <div className="flex items-center justify-between gap-1.5">
           <span className="text-xs font-semibold tabular-nums">{ora(e.allestimento_il)}</span>
           {manca ? <span className="text-[10px] font-semibold text-white bg-urgente rounded px-1.5 py-px truncate">{manca}</span>
-            : e.stato === 'in_corso' ? <span className="text-[10px] font-semibold text-white bg-ok rounded px-1.5 py-px">{n ? PASSAGGI[n - 1].fatto.split(',')[0] : 'In corso'} {n}/6</span>
+            : e.stato === 'in_corso' ? <span className="text-[10px] font-semibold text-white bg-ok rounded px-1.5 py-px">{avanzamento(e.ultimo_passaggio)}</span>
             : e.stato === 'confermato' ? <Check className="size-3.5 text-ok" strokeWidth={3} aria-label="Confermato" />
             : e.stato === 'proposto' ? <Clock className="size-3.5 text-avviso-icona" aria-label="In attesa" />
             : null}

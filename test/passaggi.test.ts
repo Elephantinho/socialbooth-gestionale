@@ -1,6 +1,6 @@
 // Passaggi dell'operatore e ritardi.
 import { describe, expect, it } from 'vitest'
-import { PASSAGGI, passaggiFatti, prossimoPassaggio } from '@/modules/passaggi/passaggi'
+import { PASSAGGI, avanzamento, passaggiFatti, prossimoPassaggio } from '@/modules/passaggi/passaggi'
 import { ritardo } from '@/modules/passaggi/ritardi'
 
 describe('passaggi', () => {
@@ -26,5 +26,13 @@ describe('ritardi', () => {
   it('completato o da assegnare: mai in ritardo', () => {
     expect(ritardo(ev('completato', 'check_out'), t0 + 20 * h)).toBeNull()
     expect(ritardo(ev('da_assegnare', null), t0 + 20 * h)).toBeNull()
+  })
+})
+
+describe('avanzamento', () => {
+  it('dice a che punto è', () => {
+    expect(avanzamento(null)).toBe('In corso 0/6')
+    expect(avanzamento('check_in')).toBe('Check-in 1/6')
+    expect(avanzamento('montato')).toBe('Montato 3/6')
   })
 })

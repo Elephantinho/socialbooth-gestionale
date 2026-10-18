@@ -134,7 +134,9 @@ function Pagamenti() {
   )
 }
 
-function Pagamento({ p }: { p: NonNullable<ReturnType<typeof usePagamentiDaControllare>['data']>[number] }) {
+type PagamentoDaControllare = NonNullable<ReturnType<typeof usePagamentiDaControllare>['data']>[number]
+
+function Pagamento({ p }: { p: PagamentoDaControllare }) {
   const [evento, setEvento] = useState('')
   const vicini = useEventiVicini(p.pagato_il, p.operatore?.id ?? null)
   const sistema = useSistemaPagamento()
