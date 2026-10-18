@@ -45,6 +45,9 @@ const formatta = (giorno: string, opzioni: Intl.DateTimeFormatOptions) =>
 /** "2026-10" → "Ottobre 2026" */
 export const nomeMese = (mese: string) => maiuscola(formatta(`${mese}-15`, { month: 'long', year: 'numeric' }))
 
+/** "2026-10-18" → "dom" */
+export const giornoSettimana = (giorno: string) => formatta(giorno, { weekday: 'short' }).replaceAll('.', '')
+
 /** "2026-10-18" → "Dom 18 ott" */
 export const giornoBreve = (giorno: string) => maiuscola(formatta(giorno, { weekday: 'short', day: 'numeric', month: 'short' }).replaceAll('.', ''))
 
