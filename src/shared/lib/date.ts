@@ -84,3 +84,53 @@ export function caselleDelMese(mese: string): string[] {
   const inizio = piuGiorni(primo, -daLunedi)
   return Array.from({ length: 42 }, (_, i) => piuGiorni(inizio, i))
 }
+
+/* ---------- Date e orari scritti a mano ---------- */
+
+/** "2026-10-19" → "19/10/2026" */
+export const scriviData = (giorno: string) => (giorno ? `${giorno.slice(8, 10)}/${giorno.slice(5, 7)}/${giorno.slice(0, 4)}` : '')
+
+/**
+ * Data scritta all'italiana → "AAAA-MM-GG", o null se non è una data vera.
+ * Accetta "19/10/2026", "19/10/26", "19.10.2026", "19-10-2026", "1/9/2026", "19102026".
+ */
+export function leggiData(testo: string): string | null {
+  const t = testo.trim()
+  const parti = /^(\d{1,2})[/.\-\s](\d{1,2})[/.\-\s](\d{2}|\d{4})$/.exec(t) ?? /^(\d{2})(\d{2})(\d{4})$/.exec(t)
+  if (!parti) return null
+  const [g, m] = [Number(parti[1]), Number(parti[2])]
+  const a = parti[3].length === 2 ? 2000 + Number(parti[3]) : Number(parti[3])
+  if (m < 1 || m > 12 || g < 1 || g > 31) return null
+  const iso = `${a}-${String(m).padStart(2, '0')}-${String(g).padStart(2, '0')}`
+  // Il 31/02 non esiste: la data deve restare la stessa dopo il giro nel calendario
+  return new Date(`${iso}T12:00:00Z`).toISOString().slice(0, 10) === iso ? iso : null
+}
+
+/** Orario scritto a mano → "HH:MM", o null. Accetta "18:30", "18.30", "1830", "18", "9:05", "905". */
+export function leggiOra(testo: string): string | null {
+  const t = testo.trim().replace(/[:.\s]+$/, '') // "21:" (i due punti messi da soli) vale 21:00
+  const parti = /^(\d{1,2})(?:[:.\s]?(\d{2}))?$/.exec(t)
+  if (!parti) {
+    const tre = /^(\d)(\d{2})$/.exec(t) // "905" → 9:05
+    if (!tre) return null
+    return leggiOra(`${tre[1]}:${tre[2]}`)
+  }
+  const [h, m] = [Number(parti[1]), Number(parti[2] ?? 0)]
+  if (h > 23 || m > 59) return null
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+}
+
+/** Mentre si scrive una data: aggiunge da sola la barra dopo giorno e mese ("19" → "19/", "19/10" → "19/10/") */
+export function aiutaData(prima: string, ora: string): string {
+  if (ora.length <= prima.length) return ora // si sta cancellando
+  if (/^\d{2}$/.test(ora) || /^\d{1,2}\/\d{2}$/.test(ora)) return `${ora}/`
+  return ora
+}
+
+/** Mentre si scrive un orario: i due punti dopo l'ora ("18" → "18:") */
+export function aiutaOra(prima: string, ora: string): string {
+  if (ora.length <= prima.length) return ora
+  if (/^\d{2}$/.test(ora) && Number(ora) <= 23) return `${ora}:`
+  if (/^\d{3}$/.test(ora) && Number(ora.slice(0, 2)) <= 23) return `${ora.slice(0, 2)}:${ora[2]}`
+  return ora
+}
