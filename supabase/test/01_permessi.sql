@@ -29,7 +29,7 @@ begin
     values (pa, 'Evento C', 'Via D 4', 'Firenze', 'Toscana', now() + interval '10 days', now() + interval '10 days 1 hour', now() + interval '10 days 5 hours', now() + interval '10 days 6 hours', 'da_assegnare')
     returning id into ec;
   insert into conti_evento (evento_id, prezzo) values (ea, 1000), (eb, 2000);
-  insert into spese_evento (evento_id, voce, importo, pagata_con, operatore_id, creato_da) values (ea, 'carburante', 40, 'operatore', o1, o1), (eb, 'pedaggi', 12, 'carta_aziendale', o2, o2);
+  insert into spese_evento (evento_id, voce, importo, pagata_con, operatore_id, creato_da) values (ea, 'carburante', 40, 'operatore', o1, o1), (eb, 'altro', 12, 'carta_aziendale', o2, o2);
   insert into carte_aziendali (nome, ultime_cifre, operatore_id, note) values ('Carta prova', '1234', o1, '[PROVA]');
   insert into pagamenti_carte (rif_esterno, carta_ultime, importo, pagato_il) values ('PROVA-' || gen_random_uuid(), '1234', 25, now() - interval '20 days');
 

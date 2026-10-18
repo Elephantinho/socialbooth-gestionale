@@ -10,7 +10,6 @@ export type PagataCon = Enum<'pagata_con'>
 export const VOCI: { id: Voce; etichetta: string }[] = [
   { id: 'noleggio', etichetta: 'Noleggio' },
   { id: 'carburante', etichetta: 'Carburante' },
-  { id: 'pedaggi', etichetta: 'Pedaggi' },
   { id: 'parcheggio', etichetta: 'Parcheggio' },
   { id: 'vitto', etichetta: 'Vitto' },
   { id: 'alloggio', etichetta: 'Alloggio' },

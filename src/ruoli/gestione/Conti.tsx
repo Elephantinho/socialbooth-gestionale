@@ -28,12 +28,11 @@ const VISTE: [Vista, string][] = [['andamento', 'Andamento'], ['eventi', 'Eventi
  */
 const COSTI = '#eb6834'
 const RESTA = '#1baf7a'
-// Tipi di spesa nelle barre: i quattro più comuni con il loro colore, gli altri insieme in grigio.
+// Tipi di spesa nelle barre: i tre più comuni con il loro colore, gli altri insieme in grigio.
 // Niente arancione e verde, che qui vogliono già dire costi e resta. Colori controllati.
-type Fascia = 'carburante' | 'pedaggi' | 'parcheggio' | 'vitto' | 'altro'
+type Fascia = 'carburante' | 'parcheggio' | 'vitto' | 'altro'
 const FASCE: { id: Fascia; etichetta: string; colore: string }[] = [
   { id: 'carburante', etichetta: 'Carburante', colore: '#2a78d6' },
-  { id: 'pedaggi', etichetta: 'Pedaggi', colore: '#eda100' },
   { id: 'parcheggio', etichetta: 'Parcheggio', colore: '#6250d6' },
   { id: 'vitto', etichetta: 'Vitto', colore: '#e87ba4' },
   { id: 'altro', etichetta: 'Altro', colore: '#8b8e97' },

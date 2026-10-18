@@ -4,7 +4,6 @@ import { usePuo } from '@/modules/auth/permessi'
 import { useArchivio, useEventiInProgramma } from '@/modules/eventi/api'
 import { BarraCoperti } from '@/modules/eventi/components/BarraCoperti'
 import { COLONNE, RigaEvento } from '@/modules/eventi/components/RigaEvento'
-import { ZoneScoperte } from '@/modules/eventi/components/ZoneScoperte'
 import { passato } from '@/modules/eventi/logic/archivio'
 import { filtra, type Filtri } from '@/modules/eventi/logic/filtri'
 import { perGiorno } from '@/modules/eventi/logic/giorni'
@@ -50,8 +49,6 @@ export function ElencoEventi() {
   const eventi = settimana
     ? filtra(base, { regione: filtri.regione }, adesso).filter((e) => { const g = giornoRoma(e.allestimento_il); return g >= inizio && g <= fine })
     : filtra(base, filtri, adesso)
-  // Eventi di giorni già passati rimasti aperti (manca il check-out): fuori dalla settimana, vanno segnalati
-  const rimastiAperti = settimana ? base.filter((e) => giornoRoma(e.allestimento_il) < oggi) : []
   const filtrato = Object.values(filtri).some(Boolean)
 
   /** Cambia i filtri tenendo gli altri (e l'archivio); mese e giorno si escludono */
@@ -119,14 +116,6 @@ export function ElencoEventi() {
         </div>
       )}
 
-      {rimastiAperti.length > 0 && (
-        <button onClick={() => imposta({ stato: 'ritardo' })}
-          className="text-left rounded-lg border-l-4 border-urgente bg-urgente-tenue px-4 py-3 text-sm cursor-pointer -mt-2">
-          <span className="font-semibold text-urgente-testo">{rimastiAperti.length === 1 ? '1 evento dei giorni scorsi è ancora aperto' : `${rimastiAperti.length} eventi dei giorni scorsi sono ancora aperti`}</span>
-          <span className="text-inchiostro">: manca il check-out. Vedili</span>
-        </button>
-      )}
-      {puoAssegnare && <ZoneScoperte eventi={eventi} />}
 
       {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : eventi.length === 0 ? (
         <Card>

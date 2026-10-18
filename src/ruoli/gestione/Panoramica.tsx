@@ -51,7 +51,7 @@ function PanoramicaEventi() {
   const inProgramma = data.filter((e) => !passato(e, adesso))
   const diOggi = data.filter((e) => giornoRoma(e.allestimento_il) === oggi && e.stato !== 'annullato')
     .toSorted((a, b) => a.allestimento_il.localeCompare(b.allestimento_il))
-  const frasi = riassuntoDelGiorno(data, adesso, conRitardi)
+  const frase = riassuntoDelGiorno(data, adesso)
 
   const saluto = salutoDelle(adesso)
 
@@ -60,8 +60,7 @@ function PanoramicaEventi() {
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex-1 min-w-72 max-w-[52rem]">
           <p className="text-tenue font-medium">{saluto} {profilo.nome}, è {giornoLungo(oggi)}.</p>
-          <p className="font-display text-[24px] md:text-[28px] font-semibold leading-snug mt-2 text-pretty">{frasi[0]}</p>
-          {frasi[1] && <p className="text-[17px] leading-snug mt-2 text-urgente-testo font-medium">{frasi[1]}</p>}
+          <p className="font-display text-[24px] md:text-[28px] font-semibold leading-snug mt-2 text-pretty">{frase}</p>
         </div>
         {puo('eventi.crea') && (
           <Link to="/gestione/eventi/nuovo" className="h-11 px-5 rounded-lg bg-accento text-su-accento font-semibold text-sm flex items-center gap-2 hover:bg-accento-hover">
