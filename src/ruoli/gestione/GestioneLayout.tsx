@@ -39,6 +39,7 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
 
 export function GestioneLayout() {
   const posizione = useLocation()
+  const { ruolo } = useProfilo()
   useTempoReale()
   // Il menu del telefono resta aperto solo sulla pagina in cui lo si è aperto: cambiando pagina si chiude da solo
   const [apertoSu, setApertoSu] = useState<string | null>(null)
@@ -50,7 +51,7 @@ export function GestioneLayout() {
       <div className="min-h-dvh lg:flex">
         {/* Barra superiore su telefono e tablet */}
         <div className="lg:hidden sticky top-0 z-30 bg-menu text-white px-4 h-14 flex items-center justify-between">
-          <Logo chiaro taglia="sm" />
+          <Logo chiaro taglia="sm" sottotitolo={etichettaRuolo(ruolo)} />
           <div className="flex items-center gap-2">
             <Campanella scura />
             <button onClick={() => setMenuAperto(true)} aria-label="Apri menu" className="size-10 rounded-lg bg-menu-2 flex items-center justify-center cursor-pointer">
@@ -101,7 +102,7 @@ function MenuLaterale({ onChiudi }: { onChiudi?: () => void }) {
   return (
     <div className="h-full w-full bg-menu text-white p-4 flex flex-col gap-6 overflow-y-auto">
       <div className="flex items-center justify-between px-2 pt-1">
-        <Logo chiaro taglia="sm" sottotitolo="Gestionale" />
+        <Logo chiaro taglia="sm" sottotitolo={etichettaRuolo(profilo.ruolo)} />
         {!onChiudi && <Campanella nelMenu />}
         {onChiudi && (
           <button onClick={onChiudi} aria-label="Chiudi menu" className="size-9 rounded-lg bg-menu-2 flex items-center justify-center cursor-pointer">

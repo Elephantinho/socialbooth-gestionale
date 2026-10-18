@@ -30,7 +30,7 @@ export function HomeOperatore() {
     <div className="flex flex-col gap-6 px-5 pt-sicura pb-6">
       <header className="flex items-start justify-between pt-2">
         <div>
-          <Logo taglia="sm" className="mb-3" />
+          <Logo taglia="sm" sottotitolo="Operatore" className="mb-3" />
           <h1 className="font-display text-[26px] font-semibold leading-tight first-letter:uppercase">{oggi}</h1>
         </div>
         <div className="flex items-center gap-2">
