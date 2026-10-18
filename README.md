@@ -31,6 +31,9 @@ gli altri ruoli li assegna l'admin da **Utenti e ruoli**.
   una volta sola project, admin, gestore e operatore. I passaggi normali avvisano solo il project.
 - **Conti**: i soldi stanno in tabelle separate (`conti_evento`, `spese_evento`), visibili solo a chi
   può vederli. La pagina Conti divide ricavi, costi e margine per mese, evento, operatore o regione.
+- **Spese degli operatori**: con la carta aziendale arrivano dalla banca e l'operatore aggiunge solo la foto dello
+  scontrino; a mano segna solo quelle pagate di tasca sua, che finiscono in *Conti → Rimborsi* finché
+  l'amministrazione non le segna come rimborsate.
 - **Carte aziendali**: si salvano solo le ultime 4 cifre. Un pagamento con la carta fatto nello stesso
   giorno di un evento dell'operatore diventa da solo una spesa di quell'evento; altrimenti resta
   "da controllare" nella pagina Carte. La connessione automatica con la banca non è ancora attiva.
@@ -78,6 +81,8 @@ finti, provano tutto e annullano ogni modifica: l'ultima riga solleva apposta un
 | `04_ritardi.sql` | avvisi di ritardo una volta sola, chiusura a mano | 12 |
 | `05_soldi.sql` | abbinamento dei pagamenti con la carta, incassi, spese | 20 |
 | `06_entra_come.sql` | solo l'admin principale può entrare come altri; registro protetto | 10 |
+| `07_scontrini.sql` | spese con la carta: solo dalla banca, l'operatore allega lo scontrino | 10 |
+| `08_rimborsi.sql` | rimborsi delle spese di tasca: solo l'amministrazione li segna | 7 |
 
 ## Struttura del codice
 

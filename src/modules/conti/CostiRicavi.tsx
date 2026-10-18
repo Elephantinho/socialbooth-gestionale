@@ -151,7 +151,8 @@ export function NuovaSpesa({ eventoId, operatoreId, onFatto, daOperatore }: {
   const aggiungi = useAggiungiSpesa()
   const [voce, setVoce] = useState<Voce>('carburante')
   const [importo, setImporto] = useState('')
-  const [pagataCon, setPagataCon] = useState<PagataCon>('carta_aziendale')
+  // L'operatore segna solo le spese pagate di tasca sua: quelle con la carta arrivano dalla banca
+  const [pagataCon, setPagataCon] = useState<PagataCon>(daOperatore ? 'operatore' : 'carta_aziendale')
   const [descrizione, setDescrizione] = useState('')
   const [foto, setFoto] = useState<File | null>(null)
   const valore = leggiImporto(importo)
@@ -172,11 +173,13 @@ export function NuovaSpesa({ eventoId, operatoreId, onFatto, daOperatore }: {
         </Selezione>
         <Campo etichetta="Importo (€)" inputMode="decimal" required placeholder="45,50" value={importo} onChange={(e) => setImporto(e.target.value)} />
       </div>
-      <Selezione etichetta="Pagata con" value={pagataCon} onChange={(e) => setPagataCon(e.target.value as PagataCon)}>
-        <option value="carta_aziendale">{PAGATA_CON.carta_aziendale}</option>
-        <option value="operatore">{daOperatore ? 'Di tasca mia' : PAGATA_CON.operatore}</option>
-        {!daOperatore && <option value="azienda">{PAGATA_CON.azienda}</option>}
-      </Selezione>
+      {!daOperatore && (
+        <Selezione etichetta="Pagata con" value={pagataCon} onChange={(e) => setPagataCon(e.target.value as PagataCon)}>
+          <option value="carta_aziendale">{PAGATA_CON.carta_aziendale}</option>
+          <option value="operatore">{PAGATA_CON.operatore}</option>
+          <option value="azienda">{PAGATA_CON.azienda}</option>
+        </Selezione>
+      )}
       <Campo etichetta="Nota (facoltativa)" placeholder="Pieno andata, casello A1…" value={descrizione} onChange={(e) => setDescrizione(e.target.value)} />
       <label className="h-11 rounded-lg border border-dashed border-bordo-forte bg-superficie flex items-center justify-center gap-2 text-sm font-semibold cursor-pointer hover:bg-sfondo">
         <Camera className="size-4" aria-hidden />

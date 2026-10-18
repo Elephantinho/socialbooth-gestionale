@@ -1,24 +1,26 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { CalendarDays, ChevronLeft, ChevronRight, FileText, Wallet, X } from 'lucide-react'
+import { CalendarDays, Check, ChevronLeft, ChevronRight, FileText, Receipt, Undo2, Wallet, X } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/sessione'
-import { useContiPeriodo } from '@/modules/conti/api'
-import { bilancio, etichettaVoce, euro, mesiDellAnno, raggruppa, spesePerOperatore, totali, type Voce } from '@/modules/conti/conti'
+import { usePuo } from '@/modules/auth/permessi'
+import { apriScontrino, useContiPeriodo, useRimborsi, useSegnaRimborso } from '@/modules/conti/api'
+import { bilancio, etichettaVoce, euro, mesiDellAnno, raggruppa, rimborsiPerOperatore, spesePerOperatore, totali, type Voce } from '@/modules/conti/conti'
 import { nomeEvento } from '@/modules/eventi/logic/nome'
 import { nomeCompleto } from '@/shared/lib/formato'
 import { cn } from '@/shared/lib/cn'
 import { confiniMese, meseRoma, nomeMese, piuMesi } from '@/shared/lib/date'
 import { useAdesso } from '@/shared/lib/tempo'
 import { Card } from '@/shared/ui/Card'
+import { Pulsante } from '@/shared/ui/Pulsante'
 import { Intestazione } from '@/shared/ui/Intestazione'
 import { Caricamento, Errore, Vuoto } from '@/shared/ui/Stati'
 
-type Vista = 'andamento' | 'eventi' | 'operatori' | 'regioni'
+type Vista = 'andamento' | 'eventi' | 'operatori' | 'regioni' | 'rimborsi'
 type Periodo = 'mese' | 'anno'
 type EventoRiga = NonNullable<ReturnType<typeof useContiPeriodo>['data']>[number]
 type Imposta = (modifiche: Record<string, string | null>) => void
 
-const VISTE: [Vista, string][] = [['andamento', 'Andamento'], ['eventi', 'Eventi'], ['operatori', 'Operatori'], ['regioni', 'Regioni']]
+const VISTE: [Vista, string][] = [['andamento', 'Andamento'], ['eventi', 'Eventi'], ['operatori', 'Operatori'], ['regioni', 'Regioni'], ['rimborsi', 'Rimborsi']]
 
 /*
  * Un solo linguaggio in tutta la pagina: una barra lunga quanto i ricavi, arancione per la parte
@@ -84,6 +86,7 @@ export function Conti() {
       {vista === 'operatori' && <ConPeriodo periodo={periodo} mese={mese} anno={anno} imposta={imposta}>
         {(eventi) => <Operatori eventi={eventi} periodo={periodo} mese={mese} imposta={imposta} />}
       </ConPeriodo>}
+      {vista === 'rimborsi' && <Rimborsi rimborsate={par.get('rimborsate') != null} imposta={imposta} />}
       {vista === 'regioni' && <ConPeriodo periodo={periodo} mese={mese} anno={anno} imposta={imposta}>
         {(eventi) => <Regioni eventi={eventi} periodo={periodo} mese={mese} imposta={imposta} />}
       </ConPeriodo>}
@@ -108,7 +111,6 @@ function Andamento({ anno, adesso, imposta }: { anno: number; adesso: number; im
     <div className="flex flex-col gap-8">
       <Scorri testo={String(anno)} prima={() => imposta({ anno: String(anno - 1) })} dopo={() => imposta({ anno: String(anno + 1) })} />
       <Riepilogo ricavi={t.ricavi} costi={t.costi} />
-      <Segnali daRimborsare={t.daRimborsare} />
       <Righe righe={mesi.map((m) => ({ ...m, etichetta: meseCorto(m.chiave) }))}
         onApri={(chiave) => imposta({ vista: 'eventi', mese: chiave, anno: null })} />
       {anni.length > 1 && (
@@ -144,8 +146,7 @@ function EventiDelMese({ mese, imposta, conProject, operatore, regione }: { mese
       ) : (
         <>
           <Riepilogo ricavi={t.ricavi} costi={t.costi} />
-          <Segnali daRimborsare={t.daRimborsare} />
-          <Card className="divide-y divide-bordo">
+              <Card className="divide-y divide-bordo">
             {eventi.map((e) => {
               const b = bilancio(e.conti, e.spese)
               return (
@@ -216,7 +217,6 @@ function Operatori({ eventi, periodo, mese, imposta }: { eventi: EventoRiga[]; p
   if (operatori.length === 0) return <Card><Vuoto titolo="Nessun operatore" /></Card>
 
   const totale = operatori.reduce((t, o) => t + o.totale, 0)
-  const tasca = operatori.reduce((t, o) => t + o.tasca, 0)
   // Le spese di tutti per fascia, per la barra grande e la legenda
   const fasce = perFascia(operatori.flatMap((o) => o.perVoce))
   const massimo = Math.max(...operatori.map((o) => o.totale), 1)
@@ -227,7 +227,6 @@ function Operatori({ eventi, periodo, mese, imposta }: { eventi: EventoRiga[]; p
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-end gap-x-10 gap-y-3">
           <Cifra etichetta="Spese" valore={totale} grande />
-          {tasca > 0 && <Cifra etichetta="Da rimborsare" valore={tasca} icona={<Wallet className="size-4 text-avviso-icona" aria-hidden />} />}
         </div>
         {totale > 0 && <BarraVoci voci={operatori.flatMap((o) => o.perVoce)} larghezza={1} alta />}
         <p className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm">
@@ -255,11 +254,6 @@ function Operatori({ eventi, periodo, mese, imposta }: { eventi: EventoRiga[]; p
             </span>
             <span className="text-right">
               <span className="block font-semibold tabular-nums">{euro(o.totale)}</span>
-              {o.tasca > 0 && (
-                <span className="inline-flex items-center gap-1 text-sm text-avviso-testo tabular-nums" title="Da rimborsare">
-                  <Wallet className="size-3.5" aria-hidden />{euro(o.tasca)}
-                </span>
-              )}
             </span>
             {sopra === o.id && o.perVoce.length > 0 && (
               <span className="absolute z-10 right-4 top-full -mt-2 rounded-lg bg-superficie border border-bordo shadow-md px-3 py-2 text-sm min-w-52 pointer-events-none">
@@ -288,6 +282,81 @@ function BarraVoci({ voci, larghezza, alta }: { voci: { voce: Voce; importo: num
         <span key={f.id} className="h-full first:rounded-l-[4px] last:rounded-r-[4px]" style={{ width: `${(f.importo / totale) * 100}%`, background: f.colore }} />
       ))}
     </span>
+  )
+}
+
+/* ---------- Rimborsi: le spese pagate di tasca, per operatore ---------- */
+
+function Rimborsi({ rimborsate, imposta }: { rimborsate: boolean; imposta: Imposta }) {
+  const puo = usePuo()
+  const { data, isPending, error } = useRimborsi(rimborsate)
+  const segna = useSegnaRimborso()
+  const persone = rimborsiPerOperatore(data ?? [])
+  const totale = persone.reduce((t, o) => t + o.totale, 0)
+  const puoSegnare = puo('carte')
+
+  return (
+    <div className="flex flex-col gap-8">
+      <div className="inline-flex self-start bg-superficie border border-bordo rounded-xl p-1 gap-0.5">
+        {([[false, 'Da rimborsare'], [true, 'Rimborsati']] as [boolean, string][]).map(([v, testo]) => (
+          <button key={testo} onClick={() => imposta({ rimborsate: v ? '' : null })} aria-pressed={rimborsate === v}
+            className={cn('h-9 px-4 rounded-lg text-sm font-semibold cursor-pointer', rimborsate === v ? 'bg-inchiostro text-white' : 'text-tenue hover:text-inchiostro hover:bg-sfondo')}>
+            {testo}
+          </button>
+        ))}
+      </div>
+
+      {isPending ? <Caricamento /> : error ? <Errore errore={error} /> : persone.length === 0 ? (
+        <Card><Vuoto titolo={rimborsate ? 'Nessun rimborso negli ultimi 3 mesi' : 'Nessun rimborso da fare'} /></Card>
+      ) : (
+        <>
+          {!rimborsate && <Cifra etichetta="Da rimborsare" valore={totale} grande icona={<Wallet className="size-4 text-avviso-icona" aria-hidden />} />}
+          {segna.error && <Errore errore={segna.error} />}
+          {persone.map((o) => (
+            <Card key={o.id} className="overflow-hidden">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 bg-sfondo/60 border-b border-bordo">
+                <p className="flex-1 min-w-40 font-semibold text-[17px]">{o.nome}</p>
+                <p className="text-lg font-semibold tabular-nums">{euro(o.totale)}</p>
+                {puoSegnare && !rimborsate && (
+                  <Pulsante variante="scuro" caricamento={segna.isPending && segna.variables?.spese.includes(o.spese[0].id)}
+                    onClick={() => { if (confirm(`Segnare come rimborsati ${euro(o.totale)} a ${o.nome}?`)) segna.mutate({ spese: o.spese.map((x) => x.id), rimborsate: true }) }}>
+                    <Check className="size-4" aria-hidden /> Rimborsato
+                  </Pulsante>
+                )}
+              </div>
+              <ul className="divide-y divide-bordo">
+                {o.spese.map((x) => (
+                  <li key={x.id} className="grid grid-cols-[3.25rem_minmax(0,1fr)_auto_auto] items-center gap-x-3 px-4 py-2.5">
+                    <span className="text-center leading-tight">
+                      <span className="block font-semibold tabular-nums">{new Date(x.evento.allestimento_il).toLocaleDateString('it-IT', { day: 'numeric', timeZone: 'Europe/Rome' })}</span>
+                      <span className="block text-xs text-tenue">{new Date(x.evento.allestimento_il).toLocaleDateString('it-IT', { month: 'short', timeZone: 'Europe/Rome' }).replace('.', '')}</span>
+                    </span>
+                    <span className="min-w-0">
+                      <Link to={`/gestione/eventi/${x.evento.id}`} className="block font-semibold truncate hover:underline">{nomeEvento(x.evento)}</Link>
+                      <span className="block text-sm text-tenue truncate">
+                        {etichettaVoce(x.voce)}{x.descrizione ? `, ${x.descrizione}` : ''}
+                        {x.rimborsata_il && `, rimborsata il ${new Date(x.rimborsata_il).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}`}
+                      </span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      {x.scontrino
+                        ? <button onClick={() => void apriScontrino(x.scontrino!)} title="Apri lo scontrino" aria-label="Apri lo scontrino"
+                            className="size-9 rounded-lg flex items-center justify-center text-ok hover:bg-sfondo cursor-pointer"><Receipt className="size-[18px]" aria-hidden /></button>
+                        : <span title="Senza scontrino" className="size-9 flex items-center justify-center text-urgente/70"><Receipt className="size-[18px]" aria-label="Senza scontrino" /></span>}
+                      {puoSegnare && rimborsate && (
+                        <button onClick={() => segna.mutate({ spese: [x.id], rimborsate: false })} title="Non ancora rimborsata" aria-label="Rimetti da rimborsare"
+                          className="size-9 rounded-lg flex items-center justify-center text-tenue hover:text-inchiostro hover:bg-sfondo cursor-pointer"><Undo2 className="size-4" aria-hidden /></button>
+                      )}
+                    </span>
+                    <span className="font-semibold tabular-nums text-right">{euro(x.importo)}</span>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          ))}
+        </>
+      )}
+    </div>
   )
 }
 
@@ -386,17 +455,6 @@ function Cifre({ ricavi, costi }: { ricavi: number | null; costi: number }) {
       <span className={cn('block font-semibold tabular-nums', resta < 0 && 'text-urgente-testo')}>{euro(resta)}</span>
       <span className="block text-xs text-tenue tabular-nums">{euro(ricavi)}</span>
     </span>
-  )
-}
-
-/** Cose da sistemare: icona e numero, niente frasi */
-function Segnali({ daRimborsare }: { daRimborsare: number }) {
-  if (!daRimborsare) return null
-  const p = 'h-8 px-3 rounded-full text-sm font-semibold inline-flex items-center gap-1.5'
-  return (
-    <div className="flex flex-wrap gap-2 -mt-4">
-      {daRimborsare > 0 && <span className={cn(p, 'bg-avviso text-avviso-testo')}><Wallet className="size-4" aria-hidden />{euro(daRimborsare)} da rimborsare</span>}
-    </div>
   )
 }
 

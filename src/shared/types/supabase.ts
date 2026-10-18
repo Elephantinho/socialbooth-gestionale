@@ -1557,6 +1557,7 @@ export type Database = {
           operatore_id: string | null
           pagamento_id: string | null
           pagata_con: Database["public"]["Enums"]["pagata_con"]
+          rimborsata_il: string | null
           scontrino: string | null
           voce: Database["public"]["Enums"]["voce_spesa"]
         }
@@ -1571,6 +1572,7 @@ export type Database = {
           operatore_id?: string | null
           pagamento_id?: string | null
           pagata_con?: Database["public"]["Enums"]["pagata_con"]
+          rimborsata_il?: string | null
           scontrino?: string | null
           voce: Database["public"]["Enums"]["voce_spesa"]
         }
@@ -1585,6 +1587,7 @@ export type Database = {
           operatore_id?: string | null
           pagamento_id?: string | null
           pagata_con?: Database["public"]["Enums"]["pagata_con"]
+          rimborsata_il?: string | null
           scontrino?: string | null
           voce?: Database["public"]["Enums"]["voce_spesa"]
         }
@@ -1742,6 +1745,10 @@ export type Database = {
         Args: { p_gestione?: boolean; p_nome: string }
         Returns: boolean
       }
+      allega_scontrino: {
+        Args: { p_percorso: string; p_spesa: string }
+        Returns: undefined
+      }
       amministra: { Args: never; Returns: boolean }
       annulla_passaggio: { Args: { p_evento: string }; Returns: undefined }
       assegna_automaticamente: { Args: { p_evento: string }; Returns: string }
@@ -1871,6 +1878,10 @@ export type Database = {
           p_passaggio: Database["public"]["Enums"]["passaggio"]
         }
         Returns: undefined
+      }
+      segna_rimborso: {
+        Args: { p_rimborsate?: boolean; p_spese: string[] }
+        Returns: number
       }
       segna_visto: { Args: never; Returns: undefined }
       segnala_carta: {

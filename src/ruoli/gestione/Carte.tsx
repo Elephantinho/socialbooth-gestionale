@@ -28,7 +28,7 @@ export function Carte() {
           Ogni operatore ha la sua carta. Quando paga, il pagamento arriva da Revolut e si abbina da solo: dalle ultime 4 cifre si capisce chi è,
           dal giorno su quale evento lavorava (solo se quel giorno aveva un evento, altrimenti finisce tra quelli da controllare), dal negozio che spesa è (benzina, autostrada, bar…). Diventa una spesa di quell'evento.
         </p>
-        <p className="text-tenue mt-2"><span className="font-semibold text-avviso-testo">Collegamento con Revolut non ancora attivo</span>: finché non lo è, le spese con la carta le segna l'operatore dall'app.</p>
+        <p className="text-tenue mt-2"><span className="font-semibold text-avviso-testo">Collegamento con Revolut non ancora attivo</span>: finché non lo è, le spese con la carta si aggiungono dalla scheda dell'evento.</p>
       </Card>
 
       <ElencoCarte />

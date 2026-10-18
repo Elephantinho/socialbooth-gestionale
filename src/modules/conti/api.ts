@@ -36,6 +36,27 @@ export function useSpese(eventoId: string) {
   })
 }
 
+/** Carica la foto dello scontrino (rimpicciolita) e restituisce il percorso. Cartella: evento / chi carica / foto */
+async function caricaScontrino(eventoId: string, autoreId: string, foto: File): Promise<string> {
+  const blob = await rimpicciolisci(foto, 1600, 0.8)
+  const percorso = `${eventoId}/${autoreId}/${crypto.randomUUID()}.jpg`
+  const { error } = await supabase.storage.from('scontrini').upload(percorso, blob, { contentType: 'image/jpeg' })
+  if (error) throw new Error(`Foto non caricata: ${error.message}`)
+  return percorso
+}
+
+/** Aggiunge lo scontrino a una spesa che c'è già (per esempio un pagamento con la carta arrivato dalla banca) */
+export function useAllegaScontrino() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (v: { spesaId: string; eventoId: string; autoreId: string; foto: File }) => {
+      const percorso = await caricaScontrino(v.eventoId, v.autoreId, v.foto)
+      ok(await supabase.rpc('allega_scontrino', { p_spesa: v.spesaId, p_percorso: percorso }))
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['spese'] }),
+  })
+}
+
 export function useAggiungiSpesa() {
   const qc = useQueryClient()
   return useMutation({
@@ -43,14 +64,7 @@ export function useAggiungiSpesa() {
       eventoId: string; voce: Voce; importo: number; pagataCon: PagataCon
       descrizione?: string; operatoreId?: string | null; foto?: File | null; autoreId: string
     }) => {
-      let scontrino: string | null = null
-      if (v.foto) {
-        // Cartella: evento / chi carica / foto
-        const blob = await rimpicciolisci(v.foto, 1600, 0.8)
-        scontrino = `${v.eventoId}/${v.autoreId}/${crypto.randomUUID()}.jpg`
-        const { error } = await supabase.storage.from('scontrini').upload(scontrino, blob, { contentType: 'image/jpeg' })
-        if (error) throw new Error(`Foto non caricata: ${error.message}`)
-      }
+      const scontrino = v.foto ? await caricaScontrino(v.eventoId, v.autoreId, v.foto) : null
       return ok(await supabase.from('spese_evento').insert({
         evento_id: v.eventoId, voce: v.voce, importo: v.importo, pagata_con: v.pagataCon,
         descrizione: v.descrizione?.trim() || null, operatore_id: v.operatoreId ?? null, scontrino,
@@ -158,5 +172,34 @@ export function useSistemaPagamento() {
         ? ok(await supabase.rpc('abbina_a_mano', { p_pagamento: v.id, p_evento: v.eventoId }))
         : ok(await supabase.rpc('ignora_pagamento', { p_pagamento: v.id })),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['pagamenti'] }); qc.invalidateQueries({ queryKey: ['conti'] }); qc.invalidateQueries({ queryKey: ['spese'] }) },
+  })
+}
+
+/* ---------- Rimborsi ---------- */
+
+/** Spese pagate di tasca: da rimborsare, oppure quelle rimborsate negli ultimi 90 giorni */
+export function useRimborsi(rimborsate: boolean) {
+  return useQuery({
+    queryKey: ['spese', 'rimborsi', rimborsate],
+    queryFn: async () => {
+      let q = supabase.from('spese_evento')
+        .select(`id, importo, voce, descrizione, scontrino, creato_il, rimborsata_il,
+          operatore:profili!spese_evento_operatore_id_fkey(id, nome, cognome),
+          evento:eventi!inner(id, nome, citta, allestimento_il, tipo_booth:tipi_booth(nome))`)
+        .eq('pagata_con', 'operatore')
+      q = rimborsate
+        ? q.not('rimborsata_il', 'is', null).gte('rimborsata_il', new Date(Date.now() - 90 * 864e5).toISOString())
+        : q.is('rimborsata_il', null)
+      return ok(await q.order('creato_il').limit(2000))
+    },
+  })
+}
+
+export function useSegnaRimborso() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (v: { spese: string[]; rimborsate: boolean }) =>
+      ok(await supabase.rpc('segna_rimborso', { p_spese: v.spese, p_rimborsate: v.rimborsate })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['spese'] }),
   })
 }
