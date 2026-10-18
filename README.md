@@ -34,6 +34,11 @@ gli altri ruoli li assegna l'admin da **Utenti e ruoli**.
 - **Carte aziendali**: si salvano solo le ultime 4 cifre. Un pagamento con la carta fatto nello stesso
   giorno di un evento dell'operatore diventa da solo una spesa di quell'evento; altrimenti resta
   "da controllare" nella pagina Carte. La connessione automatica con la banca non è ancora attiva.
+- **Entra come** (solo admin principale, da *Utenti e ruoli*): usi l'app esattamente come un'altra persona,
+  con i suoi permessi veri. La funzione `supabase/functions/entra-come` controlla chi lo chiede e prepara
+  l'accesso; la tua sessione resta da parte in questo browser e torni con "Torna al tuo account".
+  Uscendo si esce solo da questo browser: l'altra persona resta collegata sui suoi dispositivi.
+  Ogni accesso è registrato in `accessi_come`; chi è principale sta in `admin_principali` (si cambia solo dal database).
 - **Notifiche sul telefono**: Android (Chrome) subito, iPhone dopo "Aggiungi a Home". Le manda la
   funzione `supabase/functions/invia-push`; le chiavi stanno nella tabella `segreti`, mai nel codice.
 
@@ -72,13 +77,14 @@ finti, provano tutto e annullano ogni modifica: l'ultima riga solleva apposta un
 | `03_passaggi.sql` | ordine dei passaggi, stati, notifiche, annullamento | 20 |
 | `04_ritardi.sql` | avvisi di ritardo una volta sola, chiusura a mano | 12 |
 | `05_soldi.sql` | abbinamento dei pagamenti con la carta, incassi, spese | 20 |
+| `06_entra_come.sql` | solo l'admin principale può entrare come altri; registro protetto | 10 |
 
 ## Struttura del codice
 
 ```
 src/
   modules/            la logica, divisa per argomento
-    auth/             sessione.ts (chi è loggato), permessi.ts (chi può cosa), Protetto.tsx (pagine riservate)
+    auth/             sessione.ts (chi è loggato), permessi.ts (chi può cosa), Protetto.tsx (pagine riservate), entraCome.ts
     eventi/           api.ts (letture e scritture), logic/ (regole pure, testate), components/
     passaggi/         i passaggi dell'operatore e i ritardi
     conti/            prezzi, fatture, spese, carte e pagamenti
@@ -95,7 +101,7 @@ src/
 supabase/
   migrations/         lo schema del database, in ordine numerico
   test/               i test del database
-  functions/          funzioni sul server (notifiche push)
+  functions/          funzioni sul server (notifiche push, entra come)
 ```
 
 Regole del codice:

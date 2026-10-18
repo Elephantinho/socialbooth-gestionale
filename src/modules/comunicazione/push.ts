@@ -2,6 +2,7 @@
 // su iPhone dopo "Aggiungi a Home". Il server le manda da solo a ogni notifica nuova.
 import { useCallback, useEffect, useState } from 'react'
 import { supabase, ok } from '@/shared/lib/supabase'
+import { entratoCome } from '@/modules/auth/entraCome'
 
 type StatoPush = 'caricamento' | 'non_supportato' | 'da_installare' | 'bloccate' | 'da_attivare' | 'attive'
 
@@ -52,6 +53,8 @@ export function useNotifichePush() {
   const attiva = useCallback(async () => {
     setErrore(undefined)
     try {
+      const { data } = await supabase.auth.getSession()
+      if (entratoCome(data.session?.user.id)) throw new Error('Stai usando l\'app come un altro utente: le notifiche si attivano solo dal suo telefono')
       if ((await Notification.requestPermission()) !== 'granted') return aggiorna()
       const reg = await navigator.serviceWorker.register('/sw.js')
       await navigator.serviceWorker.ready

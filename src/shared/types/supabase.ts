@@ -16,6 +16,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      accessi_come: {
+        Row: {
+          admin_id: string
+          id: string
+          il: string
+          utente_id: string
+        }
+        Insert: {
+          admin_id: string
+          id?: string
+          il?: string
+          utente_id: string
+        }
+        Update: {
+          admin_id?: string
+          id?: string
+          il?: string
+          utente_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accessi_come_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profili"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "accessi_come_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: false
+            referencedRelation: "profili"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_principali: {
+        Row: {
+          aggiunto_il: string
+          utente_id: string
+        }
+        Insert: {
+          aggiunto_il?: string
+          utente_id: string
+        }
+        Update: {
+          aggiunto_il?: string
+          utente_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_principali_utente_id_fkey"
+            columns: ["utente_id"]
+            isOneToOne: true
+            referencedRelation: "profili"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       allegati: {
         Row: {
           caricato_da: string | null
@@ -1819,6 +1878,7 @@ export type Database = {
         Returns: undefined
       }
       soglia_carta: { Args: never; Returns: number }
+      sono_principale: { Args: never; Returns: boolean }
       vede_tutti_eventi: { Args: never; Returns: boolean }
       vedo_richiesta: {
         Args: { r: Database["public"]["Tables"]["richieste"]["Row"] }

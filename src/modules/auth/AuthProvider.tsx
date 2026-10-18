@@ -2,9 +2,15 @@ import { useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '@/shared/lib/supabase'
 import { AuthContext, type Profilo } from './sessione'
+import { entratoCome, tornaAdmin } from './entraCome'
 
-/** Esce dall'account (la sessione salvata viene cancellata) */
-const esci = async () => { await supabase.auth.signOut() }
+/** Esce dall'account. Se l'admin sta usando l'app come un altro utente, torna al suo account
+ * (senza scollegare l'altro dai suoi dispositivi). */
+async function esci() {
+  const { data } = await supabase.auth.getSession()
+  if (entratoCome(data.session?.user.id)) return tornaAdmin()
+  await supabase.auth.signOut()
+}
 
 /** Legge il profilo (con il ruolo); se non si riesce, null */
 async function leggiProfilo(id: string): Promise<Profilo | null> {

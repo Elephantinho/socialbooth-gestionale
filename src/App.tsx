@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AccediPage } from '@/modules/auth/AccediPage'
 import { RegistratiPage } from '@/modules/auth/RegistratiPage'
+import { BarraEntraCome } from '@/modules/auth/BarraEntraCome'
 import { Protetto, RichiedePermesso as Solo } from '@/modules/auth/Protetto'
 import { homePerRuolo, RUOLI_GESTIONE } from '@/modules/auth/permessi'
 import { useAuth } from '@/modules/auth/sessione'
@@ -28,6 +29,7 @@ const Conti = lazy(() => import('@/ruoli/gestione/Conti').then((m) => ({ default
 export function App() {
   return (
     <Suspense fallback={<Caricamento className="min-h-dvh items-center" />}>
+      <BarraEntraCome />
       <Routes>
         <Route path="/accedi" element={<AccediPage />} />
         <Route path="/registrati" element={<RegistratiPage />} />
