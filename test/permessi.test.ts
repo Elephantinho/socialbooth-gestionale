@@ -1,9 +1,9 @@
 // Chi può fare cosa (rispecchia le regole del database, verificate nei test SQL).
 import { describe, expect, it } from 'vitest'
-import { puo, RUOLI, RUOLI_GESTIONE, type Permesso } from '@/modules/auth/permessi'
+import { puo, RUOLI, RUOLI_GESTIONE, type Permesso, type Ruolo } from '@/modules/auth/permessi'
 
 describe('permessi', () => {
-  const tutti: Permesso[] = ['eventi.crea', 'eventi.modifica', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'utenti', 'soldi', 'carte']
+  const tutti: Permesso[] = ['eventi.crea', 'eventi.modifica', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'utenti', 'soldi', 'carte', 'clienti']
   it('l\'admin ha tutto, l\'operatore niente', () => {
     tutti.forEach((p) => { expect(puo('admin', p)).toBe(true); expect(puo('operatore', p)).toBe(false) })
   })
@@ -18,6 +18,10 @@ describe('permessi', () => {
     for (const r of RUOLI.map((x) => x.id)) if (puo(r, 'operatori.gestisci')) expect(puo(r, 'operatori.vedi')).toBe(true)
   })
   it('ogni ruolo del pannello ha almeno un permesso', () => RUOLI_GESTIONE.forEach((r) => expect(tutti.some((p) => puo(r, p))).toBe(true)))
+  it('i clienti: admin, project e amministrazione; non gestore e operatore', () => {
+    expect(['admin', 'project', 'amministrazione'].every((r) => puo(r as Ruolo, 'clienti'))).toBe(true)
+    expect(puo('gestore_operatori', 'clienti')).toBe(false); expect(puo('operatore', 'clienti')).toBe(false)
+  })
   it('il gestore operatori non vede nessun importo', () => { expect(puo('gestore_operatori', 'soldi')).toBe(false); expect(puo('gestore_operatori', 'carte')).toBe(false) })
   it('il project vede i soldi (dei suoi eventi) ma non le carte', () => { expect(puo('project', 'soldi')).toBe(true); expect(puo('project', 'carte')).toBe(false) })
   it('l\'amministrazione vede soldi e carte ma non crea eventi', () => {

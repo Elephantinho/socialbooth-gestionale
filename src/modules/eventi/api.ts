@@ -147,7 +147,8 @@ export function useEventoGestione(id: string) {
       ok(await supabase.from('eventi')
         .select(`*, tipo_booth:tipi_booth(nome),
           operatore:profili!eventi_operatore_id_fkey(id, nome, cognome, foto, telefono),
-          project:profili!eventi_project_id_fkey(id, nome, cognome)`)
+          project:profili!eventi_project_id_fkey(id, nome, cognome),
+          cliente:clienti(id, nome, tipo, partita_iva, codice_fiscale, citta)`)
         .eq('id', id)
         .single()),
   })

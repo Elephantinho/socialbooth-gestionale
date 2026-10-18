@@ -56,7 +56,9 @@ export function Conti() {
   const { ruolo } = useProfilo()
   const adesso = useAdesso()
   const [par, setPar] = useSearchParams()
-  const vista = (VISTE.find(([v]) => v === par.get('vista'))?.[0] ?? 'andamento') as Vista
+  // Il project guarda i suoi numeri: andamento ed eventi. Spese degli operatori, regioni e rimborsi sono dell'ufficio.
+  const viste = ruolo === 'project' ? VISTE.filter(([v]) => v === 'andamento' || v === 'eventi') : VISTE
+  const vista = (viste.find(([v]) => v === par.get('vista'))?.[0] ?? 'andamento') as Vista
   const mese = par.get('mese') ?? meseRoma(adesso)
   const anno = Number(par.get('anno') ?? mese.slice(0, 4))
   const periodo: Periodo = par.get('periodo') === 'anno' ? 'anno' : 'mese'
@@ -71,7 +73,7 @@ export function Conti() {
     <div className="flex flex-col gap-6">
       <Intestazione titolo={ruolo === 'project' ? 'I miei conti' : 'Conti'} />
       <nav className="flex gap-1 border-b border-bordo -mt-2 overflow-x-auto" aria-label="Viste dei conti">
-        {VISTE.map(([v, testo]) => (
+        {viste.map(([v, testo]) => (
           <button key={v} onClick={() => imposta({ vista: v === 'andamento' ? null : v, operatore: null, regione: null })} aria-current={vista === v ? 'page' : undefined}
             className={cn('h-11 px-4 -mb-px border-b-2 text-[15px] font-semibold whitespace-nowrap cursor-pointer',
               vista === v ? 'border-inchiostro text-inchiostro' : 'border-transparent text-tenue hover:text-inchiostro')}>

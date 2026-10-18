@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, Phone, UserRound } from 'lucide-react'
 import { usePuo } from '@/modules/auth/permessi'
+import { identificativo } from '@/modules/clienti/clienti'
 import { giaPassato } from '@/modules/eventi/logic/archivio'
 import { useAggiornaEvento, useConcludiEvento, useEventoGestione } from '@/modules/eventi/api'
 import { ritardo } from '@/modules/passaggi/ritardi'
@@ -87,6 +88,7 @@ export function DettaglioEvento() {
       {modifica ? (
         <ModuloEvento
           evento={e}
+          conCliente={puo('clienti')}
           testoPulsante="Salva modifiche"
           onSalva={async (dati) => {
             await aggiorna.mutateAsync({ id: e.id, modifiche: dati })
@@ -116,6 +118,7 @@ export function DettaglioEvento() {
 
 function Riepilogo({ e }: { e: EventoGestioneCompleto }) {
   const righe: [string, string][] = [
+    ['Cliente', e.cliente ? [e.cliente.nome, identificativo(e.cliente)].filter(Boolean).join(', ') : '—'],
     ['Project', e.project ? nomeCompleto(e.project) : '—'],
     ['Indirizzo', `${e.indirizzo}, ${e.citta} (${e.regione})`],
     ['Allestimento', ora(e.allestimento_il)],

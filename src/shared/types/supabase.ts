@@ -374,31 +374,61 @@ export type Database = {
       }
       clienti: {
         Row: {
+          aggiornato_il: string
+          cap: string | null
+          citta: string | null
+          codice_fiscale: string | null
+          codice_sdi: string | null
           creato_il: string
           email: string | null
           id: string
+          indirizzo: string | null
           nome: string
           note: string | null
+          partita_iva: string | null
+          pec: string | null
           project_id: string | null
+          provincia: string | null
           telefono: string | null
+          tipo: string
         }
         Insert: {
+          aggiornato_il?: string
+          cap?: string | null
+          citta?: string | null
+          codice_fiscale?: string | null
+          codice_sdi?: string | null
           creato_il?: string
           email?: string | null
           id?: string
+          indirizzo?: string | null
           nome: string
           note?: string | null
+          partita_iva?: string | null
+          pec?: string | null
           project_id?: string | null
+          provincia?: string | null
           telefono?: string | null
+          tipo?: string
         }
         Update: {
+          aggiornato_il?: string
+          cap?: string | null
+          citta?: string | null
+          codice_fiscale?: string | null
+          codice_sdi?: string | null
           creato_il?: string
           email?: string | null
           id?: string
+          indirizzo?: string | null
           nome?: string
           note?: string | null
+          partita_iva?: string | null
+          pec?: string | null
           project_id?: string | null
+          provincia?: string | null
           telefono?: string | null
+          tipo?: string
         }
         Relationships: [
           {

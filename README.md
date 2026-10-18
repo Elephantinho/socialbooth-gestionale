@@ -28,9 +28,12 @@ gli altri ruoli li assegna l'admin da **Utenti e ruoli**.
   il giorno prima, vanno in ordine e cambiano lo stato dell'evento (check-in → *in corso*, check-out →
   *completato*). L'ultimo tocco si annulla entro 10 minuti. Tutti vedono l'andamento in tempo reale.
 - **Ritardi**: ogni 15 minuti il database controlla check-in, montaggio e check-out mancanti e avvisa
-  una volta sola project, admin, gestore e operatore. I passaggi normali avvisano solo il project.
+  una volta sola project, admin, gestore e operatore. Dei passaggi normali il project riceve solo la fine (check-out).
 - **Conti**: i soldi stanno in tabelle separate (`conti_evento`, `spese_evento`), visibili solo a chi
   può vederli. La pagina Conti divide ricavi, costi e margine per mese, evento, operatore o regione.
+- **Clienti**: anagrafica condivisa tra i project con i dati per la fattura elettronica (azienda: P.IVA e
+  codice SDI o PEC; privato: codice fiscale; sede). Il cliente è obbligatorio quando si crea un evento e si può
+  creare al volo dal modulo dell'evento.
 - **Spese degli operatori**: con la carta aziendale arrivano dalla banca e l'operatore aggiunge solo la foto dello
   scontrino; a mano segna solo quelle pagate di tasca sua, che finiscono in *Conti → Rimborsi* finché
   l'amministrazione non le segna come rimborsate.
@@ -83,6 +86,7 @@ finti, provano tutto e annullano ogni modifica: l'ultima riga solleva apposta un
 | `06_entra_come.sql` | solo l'admin principale può entrare come altri; registro protetto | 10 |
 | `07_scontrini.sql` | spese con la carta: solo dalla banca, l'operatore allega lo scontrino | 10 |
 | `08_rimborsi.sql` | rimborsi delle spese di tasca: solo l'amministrazione li segna | 7 |
+| `09_clienti.sql` | clienti: dati per la fattura obbligatori, nessun doppione, chi vede e chi crea | 12 |
 
 ## Struttura del codice
 
@@ -92,7 +96,8 @@ src/
     auth/             sessione.ts (chi è loggato), permessi.ts (chi può cosa), Protetto.tsx (pagine riservate), entraCome.ts
     eventi/           api.ts (letture e scritture), logic/ (regole pure, testate), components/
     passaggi/         i passaggi dell'operatore e i ritardi
-    conti/            prezzi, fatture, spese, carte e pagamenti
+    conti/            prezzi, fatture, spese, carte, pagamenti e rimborsi
+    clienti/          anagrafica clienti, controlli dei dati per la fattura, scelta del cliente
     assegnazione/     scelta dell'operatore
     anagrafiche/      operatori, tipi di booth, indisponibilità, utenti
     comunicazione/    notifiche in app e sul telefono

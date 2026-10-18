@@ -12,8 +12,10 @@ import { Card, TitoloSezione } from '@/shared/ui/Card'
 import { AreaTesto, Campo, Selezione, SiNo } from '@/shared/ui/Campo'
 import { SceltaData, SceltaOra } from '@/shared/ui/SceltaData'
 import { Errore } from '@/shared/ui/Stati'
+import { SceltaCliente } from '@/modules/clienti/SceltaCliente'
 
 type Valori = {
+  clienteId: string
   nome: string
   prezzo: string
   tipoBoothId: string
@@ -24,6 +26,7 @@ type Valori = {
 }
 
 const vuoto: Valori = {
+  clienteId: '',
   nome: '',
   prezzo: '',
   tipoBoothId: '',
@@ -36,6 +39,7 @@ const vuoto: Valori = {
 
 function daEvento(e: EventoGestioneCompleto): Valori {
   return {
+    clienteId: e.cliente_id ?? '',
     nome: e.nome ?? '',
     prezzo: '',
     tipoBoothId: e.tipo_booth_id ?? '',
@@ -50,8 +54,9 @@ function daEvento(e: EventoGestioneCompleto): Valori {
 const pieno = (t: string) => t.trim().length > 0
 
 /** Cosa manca o è sbagliato, campo per campo. Facoltativi solo "steward" e le note per l'operatore. */
-function controlla(m: Valori, conPrezzo: boolean): Partial<Record<keyof Valori, string>> {
+function controlla(m: Valori, conPrezzo: boolean, clienteObbligatorio: boolean): Partial<Record<keyof Valori, string>> {
   const errori: Partial<Record<keyof Valori, string>> = {}
+  if (clienteObbligatorio && !m.clienteId) errori.clienteId = 'Scegli il cliente o creane uno nuovo'
   if (!pieno(m.nome)) errori.nome = "Scrivi il nome dell'evento"
   if (!m.tipoBoothId) errori.tipoBoothId = 'Scegli il tipo di booth'
   if (conPrezzo && !leggiImporto(m.prezzo)) errori.prezzo = 'Scrivi il prezzo, per esempio 1.200'
@@ -68,7 +73,7 @@ function controlla(m: Valori, conPrezzo: boolean): Partial<Record<keyof Valori, 
 }
 
 const NOMI_CAMPI: Partial<Record<keyof Valori, string>> = {
-  nome: 'nome', tipoBoothId: 'tipo di booth', prezzo: 'prezzo', data: 'giorno', indirizzo: 'indirizzo', citta: 'città',
+  clienteId: 'cliente', nome: 'nome', tipoBoothId: 'tipo di booth', prezzo: 'prezzo', data: 'giorno', indirizzo: 'indirizzo', citta: 'città',
   noteAccesso: 'accesso e scarico', ztl: 'ZTL', wifi: 'Wi‑Fi', outfit: 'outfit', referenteNome: 'referente', referenteTelefono: 'telefono del referente',
 }
 
@@ -76,17 +81,20 @@ type Props = {
   evento?: EventoGestioneCompleto
   /** Con il prezzo al cliente (obbligatorio): solo alla creazione, poi si cambia nei conti dell'evento */
   conPrezzo?: boolean
+  /** Con la scelta del cliente (chi può vedere i clienti); obbligatorio quando si crea l'evento */
+  conCliente?: boolean
   onSalva: (dati: Omit<Inserimento<'eventi'>, 'project_id'>, prezzo: number | null) => Promise<unknown>
   testoPulsante: string
 }
 
 /** Modulo dell'evento, usato sia per creare sia per modificare. */
-export function ModuloEvento({ evento, conPrezzo = false, onSalva, testoPulsante }: Props) {
+export function ModuloEvento({ evento, conPrezzo = false, conCliente = false, onSalva, testoPulsante }: Props) {
+  const clienteObbligatorio = conCliente && !evento
   const [m, setM] = useState<Valori>(() => (evento ? daEvento(evento) : vuoto))
   const imposta = <K extends keyof Valori>(k: K, v: Valori[K]) => setM((p) => ({ ...p, [k]: v }))
   // Gli errori dei campi si mostrano dopo il primo tentativo di salvare, e si aggiornano mentre si corregge
   const [provato, setProvato] = useState(false)
-  const errori = provato ? controlla(m, conPrezzo) : {}
+  const errori = provato ? controlla(m, conPrezzo, clienteObbligatorio) : {}
   const testo = (k: keyof Valori) => ({ value: m[k] as string, errore: errori[k], onChange: (e: { target: { value: string } }) => imposta(k, e.target.value as never) })
 
   const tipi = useTipiBooth()
@@ -103,7 +111,7 @@ export function ModuloEvento({ evento, conPrezzo = false, onSalva, testoPulsante
   async function invia(e: React.FormEvent) {
     e.preventDefault()
     setProvato(true)
-    const mancano = Object.keys(controlla(m, conPrezzo)) as (keyof Valori)[]
+    const mancano = Object.keys(controlla(m, conPrezzo, clienteObbligatorio)) as (keyof Valori)[]
     if (mancano.length > 0 || !orari) {
       setErrore(new Error(`Mancano ${mancano.length === 1 ? 'un dato' : `${mancano.length} dati`}: ${mancano.map((k) => NOMI_CAMPI[k]).join(', ')}.`))
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -117,6 +125,8 @@ export function ModuloEvento({ evento, conPrezzo = false, onSalva, testoPulsante
     setErrore(undefined)
     try {
       await onSalva({
+        // Il cliente si tocca solo se si vede: chi non vede i clienti non lo cancella modificando l'evento
+        ...(conCliente && { cliente_id: m.clienteId || null }),
         nome: m.nome.trim(),
         tipo_booth_id: m.tipoBoothId || null,
         indirizzo: m.indirizzo.trim(), citta: m.citta.trim(), regione: m.regione, note_accesso: m.noteAccesso.trim(),
@@ -138,6 +148,7 @@ export function ModuloEvento({ evento, conPrezzo = false, onSalva, testoPulsante
       {errore != null && <Errore errore={errore} />}
 
       <Sezione titolo="Evento">
+        {conCliente && <SceltaCliente valore={m.clienteId} onChange={(id) => imposta('clienteId', id)} errore={errori.clienteId} />}
         <Campo etichetta="Nome dell'evento" maxLength={120} placeholder="Matrimonio Rossi" {...testo('nome')} />
         <Griglia>
           <Selezione etichetta="Tipo di booth" {...testo('tipoBoothId')}>

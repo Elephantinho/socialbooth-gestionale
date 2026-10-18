@@ -1,7 +1,7 @@
 import { Suspense, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { CalendarDays, LayoutDashboard, CalendarRange, CreditCard, LogOut, Menu, ShieldCheck, Users, Wallet, X } from 'lucide-react'
+import { Building2, CalendarDays, LayoutDashboard, CalendarRange, CreditCard, LogOut, Menu, ShieldCheck, Users, Wallet, X } from 'lucide-react'
 import { useAuth, useProfilo } from '@/modules/auth/sessione'
 import { etichettaRuolo, usePuo, type Permesso } from '@/modules/auth/permessi'
 import { useTempoReale } from '@/modules/eventi/api'
@@ -24,6 +24,7 @@ const gruppi: { titolo: string; voci: Voce[] }[] = [
       { a: '/gestione', etichetta: 'Eventi', Icona: CalendarDays },
       { a: '/gestione/calendario', etichetta: 'Calendario', Icona: CalendarRange },
       { a: '/gestione/operatori', etichetta: 'Operatori', Icona: Users, permesso: 'operatori.vedi' },
+      { a: '/gestione/clienti', etichetta: 'Clienti', Icona: Building2, permesso: 'clienti' },
       { a: '/gestione/conti', etichetta: 'Conti', Icona: Wallet, permesso: 'soldi' },
       { a: '/gestione/carte', etichetta: 'Carte', Icona: CreditCard, permesso: 'carte' },
     ],

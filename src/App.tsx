@@ -23,6 +23,7 @@ const DettaglioOperatore = lazy(() => import('@/ruoli/gestione/DettaglioOperator
 const Utenti = lazy(() => import('@/ruoli/gestione/Utenti').then((m) => ({ default: m.Utenti })))
 const Carte = lazy(() => import('@/ruoli/gestione/Carte').then((m) => ({ default: m.Carte })))
 const Panoramica = lazy(() => import('@/ruoli/gestione/Panoramica').then((m) => ({ default: m.Panoramica })))
+const Clienti = lazy(() => import('@/ruoli/gestione/Clienti').then((m) => ({ default: m.Clienti })))
 const Conti = lazy(() => import('@/ruoli/gestione/Conti').then((m) => ({ default: m.Conti })))
 
 // /operatore/* → app sul telefono, /gestione/* → pannello web
@@ -53,6 +54,7 @@ export function App() {
           <Route path="operatori/:id" element={<Solo permesso="operatori.vedi"><DettaglioOperatore /></Solo>} />
           <Route path="carte" element={<Solo permesso="carte"><Carte /></Solo>} />
           <Route path="conti" element={<Solo permesso="soldi"><Conti /></Solo>} />
+          <Route path="clienti" element={<Solo permesso="clienti"><Clienti /></Solo>} />
           <Route path="utenti" element={<Solo permesso="utenti"><Utenti /></Solo>} />
           <Route path="*" element={<Navigate to="/gestione/panoramica" replace />} />
         </Route>

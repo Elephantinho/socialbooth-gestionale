@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { useProfilo } from '@/modules/auth/sessione'
+import { usePuo } from '@/modules/auth/permessi'
 import { useCreaEvento } from '@/modules/eventi/api'
 import { useSalvaConti } from '@/modules/conti/api'
 import { useUtenti } from '@/modules/anagrafiche/api'
@@ -12,6 +13,7 @@ import { Pulsante } from '@/shared/ui/Pulsante'
 
 export function NuovoEvento() {
   const profilo = useProfilo()
+  const puo = usePuo()
   const naviga = useNavigate()
   const creaEvento = useCreaEvento()
   const salvaConti = useSalvaConti()
@@ -53,6 +55,7 @@ export function NuovoEvento() {
         key={chiave}
         testoPulsante="Crea e assegna"
         conPrezzo
+        conCliente={puo('clienti')}
         onSalva={async (dati, prezzo) => {
           const r = await creaEvento.mutateAsync({ ...dati, project_id: (admin && projectId) || profilo.id, stato: 'da_assegnare' })
           await salvaConti.mutateAsync({ eventoId: r.id, modifiche: { prezzo } })

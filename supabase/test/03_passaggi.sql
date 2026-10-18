@@ -1,4 +1,4 @@
--- Passaggi dell'operatore: ordine, stati, notifiche, chi vede, annullamento. Tutto annullato alla fine.
+-- Passaggi dell'operatore: ordine, stati, notifiche (al project solo la fine), chi vede, annullamento. Tutto annullato alla fine.
 do $$
 declare
   ad uuid := gen_random_uuid(); pa uuid := gen_random_uuid(); pb uuid := gen_random_uuid(); go uuid := gen_random_uuid();
@@ -34,10 +34,10 @@ begin
   perform segna_passaggio(e1, 'check_in');
   reset role;
   t := t + 1; select stato || '/' || ultimo_passaggio into s from eventi where id = e1; if s <> 'in_corso/check_in' then f := f || '3: dopo check-in ' || s || '; '; end if;
-  -- con tanti eventi al giorno i passaggi normali avvisano solo il project dell'evento
-  t := t + 1; select count(*) into n from notifiche where titolo = 'O1 Uno ha fatto il check-in' and utente_id = pa; if n <> 1 then f := f || '3: project non avvisato; '; end if;
-  t := t + 1; select count(*) into n from notifiche where titolo = 'O1 Uno ha fatto il check-in' and utente_id in (ad, go); if n <> 0 then f := f || '3: admin e gestore avvisati dei passaggi normali; '; end if;
-  t := t + 1; select count(*) into n from notifiche where titolo like 'O1 Uno%' and utente_id in (pb, o2, o1); if n <> 0 then f := f || '3: avvisato chi non c''entra; '; end if;
+  -- i passaggi intermedi non mandano avvisi a nessuno: si seguono dal vivo nella scheda
+  t := t + 1; select count(*) into n from notifiche where utente_id = pa and (titolo like 'O1 Uno%' or titolo = 'Evento concluso'); if n <> 0 then f := f || '3: project avvisato del check-in; '; end if;
+  t := t + 1; select count(*) into n from notifiche where utente_id in (ad, go) and (titolo like 'O1 Uno%' or titolo = 'Evento concluso'); if n <> 0 then f := f || '3: admin e gestore avvisati dei passaggi normali; '; end if;
+  t := t + 1; select count(*) into n from notifiche where utente_id in (pb, o2, o1) and (titolo like 'O1 Uno%' or titolo = 'Evento concluso'); if n <> 0 then f := f || '3: avvisato chi non c''entra; '; end if;
   set local role authenticated;
   t := t + 1; begin perform segna_passaggio(e1, 'check_in'); f := f || '3: doppio check-in; '; exception when others then null; end;
   t := t + 1; begin perform segna_passaggio(e1, 'smontato'); f := f || '3: salta passaggi; '; exception when others then null; end;
@@ -67,7 +67,9 @@ begin
   reset role;
   t := t + 1; select stato || '/' || ultimo_passaggio into s from eventi where id = e1; if s <> 'completato/check_out' then f := f || '5: fine giro ' || s || '; '; end if;
   t := t + 1; select count(*) into n from passaggi_evento where evento_id = e1 and annullato_il is null; if n <> 6 then f := f || '5: passaggi validi ' || n || '; '; end if;
-  t := t + 1; select count(*) into n from notifiche where utente_id = pa and titolo like 'O1 Uno%'; if n <> 8 then f := f || '5: notifiche al project ' || n || ' invece di 8; '; end if;
+  -- al project un solo avviso: evento concluso
+  t := t + 1; select count(*) into n from notifiche where utente_id = pa and (titolo like 'O1 Uno%' or titolo = 'Evento concluso'); if n <> 1 then f := f || '5: notifiche al project ' || n || ' invece di 1; '; end if;
+  t := t + 1; select count(*) into n from notifiche where utente_id = pa and titolo = 'Evento concluso' and testo like 'O1 Uno ha fatto il check-out%'; if n <> 1 then f := f || '5: avviso di fine mancante; '; end if;
 
   /* 6. Chi vede i passaggi */
   perform set_config('request.jwt.claims', json_build_object('sub', pa, 'role', 'authenticated')::text, true);

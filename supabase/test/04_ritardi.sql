@@ -1,4 +1,4 @@
--- Tanti eventi al giorno: passaggi avvisano solo il project; ritardi avvisano ufficio e operatore
+-- Tanti eventi al giorno: i passaggi intermedi non avvisano; i ritardi avvisano ufficio e operatore
 -- una volta sola; chiusura a mano. Tutto annullato alla fine.
 do $$
 declare
@@ -23,12 +23,12 @@ begin
   insert into eventi (project_id, nome, indirizzo, citta, regione, stato, operatore_id, allestimento_il, inizio_attivazione, fine_attivazione, smontaggio_il)
     values (pa, 'E4', 'x', 'Firenze', 'Toscana', 'confermato', o1, now() - interval '3 hours', now() - interval '1 hour', now() + interval '2 hours', now() + interval '3 hours') returning id into e4;
 
-  /* 1. Passaggio normale: solo il project */
+  /* 1. Passaggio normale: nessun avviso */
   perform set_config('request.jwt.claims', json_build_object('sub', o2, 'role', 'authenticated')::text, true);
   set local role authenticated;
   perform segna_passaggio(e2, 'check_in');
   reset role;
-  t := t + 1; select count(*) into n from notifiche where utente_id = pa and titolo = 'O2 ha fatto il check-in'; if n <> 1 then f := f || '1: project non avvisato del passaggio; '; end if;
+  t := t + 1; select count(*) into n from notifiche where utente_id = pa and titolo like 'O2 %'; if n <> 0 then f := f || '1: project avvisato di un passaggio intermedio; '; end if;
   t := t + 1; select count(*) into n from notifiche where utente_id in (ad, go) and titolo like 'O2 %'; if n <> 0 then f := f || '1: admin/gestore ricevono i passaggi normali (' || n || '); '; end if;
 
   perform set_config('request.jwt.claims', json_build_object('sub', o3, 'role', 'authenticated')::text, true);
