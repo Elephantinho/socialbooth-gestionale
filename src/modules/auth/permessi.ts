@@ -17,14 +17,15 @@ export type Permesso =
   | 'soldi'                // prezzi, fatture, spese e margini (il project solo dei suoi eventi)
   | 'carte'                // carte aziendali e pagamenti arrivati dalla banca
   | 'clienti'              // anagrafica clienti (dati per la fattura)
+  | 'magazzino'            // magazzini: strumenti e carta
 
-const TUTTI: Permesso[] = ['eventi.elenco', 'eventi.crea', 'eventi.modifica', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'utenti', 'soldi', 'carte', 'clienti']
+const TUTTI: Permesso[] = ['eventi.elenco', 'eventi.crea', 'eventi.modifica', 'eventi.tutti', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'utenti', 'soldi', 'carte', 'clienti', 'magazzino']
 
 /** Ogni ruolo ha solo quello che gli serve; l'admin ha tutto */
 const PERMESSI: Record<Ruolo, Permesso[]> = {
   admin: TUTTI,
   project: ['eventi.elenco', 'eventi.crea', 'eventi.modifica', 'eventi.assegna', 'soldi', 'clienti'],
-  gestore_operatori: ['eventi.elenco', 'eventi.tutti', 'eventi.modifica', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci'],
+  gestore_operatori: ['eventi.elenco', 'eventi.tutti', 'eventi.modifica', 'eventi.assegna', 'operatori.vedi', 'operatori.gestisci', 'magazzino'],
   amministrazione: ['eventi.tutti', 'soldi', 'carte', 'clienti'],
   operatore: [],
 }

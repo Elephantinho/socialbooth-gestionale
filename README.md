@@ -12,7 +12,7 @@ Pubblicato su Vercel: https://socialbooth-gestionale.vercel.app · Database: Sup
 |---|---|---|
 | **Admin** | web | Tutto, compresi utenti e ruoli |
 | **Project** | web | Solo i suoi eventi: li crea, li assegna, ne vede costi e ricavi |
-| **Gestore operatori** | web | Tutti gli eventi e gli operatori, nessun importo |
+| **Gestore operatori** | web | Tutti gli eventi, gli operatori e i magazzini, nessun importo |
 | **Amministrazione** | web | Tutti i soldi: incassi, rimborsi, carte aziendali, clienti, conti. Panoramica tutta sui soldi |
 | **Operatore** | telefono | I suoi incarichi: accetta, segue i passaggi, segna le spese |
 
@@ -87,6 +87,7 @@ finti, provano tutto e annullano ogni modifica: l'ultima riga solleva apposta un
 | `07_scontrini.sql` | spese con la carta: solo dalla banca, l'operatore allega lo scontrino | 10 |
 | `08_rimborsi.sql` | rimborsi delle spese di tasca: solo l'amministrazione li segna | 7 |
 | `09_clienti.sql` | clienti: dati per la fattura obbligatori, nessun doppione, chi vede e chi crea | 12 |
+| `10_magazzini.sql` | magazzini: chi li gestisce, carta mai sotto zero, strumenti solo per il pannello | 11 |
 
 ## Struttura del codice
 

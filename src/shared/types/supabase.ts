@@ -125,6 +125,7 @@ export type Database = {
       }
       articoli: {
         Row: {
+          aggiornato_il: string
           categoria: string
           codice: string | null
           creato_il: string
@@ -137,6 +138,7 @@ export type Database = {
           stato: Database["public"]["Enums"]["stato_articolo"]
         }
         Insert: {
+          aggiornato_il?: string
           categoria?: string
           codice?: string | null
           creato_il?: string
@@ -149,6 +151,7 @@ export type Database = {
           stato?: Database["public"]["Enums"]["stato_articolo"]
         }
         Update: {
+          aggiornato_il?: string
           categoria?: string
           codice?: string | null
           creato_il?: string
@@ -874,7 +877,12 @@ export type Database = {
       }
       magazzini: {
         Row: {
+          aggiornato_il: string
+          attivo: boolean
+          carta_minima: number
+          carta_stampe: number
           citta: string
+          creato_il: string
           id: string
           indirizzo: string
           lat: number | null
@@ -882,9 +890,15 @@ export type Database = {
           nome: string
           note: string | null
           regione: Database["public"]["Enums"]["regione"]
+          responsabile_id: string | null
         }
         Insert: {
+          aggiornato_il?: string
+          attivo?: boolean
+          carta_minima?: number
+          carta_stampe?: number
           citta: string
+          creato_il?: string
           id?: string
           indirizzo: string
           lat?: number | null
@@ -892,9 +906,15 @@ export type Database = {
           nome: string
           note?: string | null
           regione: Database["public"]["Enums"]["regione"]
+          responsabile_id?: string | null
         }
         Update: {
+          aggiornato_il?: string
+          attivo?: boolean
+          carta_minima?: number
+          carta_stampe?: number
           citta?: string
+          creato_il?: string
           id?: string
           indirizzo?: string
           lat?: number | null
@@ -902,8 +922,17 @@ export type Database = {
           nome?: string
           note?: string | null
           regione?: Database["public"]["Enums"]["regione"]
+          responsabile_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "magazzini_responsabile_id_fkey"
+            columns: ["responsabile_id"]
+            isOneToOne: false
+            referencedRelation: "profili"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       messaggi: {
         Row: {
@@ -1774,6 +1803,10 @@ export type Database = {
       accesso_percorso_evento: {
         Args: { p_gestione?: boolean; p_nome: string }
         Returns: boolean
+      }
+      carica_carta: {
+        Args: { p_magazzino: string; p_stampe: number }
+        Returns: number
       }
       allega_scontrino: {
         Args: { p_percorso: string; p_spesa: string }
