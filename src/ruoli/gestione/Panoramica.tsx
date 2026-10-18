@@ -32,10 +32,12 @@ export function Panoramica() {
   // Da oggi ai prossimi 6 giorni (gli aperti dei giorni scorsi stanno tra i "da fare")
   const settimana = inProgramma.filter((e) => { const g = giornoRoma(e.allestimento_il); return g >= oggi && g <= piuGiorni(oggi, 6) })
 
-  // Cose da fare, tutte cliccabili verso l'elenco già filtrato
+  // Cose da fare, tutte cliccabili verso l'elenco già filtrato.
+  // I ritardi degli operatori li segue l'ufficio (admin, gestore): il project non li ha tra i suoi "da fare".
+  const vedeRitardi = profilo.ruolo !== 'project'
   const daFare = [
     { n: inProgramma.filter((e) => (e.stato === 'da_assegnare' || e.stato === 'bozza') && !giaPassato(e, adesso)).length, testo: 'da assegnare', a: '/gestione?stato=da_assegnare', tono: 'rosso' },
-    { n: tutti.filter((e) => ritardo(e, adesso)).length, testo: 'in ritardo', a: '/gestione?stato=ritardo', tono: 'rosso' },
+    { n: vedeRitardi ? tutti.filter((e) => ritardo(e, adesso)).length : 0, testo: 'in ritardo', a: '/gestione?stato=ritardo', tono: 'rosso' },
     { n: inProgramma.filter((e) => e.stato === 'proposto').length, testo: 'in attesa di risposta', a: '/gestione?stato=proposto', tono: 'arancione' },
   ].filter((x) => x.n > 0)
 
@@ -62,7 +64,7 @@ export function Panoramica() {
           <span className="size-11 rounded-full bg-ok text-white flex items-center justify-center shrink-0"><Check className="size-6" strokeWidth={3} aria-hidden /></span>
           <div>
             <p className="text-lg font-semibold text-ok">Tutto a posto</p>
-            <p className="text-[15px] text-tenue">Ogni evento in programma ha il suo operatore e niente è in ritardo.</p>
+            <p className="text-[15px] text-tenue">Ogni evento in programma ha il suo operatore{vedeRitardi && ' e niente è in ritardo'}.</p>
           </div>
         </Card>
       ) : (
