@@ -55,13 +55,16 @@ export function leggiImporto(t: string): number | null {
 
 /* ---------- Raggruppare i conti ---------- */
 
-export type Per = 'mese' | 'evento' | 'operatore' | 'regione'
+type Per = 'anno' | 'mese' | 'evento' | 'operatore' | 'regione'
 
 export type EventoConti = {
   id: string; allestimento_il: string; regione: string
   operatore: { id: string; nome: string; cognome: string | null } | null
   conti: Conti
-  spese: { importo: number; pagata_con: PagataCon; operatore_id: string | null }[]
+  spese: {
+    importo: number; pagata_con: PagataCon; operatore_id: string | null; voce?: Voce
+    operatore?: { id: string; nome: string; cognome: string | null } | null
+  }[]
 }
 
 export type Gruppo = {
@@ -76,7 +79,8 @@ export function raggruppa(eventi: EventoConti[], per: Per, nomeEvento: (e: Event
   const gruppi = new Map<string, Gruppo>()
   for (const e of eventi) {
     const [chiave, etichetta] =
-      per === 'mese' ? [meseRoma(e.allestimento_il), nomeMese(meseRoma(e.allestimento_il))]
+      per === 'anno' ? [meseRoma(e.allestimento_il).slice(0, 4), meseRoma(e.allestimento_il).slice(0, 4)]
+      : per === 'mese' ? [meseRoma(e.allestimento_il), nomeMese(meseRoma(e.allestimento_il))]
       : per === 'regione' ? [e.regione, e.regione]
       : per === 'operatore' ? (e.operatore ? [e.operatore.id, `${e.operatore.nome} ${e.operatore.cognome ?? ''}`.trim()] : ['-', 'Senza operatore'])
       : [e.id, nomeEvento(e)]
@@ -107,4 +111,60 @@ export function totali(eventi: (EventoConti & { stato: string; conti: (Conti & {
     daFatturare: eventi.filter((e) => e.stato === 'completato' && !e.conti?.fattura_numero).length,
     daIncassare: eventi.filter((e) => e.conti?.fattura_numero && !e.conti.incassata).length,
   }
+}
+
+/** I dodici mesi di un anno, anche quelli senza eventi (a zero), da gennaio a dicembre */
+export function mesiDellAnno(eventi: EventoConti[], anno: number): Gruppo[] {
+  const trovati = new Map(raggruppa(eventi, 'mese').map((g) => [g.chiave, g]))
+  return Array.from({ length: 12 }, (_, i) => {
+    const chiave = `${anno}-${String(i + 1).padStart(2, '0')}`
+    return trovati.get(chiave) ?? { chiave, etichetta: nomeMese(chiave), eventi: 0, ricavi: 0, costi: 0, margine: 0, percentuale: null, senzaPrezzo: 0, daRimborsare: 0 }
+  })
+}
+
+const nomePersona = (p: { nome: string; cognome: string | null }) => `${p.nome} ${p.cognome ?? ''}`.trim()
+
+type SpeseDiOperatore = {
+  id: string; nome: string
+  eventi: number                 // eventi del periodo in cui ha lavorato o speso
+  totale: number                 // tutto quello che ha speso
+  carta: number                  // con la carta aziendale
+  tasca: number                  // di tasca sua: da rimborsare
+  perVoce: { voce: Voce; importo: number }[]   // dalla voce più alta
+  mediaPerEvento: number | null
+}
+
+/**
+ * Quanto spende ogni operatore: le spese segnate a suo nome (carta aziendale o di tasca),
+ * divise per voce. Le spese pagate dall'azienda senza operatore (es. un noleggio) non sono sue.
+ * Dalla spesa più alta alla più bassa.
+ */
+export function spesePerOperatore(eventi: EventoConti[]): SpeseDiOperatore[] {
+  const mappa = new Map<string, SpeseDiOperatore & { eventiVisti: Set<string>; voci: Map<Voce, number> }>()
+  const prendi = (id: string, nome: string) => {
+    let o = mappa.get(id)
+    if (!o) { o = { id, nome, eventi: 0, totale: 0, carta: 0, tasca: 0, perVoce: [], mediaPerEvento: null, eventiVisti: new Set(), voci: new Map() }; mappa.set(id, o) }
+    return o
+  }
+  for (const e of eventi) {
+    if (e.operatore) prendi(e.operatore.id, nomePersona(e.operatore)).eventiVisti.add(e.id)
+    for (const s of e.spese) {
+      if (!s.operatore_id) continue
+      const chi = s.operatore ?? (e.operatore?.id === s.operatore_id ? e.operatore : null)
+      const o = prendi(s.operatore_id, chi ? nomePersona(chi) : 'Operatore')
+      const importo = Number(s.importo)
+      o.eventiVisti.add(e.id)
+      o.totale += importo
+      if (s.pagata_con === 'operatore') o.tasca += importo; else o.carta += importo
+      const voce = s.voce ?? 'altro'
+      o.voci.set(voce, (o.voci.get(voce) ?? 0) + importo)
+    }
+  }
+  return [...mappa.values()]
+    .map(({ eventiVisti, voci, ...o }) => ({
+      ...o, eventi: eventiVisti.size, totale: tondo(o.totale), carta: tondo(o.carta), tasca: tondo(o.tasca),
+      perVoce: [...voci].map(([voce, importo]) => ({ voce, importo: tondo(importo) })).toSorted((a, b) => b.importo - a.importo),
+      mediaPerEvento: eventiVisti.size ? tondo(o.totale / eventiVisti.size) : null,
+    }))
+    .toSorted((a, b) => b.totale - a.totale || a.nome.localeCompare(b.nome))
 }

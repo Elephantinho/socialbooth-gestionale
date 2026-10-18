@@ -1,6 +1,6 @@
 // Conti: ricavo, costi, margine, importi, raggruppamenti, totali.
 import { describe, expect, it } from 'vitest'
-import { bilancio, euro, leggiImporto, raggruppa, ricavo, totali, type EventoConti } from '@/modules/conti/conti'
+import { bilancio, euro, leggiImporto, mesiDellAnno, raggruppa, ricavo, spesePerOperatore, totali, type EventoConti } from '@/modules/conti/conti'
 
 describe('conti', () => {
   it('il ricavo è la fattura, altrimenti il prezzo', () => {
@@ -52,5 +52,30 @@ describe('totali dei conti', () => {
       { id: 'c', allestimento_il: '2026-10-07T16:00:00Z', regione: 'Lazio', operatore: null, stato: 'confermato', conti: null, spese: [] },
     ])
     expect(t).toEqual({ ricavi: 1500, costi: 100, margine: 1400, percentuale: 93, senzaPrezzo: 1, daRimborsare: 100, daFatturare: 1, daIncassare: 1 })
+  })
+})
+
+describe('anni, mesi e spese degli operatori', () => {
+  const g = { id: 'g', nome: 'Giulia', cognome: 'Neri' }
+  const l = { id: 'l', nome: 'Luca', cognome: null }
+  const ev: EventoConti[] = [
+    { id: 'a', allestimento_il: '2025-12-31T23:30:00Z', regione: 'Toscana', operatore: g, conti: { prezzo: 1000, fattura_importo: null }, // 1 gennaio 2026 a Roma
+      spese: [{ importo: 60, pagata_con: 'carta_aziendale', operatore_id: 'g', voce: 'carburante' }, { importo: 15.5, pagata_con: 'operatore', operatore_id: 'g', voce: 'vitto' }] },
+    { id: 'b', allestimento_il: '2026-03-10T16:00:00Z', regione: 'Toscana', operatore: g, conti: { prezzo: 800, fattura_importo: null },
+      spese: [{ importo: 40, pagata_con: 'carta_aziendale', operatore_id: 'g', voce: 'carburante' }, { importo: 200, pagata_con: 'azienda', operatore_id: null, voce: 'noleggio' }] },
+    { id: 'c', allestimento_il: '2025-06-10T16:00:00Z', regione: 'Lazio', operatore: l, conti: { prezzo: 500, fattura_importo: null }, spese: [] },
+  ]
+  it('per anno, all\'ora di Roma', () => expect(raggruppa(ev, 'anno').map((x) => [x.chiave, x.eventi, x.ricavi])).toEqual([['2026', 2, 1800], ['2025', 1, 500]]))
+  it('i dodici mesi, anche vuoti', () => {
+    const m = mesiDellAnno(ev, 2026)
+    expect(m).toHaveLength(12)
+    expect(m.map((x) => x.ricavi)).toEqual([1000, 0, 800, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    expect(m[1].etichetta).toBe('Febbraio 2026')
+  })
+  it('quanto spende ogni operatore, per voce; il noleggio dell\'azienda non è suo', () => {
+    const [giulia, luca] = spesePerOperatore(ev)
+    expect(giulia).toMatchObject({ nome: 'Giulia Neri', eventi: 2, totale: 115.5, carta: 100, tasca: 15.5, mediaPerEvento: 57.75 })
+    expect(giulia.perVoce).toEqual([{ voce: 'carburante', importo: 100 }, { voce: 'vitto', importo: 15.5 }])
+    expect(luca).toMatchObject({ nome: 'Luca', eventi: 1, totale: 0, mediaPerEvento: 0 })
   })
 })

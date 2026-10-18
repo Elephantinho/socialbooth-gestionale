@@ -85,7 +85,7 @@ export function useContiPeriodo(dal: Date, al: Date) {
     queryFn: async () => {
       const campi = `id, nome, citta, regione, stato, allestimento_il, tipo_booth:tipi_booth(nome),
           project:profili!eventi_project_id_fkey(nome, cognome), operatore:profili!eventi_operatore_id_fkey(id, nome, cognome),
-          conti:conti_evento(*), spese:spese_evento(importo, pagata_con, voce, operatore_id, fonte)`
+          conti:conti_evento(*), spese:spese_evento(importo, pagata_con, voce, operatore_id, fonte, operatore:profili!spese_evento_operatore_id_fkey(id, nome, cognome))`
       const leggi = (da: number) => supabase.from('eventi').select(campi)
         .neq('stato', 'annullato')
         .gte('allestimento_il', dal.toISOString()).lt('allestimento_il', al.toISOString())
