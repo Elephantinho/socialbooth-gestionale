@@ -45,15 +45,14 @@ describe('raggruppare i conti', () => {
 })
 
 describe('totali dei conti', () => {
-  it('somma, margine, fatture e rimborsi', () => {
+  it('somma, margine, incassi e rimborsi', () => {
     const t = totali([
       { id: 'a', allestimento_il: '2026-10-05T16:00:00Z', regione: 'Toscana', operatore: null, stato: 'completato', conti: { prezzo: 1000, fattura_importo: null, fattura_numero: null, incassata: false }, spese: [{ importo: 100, pagata_con: 'operatore', operatore_id: null }] },
       { id: 'b', allestimento_il: '2026-10-06T16:00:00Z', regione: 'Lazio', operatore: null, stato: 'completato', conti: { prezzo: 500, fattura_importo: 500, fattura_numero: '3/2026', incassata: false }, spese: [] },
       { id: 'c', allestimento_il: '2026-10-07T16:00:00Z', regione: 'Lazio', operatore: null, stato: 'confermato', conti: null, spese: [] },
-      // concluso ma senza prezzo: è "senza prezzo", non ancora "da fatturare"
       { id: 'd', allestimento_il: '2026-10-08T16:00:00Z', regione: 'Lazio', operatore: null, stato: 'completato', conti: null, spese: [] },
     ])
-    expect(t).toEqual({ ricavi: 1500, costi: 100, margine: 1400, percentuale: 93, senzaPrezzo: 2, daRimborsare: 100, daFatturare: 1, daIncassare: 1 })
+    expect(t).toEqual({ ricavi: 1500, costi: 100, margine: 1400, percentuale: 93, senzaPrezzo: 2, daRimborsare: 100, daIncassare: 1 })
   })
 })
 

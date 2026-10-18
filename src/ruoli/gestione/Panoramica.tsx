@@ -301,11 +301,8 @@ function SoldiDelMese({ adesso }: { adesso: number }) {
                 <p className="text-sm text-tenue">I costi sono il {Math.round((t.costi / t.ricavi) * 100)}% dei ricavi.</p>
               </div>
             )}
-            {(t.daFatturare > 0 || t.daIncassare > 0) && (
-              <p className="text-sm text-tenue">
-                {[t.daFatturare > 0 && (t.daFatturare === 1 ? '1 evento da fatturare' : `${t.daFatturare} eventi da fatturare`),
-                  t.daIncassare > 0 && (t.daIncassare === 1 ? '1 fattura da incassare' : `${t.daIncassare} fatture da incassare`)].filter(Boolean).join(', ')}.
-              </p>
+            {t.daIncassare > 0 && (
+              <p className="text-sm text-tenue">{t.daIncassare === 1 ? '1 fattura da incassare.' : `${t.daIncassare} fatture da incassare.`}</p>
             )}
           </Card>
         )

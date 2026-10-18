@@ -108,7 +108,7 @@ function Andamento({ anno, adesso, imposta }: { anno: number; adesso: number; im
     <div className="flex flex-col gap-8">
       <Scorri testo={String(anno)} prima={() => imposta({ anno: String(anno - 1) })} dopo={() => imposta({ anno: String(anno + 1) })} />
       <Riepilogo ricavi={t.ricavi} costi={t.costi} />
-      <Segnali senzaPrezzo={t.senzaPrezzo} daFatturare={t.daFatturare} daRimborsare={t.daRimborsare} />
+      <Segnali senzaPrezzo={t.senzaPrezzo} daRimborsare={t.daRimborsare} />
       <Righe righe={mesi.map((m) => ({ ...m, etichetta: meseCorto(m.chiave) }))}
         onApri={(chiave) => imposta({ vista: 'eventi', mese: chiave, anno: null })} />
       {anni.length > 1 && (
@@ -144,7 +144,7 @@ function EventiDelMese({ mese, imposta, conProject, operatore, regione }: { mese
       ) : (
         <>
           <Riepilogo ricavi={t.ricavi} costi={t.costi} />
-          <Segnali senzaPrezzo={t.senzaPrezzo} daFatturare={t.daFatturare} daRimborsare={t.daRimborsare} />
+          <Segnali senzaPrezzo={t.senzaPrezzo} daRimborsare={t.daRimborsare} />
           <Card className="divide-y divide-bordo">
             {eventi.map((e) => {
               const b = bilancio(e.conti, e.spese)
@@ -163,7 +163,7 @@ function EventiDelMese({ mese, imposta, conProject, operatore, regione }: { mese
                     <Barra ricavi={b.ricavo ?? 0} costi={b.costi} scala={scala} senzaPrezzo={b.ricavo == null} />
                   </span>
                   <Cifre ricavi={b.ricavo} costi={b.costi} />
-                  <span className="max-md:hidden justify-self-end"><Fattura stato={e.stato} conti={e.conti} /></span>
+                  <span className="max-md:hidden justify-self-end"><Fattura conti={e.conti} /></span>
                 </Link>
               )
             })}
@@ -175,11 +175,10 @@ function EventiDelMese({ mese, imposta, conProject, operatore, regione }: { mese
 }
 
 /** A che punto è la fattura: un'icona colorata, il dettaglio al passaggio del mouse */
-function Fattura({ stato, conti }: { stato: string; conti: EventoRiga['conti'] }) {
+function Fattura({ conti }: { conti: EventoRiga['conti'] }) {
   const p = 'text-xs font-semibold rounded-full px-2.5 py-1 inline-flex items-center gap-1 whitespace-nowrap'
   if (conti?.incassata) return <span className={cn(p, 'bg-ok-tenue text-ok')}>Incassata</span>
   if (conti?.fattura_numero) return <span className={cn(p, 'bg-avviso text-avviso-testo')} title={`Fattura n. ${conti.fattura_numero}`}><FileText className="size-3.5" aria-hidden />Da incassare</span>
-  if (stato === 'completato') return <span className={cn(p, 'bg-urgente-tenue text-urgente-testo')}><FileText className="size-3.5" aria-hidden />Da fatturare</span>
   return null
 }
 
@@ -392,13 +391,12 @@ function Cifre({ ricavi, costi }: { ricavi: number | null; costi: number }) {
 }
 
 /** Cose da sistemare: icona e numero, niente frasi */
-function Segnali({ senzaPrezzo, daFatturare, daRimborsare }: { senzaPrezzo: number; daFatturare: number; daRimborsare: number }) {
-  if (!senzaPrezzo && !daFatturare && !daRimborsare) return null
+function Segnali({ senzaPrezzo, daRimborsare }: { senzaPrezzo: number; daRimborsare: number }) {
+  if (!senzaPrezzo && !daRimborsare) return null
   const p = 'h-8 px-3 rounded-full text-sm font-semibold inline-flex items-center gap-1.5'
   return (
     <div className="flex flex-wrap gap-2 -mt-4">
       {senzaPrezzo > 0 && <span className={cn(p, 'bg-urgente-tenue text-urgente-testo')}><Tag className="size-4" aria-hidden />{senzaPrezzo} senza prezzo</span>}
-      {daFatturare > 0 && <span className={cn(p, 'bg-urgente-tenue text-urgente-testo')}><FileText className="size-4" aria-hidden />{daFatturare} da fatturare</span>}
       {daRimborsare > 0 && <span className={cn(p, 'bg-avviso text-avviso-testo')}><Wallet className="size-4" aria-hidden />{euro(daRimborsare)} da rimborsare</span>}
     </div>
   )

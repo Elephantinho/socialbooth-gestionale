@@ -99,7 +99,7 @@ export function raggruppa(eventi: EventoConti[], per: Per, nomeEvento: (e: Event
   })
 }
 
-/** Totali di un insieme di eventi: ricavi, costi, margine, quanti senza prezzo, da fatturare, da incassare, da rimborsare */
+/** Totali di un insieme di eventi: ricavi, costi, margine, quanti senza prezzo, da incassare, da rimborsare */
 export function totali(eventi: (EventoConti & { stato: string; conti: (Conti & { fattura_numero?: string | null; incassata?: boolean }) | null })[]) {
   const g = raggruppa(eventi, 'regione')
   const somma = (k: 'ricavi' | 'costi' | 'senzaPrezzo' | 'daRimborsare') => tondo(g.reduce((t, x) => t + x[k], 0))
@@ -108,8 +108,6 @@ export function totali(eventi: (EventoConti & { stato: string; conti: (Conti & {
     ricavi, costi, margine: tondo(ricavi - costi),
     percentuale: ricavi ? Math.round(((ricavi - costi) / ricavi) * 100) : null,
     senzaPrezzo: somma('senzaPrezzo'), daRimborsare: somma('daRimborsare'),
-    // Conclusi, con un prezzo, senza fattura (senza prezzo contano già tra i "senza prezzo": prima va messo quello)
-    daFatturare: eventi.filter((e) => e.stato === 'completato' && !e.conti?.fattura_numero && ricavo(e.conti) != null).length,
     daIncassare: eventi.filter((e) => e.conti?.fattura_numero && !e.conti.incassata).length,
   }
 }
